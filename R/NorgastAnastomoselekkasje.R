@@ -1,0 +1,149 @@
+NorgastAnastomoselekkasje <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31', 
+                                      minald=0, maxald=130, erMann=99, 
+                                      libkat='C:/Users/KTH200/Documents/SVN/jasper/Rlib/trunk/', reshID=601225, outfile='', skrivCSV = F)
+
+{
+
+RegData <- RegData[which(RegData$Op_gr2 != 9), ]
+RegData$Op_gr2 <- factor(RegData$Op_gr2)
+
+grtxt <- c('Kolonreseksjoner, ny anastomose', 'Kolonreseksjoner, øvrige', "Rektumreseksjoner, ny anastomose",
+           "Rektumreseksjoner, øvrige", 'Øsofagusreseksjoner', 'Ventrikkelreseksjoner, ny anastomose', 
+           'Ventrikkelreseksjoner, øvrige','Whipples operasjon')
+
+RegData$variabel <- 0
+RegData$variabel[RegData$RELAPAROTOMY_YES==1] <- 1
+
+# source(paste(libkat, 'LibFigFilType.R', sep=''), encoding="UTF-8")
+source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
+
+NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, 
+                                  erMann=erMann, op_gruppe=0)
+RegData <- NorgastUtvalg$RegData
+utvalgTxt <- NorgastUtvalg$utvalgTxt
+
+indSh <-which(RegData$AvdRESH == reshID)   
+indRest <- which(RegData$AvdRESH != reshID)
+RegDataSh <- RegData[indSh,]
+RegDataRest <- RegData[indRest,]
+
+###  Lage tabeller #####################################################################
+Tabell1 <- data.frame(Operasjonsgruppe=grtxt, N_lokal=numeric(8), RateAnastomoselekkasje_lokal=numeric(8), 
+                     N_øvrig=numeric(8), RateAnastomoselekkasje_øvrig=numeric(8))
+
+Tabell1$N_lokal <- tapply(RegDataSh$variabel, RegDataSh$Op_gr2, length)[1:8]
+Tabell1$RateAnastomoselekkasje_lokal <- round(tapply(RegDataSh$variabel, RegDataSh$Op_gr2, sum)/
+                                               tapply(RegDataSh$variabel, RegDataSh$Op_gr2, length)*100, 2)[1:8]
+Tabell1$N_øvrig <- tapply(RegDataRest$variabel, RegDataRest$Op_gr2, length)[1:8]
+Tabell1$RateAnastomoselekkasje_øvrig <- round(tapply(RegDataRest$variabel, RegDataRest$Op_gr2, sum)/
+                                               tapply(RegDataRest$variabel, RegDataRest$Op_gr2, length)*100, 2)[1:8]
+
+Tabell1$RateAnastomoselekkasje_lokal[2]<-NA
+Tabell1$RateAnastomoselekkasje_øvrig[2]<-NA
+Tabell1$RateAnastomoselekkasje_lokal[4]<-NA
+Tabell1$RateAnastomoselekkasje_øvrig[4]<-NA
+Tabell1$RateAnastomoselekkasje_lokal[7]<-NA
+Tabell1$RateAnastomoselekkasje_øvrig[7]<-NA
+
+### Begrenset til rektum ##################################
+regdata <- RegData
+RegData <- RegData[RegData$Op_gr2==3,]
+indSh <-which(RegData$AvdRESH == reshID)   
+indRest <- which(RegData$AvdRESH != reshID)
+RegDataSh <- RegData[indSh,]
+RegDataRest <- RegData[indRest,]
+
+Tabell2 <- data.frame(Operasjonsgruppe=c('Rektumreseksjon', '\\quad Uten avlastende stomi', '\\quad Med avlastende stomi'), 
+                      N_lokal=numeric(3), RateAnastomoselekkasje_lokal=numeric(3), 
+                     N_øvrig=numeric(3), RateAnastomoselekkasje_øvrig=numeric(3))
+
+Tabell2$N_lokal[2:3] <- tapply(RegDataSh$variabel, RegDataSh$AvlastendeStomiRektum, length)[1:2]
+Tabell2$RateAnastomoselekkasje_lokal[2:3] <- round(tapply(RegDataSh$variabel, RegDataSh$AvlastendeStomiRektum, sum)/
+                                               tapply(RegDataSh$variabel, RegDataSh$AvlastendeStomiRektum, length)*100, 2)[1:2]
+Tabell2$N_øvrig[2:3] <- tapply(RegDataRest$variabel, RegDataRest$AvlastendeStomiRektum, length)[1:2]
+Tabell2$RateAnastomoselekkasje_øvrig[2:3] <- round(tapply(RegDataRest$variabel, RegDataRest$AvlastendeStomiRektum, sum)/
+                                               tapply(RegDataRest$variabel, RegDataRest$AvlastendeStomiRektum, length)*100, 2)[1:2]
+Tabell2[1,2:5] <- NA
+
+
+### Onkologisk forbehandling ##################################
+
+regdata$ForbehandlingBinaer <- NA
+regdata$ForbehandlingBinaer[regdata$Forbehandling %in% c(1,2,3)] <- 1
+regdata$ForbehandlingBinaer[regdata$Forbehandling == 9] <- 0
+RegData <- regdata
+
+Tabell3 <- data.frame(Operasjonsgruppe=c('Rektumreseksjon, ny anastomose', '\\quad Ingen forbehandling', '\\quad Enhver forbehandling',
+                                         'Ventrikkelreseksjon, ny anastomose', '\\quad Ingen forbehandling', '\\quad Enhver forbehandling',
+                                         'Øsofagusreseksjon', '\\quad Ingen forbehandling', '\\quad Enhver forbehandling'), 
+                      N_lokal=numeric(9), RateAnastomoselekkasje_lokal=numeric(9), 
+                      N_øvrig=numeric(9), RateAnastomoselekkasje_øvrig=numeric(9))
+
+
+RegData <- RegData[RegData$Op_gr2==3,]
+indSh <-which(RegData$AvdRESH == reshID)   
+indRest <- which(RegData$AvdRESH != reshID)
+RegDataSh <- RegData[indSh,]
+RegDataRest <- RegData[indRest,]
+
+Tabell3$N_lokal[2:3] <- tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_lokal[2:3] <- round(tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)*100, 2)[1:2]
+Tabell3$N_øvrig[2:3] <- tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_øvrig[2:3] <- round(tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)*100, 2)[1:2]
+
+RegData <- regdata
+RegData <- RegData[RegData$Op_gr2==6,]
+indSh <-which(RegData$AvdRESH == reshID)   
+indRest <- which(RegData$AvdRESH != reshID)
+RegDataSh <- RegData[indSh,]
+RegDataRest <- RegData[indRest,]
+
+Tabell3$N_lokal[5:6] <- tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_lokal[5:6] <- round(tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)*100, 2)[1:2]
+Tabell3$N_øvrig[5:6] <- tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_øvrig[5:6] <- round(tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)*100, 2)[1:2]
+
+RegData <- regdata
+RegData <- RegData[RegData$Op_gr2==5,]
+indSh <-which(RegData$AvdRESH == reshID)   
+indRest <- which(RegData$AvdRESH != reshID)
+RegDataSh <- RegData[indSh,]
+RegDataRest <- RegData[indRest,]
+
+Tabell3$N_lokal[8:9] <- tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_lokal[8:9] <- round(tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataSh$variabel, RegDataSh$ForbehandlingBinaer, length)*100, 2)[1:2]
+Tabell3$N_øvrig[8:9] <- tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)[1:2]
+Tabell3$RateAnastomoselekkasje_øvrig[8:9] <- round(tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, sum)/
+                                                     tapply(RegDataRest$variabel, RegDataRest$ForbehandlingBinaer, length)*100, 2)[1:2]
+
+Tabell3[c(1,4,7),2:5] <- NA
+
+Tabell <- list(Tabell1=Tabell1, Tabell2=Tabell2, Tabell3=Tabell3)
+
+return(invisible(Tabell))
+
+}
+
+# 
+# # 
+# # RegData$AvlastendeStomiRektum
+# # aggdata <-aggregate(RegData$Status_samlet, by=list(RegData$SykehusNavn, RegData$Status_samlet), length)
+# # Tabell <- dcast(aggdata, Group.1~Group.2, fill=0, value.var = 'x')
+# 
+#   reshID <- 601225  # Tromsø
+# #   reshID <- 700922  # Haukeland
+# #   reshID <- 114271  # Stavanger
+#   libkat='C:/Users/KTH200/Documents/SVN/jasper/Rlib/trunk/'
+#   datoFra='2014-01-01'
+#   datoTil='2050-12-31' 
+#   minald=0
+#   maxald=130
+#   erMann=99
+
+# if (skrivCSV)  {write.table(Tabell, file=paste('Anastomoselekkasje ', shtxt, '.csv', sep=''), sep=';', row.names = F)}
+
