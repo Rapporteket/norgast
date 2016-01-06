@@ -82,7 +82,7 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
     RegData <- dbGetQuery(con, query)
     dbstop <- dbDisconnect(con)
   }
-# sdfsdf
+# sdfsdf sdgsdg
   # Hvis RegData ikke har blitt preprosessert
   if (preprosess){
     source(paste(libkat, 'NorgastLibRensOgDefinerVariabler.R', sep=''), encoding="UTF-8")
