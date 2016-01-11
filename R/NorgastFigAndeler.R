@@ -35,10 +35,10 @@
 #'                 1: antall
 #' @param preprosess Preprosesser data
 #' @param hentData Gjør spørring mot database
-#'                 0: Nei, RegData gir som input til funksjonen (Default)
+#'                 0: Nei, RegData gis som input til funksjonen (Default)
 #'                 1: Ja
 #'
-#' @return Et figure av et søylediagram eller et stabelplot av ønsket variabel
+#' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
 #' @export
 
