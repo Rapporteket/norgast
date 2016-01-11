@@ -1,50 +1,68 @@
-FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-12-31',
-                        minald=0, maxald=130, erMann=99, op_gruppe=0, libkat, outfile='',
-                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T)
+#' Lag søylediagram eller stabelplott som viser andeler av ulike variabler
+#'
+#' @param RegData En dataramme med alle nødvendige variabler fra registeret
+#' @param valgtVar Hvilken variabel skal plottes
+#' @param datoFra Tidligste dato i utvalget (vises alltid i figuren).
+#' @param datoTil Seneste dato i utvalget (vises alltid i figuren).
+#' @param minald Alder, fra og med (Default: 0)
+#' @param maxald Alder, til og med (Default: 130)
+#' @param erMann kjønn
+#'                 1: menn
+#'                 0: kvinner
+#'                 99: begge (alt annet enn 0 og 1) (Default)
+#' @param op_gruppe Operasjonsgruppe
+#'                 0: Alle grupper (Default)
+#'                 1: Kolonreseksjoner
+#'                 2: Rektumreseksjoner
+#'                 3: Øsofagusreseksjoner
+#'                 4: Ventrikkelreseksjoner
+#'                 5: Leverreseksjoner
+#'                 6: Whipple's operasjon
+#'                 9: Annet
+#' @param outfile Navn på fil figuren skrives til. Default: '' (Figur skrives
+#'    til systemets default output device (som regel skjerm))
+#' @param reshID Parameter følger fra innlogging helseregister.no og angir
+#'    hvilken enhet i spesialisthelsetjenesten brukeren tilhører
+#' @param enhetsUtvalg Lag figur for
+#'                 0: Hele landet
+#'                 1: Egen enhet mot resten av landet (Default)
+#'                 2: Egen enhet
+#' @param stabel Stabelplot
+#'                 0: Stabel
+#'                 1: Søyle (Default)
+#' @param andel Andel
+#'                 0: andeler
+#'                 1: antall
+#' @param preprosess Preprosesser data
+#' @param hentData Gjør spørring mot database
+#'                 0: Nei, RegData gir som input til funksjonen (Default)
+#'                 1: Ja
+#'
+#' @return Et figure av et søylediagram eller et stabelplot av ønsket variabel
+#'
+#' @export
+
+
+FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050-12-31',
+                        minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
+                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T, hentData=0)
 {
-
-  #Søylediagram som viser andeler av ulike variabler:
-
-  #Inngangsdata:
-  #	  RegData - ei dataramme med alle nødvendige variable fra registeret
-  #	  libkat - sti til bibliotekkatalog
-  #   outfile - navn på fil figuren skrives til
-  #	  reshID - avdelingsid for egen avdeling, standard: 0-hele landet
-  # 	Brukerstyrt i Jasper:
-  #		valgtVar - Må velges: ...
-  #		erMann - kjønn, 1-menn, 0-kvinner, standard: '' (alt annet enn 0 og 1), dvs. begge
-  #		minald - alder, fra og med
-  #		maxald - alder, til og med
-  #		datoFra <- '2014-01-01'    # min og max dato i utvalget vises alltid i figuren.
-  #		datoTil <- '2050-12-31'
-  #   op_gruppe:    0: Alle grupper (default)
-  #                 1: Kolonreseksjoner
-  #                 2: Rektumreseksjoner
-  #                 3: Øsofagusreseksjoner
-  #                 4: Ventrikkelreseksjoner
-  #                 5: Leverreseksjoner
-  #                 6: Whipple's operasjon
-  #                 9: Annet
-  #		enhetsUtvalg: 0: Hele landet
-  #                 1: Egen enhet mot resten av landet
-  #                 2: Egen enhet
-
   # Trenger funksjonene LibFigFilType.R og NorgastLibUtvalg.R
-  source(paste(libkat, 'LibFigFilType.R', sep=''), encoding="UTF-8")
-  source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
+#   source(paste(libkat, 'LibFigFilType.R', sep=''), encoding="UTF-8")
+#   source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData==1){
-    library(DBI)
-    library(RMySQL)
-    library(yaml)
+    devtools::use_package('DBI')
+    devtools::use_package('RMySQL')
+    devtools::use_package('yaml')
     conf <- yaml.load_file('../dbConfig.yml')
 
     con <- dbConnect(dbDriver("MySQL"),user=conf$nger$user,password=conf$nger$pass,dbname=conf$nger$name,host=conf$nger$host)
     query <- "SET NAMES utf8;"
     tmp <- dbGetQuery(con, query)
 
-    query <- paste0('SELECT
+    query <- paste0("SELECT
                     all_variables.AvdRESH + \'0\' as AvdRESH,
                     Avdeling,
                     BMI_CATEGORY,
@@ -78,14 +96,14 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
                     HovedDato
                     FROM NoRGastReportDataStaging.all_variables INNER JOIN NoRGastReportDataStaging.ForlopsOversikt
                     ON NoRGastReportDataStaging.all_variables.MCEID = NoRGastReportDataStaging.ForlopsOversikt.ForlopsID
-                    WHERE HovedDato >= \'', datoFra, '\' AND HovedDato <= \'', datoTil, '\'')
+                    WHERE HovedDato >= \'', datoFra, '\' AND HovedDato <= \'', datoTil, '\'")
     RegData <- dbGetQuery(con, query)
     dbstop <- dbDisconnect(con)
   }
-# sdfsdf sdgsdg
+
   # Hvis RegData ikke har blitt preprosessert
   if (preprosess){
-    source(paste(libkat, 'NorgastLibRensOgDefinerVariabler.R', sep=''), encoding="UTF-8")
+    # source(paste(libkat, 'NorgastLibRensOgDefinerVariabler.R', sep=''), encoding="UTF-8")
     Data <- NorgastLibRensOgDefinerVariabler(RegData=RegData, reshID=reshID)
     RegData <- Data$RegData
     rm(Data)
@@ -390,7 +408,6 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
     if (length(grtxt)==2 ) {farger<-farger[c(2,4)]}
     if (length(grtxt)==3 ) {farger<-farger[c(1,3,4)]}
 
-#     par('fig'=c(0, 1, 0, 0.9))
     koord <- barplot(Andel, beside=F, las=1,
                      cex.names=cexgr, col=rev(farger), ylab="Andel (%)", ylim=c(0,114), xlim = c(0,3.7), border=NA,
                      cex.axis=cexgr, cex.lab=cexgr, space=.25)
@@ -400,8 +417,8 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
     AndelTab <- apply(matrix(paste(sprintf('%.1f', Andel),'%',sep=''), dim(Andel)), 2, rev)#[length(grtxt):1,]
     row.names(AndelTab) <- rev(grtxt)
     colnames(AndelTab) <- c('Egen', 'Andre')
-    library(grid)
-    library(gridExtra)
+    devtools::use_package('grid')
+    devtools::use_package('gridExtra')
     pushViewport(viewport(x = 0.83, y=0.32))
     grid.draw(tableGrob(AndelTab,  gp=gpar(cex=.8*cexgr), core.just='right'))
     popViewport()
@@ -451,17 +468,6 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
       else {
         xmax <- max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25
         xlabel <- "Antall"}
-#       par('fig'=c(vmarg+0.1, 1, 0, 0.9))
-#       pos <- barplot(rev(as.numeric(Andeler$Sh)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
-#                      col=fargeSh, border='white', xlim=c(0, xmax), ylim=c(0,ymax),
-#                      cex.axis=cexgr,  cex.lab=cexgr)	#  , font.main=1, cex.sub=cexgr
-      #	mtext(at=pos, rev(grtxt), side=2, las=1, cex=0.8, adj=1, line=0.25)
-
-#       if (incl_pst) {mtext(at=pos+0.05, text=paste(rev(grtxt), ' (', rev(sprintf('%.1f', Andeler$Sh)), '%)', sep=''),
-#                            side=2, las=1, cex=skalerGrTxt*cexgr, adj=1, line=0.25)}
-#       if (incl_N) {mtext(at=pos+0.05, text=paste(rev(grtxt), ' (n=', rev(sprintf('%.0f', Andeler$Sh*Nsh/100)), ')', sep=''),
-#                          side=2, las=1, cex=skalerGrTxt*cexgr, adj=1, line=0.25)}
-#       if (!incl_pst && !incl_N) {mtext(at=pos+0.05, text=rev(grtxt), side=2, las=1, cex=skalerGrTxt*cexgr, adj=1, line=0.25)}
 
       pos <- barplot(rev(as.numeric(Andeler$Sh)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
                      col=fargeSh, border='white', font.main=1, xlim=c(0, xmax), ylim=c(0.05,1.4)*antGr)	#
@@ -478,19 +484,8 @@ FigAndeler  <- function(RegData, valgtVar, datoFra='2014-01-01', datoTil='2050-1
       }
     }
   }
-
-#   utvpos <- 5.9
-#   avst <- 0.9
   krymp <- .9
   title(tittel, line=1, font.main=1, cex.main=1.3*cexgr)
-  # title(tittel, line=1)
-#   mtext(utvalgTxt[1], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos, col=FigTypUt$farger[1])
-#   mtext(utvalgTxt[2], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos-avst, col=FigTypUt$farger[1])
-#   mtext(utvalgTxt[3], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos-2*avst, col=FigTypUt$farger[1])
-#   mtext(utvalgTxt[4], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos-3*avst, col=FigTypUt$farger[1])
-#   mtext(utvalgTxt[5], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos-4*avst, col=FigTypUt$farger[1])
-#   mtext(utvalgTxt[6], side=3, las=1, cex=krymp*cexgr, adj=0, line=utvpos-5*avst, col=FigTypUt$farger[1])
-
 mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
 
   par('fig'=c(0, 1, 0, 1))
