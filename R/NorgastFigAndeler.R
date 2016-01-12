@@ -53,52 +53,7 @@ FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData==1){
-    devtools::use_package('DBI')
-    devtools::use_package('RMySQL')
-    devtools::use_package('yaml')
-    conf <- yaml.load_file('../dbConfig.yml')
-
-    con <- dbConnect(dbDriver("MySQL"),user=conf$nger$user,password=conf$nger$pass,dbname=conf$nger$name,host=conf$nger$host)
-    query <- "SET NAMES utf8;"
-    tmp <- dbGetQuery(con, query)
-
-    query <- paste0("SELECT
-                    all_variables.AvdRESH + \'0\' as AvdRESH,
-                    Avdeling,
-                    BMI_CATEGORY,
-                    WEIGHTLOSS + \'0\' as WEIGHTLOSS,
-                    DIABETES + \'0\' as DIABETES,
-                    CHEMOTHERAPY_ONLY + \'0\' as CHEMOTHERAPY_ONLY,
-                    RADIATION_THERAPY_ONLY + \'0\' as RADIATION_THERAPY_ONLY,
-                    CHEMORADIOTHERAPY + \'0\' as CHEMORADIOTHERAPY,
-                    WHO_ECOG_SCORE + \'0\' as WHO_ECOG_SCORE,
-                    MODIFIED_GLASGOW_SCORE + \'0\' as MODIFIED_GLASGOW_SCORE,
-                    ASA + \'0\' as ASA,
-                    ANESTHESIA_START,
-                    NCSP,
-                    cast(OPERATION_DATE as char(19)) as OPERATION_DATE,
-                    ANASTOMOSIS + \'0\' as ANASTOMOSIS,
-                    OSTOMY + \'0\' as OSTOMY,
-                    ABDOMINAL_ACCESS + \'0\' as ABDOMINAL_ACCESS,
-                    ROBOTASSISTANCE + \'0\' as ROBOTASSISTANCE,
-                    THORAX_ACCESS + \'0\' as THORAX_ACCESS,
-                    RELAPAROTOMY + \'0\' as RELAPAROTOMY,
-                    ACCORDION_SCORE, isMale + \'0\' as isMale,
-                    decimalAge,
-                    PRS_SCORE + \'0\' as PRS_SCORE,
-                    READMISSION_STATUS + \'0\' as READMISSION_STATUS,
-                    STATUS + \'0\' as STATUS,
-                    RELAPAROTOMY_YES + \'0\' as RELAPAROTOMY_YES,
-                    READMISSION_ACCORDION_SCORE,
-                    READMISSION_RELAPAROTOMY + \'0\' as READMISSION_RELAPAROTOMY,
-                    READMISSION_RELAPAROTOMY_YES + \'0\' as READMISSION_RELAPAROTOMY_YES,
-                    Sykehusnavn,
-                    HovedDato
-                    FROM NoRGastReportDataStaging.all_variables INNER JOIN NoRGastReportDataStaging.ForlopsOversikt
-                    ON NoRGastReportDataStaging.all_variables.MCEID = NoRGastReportDataStaging.ForlopsOversikt.ForlopsID
-                    WHERE HovedDato >= \'', datoFra, '\' AND HovedDato <= \'', datoTil, '\'")
-    RegData <- dbGetQuery(con, query)
-    dbstop <- dbDisconnect(con)
+    RegData <- NSLoadRegData(datoFra = datoFra, datoTil = datoTil)
   }
 
   # Hvis RegData ikke har blitt preprosessert

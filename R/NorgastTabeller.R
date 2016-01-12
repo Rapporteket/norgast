@@ -1,4 +1,6 @@
-NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31', 
+
+
+NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
                             minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=15,
                             libkat=libkat, reshID=reshID, skrivCSV = F)
 {
@@ -8,11 +10,11 @@ NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050
   #	  reshID - avdelingsid for egen avdeling, standard: 0-hele landet
 
 # Trenger funksjonen NorgastLibUtvalg.R
-source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
+# source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
 
 if (enhetsUtvalg==2){RegData <- RegData[which(RegData$AvdRESH==reshID),]}
-  
-NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, 
+
+NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
                                   erMann=erMann, op_gruppe=0)
 RegData <- NorgastUtvalg$RegData
 
@@ -35,7 +37,7 @@ while(length(Tabell$Antall)>14){
   Tabell <- Tabell[Tabell$Antall>=Terskel, ]
 }
 
-Tabell <- data.frame('Operasjonsgruppe'=c(names(res[res>=Terskel]), 'Andre'), 
+Tabell <- data.frame('Operasjonsgruppe'=c(names(res[res>=Terskel]), 'Andre'),
                      'Antall'=c(as.numeric(res[res>=Terskel]), sum(as.numeric(res[res<Terskel]))))
 Tabell$Andel <- Tabell$Antall/sum(Tabell$Antall)*100
 
@@ -45,7 +47,7 @@ RegData <- RegData[which(RegData$RELAPAROTOMY %in% c(0, 1)), ]
 RegData$VariabelGr <- factor(RegData$RELAPAROTOMY, levels=c(0, 1), labels = grtxt)
 
 Tabell2 <- data.frame(Operasjonsgruppe=c('Kolonreseksjoner', "Rektumreseksjoner","Øsofagusreseksjoner",
-                                        "Ventrikkelreseksjoner","Leverreseksjoner",'Whipples operasjon', 'Annet'), 
+                                        "Ventrikkelreseksjoner","Leverreseksjoner",'Whipples operasjon', 'Annet'),
                      N=numeric(7), Reoperasjonsrate=numeric(7), Anastomoselekkasje=numeric(7),DypInfUtenLekkasje=numeric(7),
                      Bloedning=numeric(7),Saarruptur=numeric(7),Annet=numeric(7))
 

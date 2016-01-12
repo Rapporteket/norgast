@@ -1,18 +1,32 @@
 #' Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.
 #'
 #'
-
+#' @param RegData En dataramme med alle nødvendige variabler fra registeret
+#' @param datoFra Tidligste dato i utvalget (vises alltid i figuren).
+#' @param datoTil Seneste dato i utvalget (vises alltid i figuren).
+#' @param minald Alder, fra og med (Default: 0)
+#' @param maxald Alder, til og med (Default: 130)
+#' @param erMann kjønn
+#'                 1: menn
+#'                 0: kvinner
+#'                 99: begge (alt annet enn 0 og 1) (Default)
+#' @param op_gruppe Operasjonsgruppe
+#'                 0: Alle grupper (Default)
+#'                 1: Kolonreseksjoner
+#'                 2: Rektumreseksjoner
+#'                 3: Øsofagusreseksjoner
+#'                 4: Ventrikkelreseksjoner
+#'                 5: Leverreseksjoner
+#'                 6: Whipple's operasjon
+#'                 9: Annet
+#' @param fargepalett Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)
+#'
+#' @return UtData En liste bestående av det filtrerte datasettet, utvalgstekst for figur og tekststreng som angir fargepalett
+#'
+#' @export
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, fargepalett='BlaaRapp')
 {
-  #Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.
-  # Inndata:
-  #		erMann - kjønn, 1-menn, 0-kvinner, standard: '' (alt annet enn 0 og 1), dvs. begge
-  #		minald - alder, fra og med
-  #		maxald - alder, til og med
-  #		datoFra <- '2010-01-01'    # min og max dato i utvalget vises alltid i figuren.
-  #		datoTil <- '2013-05-25'
-  #   op_gruppe - hvilken operasjonsgruppe, default alle
 
   #Hvis "Variabel" ikke definert
   if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
