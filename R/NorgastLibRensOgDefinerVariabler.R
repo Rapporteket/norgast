@@ -3,7 +3,7 @@
 #'
 #'   Må ha tilgang til filen 'Helligdager2008-2022.csv'
 #'
-#'   @param RegData En dataramme med alle nødvendige variabler fra registeret, fra både all_variables og ForlopsOversikt
+#'   @inheritParams FigAndeler
 #'
 #'   @return Data En "list" som består av det prosesserte datasettet RegData samt sykehusnavnet basert på oppgitt reshID
 #'
@@ -104,8 +104,10 @@ RegData$RELAPAROTOMY <- pmax(RegData$RELAPAROTOMY, RegData$READMISSION_RELAPAROT
 RegData$RELAPAROTOMY_YES <- pmin(RegData$RELAPAROTOMY_YES, RegData$READMISSION_RELAPAROTOMY_YES, na.rm = TRUE)
 
 ##############
-Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
-Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
+# Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
+# Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
+
+Helligdager <- sort(Helligdager2008til2022$Dato)
 
 RegData$Hastegrad <- NA
 RegData$Hastegrad[as.numeric(RegData$ANESTHESIA_START) %in% 8:15] <- 1

@@ -1,16 +1,21 @@
+#' Lag en tabell over de vanligste operasjonstypene samt en tabell med de komplikasjonsrater for de ulike
+#' komplikasjonstypene for de obligatoriske operasjonsgruppene.
+#'
+#' @param Terskel - Minste antall registreringer av operasjonstype for at den skal telles med i lista
+#' over operasjonstyper
+#' @inheritParams FigAndeler
+#'
+#' @return Tabell En tabell med de vanligste operasjonstypene
+#'         Tabell2 En tabell med komplikasjonsrater for de ulike komplikasjonstypene
+#'         Terskel Minste antall
+#'
+#' @export
 
 
 NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
                             minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=15,
-                            libkat=libkat, reshID=reshID, skrivCSV = F)
+                            reshID=reshID)
 {
-  #Inngangsdata:
-  #	  RegData - ei dataramme med alle variabler fra registeret
-  #	  libkat - sti til bibliotekkatalog
-  #	  reshID - avdelingsid for egen avdeling, standard: 0-hele landet
-
-# Trenger funksjonen NorgastLibUtvalg.R
-# source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
 
 if (enhetsUtvalg==2){RegData <- RegData[which(RegData$AvdRESH==reshID),]}
 

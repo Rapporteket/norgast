@@ -1,6 +1,16 @@
+#' Lag tabell over anastomoselekkasjerate
+#'
+#' Denne funksjonen lager tre tabeller for bruk i samlerapport
+#'
+#' @inheritParams FigAndeler
+#'
+#' @return Tabell En list med tre tabeller over anastomoselekkasjerater
+#'
+#' @export
+
+
 NorgastAnastomoselekkasje <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
-                                      minald=0, maxald=130, erMann=99,
-                                      libkat='C:/Users/KTH200/Documents/SVN/jasper/Rlib/trunk/', reshID=601225, outfile='', skrivCSV = F)
+                                      minald=0, maxald=130, erMann=99, reshID=601225, outfile='')
 
 {
 
@@ -13,9 +23,6 @@ grtxt <- c('Kolonreseksjoner, ny anastomose', 'Kolonreseksjoner, øvrige', "Rekt
 
 RegData$variabel <- 0
 RegData$variabel[RegData$RELAPAROTOMY_YES==1] <- 1
-
-# source(paste(libkat, 'LibFigFilType.R', sep=''), encoding="UTF-8")
-source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
 
 NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
                                   erMann=erMann, op_gruppe=0)
@@ -128,22 +135,3 @@ Tabell <- list(Tabell1=Tabell1, Tabell2=Tabell2, Tabell3=Tabell3)
 return(invisible(Tabell))
 
 }
-
-#
-# #
-# # RegData$AvlastendeStomiRektum
-# # aggdata <-aggregate(RegData$Status_samlet, by=list(RegData$SykehusNavn, RegData$Status_samlet), length)
-# # Tabell <- dcast(aggdata, Group.1~Group.2, fill=0, value.var = 'x')
-#
-#   reshID <- 601225  # Tromsø
-# #   reshID <- 700922  # Haukeland
-# #   reshID <- 114271  # Stavanger
-#   libkat='C:/Users/KTH200/Documents/SVN/jasper/Rlib/trunk/'
-#   datoFra='2014-01-01'
-#   datoTil='2050-12-31'
-#   minald=0
-#   maxald=130
-#   erMann=99
-
-# if (skrivCSV)  {write.table(Tabell, file=paste('Anastomoselekkasje ', shtxt, '.csv', sep=''), sep=';', row.names = F)}
-

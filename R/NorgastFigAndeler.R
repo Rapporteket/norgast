@@ -47,18 +47,14 @@ FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T, hentData=0)
 {
-  # Trenger funksjonene LibFigFilType.R og NorgastLibUtvalg.R
-#   source(paste(libkat, 'LibFigFilType.R', sep=''), encoding="UTF-8")
-#   source(paste(libkat, 'NorgastLibUtvalg.R', sep=''), encoding="UTF-8")
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData==1){
-    RegData <- NSLoadRegData(datoFra = datoFra, datoTil = datoTil)
+    RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
   }
 
   # Hvis RegData ikke har blitt preprosessert
   if (preprosess){
-    # source(paste(libkat, 'NorgastLibRensOgDefinerVariabler.R', sep=''), encoding="UTF-8")
     Data <- NorgastLibRensOgDefinerVariabler(RegData=RegData, reshID=reshID)
     RegData <- Data$RegData
     rm(Data)

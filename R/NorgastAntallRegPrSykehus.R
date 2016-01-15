@@ -1,3 +1,15 @@
+#' Antall pasienter registrert per sykehus
+#'
+#' Denne funksjonen lager en liste over hvor mange pasienter som er registrert per sykehus.
+#'
+#' @inheritParams FigAndeler
+#'
+#' @return Tabell En data frame over antall registreringer per sykehus, fordelt på ferdige og
+#' uferdige hovedskjema og oppfølgingsskjema.
+#'
+#' @export
+
+
 NorgastAntallRegPrSykehus  <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31')
 
 {
