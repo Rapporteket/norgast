@@ -10,7 +10,7 @@
 #'   @export
 
 
-NorgastLibRensOgDefinerVariabler <- function(RegData=RegData, reshID=reshID)
+NorgastLibRensOgDefinerVariabler <- function(RegData, reshID=reshID)
 
 {
 

@@ -10,7 +10,7 @@
 #' @export
 
 
-NorgastAntallRegPrSykehus  <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31')
+NorgastAntallRegPrSykehus  <- function(RegData, datoFra='2014-01-01', datoTil='2050-12-31')
 
 {
 RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d")
