@@ -45,17 +45,17 @@
 
 FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T, hentData=0)
+                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T, hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
-  if(hentData==1){
+  if(hentData){
     RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
   }
 
   # Hvis RegData ikke har blitt preprosessert
   if (preprosess){
-    Data <- NorgastLibRensOgDefinerVariabler(RegData=RegData, reshID=reshID)
+    Data <- NorgastPreprosess(RegData=RegData, reshID=reshID)
     RegData <- Data$RegData
     rm(Data)
   }

@@ -1,19 +1,17 @@
-#'   Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
-#'   og rensker opp i andre.
+#' Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
+#' og rensker opp i andre.
 #'
-#'   Må ha tilgang til filen 'Helligdager2008-2022.csv'
+#' Må ha tilgang til filen Helligdager2008-2022.csv
 #'
-#'   @inheritParams FigAndeler
+#' @inheritParams FigAndeler
 #'
-#'   @return Data En "list" som består av det prosesserte datasettet RegData samt sykehusnavnet basert på oppgitt reshID
+#' @return Data En list med det filtrerte datasettet og sykehusnavnet som tilsvarer reshID
 #'
-#'   @export
+#' @export
 
-
-NorgastLibRensOgDefinerVariabler <- function(RegData, reshID=reshID)
+NorgastPreprosess <- function(RegData, reshID=reshID)
 
 {
-
 names(RegData)[which(names(RegData)=='isMale')]<-'erMann'
 RegData <- RegData[which(RegData$STATUS==1),] # Inkluder kun lukkede registreringer
 RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
