@@ -1,4 +1,8 @@
 .Rproj.user
 .Rhistory
 .RData
+<<<<<<< HEAD
 data/*
+=======
+inst/doc
+>>>>>>> a69ea9c66d42f60b870bc9d1226ee383fa8d05df

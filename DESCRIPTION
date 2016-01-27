@@ -9,8 +9,11 @@ Description: Pakke for generering av resultatrapporter for NoRGast
 License: GPL2
 LazyData: TRUE
 Depends: R (>= 3.0.2), rapbase
-Imports:
+Imports: 
   grid,
   gridExtra,
   xtable
 RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -30,7 +30,7 @@
 
 \begin{document}
 \thispagestyle{empty}
-\includepdf[fitpaper]{../ForsideV1logo.pdf}
+\includepdf[fitpaper]{C:/GIT/norgast/inst/ForsideV1logo.pdf}
 \thispagestyle{empty}
 \cleardoublepage
 \setcounter{page}{1}
@@ -51,12 +51,13 @@
 \clearpage
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- 0
+hentData <- F
  ## Hvis spørring skjer fra R på server. ######################
-if(hentData==1){
+if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
   } else
-  {RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2015-11-24 09-31-03.txt', header=TRUE, sep=";")
+  {library(norgast)
+    RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2015-11-24 09-31-03.txt', header=TRUE, sep=";")
   ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2015-11-24 09-31-08.txt', header=TRUE, sep=";")
 
   RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
@@ -67,9 +68,8 @@ if(hentData==1){
 
   RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
   RegData$AvdRESH <- RegData$AvdRESH.x
+  reshID <- 601225
   }
-
-
 
 figstr <- 0.58
 datoFra='2014-01-01'
@@ -120,7 +120,7 @@ I dette registeret er kun alvorlige komplikasjoner registrert, iht. Accordionsys
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- NorgastAntallRegPrSykehus(RegData=RegData, datoFra=datoFra, datoTil=datoTil)
-print(xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
     caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
     label='tab:RegistrenrendeAvd'),
     include.rownames=FALSE,
@@ -145,7 +145,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                         minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell
 colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
-print(xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
     caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{hele landet}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_landet$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
     label='tab:OpgrLandet'), include.rownames=FALSE)
 Terskel<-5
@@ -153,7 +153,7 @@ TabellData_egen <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=dat
                         minald=0, maxald=130, erMann=99, enhetsUtvalg=2, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_egen$Tabell
 colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
-print(xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
     caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{', shtxt, '}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_egen$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
     label='tab:OpgrSh'), include.rownames=FALSE)
 @
@@ -1061,23 +1061,23 @@ FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
 
 <<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                          minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID, skrivCSV = F)
+                          minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
 addtorow <- list()
 addtorow$pos <- list()
 addtorow$pos[[1]] <- 0
 addtorow$pos[[2]] <- 0
 addtorow$command <- c('& & Rate &  & Rate \\\\\n',
                       'Operasjonsgruppe & $N_{lokal}$ & lokal (\\%)& $N_{øvrig}$ & øvrig (\\%) \\\\\n')
-print(xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
+print(xtable::xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
     caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
     label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
 # addtorow$command <- c('& & Rate anastomose- &  & Rate anastomose- \\\\\n',
 #                       'Operasjonsgruppe & $N_{lokal}$ & lekkasje, lokal & $N_{øvrig}$ & lekkasje, øvrig \\\\\n')
-print(xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
+print(xtable::xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
     caption='Rate av anastomoselekkasje med og uten avlastende stomi (med ny anastomose).',
     label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
     add.to.row = addtorow, sanitize.text.function = function(x){x})
-print(xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
+print(xtable::xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
     caption='Anastomoselekkasje og onkologisk forbehandling.',
     label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
     add.to.row = addtorow, sanitize.text.function = function(x){x})
@@ -1094,7 +1094,7 @@ print(xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r',
 \centering
 <<'Tabell:ReoperasjonerLandet', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- TabellData_landet$Tabell2
-print(xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
   floating=FALSE,
   hline.after=NULL,
   align=c('l', 'l', rep('r', ncol(Tabell)-1)),
@@ -1114,7 +1114,7 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 \centering
 <<'Tabell:ReoperasjonerEget', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- TabellData_egen$Tabell2
-print(xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
   floating=FALSE,
   hline.after=NULL,
   align=c('l', 'l', rep('r', ncol(Tabell)-1)),

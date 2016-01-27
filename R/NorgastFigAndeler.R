@@ -1,5 +1,8 @@
 #' Lag søylediagram eller stabelplott som viser andeler av ulike variabler
 #'
+#' Denne funksjonen lager et søylediagram eller stabelplot som viser andeler av valgt variabel
+#' filtrert på de utvalg som er gjort.
+#'
 #' @param RegData En dataramme med alle nødvendige variabler fra registeret
 #' @param valgtVar Hvilken variabel skal plottes
 #' @param datoFra Tidligste dato i utvalget (vises alltid i figuren).
@@ -30,13 +33,19 @@
 #' @param stabel Stabelplot
 #'                 0: Stabel
 #'                 1: Søyle (Default)
-#' @param andel Andel
-#'                 0: andeler
-#'                 1: antall
+#' @param andel Plot antall eller andeler
+#'                 TRUE: andeler (Default)
+#'                 FALSE: antall
 #' @param preprosess Preprosesser data
+#'                 FALSE: Nei (Default)
+#'                 TRUE: Ja
 #' @param hentData Gjør spørring mot database
-#'                 0: Nei, RegData gis som input til funksjonen (Default)
-#'                 1: Ja
+#'                 FALSE: Nei, RegData gis som input til funksjonen (Default)
+#'                 TRUE: Ja
+#' @param elektiv Elektiv eller øyeblikkelig hjelp
+#'                 0: Øyeblikkelig hjelp
+#'                 1: Elektiv
+#'                 99: Begge deler (Default)
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -45,7 +54,8 @@
 
 FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T, hentData=F)
+                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
+                        elektiv=99, hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -63,8 +73,9 @@ FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050
   #------------Gjøre utvalg-------------------------
 
   if (enhetsUtvalg==0) {
-    shtxt <- 'Hele landet'}
-  else {
+    shtxt <- 'Hele landet'
+    } else
+      {
     shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
     }	#'Eget sykehus' #
 
@@ -78,7 +89,7 @@ FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe)
+                                    op_gruppe=op_gruppe, elektiv=elektiv)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -368,12 +379,13 @@ FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050
     AndelTab <- apply(matrix(paste(sprintf('%.1f', Andel),'%',sep=''), dim(Andel)), 2, rev)#[length(grtxt):1,]
     row.names(AndelTab) <- rev(grtxt)
     colnames(AndelTab) <- c('Egen', 'Andre')
-    devtools::use_package('grid')
-    devtools::use_package('gridExtra')
-    pushViewport(viewport(x = 0.83, y=0.32))
-    grid.draw(tableGrob(AndelTab,  gp=gpar(cex=.8*cexgr), core.just='right'))
-    popViewport()
-
+#     devtools::use_package('grid')
+#     devtools::use_package('gridExtra')
+    grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
+    gp <- grid::gpar(cex=.8*cexgr)
+    # grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
+    grid::grid.draw(gridExtra::tableGrob(AndelTab))
+    grid::popViewport()
   }
   else {
 
