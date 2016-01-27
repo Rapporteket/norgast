@@ -2,8 +2,8 @@ setwd('C:/SVN/jasper/norgast/doc/')
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2015-11-24 09-31-03.txt', header=TRUE, sep=";")
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2015-11-24 09-31-08.txt', header=TRUE, sep=";")
+RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-01-22 09-42-03.txt', header=TRUE, sep=";")
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-01-22 09-42-02.txt', header=TRUE, sep=";")
 
 RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -20,21 +20,22 @@ minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- as.POSIXlt('2016-01-01', format="%Y-%m-%d")
+datoTil <- as.POSIXlt('2099-01-01', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Alder'
-op_gruppe<- ''
+op_gruppe<- 99
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
 andel=T
+elektiv=0
 
 x11()
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
-           preprosess=preprosess, hentData=hentData)
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv)
 
 
 ############# Avdød under opphold Mo i Rana ######################
