@@ -10,7 +10,7 @@
 #'
 #'
 #' @section Functions:
-#' Standard R-functions for processing registry data
+#' Standard R-functions for processing registry data. forandring
 #'
 #'
 #' @docType package
