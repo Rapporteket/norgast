@@ -52,7 +52,7 @@
 #' @export
 
 
-FigAndeler  <- function(RegData=0, valgtVar, datoFra='2014-01-01', datoTil='2050-12-31',
+FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
                         elektiv=99, hentData=F)
