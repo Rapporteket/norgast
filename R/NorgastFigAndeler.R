@@ -54,7 +54,7 @@
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                        reshID=601225, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
+                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
                         elektiv=99, hentData=T)
 {
 
@@ -381,11 +381,17 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     colnames(AndelTab) <- c('Egen', 'Andre')
 #     devtools::use_package('grid')
 #     devtools::use_package('gridExtra')
-    grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
-    gp <- grid::gpar(cex=.8*cexgr)
-    # grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
-    grid::grid.draw(gridExtra::tableGrob(AndelTab))
-    grid::popViewport()
+#     grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
+#     gp <- grid::gpar(cex=.8*cexgr)
+#     # grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
+#     grid::grid.draw(gridExtra::tableGrob(AndelTab))
+#     grid::popViewport()
+
+#     grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
+#     grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
+#     grid::popViewport()
+
+    plotrix::addtable2plot(x = 2.65, y=15, AndelTab, cex=.8*cexgr, display.rownames=TRUE, bg=farger[2], xpad = .25)
   }
   else {
 

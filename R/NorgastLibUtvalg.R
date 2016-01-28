@@ -9,19 +9,22 @@
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, fargepalett='BlaaRapp')
 {
+  # Definerer intersect-operator
+  "%i%" <- intersect
+  # "%u%" <- union
 
   #Hvis "Variabel" ikke definert
   if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
   Ninn <- dim(RegData)[1]
-  indVarMed <- intersect(intersect(intersect(intersect(which(RegData$Variabel != 'NA'), which(RegData$Variabel != 'NaN')),
-                         which(RegData$Variabel != '')), which(!is.na(RegData$Variabel))), which(!is.nan(RegData$Variabel)))
+  indVarMed <- which(RegData$Variabel != 'NA') %i% which(RegData$Variabel != 'NaN') %i%
+                         which(RegData$Variabel != '') %i% which(!is.na(RegData$Variabel)) %i% which(!is.nan(RegData$Variabel))
   indAld <- which(RegData$Alder >= minald & RegData$Alder <= maxald)
   indDato <- which(RegData$OperasjonsDato >= as.POSIXlt(datoFra) & RegData$OperasjonsDato <= as.POSIXlt(datoTil))
   indKj <- if (erMann %in% 0:1) {which(RegData$erMann == erMann)} else {indKj <- 1:Ninn}
   indOp_gr <- if (op_gruppe %in% c(1,2,3,4,5,6,9)){which(RegData$Op_gr == op_gruppe)} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}
-
-  indMed <- intersect(intersect(intersect(indAld, intersect(indDato, intersect(indKj, indVarMed))), indOp_gr), indElekt)
+  # indRisk <- if (max(RiskFakt) > 0) {}
+  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
