@@ -55,7 +55,7 @@
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
-                        elektiv=99, hentData=T)
+                        elektiv=99, BMI='', hentData=T)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -89,7 +89,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe, elektiv=elektiv)
+                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

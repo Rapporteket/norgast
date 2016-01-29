@@ -7,7 +7,7 @@
 #'
 #' @export
 
-NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, fargepalett='BlaaRapp')
+NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI, fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -23,8 +23,9 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indKj <- if (erMann %in% 0:1) {which(RegData$erMann == erMann)} else {indKj <- 1:Ninn}
   indOp_gr <- if (op_gruppe %in% c(1,2,3,4,5,6,9)){which(RegData$Op_gr == op_gruppe)} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}
+  indBMI <- if (BMI[1] != '') {which(RegData$BMI_kodet %in% as.numeric(BMI))} else {indBMI <- 1:Ninn}
   # indRisk <- if (max(RiskFakt) > 0) {}
-  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt
+  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
@@ -35,7 +36,8 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (op_gruppe %in% c(1,2,3,4,5,6,9)) {paste('Operasjonsgruppe: ', c('Kolonreseksjoner', 'Rektumreseksjoner',
                                                         'Øsofagusreseksjoner', 'Ventrikkelreseksjoner', 'Leverreseksjoner',
                                                         "Whipples operasjon", rep('',2), 'Øvrige')[op_gruppe], sep='')},
-                 if (elektiv %in% c(0,1)) {c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1]}
+                 if (elektiv %in% c(0,1)) {c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1]},
+                 if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))}
   )
 
 

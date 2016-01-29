@@ -30,12 +30,13 @@ hentData <- F
 stabel=F
 andel=T
 elektiv=0
+BMI <- c('1', '3', '5')
 
 x11()
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
-           preprosess=preprosess, hentData=hentData, elektiv = elektiv)
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI)
 
 
 ############# Avdød under opphold Mo i Rana ######################

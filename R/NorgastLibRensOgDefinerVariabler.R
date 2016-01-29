@@ -60,7 +60,8 @@ RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5)=="jlc30")] <- "Whipples operasjon"
+RegData$Operasjonsgrupper[union(which(substr(RegData$ncsp_lowercase,1,5)=="jlc30"),
+                                which(substr(RegData$ncsp_lowercase,1,5)=="jlc31"))] <- "Whipples operasjon"
 
 RegData$Op_gr <- 0
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
