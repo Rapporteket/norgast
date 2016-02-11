@@ -46,6 +46,8 @@
 #'                 0: Øyeblikkelig hjelp
 #'                 1: Elektiv
 #'                 99: Begge deler (Default)
+#' @param BMI BMI-klasse
+#'
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -55,8 +57,8 @@
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
-                        elektiv=99, BMI='', hentData=T)
-{
+                        elektiv=99, BMI='', valgtShus='',hentData=T)
+{ print(BMI)
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -234,7 +236,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
       if (valgtVar=='Hastegrad') {
         tittel <- 'Elektiv kirurgi'
-        grtxt <- c('Øyeblikkelig', 'Elektiv')
+        grtxt <- c('Ø-hjelp', 'Elektiv')
         RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
         RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
         if (enhetsUtvalg==1) {stabel=T}
