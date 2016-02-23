@@ -26,9 +26,11 @@ shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
 
 RegData$Alder <- floor(RegData[ ,'decimalAge'])
 RegData$ncsp_lowercase <- substr(tolower(RegData$NCSP), 1, 5)
-lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5)))
-uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))
-RegData$NCSP[lowercase[which(!is.na(uppercase))]] <- RegData$NCSP[uppercase[which(!is.na(uppercase))]]
+lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5))) # index til der NCSP-kode er i lowercase
+uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))  # index til første forekomst av samme NCSP-kode i uppercase
+                                                                                  # som den som finnes i lowercase
+RegData$NCSP[lowercase[which(!is.na(uppercase))]] <- RegData$NCSP[uppercase[which(!is.na(uppercase))]] # Der det finnes, erstatt lowercase
+                                                                                  # tilfellet med den fulle beskrivelsen fra uppercase
 RegData$NCSP <- iconv(RegData$NCSP, "UTF-8", "latin1")
 RegData$Vektendring <- -RegData$WEIGHTLOSS
 RegData$Forbehandling <- NA

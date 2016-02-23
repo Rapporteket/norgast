@@ -5,7 +5,7 @@
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
 NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
-  fargepalett = "BlaaRapp")
+  elektiv, BMI, fargepalett = "BlaaRapp")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -32,6 +32,13 @@ NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
 5: Leverreseksjoner
 6: Whipple's operasjon
 9: Annet}
+
+\item{elektiv}{Elektiv eller øyeblikkelig hjelp
+0: Øyeblikkelig hjelp
+1: Elektiv
+99: Begge deler (Default)}
+
+\item{BMI}{BMI-klasse}
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 }

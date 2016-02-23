@@ -2,8 +2,8 @@ setwd('C:/SVN/jasper/norgast/doc/')
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-01-22 09-42-03.txt', header=TRUE, sep=";")
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-01-22 09-42-02.txt', header=TRUE, sep=";")
+RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";")
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";")
 
 RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -20,17 +20,17 @@ minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- as.POSIXlt('2099-01-01', format="%Y-%m-%d")
+datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Anastomoselekkasje'
-op_gruppe<- 99
+valgtVar <- 'BMI_kodet'
+op_gruppe<- 1
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
 andel=T
-elektiv=0
-BMI <- c('1', '3', '5')
+elektiv=99
+BMI <- c('')  # c('1', '3', '5')
 
 x11()
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
@@ -38,6 +38,15 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI)
 
+## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
+
+Data <- NorgastPreprosess(RegData, reshID=reshID)
+test <- Data$RegData
+
+aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
+aux1 <- aux1[aux1$Op_gr==1, ]
+aux2 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 8:15, ]
+aux3 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 0:7 | as.numeric(aux1$ANESTHESIA_START) %in% 16:23, ]
 
 ############# Avdød under opphold Mo i Rana ######################
 

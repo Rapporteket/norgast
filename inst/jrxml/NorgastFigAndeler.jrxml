@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
-<!-- 2016-01-26T14:25:55 -->
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.1.0  -->
+<!-- 2016-02-11T09:11:51 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NorgastFigAndelerAsRPackage" language="groovy" pageWidth="595" pageHeight="595" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" scriptletClass="no.skde.report.norgast.NorgastCommonScriptletRPackage" isIgnorePagination="true" uuid="9ca92060-e90f-4e3c-acec-23662a03f059">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<property name="ireport.jasperserver.url" value="https://test.helseregister.no/test.rapporteket/"/>
-	<property name="ireport.jasperserver.report.resource" value="/organizations/NoRGast/Reports/Andeler_files/main_jrxml"/>
-	<property name="ireport.jasperserver.reportUnit" value="/organizations/NoRGast/Reports/Andeler"/>
+	<property name="ireport.jasperserver.url" value="https://test.helseregister.no/rapporteket_test/"/>
+	<property name="ireport.jasperserver.report.resource" value="/organizations/NoRGast/Reports/NorgastFigAndelerAsRPackage_files/main_jrxml"/>
+	<property name="ireport.jasperserver.reportUnit" value="/organizations/NoRGast/Reports/NorgastFigAndelerAsRPackage"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -38,7 +38,7 @@
 		<defaultValueExpression><![CDATA[new String("norgast")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="rFunctionCallString" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[new String("FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, libkat=libkat, outfile=outfile, reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=F, andel=T, preprosess=T)")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("FigAndeler(RegData=0, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=F, andel=T, preprosess=T, elektiv=99, BMI=BMI, hentData=T)")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="varName" class="java.lang.String">
 		<defaultValueExpression><![CDATA[new String("Alder")]]></defaultValueExpression>
@@ -63,8 +63,18 @@
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
 	</parameter>
+	<parameter name="bmi" class="java.util.List">
+		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
+	</parameter>
+	<parameter name="chooseUnits" class="java.util.List">
+		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
+	</parameter>
 	<parameter name="orgUnitSelection" class="java.lang.Integer">
 		<defaultValueExpression><![CDATA[new Integer(1)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="LoggedInUserRoles" class="java.util.Collection" nestedType="java.util.String" isForPrompting="false">
+		<parameterDescription><![CDATA[Current set of roles of logged in user. Useful for $X parameter]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new ArrayList()]]></defaultValueExpression>
 	</parameter>
 	<queryString language="SQL">
 		<![CDATA[]]>

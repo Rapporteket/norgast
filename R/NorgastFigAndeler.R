@@ -58,7 +58,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
                         elektiv=99, BMI='', valgtShus='',hentData=T)
-{ print(BMI)
+{
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){

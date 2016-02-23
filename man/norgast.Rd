@@ -18,6 +18,6 @@ purposes. Not to be used in a PRODUCTION environment!
 
 \section{Functions}{
 
-Standard R-functions for processing registry data
+Standard R-functions for processing registry data.
 }
 
