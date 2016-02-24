@@ -47,6 +47,8 @@
 #'                 1: Elektiv
 #'                 99: Begge deler (Default)
 #' @param BMI BMI-klasse
+#' @param valgtShus Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
+#'                  Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.
 #'
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
@@ -57,7 +59,7 @@
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=T,
-                        elektiv=99, BMI='', valgtShus='',hentData=T)
+                        elektiv=99, BMI='', valgtShus=c(''),hentData=T)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -67,19 +69,27 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   # Hvis RegData ikke har blitt preprosessert
   if (preprosess){
-    Data <- NorgastPreprosess(RegData=RegData, reshID=reshID)
-    RegData <- Data$RegData
-    rm(Data)
+    RegData <- NorgastPreprosess(RegData=RegData)
   }
 
   #------------Gjøre utvalg-------------------------
 
+  if (valgtShus[1]!='') {
+    valgtShus <- as.numeric(valgtShus)
+    if (length(valgtShus)==1) {reshID<-valgtShus[1]}
+  }
+
   if (enhetsUtvalg==0) {
     shtxt <- 'Hele landet'
-    } else
-      {
+    } else {
     shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
     }	#'Eget sykehus' #
+
+  if (enhetsUtvalg!=0 & length(valgtShus)>1) {
+    RegData$AvdRESH[RegData$AvdRESH %in% valgtShus] <- 99
+    shtxt <- 'Ditt utvalg'
+    reshID <- 99
+  }
 
   RegData$Variabel <- NA
   if (valgtVar %in% c('Alder', 'Vektendring', 'DIABETES','WHO_ECOG_SCORE', 'ASA', 'MODIFIED_GLASGOW_SCORE', 'Forbehandling',
@@ -91,7 +101,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI)
+                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

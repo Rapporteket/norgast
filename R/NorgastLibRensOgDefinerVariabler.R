@@ -9,7 +9,7 @@
 #'
 #' @export
 
-NorgastPreprosess <- function(RegData, reshID=reshID)
+NorgastPreprosess <- function(RegData)
 
 {
 names(RegData)[which(names(RegData)=='isMale')]<-'erMann'
@@ -22,7 +22,7 @@ RegData$Avdeling <- as.character(RegData$Avdeling)
 
 RegData$SykehusNavn <- RegData$Sykehusnavn
 
-shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+# shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
 
 RegData$Alder <- floor(RegData[ ,'decimalAge'])
 RegData$ncsp_lowercase <- substr(tolower(RegData$NCSP), 1, 5)
@@ -135,8 +135,8 @@ RegData$Anastomoselekkasje[RegData$ANASTOMOSIS==1] <- 0
 RegData$Anastomoselekkasje[RegData$RELAPAROTOMY_YES==1] <- 1
 RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA
 
-Data <- list(RegData=RegData, shtxt=shtxt)
+# Data <- list(RegData=RegData, shtxt=shtxt)
 
-return(invisible(Data))
+return(invisible(RegData))
 
 }

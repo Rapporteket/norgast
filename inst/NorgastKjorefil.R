@@ -15,33 +15,34 @@ RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
-reshID <- 601225 #  #Må sendes med til funksjon
+reshID <- 707232 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'BMI_kodet'
-op_gruppe<- 1
+valgtVar <- 'Hastegrad'
+op_gruppe<- 99
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
 andel=T
-elektiv=99
+elektiv=0
 BMI <- c('')  # c('1', '3', '5')
+# valgtShus <- c('708761', '102145', '601225')
+valgtShus <- c('601225')
 
 x11()
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
-           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI)
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI, valgtShus = valgtShus)
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 
-Data <- NorgastPreprosess(RegData, reshID=reshID)
-test <- Data$RegData
+test <- NorgastPreprosess(RegData)
 
 aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
 aux1 <- aux1[aux1$Op_gr==1, ]

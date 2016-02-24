@@ -7,8 +7,8 @@
 FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
   op_gruppe = 0, outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
-  andel = T, preprosess = T, elektiv = 99, BMI = "", valgtShus = "",
-  hentData = T)
+  andel = T, preprosess = T, elektiv = 99, BMI = "",
+  valgtShus = c(""), hentData = T)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -67,6 +67,9 @@ TRUE: Ja}
 99: Begge deler (Default)}
 
 \item{BMI}{BMI-klasse}
+
+\item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
+Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
 
 \item{hentData}{Gjør spørring mot database
 FALSE: Nei, RegData gis som input til funksjonen (Default)

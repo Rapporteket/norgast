@@ -5,13 +5,10 @@
 \title{Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
 og rensker opp i andre.}
 \usage{
-NorgastPreprosess(RegData, reshID = reshID)
+NorgastPreprosess(RegData)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
-
-\item{reshID}{Parameter følger fra innlogging helseregister.no og angir
-hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 }
 \value{
 Data En list med det filtrerte datasettet og sykehusnavnet som tilsvarer reshID

@@ -7,7 +7,8 @@
 #'
 #' @export
 
-NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI, fargepalett='BlaaRapp')
+NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
+                             valgtShus=valgtShus, fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -37,7 +38,8 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                                                         'Øsofagusreseksjoner', 'Ventrikkelreseksjoner', 'Leverreseksjoner',
                                                         "Whipples operasjon", rep('',2), 'Øvrige')[op_gruppe], sep='')},
                  if (elektiv %in% c(0,1)) {c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1]},
-                 if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))}
+                 if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
+                 if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=','))}
   )
 
 
