@@ -5,7 +5,7 @@
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
 NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
-  elektiv, BMI, fargepalett = "BlaaRapp")
+  elektiv, BMI, valgtShus = valgtShus, fargepalett = "BlaaRapp")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -39,6 +39,9 @@ NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
 99: Begge deler (Default)}
 
 \item{BMI}{BMI-klasse}
+
+\item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
+Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 }

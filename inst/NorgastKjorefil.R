@@ -1,4 +1,4 @@
-setwd('C:/SVN/jasper/norgast/doc/')
+setwd('C:/GIT/norgast/inst/')
 rm(list=ls())
 
 # Les inn data
@@ -42,7 +42,7 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 
-test <- NorgastPreprosess(RegData)
+RegData <- NorgastPreprosess(RegData)
 
 aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
 aux1 <- aux1[aux1$Op_gr==1, ]

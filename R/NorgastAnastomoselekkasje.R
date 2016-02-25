@@ -10,7 +10,8 @@
 
 
 NorgastAnastomoselekkasje <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
-                                      minald=0, maxald=130, erMann=99, reshID=601225, outfile='')
+                                      minald=0, maxald=130, erMann=99, reshID=601225, outfile='', elektiv=99,
+                                      BMI='', valgtShus='')
 
 {
 
@@ -25,7 +26,7 @@ RegData$variabel <- 0
 RegData$variabel[RegData$RELAPAROTOMY_YES==1] <- 1
 
 NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
-                                  erMann=erMann, op_gruppe=0)
+                                  erMann=erMann, op_gruppe=0, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
 RegData <- NorgastUtvalg$RegData
 utvalgTxt <- NorgastUtvalg$utvalgTxt
 
