@@ -23,7 +23,7 @@ datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utv
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Hastegrad'
-op_gruppe<- 6
+op_gruppe<- 1
 outfile <- ''
 preprosess<-T
 hentData <- F
