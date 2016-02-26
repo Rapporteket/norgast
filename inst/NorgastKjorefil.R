@@ -32,7 +32,7 @@ andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
-valgtShus <- c('601225')
+valgtShus <- c('')
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
