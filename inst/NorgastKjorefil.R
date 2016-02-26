@@ -23,18 +23,18 @@ datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utv
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Hastegrad'
-op_gruppe<- 99
+op_gruppe<- 6
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
 andel=T
-elektiv=0
+elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('601225')
 
-x11()
+if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
