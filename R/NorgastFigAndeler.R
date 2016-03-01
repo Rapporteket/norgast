@@ -156,9 +156,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
       if (valgtVar=='Op_gr') {
         tittel <- 'Operasjonsgrupper'
-        gr <- c(1:6, 9)
-        grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
-                   'Leverreseksjoner',"Whipples operasjon",'Annet')
+        N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Annet)
+        gr <- c(1:(N_opgr-1),99)
+        grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
+#         grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
+#                    'Leverreseksjoner',"Whipples operasjon",'Annet')
         RegData$VariabelGr <- factor(RegData$Variabel, levels=gr, labels = grtxt)
         subtxt <- 'Operasjonsgrupper'
         incl_N <- T
