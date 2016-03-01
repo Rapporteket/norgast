@@ -2,8 +2,8 @@ setwd('C:/GIT/norgast/inst/')
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";")
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";")
+RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
