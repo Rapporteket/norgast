@@ -15,15 +15,15 @@ RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
-reshID <- 707232 #  #Må sendes med til funksjon
+reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
-enhetsUtvalg <- 0 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Hastegrad'
-op_gruppe<- 7
+enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+valgtVar <- 'Op_gr'
+op_gruppe<- 0
 outfile <- ''
 preprosess<-T
 hentData <- F
