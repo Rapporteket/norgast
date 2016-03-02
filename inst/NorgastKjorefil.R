@@ -3,6 +3,7 @@ rm(list=ls())
 
 # Les inn data
 RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
 ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
@@ -21,7 +22,7 @@ maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
-enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Op_gr'
 op_gruppe<- 0
 outfile <- ''
@@ -33,12 +34,15 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
+tilgang <- 2
+
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
-           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI, valgtShus = valgtShus)
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+           valgtShus = valgtShus, tilgang = tilgang)
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 

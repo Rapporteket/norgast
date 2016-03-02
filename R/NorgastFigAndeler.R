@@ -59,7 +59,8 @@
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=F,
-                        elektiv=99, BMI='', valgtShus=c(''),hentData=F)
+                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
+                        maxPRS=2, hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -101,7 +102,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
+                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang=tilgang)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -137,8 +138,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     indRest <- which(RegData$AvdRESH != reshID)
     RegDataLand <- RegData
     ind <- list(Sh=indSh, Rest=indRest)
-    N_opgr <- length(unique(RegData$Operasjonsgrupper)) # Antall distikte operasjonsgrupper (inkludert Annet)
-                                                        # Må finnes før utvalg gjøres or sammenligning
+#     N_opgr <- length(unique(RegData$Operasjonsgrupper)) # Antall distikte operasjonsgrupper (inkludert Annet)
+#                                                         # Må finnes før utvalg gjøres for sammenligning
 
     for (teller in 1:2) {
       if (teller==2 & enhetsUtvalg != 1) {break}
@@ -158,10 +159,12 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
       if (valgtVar=='Op_gr') {
         tittel <- 'Operasjonsgrupper'
-        gr <- c(1:(N_opgr-1),99)
-        grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
-#         grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
-#                    'Leverreseksjoner',"Whipples operasjon",'Annet')
+#         gr <- c(1:(N_opgr-1),99)
+#         grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
+        gr <- c(1:11,99)
+        grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
+                   'Leverreseksjoner',"Whipples operasjon", 'Cholecystektomi', 'Appendektomi', 'Tynntarmsreseksjon',
+                   'Gastric bypass', 'Gastric sleeve', 'Annet')
         RegData$VariabelGr <- factor(RegData$Variabel, levels=gr, labels = grtxt)
         subtxt <- 'Operasjonsgrupper'
         incl_N <- T

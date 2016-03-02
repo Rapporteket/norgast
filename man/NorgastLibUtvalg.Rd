@@ -5,7 +5,7 @@
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
 NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
-  elektiv, BMI, valgtShus = valgtShus, fargepalett = "BlaaRapp")
+  elektiv, BMI, valgtShus = "", tilgang = 99, fargepalett = "BlaaRapp")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

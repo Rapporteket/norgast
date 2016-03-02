@@ -8,12 +8,16 @@
 #' @export
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
-                             valgtShus=valgtShus, fargepalett='BlaaRapp')
+                             valgtShus='', tilgang=99, fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
   # "%u%" <- union
   N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
+  if (tilgang %in% c(1,2)) {
+    RegData$Tilgang <- as.numeric(RegData$ABDOMINAL_ACCESS)
+    RegData$Tilgang[RegData$Tilgang==3] <- 1
+  }
 
   #Hvis "Variabel" ikke definert
   if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
@@ -26,8 +30,9 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indOp_gr <- if (op_gruppe %in% c(1:(N_opgr-1), 99)){which(RegData$Op_gr == op_gruppe)} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}
   indBMI <- if (BMI[1] != '') {which(RegData$BMI_kodet %in% as.numeric(BMI))} else {indBMI <- 1:Ninn}
+  indTilgang <- if (tilgang %in% c(1,2)) {which(RegData$Tilgang == tilgang)} else {indTilgang <- 1:Ninn}
   # indRisk <- if (max(RiskFakt) > 0) {}
-  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI
+  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i% indTilgang
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
@@ -38,9 +43,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (op_gruppe %in% 1:(N_opgr-1)) {paste('Operasjonsgruppe: ',
                                                          RegData$Operasjonsgrupper[match(1:(N_opgr-1), RegData$Op_gr)][op_gruppe], sep='')},
                  if (op_gruppe == 99) {'Operasjonsgruppe: Annet'},
-                 if (elektiv %in% c(0,1)) {c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1]},
+                 if (elektiv %in% c(0,1)) {paste0('Hastegrad: ', c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1])},
                  if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
-                 if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=','))}
+                 if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=','))},
+                 if (tilgang %in% c(1,2)) {paste0('Tilgang: ', c('Åpen/konvertert', 'Laparoskopisk')[tilgang])}
   )
 
 
