@@ -12,19 +12,20 @@
 NorgastPreprosess <- function(RegData)
 
 {
-names(RegData)[which(names(RegData)=='isMale')]<-'erMann'
+names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
+names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
 RegData <- RegData[which(RegData$STATUS==1),] # Inkluder kun lukkede registreringer
 RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
 RegData$RegMnd <- RegData$OperasjonsDato$mon +1
 #     RegData$DoedsDato <- as.POSIXlt(RegData$DECEASED_DATE, format="%Y-%m-%d")
 #     RegData$OpDoedTid <- difftime(RegData$DoedsDato,RegData$OperasjonsDato)
-RegData$Avdeling <- as.character(RegData$Avdeling)
+# RegData$Avdeling <- as.character(RegData$Avdeling)
 
 RegData$SykehusNavn <- RegData$Sykehusnavn
 
 # shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+# RegData$Alder <- floor(RegData[ ,'decimalAge'])
 
-RegData$Alder <- floor(RegData[ ,'decimalAge'])
 RegData$ncsp_lowercase <- substr(tolower(RegData$NCSP), 1, 5)
 lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5))) # index til der NCSP-kode er i lowercase
 uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))  # index til første forekomst av samme NCSP-kode i uppercase
