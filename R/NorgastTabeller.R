@@ -23,20 +23,18 @@ NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=dato
                                   erMann=erMann, op_gruppe=0, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
 RegData <- NorgastUtvalg$RegData
 
-####################     Tabell over alle operasjoner (noen gruppert)   ###########################################
+####################    Lag tabell over alle operasjoner (noen gruppert)  ###########################################
 RegData$NCSP <- paste0(substr(RegData$NCSP, 7, 100), ' (', substr(RegData$NCSP, 1, 5), ')')
 
-RegData$NCSP[which(RegData$Operasjonsgrupper == 'Kolonreseksjoner')] <- 'Kolonreseksjoner'
-RegData$NCSP[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 'Rektumreseksjoner'
-RegData$NCSP[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 'Øsofagusreseksjoner'
-RegData$NCSP[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 'Ventrikkelreseksjoner'
-RegData$NCSP[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 'Leverreseksjoner'
-RegData$NCSP[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 'Whipples operasjon'
+N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
+RegData$NCSP[RegData$Op_gr %in% 1:(N_opgr-1)] <- RegData$Operasjonsgrupper[RegData$Op_gr %in% 1:(N_opgr-1)]
+
 
 RegData$NCSP <- gsub("[\r\n]", "", RegData$NCSP)
 res <- sort(table(RegData$NCSP), decreasing=T)
 Tabell <- data.frame('Operasjonsgruppe'=names(res[res>=Terskel]), 'Antall'=as.numeric(res[res>=Terskel]))
 
+# Tabellen skal inneholde maks 14 operasjonskoder
 while(length(Tabell$Antall)>14){
   Terskel <- Terskel+1
   Tabell <- Tabell[Tabell$Antall>=Terskel, ]
@@ -46,23 +44,27 @@ Tabell <- data.frame('Operasjonsgruppe'=c(names(res[res>=Terskel]), 'Andre'),
                      'Antall'=c(as.numeric(res[res>=Terskel]), sum(as.numeric(res[res<Terskel]))))
 Tabell$Andel <- Tabell$Antall/sum(Tabell$Antall)*100
 
-grtxt <- c('Nei','Ja')
 
-RegData <- RegData[which(RegData$RELAPAROTOMY %in% c(0, 1)), ]
+
+###  Lag tabell over reoperasjonsrater sammen med årsak til reoperasjon splittet på operasjonsgrupper ######################
+
+grtxt <- c('Nei','Ja')
+RegData <- RegData[which(RegData$RELAPAROTOMY %in% c(0, 1)), ] # Ekskluderer de som ikke har registrert om reoperasjon er utført
 RegData$VariabelGr <- factor(RegData$RELAPAROTOMY, levels=c(0, 1), labels = grtxt)
 
-Tabell2 <- data.frame(Operasjonsgruppe=c('Kolonreseksjoner', "Rektumreseksjoner","Øsofagusreseksjoner",
-                                        "Ventrikkelreseksjoner","Leverreseksjoner",'Whipples operasjon', 'Annet'),
-                     N=numeric(7), Reoperasjonsrate=numeric(7), Anastomoselekkasje=numeric(7),DypInfUtenLekkasje=numeric(7),
-                     Bloedning=numeric(7),Saarruptur=numeric(7),Annet=numeric(7))
+Tabell2 <- data.frame(Operasjonsgruppe=RegData$Operasjonsgrupper[match(c(1:(N_opgr-1),99), RegData$Op_gr)],
+                     N=numeric(N_opgr), Reoperasjonsrate=numeric(N_opgr), Anastomoselekkasje=numeric(N_opgr),
+                     DypInfUtenLekkasje=numeric(N_opgr),Bloedning=numeric(N_opgr),Saarruptur=numeric(N_opgr),
+                     Annet=numeric(N_opgr))
+
 
 RegData$RELAPAROTOMY_YES[which(RegData$RELAPAROTOMY_YES==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
 
 grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur', 'Annet')
 
-for (p in  1:7){
+for (p in  1:N_opgr){
   Subset <- RegData[RegData$Op_gr==p, ]
-  if (p==7) Subset <- RegData[RegData$Op_gr==9, ]
+  if (p==N_opgr) Subset <- RegData[RegData$Op_gr==99, ]
   Tabell2$Reoperasjonsrate[p] <- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)[2]
   Tabell2$N[p] <- dim(Subset)[1]
   Subset <- Subset[Subset$RELAPAROTOMY==1,]

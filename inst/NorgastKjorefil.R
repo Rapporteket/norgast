@@ -2,8 +2,8 @@ setwd('C:/GIT/norgast/inst/')
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";")
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";")
+RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -15,15 +15,15 @@ RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
-reshID <- 707232 #  #Må sendes med til funksjon
+reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
-enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Hastegrad'
-op_gruppe<- 1
+enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+valgtVar <- 'Op_gr'
+op_gruppe<- 0
 outfile <- ''
 preprosess<-T
 hentData <- F
@@ -32,7 +32,7 @@ andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
-valgtShus <- c('601225')
+valgtShus <- c('')
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,

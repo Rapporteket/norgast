@@ -55,24 +55,32 @@ RegData <- RegData[which(RegData$ncsp_lowercase!=''),]
 RegData$Operasjonsgrupper <- "Annet"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
 RegData$Operasjonsgrupper[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) > 19 &
-                                            as.numeric(substr(RegData$ncsp_lowercase,4,5))<65))] <- "Kolonreseksjoner"
+                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
-RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- enc2utf8("Øsofagusreseksjoner")
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-RegData$Operasjonsgrupper[union(which(substr(RegData$ncsp_lowercase,1,5)=="jlc30"),
-                                which(substr(RegData$ncsp_lowercase,1,5)=="jlc31"))] <- "Whipples operasjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jlc30","jlc31"))] <- "Whipples operasjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jka20","jka21"))] <- "Cholecystektomi"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jea00","jea01"))] <- "Appendektomi"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jfb00","jfb01"))] <- "Tynntarmsreseksjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf10","jdf11"))] <- "Gastric bypass"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf96","jdf97"))] <- "Gastric sleeve"
 
-RegData$Op_gr <- 0
+RegData$Op_gr <- NA
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 9
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 7
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 8
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 9
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 10
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 11
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
 RegData$Op_gr2 <- 9
 RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$ANASTOMOSIS==1))] <- 1

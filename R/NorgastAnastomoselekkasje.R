@@ -54,8 +54,8 @@ Tabell1$RateAnastomoselekkasje_lokal[7]<-NA
 Tabell1$RateAnastomoselekkasje_ovrig[7]<-NA
 
 ### Begrenset til rektum ##################################
-regdata <- RegData
-RegData <- RegData[RegData$Op_gr2==3,]
+regdata <- RegData                      # Beholde det fulle datasettet
+RegData <- RegData[RegData$Op_gr2==3,]  # Velg bare rektum
 indSh <-which(RegData$AvdRESH == reshID)
 indRest <- which(RegData$AvdRESH != reshID)
 RegDataSh <- RegData[indSh,]
