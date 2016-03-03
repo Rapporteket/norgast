@@ -46,10 +46,38 @@
 #'                 0: Øyeblikkelig hjelp
 #'                 1: Elektiv
 #'                 99: Begge deler (Default)
-#' @param BMI BMI-klasse
+#' @param BMI BMI-klasse, flervalg hvor (Default alle)
+#'                1: Alvorlig undervekt
+#'                2: Undervekt
+#'                3: Mild undervekt
+#'                4: Normal
+#'                5: Overvekt
+#'                6: Moderat fedme, klasse I
+#'                7: Fedme, klasse II
+#'                8: Fedme, klasse III
 #' @param valgtShus Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
 #'                  Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.
-#'
+#' @param tilgang Tilgang i abdomen
+#'                1: Åpen eller konvertert
+#'                2: Lapaoskopisk
+#'                99: Alle (Default)
+#' @param minPRS  Minimum PRS (Default 0?)
+#' @param maxPRS  Maksimum PRS (Default 2?)
+#' @param ASA ASA-grad, flervalg hvor (Default alle)
+#'                1: Ingen organisk, fysiologisk, biokjemisk eller psykisk forstyrrelse.
+#'                Den aktuelle lidelsen er lokalisert og gir ikke generelle systemforstyrrelser.
+#'                2: Moderat sykdom eller forstyrrelser som ikke forårsaker funksjonelle begrensninger.
+#'                3: Alvorlig sykdom eller forstyrrelse som gir definerte funksjonelle begrensninger.
+#'                4: Livstruende organisk sykdom som ikke behøver å være knyttet til den aktuelle
+#'                kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske inngrepet.
+#'                5: Døende pasient som ikke forventes å overleve 24 timer uten kirurgi.
+#' @param whoEcog WHO WCOG score, flervalg hvor (Default alle)
+#'                0: Fullt aktiv
+#'                1: Lett husarbeid og sittende arbeid
+#'                2: Oppe > 50% av dagen, selvstelt
+#'                3: Oppe < 50% av dagen, delvis selvstelt
+#'                4: Kun i stol/seng, hjelp til alt stell
+#'                9: Ukjent
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -60,7 +88,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=F,
                         elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                        maxPRS=2, hentData=F)
+                        maxPRS=2, ASA='', whoEcog= '', hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -101,8 +129,10 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   }
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang=tilgang)
+  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
+                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                    ASA=ASA, whoEcog=whoEcog)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

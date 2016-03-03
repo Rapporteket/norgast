@@ -37,14 +37,17 @@ BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
 tilgang <- 2
-
+minPRS <- 0.2
+maxPRS <- 1.5
+ASA <- c('1', '3', '5')
+whoEcog <- c('0', '1', '3', '5')
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
-           valgtShus = valgtShus, tilgang = tilgang)
+           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA, whoEcog=whoEcog)
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 

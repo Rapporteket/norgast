@@ -8,7 +8,7 @@
 #' @export
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
-                             valgtShus='', tilgang=99, fargepalett='BlaaRapp')
+                             valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='', fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -31,13 +31,17 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}
   indBMI <- if (BMI[1] != '') {which(RegData$BMI_kodet %in% as.numeric(BMI))} else {indBMI <- 1:Ninn}
   indTilgang <- if (tilgang %in% c(1,2)) {which(RegData$Tilgang == tilgang)} else {indTilgang <- 1:Ninn}
+  indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRS_SCORE >= minPRS & RegData$PRS_SCORE <= maxPRS)} else {indPRS <- 1:Ninn}
+  indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
+  indWHO <- if (whoEcog[1] != '') {which(RegData$WHO_ECOG_SCORE %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
   # indRisk <- if (max(RiskFakt) > 0) {}
-  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i% indTilgang
+  indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
+    indTilgang %i% indPRS %i% indASA %i% indWHO
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
                        min(RegData$OperasjonsDato, na.rm=T), ' til ', max(RegData$OperasjonsDato, na.rm=T), sep='' ),
-                 if ((minald>0) | (maxald<120)) {
+                 if ((minald>0) | (maxald<130)) {
                    paste('Pasienter fra ', min(RegData$Alder, na.rm=T), ' til ', max(RegData$Alder, na.rm=T), ' år', sep='')},
                  if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinner', 'Menn')[erMann+1], sep='')},
                  if (op_gruppe %in% 1:(N_opgr-1)) {paste('Operasjonsgruppe: ',
@@ -46,7 +50,11 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (elektiv %in% c(0,1)) {paste0('Hastegrad: ', c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1])},
                  if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
                  if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=','))},
-                 if (tilgang %in% c(1,2)) {paste0('Tilgang: ', c('Åpen/konvertert', 'Laparoskopisk')[tilgang])}
+                 if (tilgang %in% c(1,2)) {paste0('Tilgang: ', c('Åpen/konvertert', 'Laparoskopisk')[tilgang])},
+                 if ((minPRS>0) | (maxPRS<2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRS_SCORE, na.rm=T)), ' til ',
+                          sprintf('%.2f', max(RegData$PRS_SCORE, na.rm=T)))},
+                 if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
+                 if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))}
   )
 
 
