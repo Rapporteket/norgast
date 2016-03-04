@@ -6,7 +6,7 @@
 \usage{
 NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
   elektiv, BMI, valgtShus = "", tilgang = 99, minPRS = 0, maxPRS = 2,
-  ASA = "", whoEcog = "", fargepalett = "BlaaRapp")
+  ASA = "", whoEcog = "", forbehandling = 99, fargepalett = "BlaaRapp")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -77,6 +77,13 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 3: Oppe < 50% av dagen, delvis selvstelt
 4: Kun i stol/seng, hjelp til alt stell
 9: Ukjent}
+
+\item{forbehandling}{Onkologisk forbehandling
+1: Cytostatika
+2: Stråleterapi
+3: Komb. kjemo/radioterapi
+4: Ingen
+99: Alle}
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 }

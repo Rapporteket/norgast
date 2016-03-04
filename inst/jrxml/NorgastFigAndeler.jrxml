@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
-<!-- 2016-02-24T12:46:52 -->
+<!-- 2016-03-04T09:36:14 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NorgastFigAndelerAsRPackage" language="groovy" pageWidth="595" pageHeight="595" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" scriptletClass="NorgastCommonScriptletRPackage" isIgnorePagination="true" uuid="9ca92060-e90f-4e3c-acec-23662a03f059">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -67,10 +67,26 @@
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
 	</parameter>
+	<parameter name="preTreat" class="java.lang.Integer">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="minPRS" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[new java.lang.Double(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="maxPRS" class="java.lang.Double">
+		<defaultValueExpression><![CDATA[new java.lang.Double(2)]]></defaultValueExpression>
+	</parameter>
 	<parameter name="bmi" class="java.util.List">
 		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
 	</parameter>
 	<parameter name="selectDepts" class="java.util.List">
+		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
+	</parameter>
+	<parameter name="asa" class="java.util.List">
+		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
+	</parameter>
+	<parameter name="whoEcog" class="java.util.List">
 		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
 	</parameter>
 	<parameter name="orgUnitSelection" class="java.lang.Integer">

@@ -78,6 +78,12 @@
 #'                3: Oppe < 50% av dagen, delvis selvstelt
 #'                4: Kun i stol/seng, hjelp til alt stell
 #'                9: Ukjent
+#' @param forbehandling Onkologisk forbehandling
+#'                1: Cytostatika
+#'                2: Stråleterapi
+#'                3: Komb. kjemo/radioterapi
+#'                4: Ingen
+#'                99: Alle
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -88,7 +94,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=F,
                         elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                        maxPRS=2, ASA='', whoEcog= '', hentData=F)
+                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -132,7 +138,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -272,8 +278,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
       if (valgtVar=='Forbehandling') {
         tittel <- 'Neoadjuvant behandling siste 3 mnd.'
         grtxt <- c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')
-        RegData <- RegData[which(RegData$Variabel %in% c(1:3,9)), ]
-        RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1:3,9), labels = grtxt)
+        RegData <- RegData[which(RegData$Variabel %in% 1:4), ]
+        RegData$VariabelGr <- factor(RegData$Variabel, levels=1:4, labels = grtxt)
 #         vmarg <- 0.15
 #         skalerGrTxt <-.95
         retn <- 'H'

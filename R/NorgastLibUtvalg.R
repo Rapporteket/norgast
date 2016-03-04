@@ -8,7 +8,8 @@
 #' @export
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
-                             valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='', fargepalett='BlaaRapp')
+                             valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='',
+                             forbehandling=99, fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -34,9 +35,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRS_SCORE >= minPRS & RegData$PRS_SCORE <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHO_ECOG_SCORE %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
-  # indRisk <- if (max(RiskFakt) > 0) {}
+  indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
+
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
@@ -54,7 +56,9 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if ((minPRS>0) | (maxPRS<2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRS_SCORE, na.rm=T)), ' til ',
                           sprintf('%.2f', max(RegData$PRS_SCORE, na.rm=T)))},
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
-                 if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))}
+                 if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
+                 if (forbehandling %in% 1:4) {paste0('Onkologisk forbehandling: ',
+                                                     c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[forbehandling])}
   )
 
 

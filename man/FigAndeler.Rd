@@ -9,7 +9,7 @@ FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   op_gruppe = 0, outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
   andel = T, preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
   valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  hentData = F)
+  forbehandling = 99, hentData = F)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -105,6 +105,13 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 3: Oppe < 50% av dagen, delvis selvstelt
 4: Kun i stol/seng, hjelp til alt stell
 9: Ukjent}
+
+\item{forbehandling}{Onkologisk forbehandling
+1: Cytostatika
+2: Stråleterapi
+3: Komb. kjemo/radioterapi
+4: Ingen
+99: Alle}
 
 \item{hentData}{Gjør spørring mot database
 FALSE: Nei, RegData gis som input til funksjonen (Default)

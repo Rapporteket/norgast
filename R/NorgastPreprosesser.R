@@ -40,7 +40,7 @@ RegData$Forbehandling[which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==1)] <- 2
 RegData$Forbehandling[which(as.numeric(RegData$CHEMORADIOTHERAPY)==1)] <- 3
 RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$CHEMOTHERAPY_ONLY)==0),
                                           which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==0)),
-                                which(as.numeric(RegData$CHEMORADIOTHERAPY)==0))] <- 9
+                                which(as.numeric(RegData$CHEMORADIOTHERAPY)==0))] <- 4
 RegData$BMI_kodet <- NA
 RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Alvorlig undervekt')] <- 1
 RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Undervekt')] <- 2

@@ -78,7 +78,7 @@ Tabell2[1,2:5] <- NA
 
 regdata$ForbehandlingBinaer <- NA
 regdata$ForbehandlingBinaer[regdata$Forbehandling %in% c(1,2,3)] <- 1
-regdata$ForbehandlingBinaer[regdata$Forbehandling == 9] <- 0
+regdata$ForbehandlingBinaer[regdata$Forbehandling == 4] <- 0
 RegData <- regdata
 
 Tabell3 <- data.frame(Operasjonsgruppe=c('Rektumreseksjon, ny anastomose', '\\quad Ingen forbehandling', '\\quad Enhver forbehandling',
