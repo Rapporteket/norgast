@@ -2,17 +2,20 @@ setwd('C:/GIT/norgast/inst/')
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+# RegData_old <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-02-01 13-05-05.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
-RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
+RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
                       'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
-                      'ACCORDION_SCORE', 'isMale','decimalAge', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
+                      'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
                       'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID')]
+
 
 RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
-RegData$AvdRESH <- RegData$AvdRESH.x
+# RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
 reshID <- 601225 #  #Må sendes med til funksjon
@@ -21,7 +24,7 @@ maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
-enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Op_gr'
 op_gruppe<- 0
 outfile <- ''
@@ -33,21 +36,57 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
+tilgang <- 2
+minPRS <- 0
+maxPRS <- 2
+ASA <- '' # c('1', '3', '5')
+whoEcog <- ''  #c('0', '1', '3', '5')
+forbehandling <- 3
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
-           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI, valgtShus = valgtShus)
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+           whoEcog=whoEcog, forbehandling=forbehandling)
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 
-RegData <- NorgastPreprosess(RegData)
+Pross <- NorgastPreprosess(RegData)
 
 aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
 aux1 <- aux1[aux1$Op_gr==1, ]
 aux2 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 8:15, ]
 aux3 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 0:7 | as.numeric(aux1$ANESTHESIA_START) %in% 16:23, ]
+
+
+### mE-PASS (PRS-score) utenfor range #############
+
+RegData0 <- RegData_old[RegData_old$PRS_SCORE<0 & !is.na(RegData_old$PRS_SCORE), c('decimalAge', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+RegData1 <- RegData[RegData$PRS_SCORE<0 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+RegData2 <- RegData[RegData$PRS_SCORE>1.1 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+
+-0.0686 +0.00345*RegData1$PasientAlder + 0.323*RegData1$HEART_DISEASE + 0.205*RegData1$LUNG_DISEASE + 0.153*RegData1$DIABETES +
+  0.148*RegData1$WHO_ECOG_SCORE + 0.0666*RegData1$ASA
+
+
+-0.0686 +0.00345*RegData2$PasientAlder + 0.323*RegData2$HEART_DISEASE + 0.205*RegData2$LUNG_DISEASE + 0.153*RegData2$DIABETES +
+  0.148*RegData2$WHO_ECOG_SCORE + 0.0666*RegData2$ASA
+
+RegData <- RegData[!is.na(RegData$PRS_SCORE), ]
+
+tmp <- RegData$PRS_SCORE - (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$HEART_DISEASE + 0.205*RegData$LUNG_DISEASE +
+                    0.153*RegData$DIABETES + 0.148*RegData$WHO_ECOG_SCORE + 0.0666*RegData$ASA)
+
+
+-0.0686 +0.00345*130 + 0.323*1 + 0.205*1 + 0.153*1 +0.148*4 + 0.0666*4
 
 ############# Avdød under opphold Mo i Rana ######################
 

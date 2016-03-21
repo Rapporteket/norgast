@@ -46,10 +46,44 @@
 #'                 0: Øyeblikkelig hjelp
 #'                 1: Elektiv
 #'                 99: Begge deler (Default)
-#' @param BMI BMI-klasse
+#' @param BMI BMI-klasse, flervalg hvor (Default alle)
+#'                1: Alvorlig undervekt
+#'                2: Undervekt
+#'                3: Mild undervekt
+#'                4: Normal
+#'                5: Overvekt
+#'                6: Moderat fedme, klasse I
+#'                7: Fedme, klasse II
+#'                8: Fedme, klasse III
 #' @param valgtShus Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
 #'                  Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.
-#'
+#' @param tilgang Tilgang i abdomen
+#'                1: Åpen eller konvertert
+#'                2: Lapaoskopisk
+#'                99: Alle (Default)
+#' @param minPRS  Minimum PRS (Default 0?)
+#' @param maxPRS  Maksimum PRS (Default 2?)
+#' @param ASA ASA-grad, flervalg hvor (Default alle)
+#'                1: Ingen organisk, fysiologisk, biokjemisk eller psykisk forstyrrelse.
+#'                Den aktuelle lidelsen er lokalisert og gir ikke generelle systemforstyrrelser.
+#'                2: Moderat sykdom eller forstyrrelser som ikke forårsaker funksjonelle begrensninger.
+#'                3: Alvorlig sykdom eller forstyrrelse som gir definerte funksjonelle begrensninger.
+#'                4: Livstruende organisk sykdom som ikke behøver å være knyttet til den aktuelle
+#'                kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske inngrepet.
+#'                5: Døende pasient som ikke forventes å overleve 24 timer uten kirurgi.
+#' @param whoEcog WHO WCOG score, flervalg hvor (Default alle)
+#'                0: Fullt aktiv
+#'                1: Lett husarbeid og sittende arbeid
+#'                2: Oppe > 50% av dagen, selvstelt
+#'                3: Oppe < 50% av dagen, delvis selvstelt
+#'                4: Kun i stol/seng, hjelp til alt stell
+#'                9: Ukjent
+#' @param forbehandling Onkologisk forbehandling
+#'                1: Cytostatika
+#'                2: Stråleterapi
+#'                3: Komb. kjemo/radioterapi
+#'                4: Ingen
+#'                99: Alle
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -59,7 +93,8 @@
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=F,
-                        elektiv=99, BMI='', valgtShus=c(''),hentData=F)
+                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
+                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -100,8 +135,10 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   }
 
   #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann,
-                                    op_gruppe=op_gruppe, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
+  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
+                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -137,8 +174,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     indRest <- which(RegData$AvdRESH != reshID)
     RegDataLand <- RegData
     ind <- list(Sh=indSh, Rest=indRest)
-    N_opgr <- length(unique(RegData$Operasjonsgrupper)) # Antall distikte operasjonsgrupper (inkludert Annet)
-                                                        # Må finnes før utvalg gjøres or sammenligning
+#     N_opgr <- length(unique(RegData$Operasjonsgrupper)) # Antall distikte operasjonsgrupper (inkludert Annet)
+#                                                         # Må finnes før utvalg gjøres for sammenligning
 
     for (teller in 1:2) {
       if (teller==2 & enhetsUtvalg != 1) {break}
@@ -158,10 +195,12 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
       if (valgtVar=='Op_gr') {
         tittel <- 'Operasjonsgrupper'
-        gr <- c(1:(N_opgr-1),99)
-        grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
-#         grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
-#                    'Leverreseksjoner',"Whipples operasjon",'Annet')
+#         gr <- c(1:(N_opgr-1),99)
+#         grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
+        gr <- c(1:11,99)
+        grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
+                   'Leverreseksjoner',"Whipples operasjon", 'Cholecystektomi', 'Appendektomi', 'Tynntarmsreseksjon',
+                   'Gastric bypass', 'Gastric sleeve', 'Annet')
         RegData$VariabelGr <- factor(RegData$Variabel, levels=gr, labels = grtxt)
         subtxt <- 'Operasjonsgrupper'
         incl_N <- T
@@ -239,8 +278,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
       if (valgtVar=='Forbehandling') {
         tittel <- 'Neoadjuvant behandling siste 3 mnd.'
         grtxt <- c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')
-        RegData <- RegData[which(RegData$Variabel %in% c(1:3,9)), ]
-        RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1:3,9), labels = grtxt)
+        RegData <- RegData[which(RegData$Variabel %in% 1:4), ]
+        RegData$VariabelGr <- factor(RegData$Variabel, levels=1:4, labels = grtxt)
 #         vmarg <- 0.15
 #         skalerGrTxt <-.95
         retn <- 'H'

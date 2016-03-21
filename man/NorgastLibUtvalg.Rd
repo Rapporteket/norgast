@@ -5,7 +5,8 @@
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
 NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
-  elektiv, BMI, valgtShus = valgtShus, fargepalett = "BlaaRapp")
+  elektiv, BMI, valgtShus = "", tilgang = 99, minPRS = 0, maxPRS = 2,
+  ASA = "", whoEcog = "", forbehandling = 99, fargepalett = "BlaaRapp")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -38,10 +39,51 @@ NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
 1: Elektiv
 99: Begge deler (Default)}
 
-\item{BMI}{BMI-klasse}
+\item{BMI}{BMI-klasse, flervalg hvor (Default alle)
+1: Alvorlig undervekt
+2: Undervekt
+3: Mild undervekt
+4: Normal
+5: Overvekt
+6: Moderat fedme, klasse I
+7: Fedme, klasse II
+8: Fedme, klasse III}
 
 \item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
 Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
+
+\item{tilgang}{Tilgang i abdomen
+1: Åpen eller konvertert
+2: Lapaoskopisk
+99: Alle (Default)}
+
+\item{minPRS}{Minimum PRS (Default 0?)}
+
+\item{maxPRS}{Maksimum PRS (Default 2?)}
+
+\item{ASA}{ASA-grad, flervalg hvor (Default alle)
+1: Ingen organisk, fysiologisk, biokjemisk eller psykisk forstyrrelse.
+Den aktuelle lidelsen er lokalisert og gir ikke generelle systemforstyrrelser.
+2: Moderat sykdom eller forstyrrelser som ikke forårsaker funksjonelle begrensninger.
+3: Alvorlig sykdom eller forstyrrelse som gir definerte funksjonelle begrensninger.
+4: Livstruende organisk sykdom som ikke behøver å være knyttet til den aktuelle
+kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske inngrepet.
+5: Døende pasient som ikke forventes å overleve 24 timer uten kirurgi.}
+
+\item{whoEcog}{WHO WCOG score, flervalg hvor (Default alle)
+0: Fullt aktiv
+1: Lett husarbeid og sittende arbeid
+2: Oppe > 50% av dagen, selvstelt
+3: Oppe < 50% av dagen, delvis selvstelt
+4: Kun i stol/seng, hjelp til alt stell
+9: Ukjent}
+
+\item{forbehandling}{Onkologisk forbehandling
+1: Cytostatika
+2: Stråleterapi
+3: Komb. kjemo/radioterapi
+4: Ingen
+99: Alle}
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 }

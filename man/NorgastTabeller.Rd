@@ -42,7 +42,15 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 1: Elektiv
 99: Begge deler (Default)}
 
-\item{BMI}{BMI-klasse}
+\item{BMI}{BMI-klasse, flervalg hvor (Default alle)
+1: Alvorlig undervekt
+2: Undervekt
+3: Mild undervekt
+4: Normal
+5: Overvekt
+6: Moderat fedme, klasse I
+7: Fedme, klasse II
+8: Fedme, klasse III}
 
 \item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
 Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
