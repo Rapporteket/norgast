@@ -60,6 +60,34 @@ aux1 <- aux1[aux1$Op_gr==1, ]
 aux2 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 8:15, ]
 aux3 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 0:7 | as.numeric(aux1$ANESTHESIA_START) %in% 16:23, ]
 
+
+### mE-PASS (PRS-score) utenfor range #############
+
+RegData0 <- RegData_old[RegData_old$PRS_SCORE<0 & !is.na(RegData_old$PRS_SCORE), c('decimalAge', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+RegData1 <- RegData[RegData$PRS_SCORE<0 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+RegData2 <- RegData[RegData$PRS_SCORE>1.1 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
+                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+
+
+-0.0686 +0.00345*RegData1$PasientAlder + 0.323*RegData1$HEART_DISEASE + 0.205*RegData1$LUNG_DISEASE + 0.153*RegData1$DIABETES +
+  0.148*RegData1$WHO_ECOG_SCORE + 0.0666*RegData1$ASA
+
+
+-0.0686 +0.00345*RegData2$PasientAlder + 0.323*RegData2$HEART_DISEASE + 0.205*RegData2$LUNG_DISEASE + 0.153*RegData2$DIABETES +
+  0.148*RegData2$WHO_ECOG_SCORE + 0.0666*RegData2$ASA
+
+RegData <- RegData[!is.na(RegData$PRS_SCORE), ]
+
+tmp <- RegData$PRS_SCORE - (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$HEART_DISEASE + 0.205*RegData$LUNG_DISEASE +
+                    0.153*RegData$DIABETES + 0.148*RegData$WHO_ECOG_SCORE + 0.0666*RegData$ASA)
+
+
+-0.0686 +0.00345*130 + 0.323*1 + 0.205*1 + 0.153*1 +0.148*4 + 0.0666*4
+
 ############# Avdød under opphold Mo i Rana ######################
 
 setwd('C:/SVN/jasper/norgast/doc/')
