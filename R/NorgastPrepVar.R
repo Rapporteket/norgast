@@ -38,7 +38,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
     RegData$Variabel <- as.numeric(RegData$Variabel)
     gr <- c(0, 10, 20, 30, 40, 100, 10000)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
-    grtxt <- names(table(RegData$VariabelGr))
+    grtxt <- levels(RegData$VariabelGr)
     grtxt[length(grtxt)] <- paste0('>=', as.character(gr[length(gr)-1]))
     subtxt <- 'Tid i dager'
   }
@@ -78,7 +78,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
     tittel <- 'mE-PASS'
     gr <- seq(0, 2, .4)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
-    grtxt <- names(table(RegData$VariabelGr))
+    grtxt <- levels(RegData$VariabelGr)
     subtxt <- 'PRS-score'
   }
 
