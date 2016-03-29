@@ -2,7 +2,6 @@ setwd('C:/GIT/norgast/inst/')
 rm(list=ls())
 
 # Les inn data
-# RegData_old <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-03-22 08-21-59.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-03-22 08-22-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
@@ -10,9 +9,8 @@ RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERA
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
                       'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
                       'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
-                      'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES')]
+                      'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID')]
-
 
 RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
@@ -25,13 +23,13 @@ erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'PRS_SCORE'
+valgtVar <- 'OpDoedTid'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
-andel=T
+# andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
@@ -46,7 +44,7 @@ forbehandling <- 99
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
+           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling)

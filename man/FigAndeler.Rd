@@ -7,7 +7,7 @@
 FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
   op_gruppe = 0, outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
-  andel = T, preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
+  preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
   valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
   forbehandling = 99, hentData = F)
 }
@@ -53,10 +53,6 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 \item{stabel}{Stabelplot
 0: Stabel
 1: Søyle (Default)}
-
-\item{andel}{Plot antall eller andeler
-TRUE: andeler (Default)
-FALSE: antall}
 
 \item{preprosess}{Preprosesser data
 FALSE: Nei (Default)

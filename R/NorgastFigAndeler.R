@@ -33,9 +33,6 @@
 #' @param stabel Stabelplot
 #'                 0: Stabel
 #'                 1: Søyle (Default)
-#' @param andel Plot antall eller andeler
-#'                 TRUE: andeler (Default)
-#'                 FALSE: antall
 #' @param preprosess Preprosesser data
 #'                 FALSE: Nei (Default)
 #'                 TRUE: Ja
@@ -92,7 +89,7 @@
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                        reshID, enhetsUtvalg=1, stabel=F, andel=T, preprosess=F,
+                        reshID, enhetsUtvalg=1, stabel=F, preprosess=F,
                         elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                         maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 {
@@ -116,9 +113,9 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   if (enhetsUtvalg==0) {
     shtxt <- 'Hele landet'
-    } else {
+  } else {
     shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
-    }	#'Eget sykehus' #
+  }	#'Eget sykehus' #
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {
     RegData$AvdRESH[RegData$AvdRESH %in% valgtShus] <- 99
@@ -126,10 +123,10 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     reshID <- 99
   }
 
-  PreppaData <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  RegData <- PlotParams$RegData
 
-
-  #Tar ut de med manglende registrering av valgt variabel og gjør utvalg
+  #Gjør utvalg basert på brukervalg
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
@@ -153,24 +150,14 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   } else {
 
     #-----------Må ha en del som er registerspesifikk, så må selve plottet være i pakken, dvs. funksjoner.
-    cexgr <- 1.0
-    skalerGrTxt <- 1
-    retn <- 'V'
-    grtxt <- ''
-    grtxt2 <- ''
-    subtxt <- ''
+
     utvalg <- c('Sh', 'Rest')
     Andeler <- list(Sh = 0, Rest =0)
-    vmarg <- 0.1
-    incl_pst <- FALSE
-    incl_N <- FALSE
 
-{    indSh <-which(RegData$AvdRESH == reshID)
+    indSh <-which(RegData$AvdRESH == reshID)
     indRest <- which(RegData$AvdRESH != reshID)
     RegDataLand <- RegData
     ind <- list(Sh=indSh, Rest=indRest)
-#     N_opgr <- length(unique(RegData$Operasjonsgrupper)) # Antall distikte operasjonsgrupper (inkludert Annet)
-#                                                         # Må finnes før utvalg gjøres for sammenligning
 
     for (teller in 1:2) {
       if (teller==2 & enhetsUtvalg != 1) {break}
@@ -179,25 +166,19 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
       #Variablene kjøres to ganger for sammenligning med Resten.
 
-
-
-      if (andel){
-        if (teller == 1) {Andeler$Sh <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-                          Nsh <- dim(RegData)[1]}
-        if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-                          Nrest <- dim(RegData)[1]}}
-      else {
-        if (teller == 1) {Andeler$Sh <- table(RegData$VariabelGr)
-                              Nsh <- dim(RegData)[1]}
-        if (teller == 2) {Andeler$Rest <- table(RegData$VariabelGr)
-                              Nrest <- dim(RegData)[1]}
-      }
+      if (teller == 1) {Andeler$Sh <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+      Nsh <- dim(RegData)[1]}
+      if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+      Nrest <- dim(RegData)[1]}
     }
 
-}
+
     #-----------Figur---------------------------------------
 
     #Plottspesifikke parametre:
+    tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
+    stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
+    incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
 
     FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
     farger <- FigTypUt$farger
@@ -210,105 +191,83 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     if (grtxt2 == '') {grtxt2 <- paste(sprintf('%.1f',Andeler$Sh), '%', sep='')}
 
 
-  if (stabel) {
+    if (stabel) {
 
-    N <- c(Nsh, Nrest)
-    Andel<- as.data.frame(cbind('Egen avdeling'=Andeler$Sh, 'Landet forøvrig'= Andeler$Rest))
-    names(Andel)[1]<-shtxt; Andel <- as.matrix(Andel)
-    tLeg <- 'Kategorier'
-    if (length(grtxt)==2 ) {farger<-farger[c(2,4)]}
-    if (length(grtxt)==3 ) {farger<-farger[c(1,3,4)]}
+      N <- c(Nsh, Nrest)
+      Andel<- as.data.frame(cbind('Egen avdeling'=Andeler$Sh, 'Landet forøvrig'= Andeler$Rest))
+      names(Andel)[1]<-shtxt; Andel <- as.matrix(Andel)
+      tLeg <- 'Kategorier'
+      if (length(grtxt)==2 ) {farger<-farger[c(2,4)]}
+      if (length(grtxt)==3 ) {farger<-farger[c(1,3,4)]}
 
-    koord <- barplot(Andel, beside=F, las=1,
-                     cex.names=cexgr, col=rev(farger), ylab="Andel (%)", ylim=c(0,114), xlim = c(0,3.7), border=NA,
-                     cex.axis=cexgr, cex.lab=cexgr, space=.25)
-    legend(2.65, 99, rev(grtxt), bty='n', ncol=1, cex=cexgr, xjust=0, fill=farger,
-           border=farger, title=tLeg)
-    text(koord, 102.6, paste('N=', N, sep=''), cex=cexgr)
-    AndelTab <- apply(matrix(paste(sprintf('%.1f', Andel),'%',sep=''), dim(Andel)), 2, rev)#[length(grtxt):1,]
-    row.names(AndelTab) <- rev(grtxt)
-    colnames(AndelTab) <- c('Egen', 'Andre')
-#     devtools::use_package('grid')
-#     devtools::use_package('gridExtra')
-#     grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
-#     gp <- grid::gpar(cex=.8*cexgr)
-#     # grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
-#     grid::grid.draw(gridExtra::tableGrob(AndelTab))
-#     grid::popViewport()
+      koord <- barplot(Andel, beside=F, las=1,
+                       cex.names=cexgr, col=rev(farger), ylab="Andel (%)", ylim=c(0,114), xlim = c(0,3.7), border=NA,
+                       cex.axis=cexgr, cex.lab=cexgr, space=.25)
+      legend(2.65, 99, rev(grtxt), bty='n', ncol=1, cex=cexgr, xjust=0, fill=farger,
+             border=farger, title=tLeg)
+      text(koord, 102.6, paste('N=', N, sep=''), cex=cexgr)
+      AndelTab <- apply(matrix(paste(sprintf('%.1f', Andel),'%',sep=''), dim(Andel)), 2, rev)#[length(grtxt):1,]
+      row.names(AndelTab) <- rev(grtxt)
+      colnames(AndelTab) <- c('Egen', 'Andre')
+      plotrix::addtable2plot(x = 2.65, y=15, AndelTab, cex=.8*cexgr, display.rownames=TRUE, bg=farger[2], xpad = .25)
+    }
+    else {
 
-#     grid::pushViewport(grid::viewport(x = 0.83, y=0.32))
-#     grid::grid.draw(gridExtra::tableGrob(AndelTab,  gp=grid::gpar(cex=.8*cexgr), core.just='right'))
-#     grid::popViewport()
+      fargeSh <- farger[1]
+      fargeRest <- farger[3]
+      antGr <- length(grtxt)
+      lwdRest <- 3	#tykkelse på linja som repr. landet
 
-    plotrix::addtable2plot(x = 2.65, y=15, AndelTab, cex=.8*cexgr, display.rownames=TRUE, bg=farger[2], xpad = .25)
-  }
-  else {
-
-    fargeSh <- farger[1]
-    fargeRest <- farger[3]
-    antGr <- length(grtxt)
-    lwdRest <- 3	#tykkelse på linja som repr. landet
-
-    if (retn == 'V' ) {
-      #Vertikale søyler eller linje
-#       par('fig'=c(0, 1, 0, 0.9))
-      if (andel){
+      if (retn == 'V' ) {
+        #Vertikale søyler eller linje
         ymax <- min(max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25, 100)
         ylabel <- "Andel pasienter"
+        pos <- barplot(as.numeric(Andeler$Sh), beside=TRUE, las=1, ylab=ylabel,  #main=tittel,
+                       sub=subtxt, cex.axis=cexgr, cex.sub=cexgr,	cex.lab=cexgr, #names.arg=grtxt, cex.names=cexgr,
+                       col=fargeSh, border='white', ylim=c(0, ymax))	#farger[c(1,3)]
+        mtext(at=pos, grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
+        mtext(at=pos, grtxt2, side=1, las=1, cex=cexgr, adj=0.5, line=1.5)
+        if (enhetsUtvalg == 1) {
+          points(pos, as.numeric(Andeler$Rest), col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
+          legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
+                 border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2, lty=c(NA,NA),
+                 lwd=lwdRest, ncol=1, cex=cexgr)
+        } else {
+          legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
+                 border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
+        }
       }
-      else {
-        ymax <- max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25
-        ylabel <- "Antall"
-      }
-      pos <- barplot(as.numeric(Andeler$Sh), beside=TRUE, las=1, ylab=ylabel,  #main=tittel,
-                     sub=subtxt, cex.axis=cexgr, cex.sub=cexgr,	cex.lab=cexgr, #names.arg=grtxt, cex.names=cexgr,
-                     col=fargeSh, border='white', ylim=c(0, ymax))	#farger[c(1,3)]
-      mtext(at=pos, grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
-      mtext(at=pos, grtxt2, side=1, las=1, cex=cexgr, adj=0.5, line=1.5)
-      if (enhetsUtvalg == 1) {
-        points(pos, as.numeric(Andeler$Rest), col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
-        legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
-               border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2, lty=c(NA,NA),
-               lwd=lwdRest, ncol=1, cex=cexgr)
-      } else {
-        legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
-               border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
-      }
-    }
 
 
-    if (retn == 'H') {
-      #Horisontale søyler
-      ymax <- antGr*1.4
-      if (andel){
+      if (retn == 'H') {
+        #Horisontale søyler
+        ymax <- antGr*1.4
         xmax <- min(max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25, 100)
-        xlabel <- "Andel pasienter (%)"}
-      else {
-        xmax <- max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25
-        xlabel <- "Antall"}
+        xlabel <- "Andel pasienter (%)"
 
-      pos <- barplot(rev(as.numeric(Andeler$Sh)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
-                     col=fargeSh, border='white', font.main=1, xlim=c(0, xmax), ylim=c(0.05,1.4)*antGr)	#
-      mtext(at=pos+0.05, text=grtxtpst, side=2, las=1, cex=cexgr, adj=1, line=0.25)
+        pos <- barplot(rev(as.numeric(Andeler$Sh)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
+                       col=fargeSh, border='white', font.main=1, xlim=c(0, xmax), ylim=c(0.05,1.4)*antGr)	#
+        mtext(at=pos+0.05, text=grtxtpst, side=2, las=1, cex=cexgr, adj=1, line=0.25)
 
-      if (enhetsUtvalg == 1) {
-        points(as.numeric(rev(Andeler$Rest)), pos, col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
-        legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
-               border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2,
-               lwd=lwdRest,	lty=NA, ncol=1, cex=cexgr)
-      } else {
-        legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
-               border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
+        if (enhetsUtvalg == 1) {
+          points(as.numeric(rev(Andeler$Rest)), pos, col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
+          legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
+                 border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2,
+                 lwd=lwdRest,	lty=NA, ncol=1, cex=cexgr)
+        } else {
+          legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
+                 border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
+        }
       }
     }
   }
   krymp <- .9
   title(tittel, line=1, font.main=1, cex.main=1.3*cexgr)
-mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
+  mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
 
   par('fig'=c(0, 1, 0, 1))
 
   if ( outfile != '') {dev.off()}
 
-  }
 }
+

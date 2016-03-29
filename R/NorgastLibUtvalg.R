@@ -23,6 +23,7 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   #Hvis "Variabel" ikke definert
   # if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
   Ninn <- dim(RegData)[1]
+  indVarMed <- 1:Ninn
 #   indVarMed <- which(RegData$Variabel != 'NA') %i% which(RegData$Variabel != 'NaN') %i%
 #                          which(RegData$Variabel != '') %i% which(!is.na(RegData$Variabel)) %i% which(!is.nan(RegData$Variabel))
   indAld <- which(RegData$Alder >= minald & RegData$Alder <= maxald)

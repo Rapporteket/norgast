@@ -9,29 +9,52 @@
 #' @return PrepData En liste med plotrelevante størrelser
 #'
 #' @export
+#'
 NorgastPrepVar <- function(RegData, valgtVar)
 {
+  stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- '';
+  cexgr <- 1.0; grtxt <- ''; grtxt2 <- ''; subtxt <- ''
+
+
   RegData$Variabel <- NA
   if (valgtVar %in% c('Alder', 'Vektendring', 'DIABETES','WHO_ECOG_SCORE', 'ASA', 'MODIFIED_GLASGOW_SCORE', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'ABDOMINAL_ACCESS', 'THORAX_ACCESS', 'ACCORDION_SCORE', 'RELAPAROTOMY',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'ROBOTASSISTANCE', 'erMann', 'PRS_SCORE',
-                      'ANASTOMOSIS','Anastomoselekkasje')) {
+                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
+
+  if (valgtVar=='DECEASED') {
+    tittel <- 'Andel avdøde av uansett årsak'
+    grtxt <- c('I live', 'Avdød')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='OpDoedTid') {
+    RegData <- RegData[!is.na(RegData$Variabel), ]
+    tittel <- 'Tid fra operasjon til død'
+    RegData$Variabel <- as.numeric(RegData$Variabel)
+    gr <- c(0, 10, 20, 30, 40, 100, 10000)
+    RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
+    grtxt <- names(table(RegData$VariabelGr))
+    grtxt[length(grtxt)] <- paste0('>=', as.character(gr[length(gr)-1]))
+    subtxt <- 'Tid i dager'
+  }
+
 
   if (valgtVar=='Vektendring') {
     tittel <- 'Fra premorbid til preoperativ vektendring'
     RegData$Variabel <- as.numeric(RegData$Variabel)
     gr <- c(-100, -10, -5, -2, 2, 5, 10, 200)
-    RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=T)
-    grtxt <- c('<-10','[-10,-5)', '[-5,-2)', '[-2,2)', '[2,5)', '[5,10)','>=15')
+    RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
+    grtxt <- c('<-10','[-10,-5)', '[-5,-2)', '[-2,2)', '[2,5)', '[5,10)','>=10')
     subtxt <- 'Vektendring %'
   }
 
   if (valgtVar=='Op_gr') {
     tittel <- 'Operasjonsgrupper'
-    #         gr <- c(1:(N_opgr-1),99)
-    #         grtxt <- RegData$Operasjonsgrupper[match(gr, RegData$Op_gr)]
     gr <- c(1:11,99)
     grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
                'Leverreseksjoner',"Whipples operasjon", 'Cholecystektomi', 'Appendektomi', 'Tynntarmsreseksjon',
@@ -40,7 +63,6 @@ NorgastPrepVar <- function(RegData, valgtVar)
     subtxt <- 'Operasjonsgrupper'
     incl_N <- T
     retn <- 'H'
-    #         skalerGrTxt <-.9
   }
 
   if (valgtVar=='Alder') {
@@ -67,10 +89,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
                '3: Oppe < 50% av dagen, delvis selvstelt', '4: Kun i stol/seng, hjelp til alt stell', 'Ukjent')
     RegData <- RegData[which(RegData$Variabel %in% c(0:4,9)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0:4,9), labels = grtxt)
-    #         vmarg <- 0.15
-    #         skalerGrTxt <- .72
     retn <- 'H'
-    #         incl_pst <- FALSE
   }
 
   if (valgtVar=='BMI_kodet') {
@@ -80,8 +99,6 @@ NorgastPrepVar <- function(RegData, valgtVar)
                'Moderat fedme, klasse I (30-35)','Fedme, klasse II (35-40)','Fedme, klasse III (40-50)')
     RegData <- RegData[which(RegData$Variabel %in% c(1:8)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1:8), labels = grtxt)
-    #         vmarg <- 0.15
-    #         skalerGrTxt <-.95
     retn <- 'H'
   }
 
@@ -95,7 +112,6 @@ NorgastPrepVar <- function(RegData, valgtVar)
 
   if (valgtVar=='erMann') {
     tittel <- 'Kjønn'
-    #         subtxt <- 'ASA-score gruppe'
     grtxt <- c('Kvinne', 'Mann')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
@@ -105,6 +121,8 @@ NorgastPrepVar <- function(RegData, valgtVar)
   if (valgtVar=='MODIFIED_GLASGOW_SCORE') {
     tittel <- 'Modified Glasgow Prognostic Score'
     grtxt <- c('0', '1', '2')
+    # grtxt <- c('0', '1', '2', 'Ukjent')
+    # RegData$Variabel[is.na(RegData$Variabel)] <- 99
     RegData <- RegData[which(RegData$Variabel %in% c(0:2)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0:2), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
@@ -115,8 +133,6 @@ NorgastPrepVar <- function(RegData, valgtVar)
     grtxt <- c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')
     RegData <- RegData[which(RegData$Variabel %in% 1:4), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=1:4, labels = grtxt)
-    #         vmarg <- 0.15
-    #         skalerGrTxt <-.95
     retn <- 'H'
     incl_pst <- T
   }
@@ -149,17 +165,16 @@ NorgastPrepVar <- function(RegData, valgtVar)
     tittel <- 'Komplikasjoner'
     grtxt <- c('<3', '3', '4', '5', '6')
     subtxt <- 'Accordion score'
-    #         RegData$Variabel <- as.character(RegData$Variabel)
-    #         RegData$Variabel[which(RegData$Variabel=='Mindre enn 3')] <- '0'
-    #         RegData$Variabel <- as.numeric(RegData$Variabel)
     RegData <- RegData[which(RegData$Variabel %in% c(1, 3:6)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1, 3:6), labels = grtxt)
   }
 
   if (valgtVar=='DIABETES') {
     tittel <- 'Medisinert mot diabetes'
+    # grtxt <- c('Nei','Ja', 'Ikke registrert')
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    # RegData$Variabel[is.na(RegData$Variabel)] <- 99
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
@@ -213,17 +228,9 @@ NorgastPrepVar <- function(RegData, valgtVar)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='RegMnd') {
-    tittel <- 'Antall operasjoner per måned'
-    grtxt <- c('jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des')
-    RegData <- RegData[which(RegData$Variabel %in% 1:12), ]
-    RegData$VariabelGr <- factor(RegData$Variabel, levels=1:12, labels = grtxt)
-    andel <- F
-  }
 
-  PrepData <- list(RegData=RegData, tittel=tittel, grtxt=grtxt, stabel=stabel, andel=andel, subtxt=subtxt,
-                   incl_N=incl_N, incl_pst=incl_pst, retn=retn)
+  PlotParams <- list(RegData=RegData, tittel=tittel, grtxt=grtxt, grtxt2=grtxt2, stabel=stabel, subtxt=subtxt,
+                   incl_N=incl_N, incl_pst=incl_pst, retn=retn, cexgr=cexgr)
 
-  return(invisible(PrepData))
-
+  return(invisible(PlotParams))
 }
