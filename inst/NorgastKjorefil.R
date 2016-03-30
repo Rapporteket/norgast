@@ -2,17 +2,15 @@
 rm(list=ls())
 
 # Les inn data
-# RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2016-02-01 13-05-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-RegData <- read.table('C:/GIT/norgast/data/AlleVarNum2016-02-01 13-05-05.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/GIT/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-03-22 08-21-59.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-03-22 08-22-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
                       'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
                       'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
-                      'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES')]
+                      'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID')]
-
 
 RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
@@ -25,28 +23,28 @@ erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Op_gr'
+valgtVar <- 'DECEASED'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
 hentData <- F
 stabel=F
-andel=T
+# andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
-tilgang <- 2
+tilgang <- 99
 minPRS <- 0
 maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
-forbehandling <- 3
+forbehandling <- 99
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel, andel=andel,
+           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling)
@@ -82,8 +80,66 @@ RegData2 <- RegData[RegData$PRS_SCORE>1.1 & !is.na(RegData$PRS_SCORE), c('Sykehu
 
 RegData <- RegData[!is.na(RegData$PRS_SCORE), ]
 
-tmp <- RegData$PRS_SCORE - (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$HEART_DISEASE + 0.205*RegData$LUNG_DISEASE +
+RegData$PRS_SCORE_minutregning <- (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$HEART_DISEASE + 0.205*RegData$LUNG_DISEASE +
                     0.153*RegData$DIABETES + 0.148*RegData$WHO_ECOG_SCORE + 0.0666*RegData$ASA)
+
+
+tmp <- RegData[,c('MCEID', 'PRS_SCORE', 'PRS_SCORE_minutregning')]
+tmp$PRS_SCORE_minutregning[RegData$WHO_ECOG_SCORE==9] <- NA
+
+forskjell <- tmp$PRS_SCORE - tmp$PRS_SCORE_minutregning
+
+indUlik <- which(abs(forskjell)>10^(-12) | (is.na(tmp$PRS_SCORE) & !is.na(tmp$PRS_SCORE_minutregning)) |
+                   (!is.na(tmp$PRS_SCORE) & is.na(tmp$PRS_SCORE_minutregning)) )
+avvik <- tmp[indUlik,]
+
+setwd('C:/SVN/jasper/norgast/doc/')
+write.csv2(avvik, 'avvik.csv', row.names = F)
+
+prs<-read.table('C:/SVN/jasper/norgast/doc/Rescoring_PRS_score.csv', header=TRUE, sep=";", encoding = 'UFT-8')
+prs$Endring <- as.character(prs$Endring)
+prs_forskj <- prs[substr(prs$Endring, 1, 9)!='No change', ]
+prs_forskj$Endring<-gsub('.*=([0-9]+).*','\\1', prs_forskj$Endring)
+names(prs_forskj)[1] <- 'MCEID'
+prs_forskj$MCEID <- as.numeric(prs_forskj$MCEID)
+prs_forskj$PRS_GAMMEL <- as.numeric(as.character(prs_forskj$PRS_GAMMEL))
+prs_forskj$PRS_NY <- as.numeric(as.character(prs_forskj$PRS_NY))
+
+
+avvik[avvik$MCEID %in% setdiff(avvik$MCEID, prs_forskj$MCEID), ]
+prs_forskj[prs_forskj$MCEID %in% setdiff(prs_forskj$MCEID, avvik$MCEID), ]
+
+
+prsTorkil<-read.table('C:/SVN/jasper/norgast/doc/Rescoring_PRS_score Torkil.csv', header=TRUE, sep=",", encoding = 'UFT-8')
+prsTorkil$NEW_PRSCORE <- as.numeric(as.character(prsTorkil$NEW_PRSCORE))
+prsTorkil$OLD_PRS_SCORE <- as.numeric(as.character(prsTorkil$OLD_PRS_SCORE))
+
+forskjell2 <- prsTorkil$OLD_PRS_SCORE - prsTorkil$NEW_PRSCORE
+
+indUlik <- which(abs(forskjell2)>10^(-12) | (is.na(prsTorkil$OLD_PRS_SCORE) & !is.na(prsTorkil$NEW_PRSCORE)) |
+                   (!is.na(prsTorkil$OLD_PRS_SCORE) & is.na(prsTorkil$NEW_PRSCORE)) )
+avvik2 <- prsTorkil[indUlik,]
+
+setdiff(avvik$MCEID, avvik2$MCEID)
+setdiff(avvik2$MCEID, avvik$MCEID)
+
+RegData[RegData$MCEID %in% c(setdiff(avvik$MCEID, avvik2$MCEID), setdiff(avvik2$MCEID, avvik$MCEID)),
+        c('MCEID', 'PRS_SCORE', 'PRS_SCORE_minutregning')]
+prsTorkil[prsTorkil$MCEID %in% c(setdiff(avvik$MCEID, avvik2$MCEID), setdiff(avvik2$MCEID, avvik$MCEID)), ]
+
+
+
+
+Endelig <- merge(tmp, prsTorkil, by = 'MCEID')
+
+forskjell3 <- Endelig$PRS_SCORE_minutregning - Endelig$NEW_PRSCORE
+indUlik <- which(abs(forskjell3)>10^(-12) | (is.na(Endelig$NEW_PRSCORE) & !is.na(Endelig$PRS_SCORE_minutregning)) |
+                   (!is.na(Endelig$NEW_PRSCORE) & is.na(Endelig$PRS_SCORE_minutregning)) )
+
+avvik <- Endelig[indUlik, ]
+
+setwd('C:/SVN/jasper/norgast/doc/')
+write.csv2(avvik[, c('MCEID', 'NEW_PRSCORE', 'PRS_SCORE_minutregning')], 'avvik.csv', row.names = F)
 
 
 -0.0686 +0.00345*130 + 0.323*1 + 0.205*1 + 0.153*1 +0.148*4 + 0.0666*4
