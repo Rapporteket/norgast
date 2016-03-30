@@ -39,8 +39,8 @@ NorgastPrepVar <- function(RegData, valgtVar)
     gr <- c(0, 10, 20, 30, 40, 100, 10000)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
     grtxt <- levels(RegData$VariabelGr)
-    # grtxt[length(grtxt)] <- paste0('>=', as.character(gr[length(gr)-1]))
-    grtxt[length(grtxt)] <- expression(>= gr[length(gr)-1])
+    grtxt[length(grtxt)] <- paste0('>=', as.character(gr[length(gr)-1]))
+    # grtxt[length(grtxt)] <- expression(>= gr[length(gr)-1])
     subtxt <- 'Tid i dager'
   }
 
