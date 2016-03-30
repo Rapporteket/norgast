@@ -25,7 +25,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
   }
 
   if (valgtVar=='DECEASED') {
-    tittel <- 'Andel avdøde av uansett årsak'
+    tittel <- c('Andel avdøde uansett årsak', '(Egenregistrerte og fra folkeregister)')
     grtxt <- c('I live', 'Avdød')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
