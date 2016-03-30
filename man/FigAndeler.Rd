@@ -4,10 +4,12 @@
 \alias{FigAndeler}
 \title{Lag søylediagram eller stabelplott som viser andeler av ulike variabler}
 \usage{
-FigAndeler(RegData = 0, valgtVar, datoFra = "2014-01-01",
+FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
   op_gruppe = 0, outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
-  andel = T, preprosess = T, hentData = F)
+  andel = T, preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
+  valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
+  forbehandling = 99, hentData = F)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -52,20 +54,74 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 0: Stabel
 1: Søyle (Default)}
 
-\item{andel}{Andel
-0: andeler
-1: antall}
+\item{andel}{Plot antall eller andeler
+TRUE: andeler (Default)
+FALSE: antall}
 
-\item{preprosess}{Preprosesser data}
+\item{preprosess}{Preprosesser data
+FALSE: Nei (Default)
+TRUE: Ja}
+
+\item{elektiv}{Elektiv eller øyeblikkelig hjelp
+0: Øyeblikkelig hjelp
+1: Elektiv
+99: Begge deler (Default)}
+
+\item{BMI}{BMI-klasse, flervalg hvor (Default alle)
+1: Alvorlig undervekt
+2: Undervekt
+3: Mild undervekt
+4: Normal
+5: Overvekt
+6: Moderat fedme, klasse I
+7: Fedme, klasse II
+8: Fedme, klasse III}
+
+\item{tilgang}{Tilgang i abdomen
+1: Åpen eller konvertert
+2: Lapaoskopisk
+99: Alle (Default)}
+
+\item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
+Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
+
+\item{minPRS}{Minimum PRS (Default 0?)}
+
+\item{maxPRS}{Maksimum PRS (Default 2?)}
+
+\item{ASA}{ASA-grad, flervalg hvor (Default alle)
+1: Ingen organisk, fysiologisk, biokjemisk eller psykisk forstyrrelse.
+Den aktuelle lidelsen er lokalisert og gir ikke generelle systemforstyrrelser.
+2: Moderat sykdom eller forstyrrelser som ikke forårsaker funksjonelle begrensninger.
+3: Alvorlig sykdom eller forstyrrelse som gir definerte funksjonelle begrensninger.
+4: Livstruende organisk sykdom som ikke behøver å være knyttet til den aktuelle
+kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske inngrepet.
+5: Døende pasient som ikke forventes å overleve 24 timer uten kirurgi.}
+
+\item{whoEcog}{WHO WCOG score, flervalg hvor (Default alle)
+0: Fullt aktiv
+1: Lett husarbeid og sittende arbeid
+2: Oppe > 50% av dagen, selvstelt
+3: Oppe < 50% av dagen, delvis selvstelt
+4: Kun i stol/seng, hjelp til alt stell
+9: Ukjent}
+
+\item{forbehandling}{Onkologisk forbehandling
+1: Cytostatika
+2: Stråleterapi
+3: Komb. kjemo/radioterapi
+4: Ingen
+99: Alle}
 
 \item{hentData}{Gjør spørring mot database
-0: Nei, RegData gis som input til funksjonen (Default)
-1: Ja}
+FALSE: Nei, RegData gis som input til funksjonen (Default)
+TRUE: Ja}
 }
 \value{
 En figur med søylediagram eller et stabelplot av ønsket variabel
 }
 \description{
-Lag søylediagram eller stabelplott som viser andeler av ulike variabler
+Denne funksjonen lager et søylediagram eller stabelplot som viser andeler av valgt variabel
+filtrert på de utvalg som er gjort.
 }
 

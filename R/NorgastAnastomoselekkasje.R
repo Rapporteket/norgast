@@ -10,7 +10,8 @@
 
 
 NorgastAnastomoselekkasje <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
-                                      minald=0, maxald=130, erMann=99, reshID=601225, outfile='')
+                                      minald=0, maxald=130, erMann=99, reshID=601225, outfile='', elektiv=99,
+                                      BMI='', valgtShus='')
 
 {
 
@@ -25,7 +26,7 @@ RegData$variabel <- 0
 RegData$variabel[RegData$RELAPAROTOMY_YES==1] <- 1
 
 NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
-                                  erMann=erMann, op_gruppe=0)
+                                  erMann=erMann, op_gruppe=0, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
 RegData <- NorgastUtvalg$RegData
 utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -53,8 +54,8 @@ Tabell1$RateAnastomoselekkasje_lokal[7]<-NA
 Tabell1$RateAnastomoselekkasje_ovrig[7]<-NA
 
 ### Begrenset til rektum ##################################
-regdata <- RegData
-RegData <- RegData[RegData$Op_gr2==3,]
+regdata <- RegData                      # Beholde det fulle datasettet
+RegData <- RegData[RegData$Op_gr2==3,]  # Velg bare rektum
 indSh <-which(RegData$AvdRESH == reshID)
 indRest <- which(RegData$AvdRESH != reshID)
 RegDataSh <- RegData[indSh,]
@@ -77,7 +78,7 @@ Tabell2[1,2:5] <- NA
 
 regdata$ForbehandlingBinaer <- NA
 regdata$ForbehandlingBinaer[regdata$Forbehandling %in% c(1,2,3)] <- 1
-regdata$ForbehandlingBinaer[regdata$Forbehandling == 9] <- 0
+regdata$ForbehandlingBinaer[regdata$Forbehandling == 4] <- 0
 RegData <- regdata
 
 Tabell3 <- data.frame(Operasjonsgruppe=c('Rektumreseksjon, ny anastomose', '\\quad Ingen forbehandling', '\\quad Enhver forbehandling',

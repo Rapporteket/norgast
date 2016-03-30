@@ -9,26 +9,29 @@
 #'
 #' @export
 
-NorgastPreprosess <- function(RegData, reshID=reshID)
+NorgastPreprosess <- function(RegData)
 
 {
-names(RegData)[which(names(RegData)=='isMale')]<-'erMann'
+names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
+names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
 RegData <- RegData[which(RegData$STATUS==1),] # Inkluder kun lukkede registreringer
 RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
 RegData$RegMnd <- RegData$OperasjonsDato$mon +1
 #     RegData$DoedsDato <- as.POSIXlt(RegData$DECEASED_DATE, format="%Y-%m-%d")
 #     RegData$OpDoedTid <- difftime(RegData$DoedsDato,RegData$OperasjonsDato)
-RegData$Avdeling <- as.character(RegData$Avdeling)
+# RegData$Avdeling <- as.character(RegData$Avdeling)
 
 RegData$SykehusNavn <- RegData$Sykehusnavn
 
-shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+# shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+# RegData$Alder <- floor(RegData[ ,'decimalAge'])
 
-RegData$Alder <- floor(RegData[ ,'decimalAge'])
 RegData$ncsp_lowercase <- substr(tolower(RegData$NCSP), 1, 5)
-lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5)))
-uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))
-RegData$NCSP[lowercase[which(!is.na(uppercase))]] <- RegData$NCSP[uppercase[which(!is.na(uppercase))]]
+lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5))) # index til der NCSP-kode er i lowercase
+uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))  # index til første forekomst av samme NCSP-kode i uppercase
+                                                                                  # som den som finnes i lowercase
+RegData$NCSP[lowercase[which(!is.na(uppercase))]] <- RegData$NCSP[uppercase[which(!is.na(uppercase))]] # Der det finnes, erstatt lowercase
+                                                                                  # tilfellet med den fulle beskrivelsen fra uppercase
 RegData$NCSP <- iconv(RegData$NCSP, "UTF-8", "latin1")
 RegData$Vektendring <- -RegData$WEIGHTLOSS
 RegData$Forbehandling <- NA
@@ -37,7 +40,7 @@ RegData$Forbehandling[which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==1)] <- 2
 RegData$Forbehandling[which(as.numeric(RegData$CHEMORADIOTHERAPY)==1)] <- 3
 RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$CHEMOTHERAPY_ONLY)==0),
                                           which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==0)),
-                                which(as.numeric(RegData$CHEMORADIOTHERAPY)==0))] <- 9
+                                which(as.numeric(RegData$CHEMORADIOTHERAPY)==0))] <- 4
 RegData$BMI_kodet <- NA
 RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Alvorlig undervekt')] <- 1
 RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Undervekt')] <- 2
@@ -53,23 +56,32 @@ RegData <- RegData[which(RegData$ncsp_lowercase!=''),]
 RegData$Operasjonsgrupper <- "Annet"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
 RegData$Operasjonsgrupper[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) > 19 &
-                                            as.numeric(substr(RegData$ncsp_lowercase,4,5))<65))] <- "Kolonreseksjoner"
+                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
-RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- enc2utf8("Øsofagusreseksjoner")
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
 RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5)=="jlc30")] <- "Whipples operasjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jlc30","jlc31"))] <- "Whipples operasjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jka20","jka21"))] <- "Cholecystektomi"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jea00","jea01"))] <- "Appendektomi"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jfb00","jfb01"))] <- "Tynntarmsreseksjon"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf10","jdf11"))] <- "Gastric bypass"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf96","jdf97"))] <- "Gastric sleeve"
 
-RegData$Op_gr <- 0
+RegData$Op_gr <- NA
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
 RegData$Op_gr[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 9
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 7
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 8
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 9
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 10
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 11
+RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
 RegData$Op_gr2 <- 9
 RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$ANASTOMOSIS==1))] <- 1
@@ -132,8 +144,8 @@ RegData$Anastomoselekkasje[RegData$ANASTOMOSIS==1] <- 0
 RegData$Anastomoselekkasje[RegData$RELAPAROTOMY_YES==1] <- 1
 RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA
 
-Data <- list(RegData=RegData, shtxt=shtxt)
+# Data <- list(RegData=RegData, shtxt=shtxt)
 
-return(invisible(Data))
+return(invisible(RegData))
 
 }

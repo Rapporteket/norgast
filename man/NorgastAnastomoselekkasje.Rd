@@ -6,7 +6,8 @@
 \usage{
 NorgastAnastomoselekkasje(RegData = RegData, datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  reshID = 601225, outfile = "")
+  reshID = 601225, outfile = "", elektiv = 99, BMI = "",
+  valgtShus = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -29,6 +30,24 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 
 \item{outfile}{Navn på fil figuren skrives til. Default: '' (Figur skrives
 til systemets default output device (som regel skjerm))}
+
+\item{elektiv}{Elektiv eller øyeblikkelig hjelp
+0: Øyeblikkelig hjelp
+1: Elektiv
+99: Begge deler (Default)}
+
+\item{BMI}{BMI-klasse, flervalg hvor (Default alle)
+1: Alvorlig undervekt
+2: Undervekt
+3: Mild undervekt
+4: Normal
+5: Overvekt
+6: Moderat fedme, klasse I
+7: Fedme, klasse II
+8: Fedme, klasse III}
+
+\item{valgtShus}{Vektor med AvdResh over hvilke sykehus man genererer rapporten for.
+Denne overstyrer reshID og er bare tilgjengelig for SC-bruker.}
 }
 \value{
 Tabell En list med tre tabeller over anastomoselekkasjerater

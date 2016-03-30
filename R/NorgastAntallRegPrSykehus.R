@@ -16,6 +16,8 @@ NorgastAntallRegPrSykehus  <- function(RegData, datoFra='2014-01-01', datoTil='2
 RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d")
 RegData <- RegData[which(RegData$OperasjonsDato >= as.POSIXlt(datoFra) & RegData$OperasjonsDato <= as.POSIXlt(datoTil)),]
 
+RegData$Sykehusnavn <- as.factor(as.character(RegData$Sykehusnavn))
+
 lik0 <- function(x) {
   ut <- sum(x==0, na.rm=T)
   return(invisible(ut))
