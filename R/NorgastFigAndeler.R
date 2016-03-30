@@ -135,38 +135,42 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   }
 
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
-  if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indShUt <- which(RegData$AvdRESH != reshID)}
+  if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
 
 
 
   #-----------Må ha en del som er registerspesifikk, så må selve plottet være i pakken, dvs. funksjoner.
 
-  utvalg <- c('Sh', 'Rest')
-  Andeler <- list(Sh = 0, Rest =0)
+  utvalg <- c('Hoved', 'Rest')
+  Andeler <- list(Hoved = 0, Rest =0)
 
-  indSh <-which(RegData$AvdRESH == reshID)
+  indHoved <-which(RegData$AvdRESH == reshID)
   indRest <- which(RegData$AvdRESH != reshID)
   RegDataLand <- RegData
-  ind <- list(Sh=indSh, Rest=indRest)
+  ind <- list(Hoved=indHoved, Rest=indRest)
 
   for (teller in 1:2) {
     if (teller==2 & enhetsUtvalg != 1) {break}
 
-    if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Sh = ind$Sh, Rest=ind$Rest), ]}
+    if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Hoved = ind$Hoved, Rest=ind$Rest), ]}
 
     #Variablene kjøres to ganger for sammenligning med Resten.
 
-    if (teller == 1) {Andeler$Sh <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-    Nsh <- dim(RegData)[1]}
+    if (teller == 1) {Andeler$Hoved <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+    NHoved <- dim(RegData)[1]}
     if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
     Nrest <- dim(RegData)[1]}
   }
 
 
   ##-----------Figur---------------------------------------
+  tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
+  stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
+  incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
+  FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
 
   #Hvis for få observasjoner..
-  if (dim(RegData)[1] < 5 | (length(which(RegData$AvdRESH == reshID))<5 & enhetsUtvalg==1)
+  if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)
       | (length(which(RegData$AvdRESH != reshID))<5 & enhetsUtvalg==1)) {
     #-----------Figur---------------------------------------
     figtype(outfile)
@@ -178,25 +182,21 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   } else {
 
     #Plottspesifikke parametre:
-    tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
-    stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
-    incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
 
-    FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
     farger <- FigTypUt$farger
     NutvTxt <- length(utvalgTxt)
     grtxtpst <- rev(grtxt)
-    if (incl_pst) {grtxtpst <- paste(rev(grtxt), ' (', rev(sprintf('%.1f', Andeler$Sh)), '%)', sep='')}
-    if (incl_N) {grtxtpst <- paste(rev(grtxt), ' (n=', rev(sprintf('%.0f', Andeler$Sh*Nsh/100)), ')', sep='')}
+    if (incl_pst) {grtxtpst <- paste(rev(grtxt), ' (', rev(sprintf('%.1f', Andeler$Hoved)), '%)', sep='')}
+    if (incl_N) {grtxtpst <- paste(rev(grtxt), ' (n=', rev(sprintf('%.0f', Andeler$Hoved*NHoved/100)), ')', sep='')}
     vmarg <- switch(retn, V=0, H=max(0, strwidth(grtxtpst, units='figure', cex=cexgr)*0.8))
     par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))  #Har alltid datoutvalg med
-    if (grtxt2 == '') {grtxt2 <- paste(sprintf('%.1f',Andeler$Sh), '%', sep='')}
+    if (grtxt2 == '') {grtxt2 <- paste(sprintf('%.1f',Andeler$Hoved), '%', sep='')}
 
 
     if (stabel) {
 
-      N <- c(Nsh, Nrest)
-      Andel<- as.data.frame(cbind('Egen avdeling'=Andeler$Sh, 'Landet forøvrig'= Andeler$Rest))
+      N <- c(NHoved, Nrest)
+      Andel<- as.data.frame(cbind('Egen avdeling'=Andeler$Hoved, 'Landet forøvrig'= Andeler$Rest))
       names(Andel)[1]<-shtxt; Andel <- as.matrix(Andel)
       tLeg <- 'Kategorier'
       if (length(grtxt)==2 ) {farger<-farger[c(2,4)]}
@@ -215,28 +215,28 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     }
     else {
 
-      fargeSh <- farger[1]
+      fargeHoved <- farger[1]
       fargeRest <- farger[3]
       antGr <- length(grtxt)
       lwdRest <- 3	#tykkelse på linja som repr. landet
 
       if (retn == 'V' ) {
         #Vertikale søyler
-        ymax <- min(max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25, 100)
+        ymax <- min(max(c(Andeler$Hoved, Andeler$Rest),na.rm=T)*1.25, 100)
         ylabel <- "Andel pasienter"
-        pos <- barplot(as.numeric(Andeler$Sh), beside=TRUE, las=1, ylab=ylabel,  #main=tittel,
+        pos <- barplot(as.numeric(Andeler$Hoved), beside=TRUE, las=1, ylab=ylabel,  #main=tittel,
                        sub=subtxt, cex.axis=cexgr, cex.sub=cexgr,	cex.lab=cexgr, #names.arg=grtxt, cex.names=cexgr,
-                       col=fargeSh, border='white', ylim=c(0, ymax))	#farger[c(1,3)]
+                       col=fargeHoved, border='white', ylim=c(0, ymax))	#farger[c(1,3)]
         mtext(at=pos, grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
         mtext(at=pos, grtxt2, side=1, las=1, cex=cexgr, adj=0.5, line=1.5)
         if (enhetsUtvalg == 1) {
           points(pos, as.numeric(Andeler$Rest), col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
-          legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
-                 border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2, lty=c(NA,NA),
+          legend('top', c(paste(shtxt, ' (N=', NHoved,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
+                 border=c(fargeHoved,NA), col=c(fargeHoved,fargeRest), bty='n', pch=c(15,18), pt.cex=2, lty=c(NA,NA),
                  lwd=lwdRest, ncol=1, cex=cexgr)
         } else {
-          legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
-                 border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
+          legend('top', paste(shtxt, ' (N=', NHoved,')', sep=''),
+                 border=NA, fill=fargeHoved, bty='n', ncol=1, cex=cexgr)
         }
       }
 
@@ -244,27 +244,27 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
       if (retn == 'H') {
         #Horisontale søyler
         ymax <- antGr*1.4
-        xmax <- min(max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25, 100)
+        xmax <- min(max(c(Andeler$Hoved, Andeler$Rest),na.rm=T)*1.25, 100)
         xlabel <- "Andel pasienter (%)"
 
-        pos <- barplot(rev(as.numeric(Andeler$Sh)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
-                       col=fargeSh, border='white', font.main=1, xlim=c(0, xmax), ylim=c(0.05,1.4)*antGr)	#
+        pos <- barplot(rev(as.numeric(Andeler$Hoved)), horiz=TRUE, beside=TRUE, las=1, xlab=xlabel, #main=tittel,
+                       col=fargeHoved, border='white', font.main=1, xlim=c(0, xmax), ylim=c(0.05,1.4)*antGr)	#
         mtext(at=pos+0.05, text=grtxtpst, side=2, las=1, cex=cexgr, adj=1, line=0.25)
 
         if (enhetsUtvalg == 1) {
           points(as.numeric(rev(Andeler$Rest)), pos, col=fargeRest,  cex=2, pch=18) #c("p","b","o"),
-          legend('top', c(paste(shtxt, ' (N=', Nsh,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
-                 border=c(fargeSh,NA), col=c(fargeSh,fargeRest), bty='n', pch=c(15,18), pt.cex=2,
+          legend('top', c(paste(shtxt, ' (N=', NHoved,')', sep=''), paste('Landet forøvrig (N=', Nrest,')', sep='')),
+                 border=c(fargeHoved,NA), col=c(fargeHoved,fargeRest), bty='n', pch=c(15,18), pt.cex=2,
                  lwd=lwdRest,	lty=NA, ncol=1, cex=cexgr)
         } else {
-          legend('top', paste(shtxt, ' (N=', Nsh,')', sep=''),
-                 border=NA, fill=fargeSh, bty='n', ncol=1, cex=cexgr)
+          legend('top', paste(shtxt, ' (N=', NHoved,')', sep=''),
+                 border=NA, fill=fargeHoved, bty='n', ncol=1, cex=cexgr)
         }
       }
     }
   }
   krymp <- .9
-  title(tittel, line=1, font.main=1, cex.main=1.3*cexgr)
+  title(main = tittel, line=1, font.main=1, cex.main=1.3*cexgr)
   mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
 
   par('fig'=c(0, 1, 0, 1))
