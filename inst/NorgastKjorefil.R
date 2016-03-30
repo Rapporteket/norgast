@@ -23,7 +23,7 @@ erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'OpDoedTid'
+valgtVar <- 'DECEASED'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T

@@ -39,11 +39,9 @@ NorgastPrepVar <- function(RegData, valgtVar)
     gr <- c(0, 10, 20, 30, 40, 100, 10000)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
     grtxt <- levels(RegData$VariabelGr)
-    grtxt[length(grtxt)] <- paste0('>=', as.character(gr[length(gr)-1]))
-    # grtxt[length(grtxt)] <- expression(>= gr[length(gr)-1])
+    grtxt[length(grtxt)] <- paste0('\u2265', as.character(gr[length(gr)-1])) # Større eller lik unicode symbol
     subtxt <- 'Tid i dager'
   }
-
 
   if (valgtVar=='Vektendring') {
     tittel <- 'Fra premorbid til preoperativ vektendring'

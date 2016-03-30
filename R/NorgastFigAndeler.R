@@ -137,10 +137,6 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
 
-
-
-  #-----------Må ha en del som er registerspesifikk, så må selve plottet være i pakken, dvs. funksjoner.
-
   utvalg <- c('Hoved', 'Rest')
   Andeler <- list(Hoved = 0, Rest =0)
 
