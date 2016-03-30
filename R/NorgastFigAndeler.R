@@ -99,12 +99,23 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
   }
 
-  # Hvis RegData ikke har blitt preprosessert
+  ## Hvis RegData ikke har blitt preprosessert
   if (preprosess){
     RegData <- NorgastPreprosess(RegData=RegData)
   }
 
-  #------------Gjøre utvalg-------------------------
+  ## Preparer variabler for fremstilling i figur
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  RegData <- PlotParams$RegData
+  PlotParams$RegData <- NA
+
+  ## Gjør utvalg basert på brukervalg (LibUtvalg)
+  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
+                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
+  RegData <- NorgastUtvalg$RegData
+  utvalgTxt <- NorgastUtvalg$utvalgTxt
 
   if (valgtShus[1]!='') {
     valgtShus <- as.numeric(valgtShus)
@@ -123,19 +134,36 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     reshID <- 99
   }
 
-  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
-  RegData <- PlotParams$RegData
-
-  #Gjør utvalg basert på brukervalg
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
-                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
-  RegData <- NorgastUtvalg$RegData
-  utvalgTxt <- NorgastUtvalg$utvalgTxt
-
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indShUt <- which(RegData$AvdRESH != reshID)}
+
+
+
+  #-----------Må ha en del som er registerspesifikk, så må selve plottet være i pakken, dvs. funksjoner.
+
+  utvalg <- c('Sh', 'Rest')
+  Andeler <- list(Sh = 0, Rest =0)
+
+  indSh <-which(RegData$AvdRESH == reshID)
+  indRest <- which(RegData$AvdRESH != reshID)
+  RegDataLand <- RegData
+  ind <- list(Sh=indSh, Rest=indRest)
+
+  for (teller in 1:2) {
+    if (teller==2 & enhetsUtvalg != 1) {break}
+
+    if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Sh = ind$Sh, Rest=ind$Rest), ]}
+
+    #Variablene kjøres to ganger for sammenligning med Resten.
+
+    if (teller == 1) {Andeler$Sh <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+    Nsh <- dim(RegData)[1]}
+    if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+    Nrest <- dim(RegData)[1]}
+  }
+
+
+  ##-----------Figur---------------------------------------
 
   #Hvis for få observasjoner..
   if (dim(RegData)[1] < 5 | (length(which(RegData$AvdRESH == reshID))<5 & enhetsUtvalg==1)
@@ -148,32 +176,6 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     text(0.5, 0.6, 'eller landet forøvrig for dette utvalget.',cex=1.3)
     if ( outfile != '') {dev.off()}
   } else {
-
-    #-----------Må ha en del som er registerspesifikk, så må selve plottet være i pakken, dvs. funksjoner.
-
-    utvalg <- c('Sh', 'Rest')
-    Andeler <- list(Sh = 0, Rest =0)
-
-    indSh <-which(RegData$AvdRESH == reshID)
-    indRest <- which(RegData$AvdRESH != reshID)
-    RegDataLand <- RegData
-    ind <- list(Sh=indSh, Rest=indRest)
-
-    for (teller in 1:2) {
-      if (teller==2 & enhetsUtvalg != 1) {break}
-
-      if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Sh = ind$Sh, Rest=ind$Rest), ]}
-
-      #Variablene kjøres to ganger for sammenligning med Resten.
-
-      if (teller == 1) {Andeler$Sh <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-      Nsh <- dim(RegData)[1]}
-      if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-      Nrest <- dim(RegData)[1]}
-    }
-
-
-    #-----------Figur---------------------------------------
 
     #Plottspesifikke parametre:
     tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
@@ -219,7 +221,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
       lwdRest <- 3	#tykkelse på linja som repr. landet
 
       if (retn == 'V' ) {
-        #Vertikale søyler eller linje
+        #Vertikale søyler
         ymax <- min(max(c(Andeler$Sh, Andeler$Rest),na.rm=T)*1.25, 100)
         ylabel <- "Andel pasienter"
         pos <- barplot(as.numeric(Andeler$Sh), beside=TRUE, las=1, ylab=ylabel,  #main=tittel,
