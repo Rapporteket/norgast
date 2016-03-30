@@ -144,6 +144,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   indRest <- which(RegData$AvdRESH != reshID)
   RegDataLand <- RegData
   ind <- list(Hoved=indHoved, Rest=indRest)
+  # NHoved <- dim(RegData)[1]
+  Nrest <- 0
 
   for (teller in 1:2) {
     if (teller==2 & enhetsUtvalg != 1) {break}
@@ -166,8 +168,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
 
   #Hvis for få observasjoner..
-  if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)
-      | (length(which(RegData$AvdRESH != reshID))<5 & enhetsUtvalg==1)) {
+  if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)) {
     #-----------Figur---------------------------------------
     figtype(outfile)
     plot.new()
