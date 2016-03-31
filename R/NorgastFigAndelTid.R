@@ -62,28 +62,35 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
 
-  utvalg <- c('Hoved', 'Rest')
-  Andeler <- list(Hoved = 0, Rest =0)
-
-  indHoved <-which(RegData$AvdRESH == reshID)
-  indRest <- which(RegData$AvdRESH != reshID)
-  RegDataLand <- RegData
-  ind <- list(Hoved=indHoved, Rest=indRest)
-  # NHoved <- dim(RegData)[1]
-  Nrest <- 0
-
-  for (teller in 1:2) {
-    if (teller==2 & enhetsUtvalg != 1) {break}
-
-    if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Hoved = ind$Hoved, Rest=ind$Rest), ]}
-
-    #Variablene kjøres to ganger for sammenligning med Resten.
-
-    if (teller == 1) {Andeler$Hoved <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-    NHoved <- dim(RegData)[1]}
-    if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-    Nrest <- dim(RegData)[1]}
+  if (enhetsUtvalg %in% c(0,2)) {		#Ikke sammenlikning
+    medSml <- 0
+    indHoved <- 1:dim(RegData)[1]	#Tidligere redusert datasettet for 2,4,7. (+ 3og6)
+    indRest <- NULL
+  } else {						#Skal gjøre sammenlikning
+    medSml <- 1
+    if (enhetsUtvalg == 1) {
+      indHoved <-which(as.numeric(RegData$ReshId)==reshID)
+      smltxt <- 'landet forøvrig'
+      indRest <- which(as.numeric(RegData$ReshId) != reshID)
+    }
   }
+
+  #-------------------------Beregning av andel-----------------------------------------
+  Aartxt <- min(RegData$Aar):max(RegData$Aar)
+  RegData$Aar <- factor(RegData$Aar, levels=Aartxt)
+
+  NAarRest <- tapply(RegData$Variabel[indRest], RegData$Aar[indRest], length)
+  NAarHendRest <- tapply(RegData$Variabel[indRest], RegData$Aar[indRest],sum, na.rm=T)
+  AndelRest <- NAarHendRest/NAarRest*100
+  NAarHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'Aar'], length)
+  NAarHendHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'Aar'],sum, na.rm=T)
+  AndelHoved <- NAarHendHoved/NAarHoved*100
+  Andeler <- rbind(AndelRest, AndelHoved)
+
+
+  if (tittel==0) {Tittel<-''} else {Tittel <- TittelUt}
+
+
 
 
   ##-----------Figur---------------------------------------
