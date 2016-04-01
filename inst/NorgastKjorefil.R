@@ -20,8 +20,8 @@ reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
-datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- as.POSIXlt('2016-12-31', format="%Y-%m-%d")
+datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+datoTil <- '2016-12-31'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'RELAPAROTOMY'
 op_gruppe<- 0
@@ -249,4 +249,20 @@ IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN
 #
 #
 #
-#
+########################## datokødd
+
+datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+datoTil <- '2016-12-31'
+
+
+dFra <- as.POSIXlt(datoFra)
+dTil <- as.POSIXlt(datoTil)
+
+
+difftid <- dTil-dFra
+
+
+
+
+
+

@@ -16,7 +16,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=F,
                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                               maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
+                               maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F, tidsenhet='Aar')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -41,6 +41,20 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
+
+  RegData$TidsEnhet <- switch(tidsenhet,
+                              Aar = RegData$Aar-min(RegData$Aar)+1,
+                              Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12)
+
+  if (tidsenhet == 'Mnd') {
+    Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+                    sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
+  }
+  if (tidsenhet == 'Aar') {
+    Tidtxt <- as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)])
+  }
+  RegData$TidsEnhet <- factor(RegData$TidsEnhet, levels=1:max(RegData$TidsEnhet))
+
 
   if (valgtShus[1]!='') {
     valgtShus <- as.numeric(valgtShus)
@@ -80,15 +94,13 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   NSmlRes <- length(indRest)
 
   #-------------------------Beregning av andel-----------------------------------------
-  Aartxt <- min(RegData$Aar):max(RegData$Aar)
-  RegData$Aar <- factor(RegData$Aar, levels=Aartxt)
 
-  NAarRest <- tapply(RegData$Variabel[indRest], RegData$Aar[indRest], length)
-  NAarHendRest <- tapply(RegData$Variabel[indRest], RegData$Aar[indRest],sum, na.rm=T)
-  AndelRest <- NAarHendRest/NAarRest*100
-  NAarHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'Aar'], length)
-  NAarHendHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'Aar'],sum, na.rm=T)
-  AndelHoved <- NAarHendHoved/NAarHoved*100
+  NTidRest <- tapply(RegData$Variabel[indRest], RegData$TidsEnhet[indRest], length)
+  NTidHendRest <- tapply(RegData$Variabel[indRest], RegData$TidsEnhet[indRest],sum, na.rm=T)
+  AndelRest <- NTidHendRest/NTidRest*100
+  NTidHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'TidsEnhet'], length)
+  NTidHendHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'TidsEnhet'],sum, na.rm=T)
+  AndelHoved <- NTidHendHoved/NTidHoved*100
   Andeler <- rbind(AndelRest, AndelHoved)
 
   binomkonf <- function(n, N, konfnivaa) {
@@ -98,10 +110,6 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
     }
     return(invisible(binkonf))
   }
-
-
-
-
 
   ##-----------Figur---------------------------------------
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
