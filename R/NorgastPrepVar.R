@@ -197,7 +197,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
 
   if (valgtVar=='RELAPAROTOMY') {
     tittel <- 'Relaparotomi'
-    VarTxt <- 'Reoperasjoner'
+    VarTxt <- 'relaparotomier'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
