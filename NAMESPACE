@@ -3,6 +3,7 @@
 export(FigAndeler)
 export(NorgastAnastomoselekkasje)
 export(NorgastAntallRegPrSykehus)
+export(NorgastFigAndelTid)
 export(NorgastHentRegData)
 export(NorgastLibUtvalg)
 export(NorgastPrepVar)

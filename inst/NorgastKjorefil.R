@@ -21,9 +21,9 @@ minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- as.POSIXlt('2014-01-01', format="%Y-%m-%d") 	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- as.POSIXlt('2015-12-31', format="%Y-%m-%d")
+datoTil <- as.POSIXlt('2016-12-31', format="%Y-%m-%d")
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'DECEASED'
+valgtVar <- 'RELAPAROTOMY'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
@@ -48,6 +48,29 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling)
+
+
+if (outfile == '') {x11()}
+NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+           reshID=reshID, enhetsUtvalg=enhetsUtvalg,
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+           whoEcog=whoEcog, forbehandling=forbehandling)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 
