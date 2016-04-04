@@ -12,7 +12,7 @@
 #'
 NorgastPrepVar <- function(RegData, valgtVar)
 {
-  stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- '';
+  stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- ''; inkl_konf=F;
   cexgr <- 1.0; grtxt <- ''; grtxt2 <- ''; subtxt <- ''; VarTxt <- '';
 
 
@@ -202,6 +202,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
+    inkl_konf <- T
   }
 
   if (valgtVar=='ANASTOMOSIS') {
@@ -230,7 +231,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
 
 
   PlotParams <- list(RegData=RegData, tittel=tittel, grtxt=grtxt, grtxt2=grtxt2, stabel=stabel, subtxt=subtxt,
-                   incl_N=incl_N, incl_pst=incl_pst, retn=retn, cexgr=cexgr, VarTxt=VarTxt)
+                   incl_N=incl_N, incl_pst=incl_pst, retn=retn, cexgr=cexgr, VarTxt=VarTxt, inkl_konf=inkl_konf)
 
   return(invisible(PlotParams))
 }

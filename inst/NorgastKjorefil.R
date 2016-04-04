@@ -40,7 +40,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Mnd'
+tidsenhet <- 'Aar'
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
@@ -57,7 +57,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            reshID=reshID, enhetsUtvalg=enhetsUtvalg,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet='Mnd')
+           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
 
 
 
