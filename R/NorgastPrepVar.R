@@ -12,7 +12,7 @@
 #'
 NorgastPrepVar <- function(RegData, valgtVar)
 {
-  stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- ''; inkl_konf=F;
+  stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- ''; inkl_konf=0;
   cexgr <- 1.0; grtxt <- ''; grtxt2 <- ''; subtxt <- ''; VarTxt <- '';
 
 
@@ -202,15 +202,17 @@ NorgastPrepVar <- function(RegData, valgtVar)
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
-    inkl_konf <- T
+    inkl_konf <- 1
   }
 
   if (valgtVar=='ANASTOMOSIS') {
     tittel <- 'Ny anastomose'
+    VarTxt <- 'nye anastomoser'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
+    inkl_konf <- 0
   }
 
   if (valgtVar=='AvlastendeStomiRektum') {

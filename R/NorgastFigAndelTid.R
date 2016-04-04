@@ -14,7 +14,7 @@
 #'
 NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014-01-01', datoTil='2050-12-31',
                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                               reshID, enhetsUtvalg=1, preprosess=F,
+                               reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99,
                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F, tidsenhet='Aar')
 {
@@ -118,7 +118,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
   stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
   incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
-  inkl_konf=PlotParams$inkl_konf; VarTxt <- PlotParams$VarTxt;
+  VarTxt <- PlotParams$VarTxt; ##
+  if (!(inkl_konf %in% c(0,1))) {inkl_konf=PlotParams$inkl_konf}
 
   FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett)
   farger <- FigTypUt$farger
@@ -139,7 +140,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
     if ( outfile != '') {dev.off()}
   } else {
 
-    if (inkl_konf) {
+    if (inkl_konf==1) {
       Ant_tidpkt <- length(Tidtxt)
       xmin <- 0.9
       xmax <- Ant_tidpkt
@@ -207,14 +208,14 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
 
       axis(side=1, at = xskala, labels = Tidtxt, cex.axis=0.9)
       title(tittel, line=1, font.main=1)
-      text(xskala, AndelHoved, pos=3, NTidHendHoved, cex=0.9, col=fargeHoved)#pos=1,
+      text(xskala, AndelHoved, pos=3, NTidHoved, cex=0.9, col=fargeHoved)#pos=1,
 
       # Ttxt <- paste('(Tall ved punktene angir antall ', VarTxt, ')', sep='')
       if (medSml == 1) {
 
         lines(xskala, AndelRest, col=fargeRest, lwd=3)
         points(xskala, AndelRest, pch="'", cex=2, col=fargeRest)	#}
-        text(xskala, AndelRest, pos=3, NTidHendRest, cex=0.9, col=fargeRest)
+        text(xskala, AndelRest, pos=3, NTidRest, cex=0.9, col=fargeRest)
         legend('topleft', border=NA, c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''),
                                        paste(smltxt, ' (N=', NSmlRes, ')', sep='')), bty='n', ncol=1, cex=cexleg,
                col=c(fargeHoved, fargeRest, NA), lwd=3)
