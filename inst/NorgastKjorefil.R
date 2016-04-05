@@ -20,10 +20,10 @@ reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
-datoFra <- '2015-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2015-12-31'
+datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+datoTil <- '2016-12-31'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'ROBOTASSISTANCE'
+valgtVar <- 'LapTilgang'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
@@ -40,16 +40,16 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Mnd'
+tidsenhet <- 'Aar'
 inkl_konf <- 0
 
-# if (outfile == '') {x11()}
-# FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-#            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-#            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
-#            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
-#            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-#            whoEcog=whoEcog, forbehandling=forbehandling)
+if (outfile == '') {x11()}
+FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+           whoEcog=whoEcog, forbehandling=forbehandling)
 
 
 if (outfile == '') {x11()}

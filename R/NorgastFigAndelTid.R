@@ -7,6 +7,13 @@
 #' Konfidensintervallet er basert på Clopper Pearsons "eksakte" metode for binominalfordelt data.
 #'
 #' @inheritParams FigAndeler
+#' @param inkl_konf Inkluder konfidensintervall i figur
+#'                  0: Nei
+#'                  1: Ja
+#'                  99: Bruk default som definert i NorgastPrepVar
+#' @param tidsenhet Plot figur med år eller måned som tidsenhet
+#'                  'Aar' (Default)
+#'                  'Mnd'
 #'
 #' @return En figur med tidsutvikling av rate over år
 #'
@@ -112,7 +119,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   }
 
   Konf <- binomkonf(NTidHendHoved, NTidHoved)*100
-  KonfRest <- binomkonf(NTidHendRest, NTidRest)*100
+  KonfRest <- NULL
+  if (medSml==1) {KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
@@ -221,7 +229,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
                col=c(fargeHoved, fargeRest, NA), lwd=3)
 
       } else {
-        legend('top', c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''), Ttxt),
+        legend('top', paste0(shtxt, ' (N=', NHovedRes, ')'),
                col=c(fargeHoved, NA), lwd=3, bty='n')
       }
 

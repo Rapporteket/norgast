@@ -145,6 +145,11 @@ NorgastPreprosess <- function(RegData)
   RegData$Anastomoselekkasje[RegData$RELAPAROTOMY_YES==1] <- 1
   RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA
 
+  RegData$LapTilgang <- as.numeric(RegData$ABDOMINAL_ACCESS)
+  RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0
+  RegData$LapTilgang[RegData$LapTilgang == 2] <- 1
+  RegData$LapTilgang[!(RegData$LapTilgang %in% c(0,1))] <- NA
+
   # Data <- list(RegData=RegData, shtxt=shtxt)
 
   return(invisible(RegData))

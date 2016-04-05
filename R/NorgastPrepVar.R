@@ -20,7 +20,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
   if (valgtVar %in% c('Alder', 'Vektendring', 'DIABETES','WHO_ECOG_SCORE', 'ASA', 'MODIFIED_GLASGOW_SCORE', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'ABDOMINAL_ACCESS', 'THORAX_ACCESS', 'ACCORDION_SCORE', 'RELAPAROTOMY',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'ROBOTASSISTANCE', 'erMann', 'PRS_SCORE',
-                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid')) {
+                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid', 'LapTilgang')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -168,6 +168,19 @@ NorgastPrepVar <- function(RegData, valgtVar)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1, 3:6), labels = grtxt)
   }
 
+  if (valgtVar=='KumAcc') {
+    tittel <- 'Accordion score 3-6'
+    VarTxt <- 'med accordion score 3-6'
+#     grtxt <- c('<3', '3', '4', '5', '6')
+    grtxt <- c('Nei','Ja')
+    RegData$Variabel <- RegData$ACCORDION_SCORE
+    RegData$Variabel[RegData$Variabel == 1] <- 0
+    RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='DIABETES') {
     tittel <- 'Medisinert mot diabetes'
     # grtxt <- c('Nei','Ja', 'Ikke registrert')
@@ -178,8 +191,20 @@ NorgastPrepVar <- function(RegData, valgtVar)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='LapTilgang') {
+    tittel <- 'Laparoskopisk tilgang'
+    # grtxt <- c('Nei','Ja', 'Ikke registrert')
+    VarTxt <- 'laparoskopi mot åpen/konvertert'
+    grtxt <- c('Åpen/konvertert','Laparoskopisk')
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    # RegData$Variabel[is.na(RegData$Variabel)] <- 99
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='Anastomoselekkasje') {
     tittel <- 'Anastomoselekkasje, ny anastomose'
+    VarTxt <- 'anastomoselekkasjer'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
