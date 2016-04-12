@@ -59,7 +59,6 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
                               Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12)
 
   if (tidsenhet == 'Mnd') {
-    print('tidsenhet funker')
     Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
                     sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
   }
@@ -123,10 +122,14 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
     }
     return(invisible(binkonf))
   }
-
+  NTidHendHoved #debug
+  NTidHoved #debug
   Konf <- binomkonf(NTidHendHoved, NTidHoved)*100
   KonfRest <- NULL
-  if (medSml==1) {KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
+  if (medSml==1) {
+    NTidHendRest #debug
+    NTidRest #debug
+    KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
