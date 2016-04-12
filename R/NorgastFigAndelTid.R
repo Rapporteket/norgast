@@ -121,7 +121,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
       if (N[i]>0) {
         binkonf[,i] <- binom.test(n[i],N[i], alternative = 'two.sided', conf.level = konfnivaa)$conf.int[1:2]
       } else {
-        binkonf[,i] <- c(0,0)
+        binkonf[,i] <- c(NA,NA)
       }
     }
     return(invisible(binkonf))
