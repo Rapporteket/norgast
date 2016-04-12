@@ -122,13 +122,13 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
     }
     return(invisible(binkonf))
   }
-  NTidHendHoved #debug
-  NTidHoved #debug
+  print(NTidHendHoved) #debug
+  print(NTidHoved) #debug
   Konf <- binomkonf(NTidHendHoved, NTidHoved)*100
   KonfRest <- NULL
   if (medSml==1) {
-    NTidHendRest #debug
-    NTidRest #debug
+    print(NTidHendRest) #debug
+          print(NTidRest) #debug
     KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
