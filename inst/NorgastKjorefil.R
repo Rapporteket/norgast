@@ -10,7 +10,7 @@ RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERA
                       'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
                       'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
                       'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
-ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 
 RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
@@ -24,6 +24,7 @@ datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2016-12-31'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'LapTilgang'
+valgtVar <- 'DECEASED'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
@@ -41,7 +42,7 @@ ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
 tidsenhet <- 'Aar'
-inkl_konf <- 0
+inkl_konf <- 1
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
@@ -62,21 +63,27 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 
 
 
+## Studerer avdøde #########################
+tmp <- RegData$PasientID[RegData$DECEASED == 1]
 
+tmp <- sort(table(tmp), decreasing = T)
+tmp <- tmp[tmp>1]
 
+multiIDer <- as.numeric(names(tmp))
 
+tellehjelp <- RegData[RegData$PasientID %in% multiIDer, c('DECEASED', 'DECEASED_DATE', 'PasientID', 'OperasjonsDato', 'MCEID')]
+tellehjelp <- tellehjelp[order(tellehjelp$PasientID), ]
 
+maxidato <- tapply(tellehjelp$OperasjonsDato, tellehjelp$PasientID, max)
 
-
-
-
+tapply(tellehjelp$MCEID, tellehjelp$PasientID, max)
 
 
 
 
 ## Finn avvik mellom "Interaktive andelsdiagrammer" og Tabell 2
 
-Pross <- NorgastPreprosess(RegData)
+tmpdata <- NorgastPreprosess(RegData)
 
 aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
 aux1 <- aux1[aux1$Op_gr==1, ]

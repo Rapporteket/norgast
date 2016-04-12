@@ -48,6 +48,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   ForlopsOversikt.HovedDato,
                   ForlopsOversikt.BasisRegStatus,
                   ForlopsOversikt.ForlopsID
+                  ForlopsOversikt.PasientID
                   FROM AlleVarNum INNER JOIN ForlopsOversikt
                   ON AlleVarNum.MCEID = ForlopsOversikt.ForlopsID
                   WHERE HovedDato >= \'", datoFra, "\' AND HovedDato <= \'", datoTil, "\' ")

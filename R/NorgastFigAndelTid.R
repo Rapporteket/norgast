@@ -1,8 +1,7 @@
-#' Tidstrend (år) av rate/andel for en gitt variabel
+#' Tidstrend (år/mnd) av rate/andel for en gitt variabel
 #'
-#' Årlige (etterhvert også månedlige) rater for valgt variabel.
-#' Hvis man har valgt å sammenlikne, vises  konfidensintervall for resten av landet (evt. annen
-#' sammenlikningsgruppe) i bakgrunnen.
+#' Årlige eller månedlige rater for valgt variabel.
+#' Konfidensintervall kan inkluderes hvis ønskelig.
 #'
 #' Konfidensintervallet er basert på Clopper Pearsons "eksakte" metode for binominalfordelt data.
 #'
