@@ -48,6 +48,12 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
+  # For variabler som går på person, ikke per operasjon
+  if (valgtVar %in% c('DECEASED')) {
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
+    RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+  }
+
   RegData$TidsEnhet <- switch(tidsenhet,
                               Aar = RegData$Aar-min(RegData$Aar)+1,
                               Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12)
