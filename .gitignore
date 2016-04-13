@@ -5,3 +5,4 @@ data/*
 inst/doc
 inst/*.gitignore
 inst/jrxml/*.gitignore
+*.png

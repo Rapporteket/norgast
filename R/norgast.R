@@ -13,6 +13,8 @@
 #' Standard R-functions for processing registry data.
 #'
 #'
+#'
+#'
 #' @docType package
 #' @name norgast
 NULL

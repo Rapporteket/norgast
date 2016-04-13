@@ -9,15 +9,101 @@ vignette: >
   \VignetteEncoding{UTF-8}
 ---
 
-R-pakken _NoRGast_ er en samling funksjoner og filer for Norsk register for gastrokirurgi
+R-pakken _norgast_ er en samling funksjoner og filer for Norsk register for gastrokirurgi.
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+Dette dokumentet skal dokumentere funksjonene og alt annet som er relevant for pakken. Der man potensielt kan definere ting på ulike måter, skal man i dette dokumentet finne en forklaring på hva som er gjort. Når f.eks. konfidensintevaller inkluderes i en figur så skal man i dette dokumentet finne hvilke antagelser som ligger til grunn for beregningene. Variabler med deres tillatte verdier skal også dokumenteres her.
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+## Registerets oppbygging og variabler
 
-## Vignette Info
+NoRGast består av to skjemaer. Et operasjonsskjema fylles ut i forbindelse med operasjonen og et oppfølgingsskjema fylles ut 30 dager etter. Det meste av variabler som brukes i denne pakken kommer direkte fra innregistreringen, men noen få endres eller defineres i pakken. Dette skjer i all hovedsak i funksjonen NorgastPreprosess.
+
+Følgende variabler endres/defineres i pakken:
+
+* `erMann` - Navneendring fra `ErMann` for konsistens med andre register
+* `Alder` - Navneendring fra `PasientAlder`
+* `OperasjonsDato` - Operasjonsdato i R datoformat (POSIXlt) basert på `OPERATION_DATE`
+* `Mnd` - Måned for operasjon (1 til 12) fra `OperasjonsDato`
+* `Aar` - År for operasjon (2014-) fra `OperasjonsDato`
+* `DoedsDato` - Dødsdato i R datoformat (POSIXlt) basert på `DECEASED_DATE`, differanse mellom `DoedsDato` og `OperasjonsDato`
+* `OpDoedTid` - Tid fra operasjon til død i dager
+* `SykehusNavn` - Kopi av `Sykehusnavn` (Burde endres til navneendring eller fjernes helt)
+* `NCSP` - Renskes opp i ved at alle gjøres om til store bokstaver og gis forklaring der mulig
+* `Vektendring` - Motsatt fortegn til `WEIGHTLOSS`
+* `Forbehandling` - Neoadjuvant behandling, sammensatt variabel basert på `CHEMOTHERAPY_ONLY`, `RADIATION_THERAPY_ONLY` og `CHEMORADIOTHERAPY`.
+* `BMI_kodet` - Variabel med tekstetikettene til `BMI_CATEGORY`
+* `Operasjonsgrupper` - De primære operasjonsgruppene i registeret som definert gjennom ncsp-kodene:
+    + Kolonreseksjoner - jfh* + jfb20-64
+    + Rektumreseksjoner - jgb*
+    + Øsofagusreseksjoner - jcc*
+    + Ventrikkelreseksjoner - jdc* og jdd*
+    + Leverreseksjoner - jjb*
+    + Whipples operasjon - jlc30 og jlc31
+    + Cholecystektomi - jka20 og jka21
+    + Appendektomi - jea00 og jea01
+    + Tynntarmsreseksjon - jfb00 og jfb01
+    + Gastric bypass - jdf10 og jdf11
+    + Gastric sleeve - jdf96 og jdf97
+* `Op_gr` - Kodet versjon av `Operasjonsgrupper`
+    + 1: Kolonreseksjoner
+    + 2: Rektumreseksjoner
+    + 3: Øsofagusreseksjoner
+    + 4: Ventrikkelreseksjoner
+    + 5: Leverreseksjoner
+    + 6: Whipples operasjon
+    + 7: Cholecystektomi
+    + 8: Appendektomi
+    + 9: Tynntarmsreseksjon
+    + 10: Gastric bypass
+    + 11: Gastric sleeve
+    + 99: Annet
+* `Op_gr2` - Alternativ gruppering av operasjonene til bruk i samlerapport
+    + 1: Kolonreseksjoner, ny anastomose
+    + 2: Kolonreseksjoner, øvrige
+    + 3: Rektumreseksjoner, ny anastomose
+    + 4: Rektumreseksjoner, øvrige
+    + 5: Øsofagusreseksjoner
+    + 6: Ventrikkelreseksjoner, ny anastomose
+    + 7: Ventrikkelreseksjoner, øvrige
+    + 8: Whipples operasjon
+    + 9: Annet
+* `ACCORDION_SCORE` - `ACCORDION_SCORE` og `READMISSION_ACCORDION_SCORE` gjøres numerisk og kategorien 'Mindre enn 3' settes lik 1. Settes så lik maksimum av de to
+* `` - 
+* `` - 
+* `` - 
+* `` - 
+* `` - 
+* `` - 
+
+## Funksjoner
+
+### NorgastFigAndelTid
+
+Denne funksjonen lager en tidstrend av rate/andel for en gitt variabel. Funksjonen kan lage noe forskjelige figurtyper avhengig av brukervalgene.
+
+```{r, include=FALSE, echo = FALSE}
+library(norgast)
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-13 09-28-55.txt', header=TRUE, 
+                      sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-13 09-28-58.txt', 
+                         header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY',
+                      'RADIATION_THERAPY_ONLY','CHEMORADIOTHERAPY','WHO_ECOG_SCORE',
+                      'MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
+                      'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS',
+                      'RELAPAROTOMY','RELAPAROTOMY_YES','ACCORDION_SCORE', 'PRS_SCORE','STATUS', 
+                      'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE','READMISSION_RELAPAROTOMY', 
+                      'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 
+                            'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
+NorgastFigAndelTid(RegData=RegData, valgtVar='RELAPAROTOMY', reshID=601225, preprosess=T, 
+                   outfile = 'MndMKonf.png', tidsenhet='Mnd')
+NorgastFigAndelTid(RegData=RegData, valgtVar='RELAPAROTOMY', reshID=601225, preprosess=T, 
+                   outfile = 'MndUKonf.png', tidsenhet='Mnd', inkl_konf = F)
+
+```
+<img src="MndMKonf.png" alt="Drawing" style="width: 300px;"/>
+<img src="MndUKonf.png" alt="Drawing" style="width: 300px;"/>
 
 Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
 

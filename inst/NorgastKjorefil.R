@@ -2,8 +2,8 @@
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-03-22 08-21-59.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-03-22 08-22-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-13 09-28-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-13 09-28-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -24,7 +24,7 @@ datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2016-12-31'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'DECEASED'
+valgtVar <- 'Hastegrad'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
@@ -41,7 +41,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Aar'
+tidsenhet <- 'Mnd'
 inkl_konf <- 1
 
 if (outfile == '') {x11()}
@@ -61,7 +61,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
 
-
+NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
 ## Studerer avdøde #########################
 tmp <- RegData$PasientID[RegData$DECEASED == 1]

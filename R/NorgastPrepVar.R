@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-NorgastPrepVar <- function(RegData, valgtVar)
+NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 {
   stabel=FALSE; incl_N=FALSE; incl_pst=FALSE; retn= 'V'; tittel <- ''; inkl_konf=0;
   cexgr <- 1.0; grtxt <- ''; grtxt2 <- ''; subtxt <- ''; VarTxt <- '';
@@ -140,6 +140,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
   if (valgtVar=='Hastegrad') {
     tittel <- 'Elektiv kirurgi'
     grtxt <- c('Ø-hjelp', 'Elektiv')
+    VarTxt <- 'med elektiv kirurgi'
     RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
@@ -184,6 +185,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
 
   if (valgtVar=='DIABETES') {
     tittel <- 'Medisinert mot diabetes'
+    VarTxt <- 'med diabetes'
     # grtxt <- c('Nei','Ja', 'Ikke registrert')
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
@@ -214,6 +216,7 @@ NorgastPrepVar <- function(RegData, valgtVar)
 
   if (valgtVar=='ROBOTASSISTANCE') {
     tittel <- 'Robotassistert laparoskopi'
+    VarTxt <- 'robotassistert laparoskopi'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$ABDOMINAL_ACCESS %in% c(2,3)), ]
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
