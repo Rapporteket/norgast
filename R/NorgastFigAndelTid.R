@@ -121,7 +121,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
       if (N[i]>0) {
         binkonf[,i] <- binom.test(n[i],N[i], alternative = 'two.sided', conf.level = konfnivaa)$conf.int[1:2]
       } else {
-        binkonf[,i] <- c(NA,NA)
+        binkonf[,i] <- c(0,0)
       }
     }
     return(invisible(binkonf))
@@ -130,13 +130,9 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   NTidHoved[is.na(NTidHoved)] <- 0
   NTidHendRest[is.na(NTidHendRest)] <- 0
   NTidRest[is.na(NTidRest)] <- 0
-  print(NTidHendHoved) #debug
-  print(NTidHoved) #debug
   Konf <- binomkonf(NTidHendHoved, NTidHoved)*100
   KonfRest <- NULL
   if (medSml==1) {
-    print(NTidHendRest) #debug
-          print(NTidRest) #debug
     KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
@@ -200,12 +196,15 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
       text(xskala, AndelHoved, NTidHoved, col=fargeHovedRes, cex=cexgr)
 
       #Konfidensintervall:
-      ind <- which(Konf[1, ] > AndelHoved-h) #Konfidensintervall som er tilnærmet 0
+      ind <- which(Konf[1, ] > AndelHoved-h) #Nedre konfidensintervall som er mindre enn boksen
       options('warn'=-1)
       arrows(x0=xskala, y0=AndelHoved-h, x1=xskala, length=0.08, code=2, angle=90,
              y1=replace(Konf[1, ], ind, AndelHoved[ind]-h), col=fargeHovedRes, lwd=1.5)
-      arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=replace(Konf[2, ], ind, AndelHoved[ind]+h),
+      ind2 <- which(Konf[2, ] < AndelHoved+h) #Øvre konfidensintervall som er mindre enn boksen
+      arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=Konf[2, ],
              length=0.08, code=2, angle=90, col=fargeHovedRes, lwd=1.5)
+#       arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=replace(Konf[2, ], ind, AndelHoved[ind]+h),
+#              length=0.08, code=2, angle=90, col=fargeHovedRes, lwd=1.5)
 
       title(main=tittel, font.main=1, line=1)
       mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
