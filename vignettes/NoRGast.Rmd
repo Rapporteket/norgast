@@ -11,7 +11,7 @@ vignette: >
 
 R-pakken _norgast_ er en samling funksjoner og filer for Norsk register for gastrokirurgi.
 
-Dette dokumentet skal dokumentere funksjonene og alt annet som er relevant for pakken. Der man potensielt kan definere ting på ulike måter, skal man i dette dokumentet finne en forklaring på hva som er gjort. Når f.eks. konfidensintevaller inkluderes i en figur så skal man i dette dokumentet finne hvilke antagelser som ligger til grunn for beregningene. Variabler med deres tillatte verdier skal også dokumenteres her.
+Dette dokumentet skal dokumentere funksjonene og alt annet som er relevant for pakken. Der man potensielt kan definere ting på ulike måter, skal man i dette dokumentet finne en forklaring på hva som er gjort. Når f.eks. konfidensintevaller inkluderes i en figur så skal man i analysenboken finne hvilke antagelser som ligger til grunn for beregningene. Variabler med deres tillatte verdier skal også dokumenteres her.
 
 ## Registerets oppbygging og variabler
 
@@ -24,9 +24,9 @@ Følgende variabler endres/defineres i pakken:
 * `OperasjonsDato` - Operasjonsdato i R datoformat (POSIXlt) basert på `OPERATION_DATE`
 * `Mnd` - Måned for operasjon (1 til 12) fra `OperasjonsDato`
 * `Aar` - År for operasjon (2014-) fra `OperasjonsDato`
-* `DoedsDato` - Dødsdato i R datoformat (POSIXlt) basert på `DECEASED_DATE`, differanse mellom `DoedsDato` og `OperasjonsDato`
-* `OpDoedTid` - Tid fra operasjon til død i dager
-* `SykehusNavn` - Kopi av `Sykehusnavn` (Burde endres til navneendring eller fjernes helt)
+* `DoedsDato` - Dødsdato i R datoformat (POSIXlt) basert på `DECEASED_DATE`
+* `OpDoedTid` - Tid fra operasjon til død i dager, differanse mellom `DoedsDato` og `OperasjonsDato`
+* `SykehusNavn` - Kopi av `Sykehusnavn` (Burde gjøres som navneendring eller fjernes helt)
 * `NCSP` - Renskes opp i ved at alle gjøres om til store bokstaver og gis forklaring der mulig
 * `Vektendring` - Motsatt fortegn til `WEIGHTLOSS`
 * `Forbehandling` - Neoadjuvant behandling, sammensatt variabel basert på `CHEMOTHERAPY_ONLY`, `RADIATION_THERAPY_ONLY` og `CHEMORADIOTHERAPY`.
@@ -66,11 +66,13 @@ Følgende variabler endres/defineres i pakken:
     + 7: Ventrikkelreseksjoner, øvrige
     + 8: Whipples operasjon
     + 9: Annet
-* `ACCORDION_SCORE` - `ACCORDION_SCORE` og `READMISSION_ACCORDION_SCORE` gjøres numerisk og kategorien 'Mindre enn 3' settes lik 1. Settes så lik maksimum av de to
-* `` - 
-* `` - 
-* `` - 
-* `` - 
+* `ACCORDION_SCORE` - `ACCORDION_SCORE` og `READMISSION_ACCORDION_SCORE` gjøres numerisk og kategorien 'Mindre enn 3' settes lik 1. Settes så lik maksimum av de to.
+* `RELAPAROTOMY` - Settes lik 1 hvis `RELAPAROTOMY` eller `READMISSION_RELAPAROTOMY` er lik 1.
+* `RELAPAROTOMY_YES` - Settes til minimum av `RELAPAROTOMY_YES` og `READMISSION_RELAPAROTOMY_YES`, dvs. den mest alvorlige komplikasjonen.
+* `Hastegrad` - Elektiv eller ø-hjelp, basert på når operasjonen fant sted
+    + 1: Elektiv - Operasjon 8-16 på en vanlig arbeidsdag (ikke helg eller off. helligdag)
+    + 0: Ø-hjelp - Operasjon uten vanlig arbeidstid
+* `AvlastendeStomiRektum` - 
 * `` - 
 * `` - 
 

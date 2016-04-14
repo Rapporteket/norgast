@@ -63,6 +63,25 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 
 NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
+
+
+
+### Hent ut pasient id for alle pasienter operert i Tromsø 29.09.15-25.02.16 som har accordion 3 eller mer.
+
+RegData <- NorgastPreprosess(RegData=RegData)
+
+Uttrekk <- RegData[RegData$ACCORDION_SCORE >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+
+Uttrekk <- Uttrekk[Uttrekk$OperasjonsDato >= as.POSIXlt('2015-09-29') & Uttrekk$OperasjonsDato <= as.POSIXlt('2016-02-25'), ]
+sort(table(Uttrekk$PasientID, useNA = 'ifany'), decreasing = TRUE)
+
+
+
+
+
+
+
+
 ## Studerer avdøde #########################
 tmp <- RegData$PasientID[RegData$DECEASED == 1]
 
