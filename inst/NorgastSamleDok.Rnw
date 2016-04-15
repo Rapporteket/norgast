@@ -30,7 +30,7 @@
 
 \begin{document}
 \thispagestyle{empty}
-\includepdf[fitpaper]{C:/GIT/norgast/inst/ForsideV1logo.pdf}
+\includepdf[fitpaper]{ForsideV1logo.pdf}
 \thispagestyle{empty}
 \cleardoublepage
 \setcounter{page}{1}
