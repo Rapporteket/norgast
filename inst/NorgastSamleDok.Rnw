@@ -52,6 +52,8 @@
 
 <<LastData, include=FALSE, cache=FALSE>>=
 hentData <- T
+datoFra='2014-01-01'
+datoTil=Sys.Date()
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -83,8 +85,6 @@ if(hentData){
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
 figstr <- 0.58
-datoFra='2014-01-01'
-datoTil=Sys.Date()
 @
 
 \section{Bakgrunn}
