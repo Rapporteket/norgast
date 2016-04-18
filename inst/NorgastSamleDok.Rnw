@@ -27,10 +27,13 @@
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
 \color{moerkgraa}
 
+<<LastData, include=FALSE, cache=FALSE>>=
+ForsideV1logo <- system.file(file='ForsideV1logo.pdf', package='norgast')
+@
 
 \begin{document}
 \thispagestyle{empty}
-\includepdf[fitpaper]{ForsideV1logo.pdf}
+\includepdf[fitpaper]{\Sexpr{ForsideV1logo}}
 \thispagestyle{empty}
 \cleardoublepage
 \setcounter{page}{1}
