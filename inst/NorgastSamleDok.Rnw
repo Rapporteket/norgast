@@ -34,7 +34,7 @@ knitr::opts_knit$set(root.dir = './')
 
 \begin{document}
 \thispagestyle{empty}
-\includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast'}}
+\includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
 \thispagestyle{empty}
 \cleardoublepage
 \setcounter{page}{1}
