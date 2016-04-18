@@ -27,13 +27,14 @@
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
 \color{moerkgraa}
 
-<<ForsideFilnavn, include=FALSE, cache=FALSE>>=
-ForsideV1logo <- system.file(file='ForsideV1logo.pdf', package='norgast')
+<<'initOpts',include=FALSE>>=
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_knit$set(root.dir = './')
 @
 
 \begin{document}
 \thispagestyle{empty}
-\includepdf[fitpaper]{\Sexpr{ForsideV1logo}}
+\includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast'}}
 \thispagestyle{empty}
 \cleardoublepage
 \setcounter{page}{1}
