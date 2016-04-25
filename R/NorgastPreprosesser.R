@@ -143,7 +143,8 @@ NorgastPreprosess <- function(RegData)
   RegData$Anastomoselekkasje <- NA
   RegData$Anastomoselekkasje[RegData$ANASTOMOSIS==1] <- 0
   RegData$Anastomoselekkasje[RegData$RELAPAROTOMY_YES==1] <- 1
-  RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA
+  RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
+  RegData$Anastomoselekkasje[is.na(RegData$ANASTOMOSIS)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 
   RegData$LapTilgang <- as.numeric(RegData$ABDOMINAL_ACCESS)
   RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0

@@ -21,11 +21,11 @@ minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2016-12-31'
+datoTil <- '2016-01-01'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'Hastegrad'
-op_gruppe<- 0
+valgtVar <- 'Anastomoselekkasje'
+op_gruppe<- 6
 outfile <- ''
 preprosess<-T
 hentData <- F
@@ -70,15 +70,26 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess
 
 RegData <- NorgastPreprosess(RegData=RegData)
 
-Uttrekk <- RegData[RegData$ACCORDION_SCORE >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+# Uttrekk <- RegData[RegData$ACCORDION_SCORE >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+
+Uttrekk <- RegData[which((RegData$ACCORDION_SCORE >= 3 | RegData$DECEASED ==1 | RegData$RELAPAROTOMY == 1 |
+                            RegData$READMISSION_OTHER_INSTITUTIONS == 1 | RegData$READMISSION_OWN_INSTITUTION == 1) &
+                           RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
 
 Uttrekk <- Uttrekk[Uttrekk$OperasjonsDato >= as.POSIXlt('2015-09-29') & Uttrekk$OperasjonsDato <= as.POSIXlt('2016-02-25'), ]
 sort(table(Uttrekk$PasientID, useNA = 'ifany'), decreasing = TRUE)
 
+tmp1 <- as.numeric(names(table(Uttrekk$PasientID, useNA = 'ifany')))
+
+RegData[RegData$PasientID %in% setdiff(tmp2, tmp1) & RegData$OperasjonsDato >= as.POSIXlt('2015-09-29') &
+          RegData$OperasjonsDato <= as.POSIXlt('2016-02-25'), c('PasientID', 'ACCORDION_SCORE', 'DECEASED', 'RELAPAROTOMY',
+                                                      'READMISSION_OTHER_INSTITUTIONS', 'READMISSION_OWN_INSTITUTION', 'READMISSION_STATUS')]
 
 
 
-
+RegData$DECEASED[which((RegData$ACCORDION_SCORE >= 3 | RegData$DECEASED ==1 | RegData$RELAPAROTOMY == 1 |
+                           RegData$READMISSION_OTHER_INSTITUTIONS == 1 | RegData$READMISSION_OWN_INSTITUTION == 1) &
+                          RegData$AvdRESH == 601225)]
 
 
 

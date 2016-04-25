@@ -133,7 +133,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     shtxt <- 'Hele landet'
   } else {
     shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
-  }	#'Eget sykehus' #
+  }
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {
     RegData$AvdRESH[RegData$AvdRESH %in% valgtShus] <- 99
