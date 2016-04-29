@@ -41,7 +41,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Halvaar'
+tidsenhet <- 'Kvartal'
 inkl_konf <- 1
 
 # if (outfile == '') {x11()}
@@ -61,13 +61,24 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
 
-NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
+
+
+# NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
 
 ################ Lag liste for NPR ######################
 
 
-RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jlc")] <- "Pankreasreseksjoner"
+# RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jlc")] <- "Pankreasreseksjoner"
+# RegData$Operasjonsgrupper[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jlc"),
+#                                     which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20))] <- "Andre Pancreasreseksjoner"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" & (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
+                                                     as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- "Andre Pancreasreseksjoner"
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" & (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <-
+  "Gallegangsreseksjoner"
+
+setdiff(which(substr(RegData$ncsp_lowercase,1,3)=="jlc"), which(RegData$Operasjonsgrupper %in% c("Whipples operasjon", "Andre Pancreasreseksjoner")))
+setdiff(which(RegData$Operasjonsgrupper %in% c("Whipples operasjon", "Andre Pancreasreseksjoner")), which(substr(RegData$ncsp_lowercase,1,3)=="jlc"))
 
 RegData2014 <- RegData[RegData$Aar == 2014, ]
 RegData2015 <- RegData[RegData$Aar == 2015, ]
