@@ -56,15 +56,31 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
 
   RegData$TidsEnhet <- switch(tidsenhet,
                               Aar = RegData$Aar-min(RegData$Aar)+1,
-                              Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12)
+                              Mnd = RegData$Mnd-min(RegData$Mnd[RegData$Aar==min(RegData$Aar)])+1+(RegData$Aar-min(RegData$Aar))*12,
+                              Kvartal = RegData$Kvartal-min(RegData$Kvartal[RegData$Aar==min(RegData$Aar)])+1+
+                                (RegData$Aar-min(RegData$Aar))*4,
+                              Halvaar = RegData$Halvaar-min(RegData$Halvaar[RegData$Aar==min(RegData$Aar)])+1+
+                                (RegData$Aar-min(RegData$Aar))*2
+                              # Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12
+                                )
 
-  if (tidsenhet == 'Mnd') {
-    Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
-                    sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
-  }
-  if (tidsenhet == 'Aar') {
-    Tidtxt <- as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)])
-  }
+#   if (tidsenhet == 'Mnd') {
+#     Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+#                     sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
+#   }
+#   if (tidsenhet == 'Aar') {
+#     Tidtxt <- as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)])
+#   }
+#
+  Tidtxt <- switch(tidsenhet,
+                   Mnd = paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+                               sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.'),
+                   Kvartal = paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+                                   sprintf('%01.0f', RegData$Kvartal[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='-'),
+                   Halvaar = paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+                                   sprintf('%01.0f', RegData$Halvaar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='-'),
+                   Aar = as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]))
+
   RegData$TidsEnhet <- factor(RegData$TidsEnhet, levels=1:max(RegData$TidsEnhet))
 
 
@@ -178,7 +194,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
 
       plot(xskala, AndelHoved, xlim= c(xmin, xmax), ylim=c(ymin, ymax), type='n', frame.plot=FALSE,
            ylab=c(paste0('Andel ', VarTxt),'inkl. 95% konfidensintervall'),
-           xlab=switch(tidsenhet, Aar = 'Operasjonsår', Mnd = 'Operasjonsår og måned'),
+           xlab=switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned',
+                       Kvartal='Operasjonsår og -kvartal', Halvaar='Operasjonsår og -halvår'),
            xaxt='n',
            sub='(Tall i boksene angir antall operasjoner)', cex.sub=cexgr)	#, axes=F)
       axis(side=1, at = xskala, labels = Tidtxt)
@@ -220,9 +237,10 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
       hmarg <- 0.04+0.01*NutvTxt
       par('fig' = c(0,1,0,1-hmarg))
       cexleg <- 1	#Størrelse på legendtekst
-      cexskala <- switch(tidsenhet, Aar=1, Mnd=0.9)
+      cexskala <- switch(tidsenhet, Aar=1, Mnd=0.9, Kvartal=0.9, Halvaar=0.9)
       xskala <- 1:length(Tidtxt)
-      xaksetxt <- switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned')
+      xaksetxt <- switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned',
+                         Kvartal='Operasjonsår og -kvartal', Halvaar='Operasjonsår og -halvår')
       ymax <- min(119, 1.25*max(Andeler,na.rm=T))
 
       plot(AndelHoved,  font.main=1,  type='o', pch="'", col=fargeHoved, xaxt='n',

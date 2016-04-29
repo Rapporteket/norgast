@@ -2,8 +2,8 @@
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-13 09-28-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-13 09-28-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-27 10-19-08.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-27 10-19-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -25,7 +25,7 @@ datoTil <- '2016-01-01'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
 valgtVar <- 'Anastomoselekkasje'
-op_gruppe<- 6
+op_gruppe<- 0
 outfile <- ''
 preprosess<-T
 hentData <- F
@@ -41,16 +41,16 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Mnd'
+tidsenhet <- 'Halvaar'
 inkl_konf <- 1
 
-if (outfile == '') {x11()}
-FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
-           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
-           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling)
+# if (outfile == '') {x11()}
+# FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+#            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+#            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
+#            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+#            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+#            whoEcog=whoEcog, forbehandling=forbehandling)
 
 
 if (outfile == '') {x11()}
@@ -62,6 +62,37 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
 
 NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
+
+
+################ Lag liste for NPR ######################
+
+
+RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jlc")] <- "Pankreasreseksjoner"
+
+RegData2014 <- RegData[RegData$Aar == 2014, ]
+RegData2015 <- RegData[RegData$Aar == 2015, ]
+NoRGastObligOperasjoner2014 <- table(RegData2014$Sykehusnavn, RegData2014$Operasjonsgrupper, useNA = 'ifany')
+NoRGastObligOperasjoner2015 <- table(RegData2015$Sykehusnavn, RegData2015$Operasjonsgrupper, useNA = 'ifany')
+NoRGastObligOperasjoner2014RESH <- table(RegData2014$AvdRESH, RegData2014$Operasjonsgrupper, useNA = 'ifany')
+NoRGastObligOperasjoner2015RESH <- table(RegData2015$AvdRESH, RegData2015$Operasjonsgrupper, useNA = 'ifany')
+
+write.csv2(NoRGastObligOperasjoner2014, 'NoRGastObligOperasjoner2014.csv', row.names = TRUE)
+write.csv2(NoRGastObligOperasjoner2015, 'NoRGastObligOperasjoner2015.csv', row.names = TRUE)
+write.csv2(NoRGastObligOperasjoner2014RESH, 'NoRGastObligOperasjoner2014RESH.csv', row.names = TRUE)
+write.csv2(NoRGastObligOperasjoner2015RESH, 'NoRGastObligOperasjoner2015RESH.csv', row.names = TRUE)
+
+
+
+
+
+####  Hent øsofagus for Tromsø
+
+tosdata <- NorgastPreprosess(RegData)
+
+tosdata <- tosdata[tosdata$AvdRESH==reshID & tosdata$Op_gr == 3, ]
+
+
+tosdata$MCEID[tosdata$Op_gr==6 & tosdata$ANASTOMOSIS==0]
 
 
 

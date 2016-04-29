@@ -17,6 +17,8 @@ NorgastPreprosess <- function(RegData)
   RegData <- RegData[which(RegData$STATUS==1),] # Inkluder kun lukkede registreringer
   RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
   RegData$Mnd <- RegData$OperasjonsDato$mon +1
+  RegData$Kvartal <- floor((RegData$Mnd - 1)/3)+1
+  RegData$Halvaar <- floor((RegData$Mnd - 1)/6)+1
   RegData$Aar <- RegData$OperasjonsDato$year + 1900
   RegData$DoedsDato <- as.POSIXlt(RegData$DECEASED_DATE, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
