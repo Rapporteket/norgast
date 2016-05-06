@@ -24,7 +24,7 @@ datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2016-01-01'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'Anastomoselekkasje'
+valgtVar <- 'KumAcc'
 op_gruppe<- 0
 outfile <- ''
 preprosess<-T
@@ -44,13 +44,13 @@ forbehandling <- 99
 tidsenhet <- 'Kvartal'
 inkl_konf <- 1
 
-# if (outfile == '') {x11()}
-# FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-#            minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-#            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
-#            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
-#            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-#            whoEcog=whoEcog, forbehandling=forbehandling)
+if (outfile == '') {x11()}
+FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+           reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
+           preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+           valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+           whoEcog=whoEcog, forbehandling=forbehandling)
 
 
 if (outfile == '') {x11()}
@@ -65,6 +65,13 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
+
+## Liste overkolonreseksjoner i NoRGast 2015 #############
+
+regdata <- NorgastPreprosess(RegData)
+
+regdata <- regdata[regdata$Aar==2015 & regdata$Op_gr==1 & regdata$AvdRESH==601225, c("PasientID", "MCEID")]
+write.csv2(regdata, 'NoRGastKolonTromso2015.csv', row.names = F)
 
 ################ Lag liste for NPR ######################
 

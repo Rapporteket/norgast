@@ -153,6 +153,9 @@ NorgastPreprosess <- function(RegData)
   RegData$LapTilgang[RegData$LapTilgang == 2] <- 1
   RegData$LapTilgang[!(RegData$LapTilgang %in% c(0,1))] <- NA
 
+  RegData$KumAcc <- NA
+  RegData$KumAcc[RegData$ACCORDION_SCORE < 3] <- 0
+  RegData$KumAcc[RegData$ACCORDION_SCORE >= 3] <- 1
   # Data <- list(RegData=RegData, shtxt=shtxt)
 
   return(invisible(RegData))

@@ -4,12 +4,17 @@
 \alias{NorgastPrepVar}
 \title{Preparer variabler for plotting}
 \usage{
-NorgastPrepVar(RegData, valgtVar)
+NorgastPrepVar(RegData, valgtVar, enhetsUtvalg = 1)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
 
 \item{valgtVar}{Hvilken variabel skal plottes}
+
+\item{enhetsUtvalg}{Lag figur for
+0: Hele landet
+1: Egen enhet mot resten av landet (Default)
+2: Egen enhet}
 }
 \value{
 PrepData En liste med plotrelevante størrelser

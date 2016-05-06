@@ -20,7 +20,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar %in% c('Alder', 'Vektendring', 'DIABETES','WHO_ECOG_SCORE', 'ASA', 'MODIFIED_GLASGOW_SCORE', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'ABDOMINAL_ACCESS', 'THORAX_ACCESS', 'ACCORDION_SCORE', 'RELAPAROTOMY',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'ROBOTASSISTANCE', 'erMann', 'PRS_SCORE',
-                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid', 'LapTilgang')) {
+                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid', 'LapTilgang', 'KumAcc')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -32,6 +32,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
+
+  if (valgtVar=='KumAcc') {
+    tittel <- c('Accordion score \u2265 3')
+    VarTxt <- 'med accordion score \u2265 3'
+    grtxt <- c('Nei', 'Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
 
   if (valgtVar=='OpDoedTid') {
     RegData <- RegData[!is.na(RegData$Variabel), ]
@@ -170,18 +180,18 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1, 3:6), labels = grtxt)
   }
 
-  if (valgtVar=='KumAcc') {
-    tittel <- 'Accordion score 3-6'
-    VarTxt <- 'med accordion score 3-6'
-#     grtxt <- c('<3', '3', '4', '5', '6')
-    grtxt <- c('Nei','Ja')
-    RegData$Variabel <- RegData$ACCORDION_SCORE
-    RegData$Variabel[RegData$Variabel == 1] <- 0
-    RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
-    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
-    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
-    if (enhetsUtvalg==1) {stabel=T}
-  }
+#   if (valgtVar=='KumAcc') {
+#     tittel <- 'Accordion score 3-6'
+#     VarTxt <- 'med accordion score 3-6'
+# #     grtxt <- c('<3', '3', '4', '5', '6')
+#     grtxt <- c('Nei','Ja')
+#     RegData$Variabel <- RegData$ACCORDION_SCORE
+#     RegData$Variabel[RegData$Variabel == 1] <- 0
+#     RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
+#     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+#     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+#     if (enhetsUtvalg==1) {stabel=T}
+#   }
 
   if (valgtVar=='DIABETES') {
     tittel <- 'Medisinert mot diabetes'
