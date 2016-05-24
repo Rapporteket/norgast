@@ -39,13 +39,16 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   READMISSION_ACCORDION_SCORE,
                   READMISSION_RELAPAROTOMY,
                   READMISSION_RELAPAROTOMY_YES,
+                  DECEASED,
+                  DECEASED_DATE,
                   ForlopsOversikt.ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.Sykehusnavn,
                   ForlopsOversikt.PasientAlder,
                   ForlopsOversikt.HovedDato,
                   ForlopsOversikt.BasisRegStatus,
-                  ForlopsOversikt.ForlopsID
+                  ForlopsOversikt.ForlopsID,
+                  ForlopsOversikt.PasientID
                   FROM AlleVarNum INNER JOIN ForlopsOversikt
                   ON AlleVarNum.MCEID = ForlopsOversikt.ForlopsID
                   WHERE HovedDato >= \'", datoFra, "\' AND HovedDato <= \'", datoTil, "\' ")
