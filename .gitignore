@@ -5,3 +5,8 @@ data/*
 inst/doc
 inst/*.gitignore
 inst/jrxml/*.gitignore
+NoRGastKolonTromso2015.csv
+NoRGastObligOperasjoner2014.csv
+NoRGastObligOperasjoner2014RESH.csv
+NoRGastObligOperasjoner2015.csv
+NoRGastObligOperasjoner2015RESH.csv
