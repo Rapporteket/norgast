@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 
 \title{Resultater fra NoRGast}
-\author{Kevin Thon (SKDE)}
+% \author{Kevin Thon (SKDE)}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -122,9 +122,9 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 
 \begin{itemize}
 \item \textbf{Nyresvikt}: Behov for dialyse
-\item \textbf{Respirasjonssvikt}: Reintubasjon etter kirurgi eller respiratorbehandling > 72 t for pasient som ikke ekstuberes operasjonsdagen.
-\item \textbf{Sirkulasjonssvikt}: Tilbakeføring til intensivenhet og pressorstøtte > 24 t
-\item \textbf{Leversvikt}: Bilirubin > 200 og INR enten over 2,5 eller som må korrigeres med plasma.
+\item \textbf{Respirasjonssvikt}: Reintubasjon etter kirurgi eller respiratorbehandling $>$ 72 t for pasient som ikke ekstuberes operasjonsdagen.
+\item \textbf{Sirkulasjonssvikt}: Tilbakeføring til intensivenhet og pressorstøtte $>$ 24 t
+\item \textbf{Leversvikt}: Bilirubin $>$ 200 og INR enten over 2,5 eller som må korrigeres med plasma.
 \item \textbf{CNS}: Glasgow Coma Scale 6 eller lavere
 \end{itemize}
 
@@ -138,32 +138,11 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 \section{Registrerende avdelinger}
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-# Tabell <- NorgastAntallRegPrSykehus(RegData=RegData, datoFra=datoFra, datoTil=datoTil)
-# print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-#                      caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
-#                      label='tab:RegistrenrendeAvd'),
-#       include.rownames=TRUE,
-#       include.colnames=FALSE,
-#       hline.after=NULL,
-#       add.to.row = list(pos=list(-1,0,0,0, nrow(Tabell)-1, nrow(Tabell)),
-#                         command=c('\\toprule\n', '& & Oppfølgings- & Hovedskjema & Oppfølging & Forløp\\\\\n',
-#                                   'Sykehus & Hovedskjema & skjema & i kladd & i kladd & totalt\\\\\n',
-#                                   '\\midrule\n','\\midrule\n','\\bottomrule\n')))
 RegData <- NorgastPreprosess(RegData=RegData)
-Tabell <- table(RegData$Sykehusnavn, RegData$Aar)
-Tabell <- addmargins(Tabell)
+Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
 Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
-
-# Tabell <- as.data.frame(Tabell)
-# Tabell[-dim(Tabell)[1]] <- Tabell[order(Tabell$Totalt, decreasing = T), ]
-
-# Tabell <- cbind(Tabell, rowSums(Tabell))
-# Tabell <- as.data.frame(Tabell)
-# Tabell <- Tabell[order(Tabell$Totalt, decreasing = T), ]
-# Tabell <- rbind(Tabell, colSums(Tabell))
-# rownames(Tabell)[dim(Tabell)[1]] <- 'Nasjonalt'
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
                      caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
@@ -172,7 +151,6 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       include.colnames=TRUE,
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
-
 @
 
 
@@ -1157,12 +1135,12 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
       floating=FALSE,
       hline.after=NULL,
       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)-1, nrow(Tabell)),
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
                                 '\\cline{4-8} \n',
                                 '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\hline\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
 \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
 \end{minipage}
