@@ -61,7 +61,7 @@ indRest <- which(RegData$AvdRESH != reshID)
 RegDataSh <- RegData[indSh,]
 RegDataRest <- RegData[indRest,]
 
-Tabell2 <- data.frame(Operasjonsgruppe=c('Rektumreseksjon', '\\quad Uten avlastende stomi', '\\quad Med avlastende stomi'),
+Tabell2 <- data.frame(Operasjonsgruppe=c('Rektumreseksjoner, ny anastomose', '\\quad Uten avlastende stomi', '\\quad Med avlastende stomi'),
                       N_lokal=numeric(3), RateAnastomoselekkasje_lokal=numeric(3),
                      N_ovrig=numeric(3), RateAnastomoselekkasje_ovrig=numeric(3))
 

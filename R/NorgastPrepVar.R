@@ -94,7 +94,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   if (valgtVar=='WHO_ECOG_SCORE') {
-    tittel <- 'WHO-ECOG'
+    tittel <- 'WHO-ECOG FUNKSJONSSCORE'
     grtxt <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid', '2: Oppe > 50% av dagen, selvstelt',
                '3: Oppe < 50% av dagen, delvis selvstelt', '4: Kun i stol/seng, hjelp til alt stell', 'Ukjent')
     RegData <- RegData[which(RegData$Variabel %in% c(0:4,9)), ]
@@ -235,8 +235,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='RELAPAROTOMY') {
-    tittel <- 'Relaparotomi'
-    VarTxt <- 'relaparotomier'
+    tittel <- 'Relaparotomi/-laparoskopi'
+    VarTxt <- 'relaparotomier/-laparoskopier'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
@@ -255,7 +255,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='AvlastendeStomiRektum') {
-    tittel <- 'Avlastende stomi ved rektumreseksjon'
+    tittel <- 'Stomi ved rektumreseksjon med ny anastomose'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)

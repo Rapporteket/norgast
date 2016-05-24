@@ -55,7 +55,7 @@ knitr::opts_knit$set(root.dir = './')
 \clearpage
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 datoFra='2014-01-01'
 datoTil=Sys.Date()
 ## Hvis spørring skjer fra R på server. ######################
@@ -63,19 +63,8 @@ if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else
 {library(norgast)
-  #     RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2015-11-24 09-31-03.txt', header=TRUE, sep=";")
-  #   ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2015-11-24 09-31-08.txt', header=TRUE, sep=";")
-  #
-  #   RegData <- RegData[,c('MCEID', 'AvdRESH','Avdeling','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
-  #                       'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
-  #                       'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
-  #                       'ACCORDION_SCORE', 'isMale','decimalAge', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
-  #                       'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES')]
-  #
-  #   RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
-  #   RegData$AvdRESH <- RegData$AvdRESH.x
-  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-02-01 13-05-05.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-02-01 13-05-10.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-27 10-19-08.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-27 10-19-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
   RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                         'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -92,13 +81,13 @@ figstr <- 0.58
 @
 
 \section{Bakgrunn}
-Norsk Register for Gastrokirurgi (NoRGast) er utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NoRGast er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
+Norsk Register for Gastrokirurgi (NoRGast) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NoRGast er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
 
-Registeret har nødvendig konsesjon og er samtykkebasert. Databehandlingsansvaret ligger hos UNN-HF ved direktøren.
+Registeret har nødvendig konsesjon og er samtykkebasert. Databehandlings-ansvaret ligger hos UNN-HF ved direktøren.
 
-En utvidet arbeidsgruppe er etter hvert strukturert i en Styringsgruppe (Asgaut Viste, Morten Tandberg Eriksen, Hans Wasmuth, Hartwig Kørner, Bjørn Atle Bjørnbeth og Stig Norderval) og en Referansegruppe (Ola Reiertsen, Jan Hallvard Træland, Hans-Olaf Johannesen, Arthur Revhaug, Knut Jørgen Labori og Ole Sjo).
+En utvidet arbeidsgruppe er etter hvert strukturert i en Styringsgruppe (\mbox{Asgaut} Viste, Morten Tandberg Eriksen, Hans Wasmuth, Hartwig Kørner, Bjørn Atle Bjørnbeth og Stig Norderval).
 
-Kristoffer Lassen har vært arbeidsgruppens sekretær og er registerets fagleder og daglige leder. Fra 2015 er funksjonen som daglig leder delt med Linn Såve Nymo.
+Kristoffer Lassen har vært registerets fagleder og daglige leder. Fra 2015 er funksjonen som daglig leder delt med Linn Såve Nymo.
 
 Registerløsningen er utviklet av Torkil Grindstein ved HN-IKT, analysene er gjort av Han Roger Moen ved HN-IKT og Kevin Thon (SKDE). Kevin Thon har laget den foreliggende rapporten. Valideringsverktøy er under utarbeidelse med hjelp av Frank Olsen og Bård Uleberg (begge SKDE). Anne Høie, Are Edvardsen, Lena Ringstad Olsen, Eva Stensland og Philip Skau (alle SKDE) har bidradd med viktige råd underveis.
 
@@ -116,32 +105,74 @@ Dette er en samlerapport for NoRGast og gir nasjonale tall samt tall for \textbf
 \end{itemize}
 Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes av de seks gruppene over, samt pancreasreseksjonene (utover Whipple) og gallegangsreseksjoner. Reseksjoner av tynntarm, appendix og galleblære er ikke obligatorisk og kan, sammen med all øvrig kirurgi, registreres på frivillig basis.\\
 
-I dette registeret er kun alvorlige komplikasjoner registrert, iht. Accordionsystemet. Dette systemet er basert på den nødvendige \emph{intervensjonen}.
+\noindent I dette registeret er kun alvorlige komplikasjoner registrert, iht. Accordionsystemet (Strasberg 2009, revidert og utvidet av Porembka 2010).\\
+
+\noindent Grad I og II utelates (I: Komplikasjoner som endrer forløp uten intervensjon og II: Komplikasjoner som håndteres med medikamenter som antibiotika osv, transfusjon, blodprodukter, ernæring etc, innleggelse av CVK, åpning av sting/sår i avdelingen («bedside»).\\
+
 \begin{itemize}
-\item \textbf{Accordion grad III} er perkutan/endoskopisk intervensjon der generell anestesi som hovedregel ikke er nødvendig.
-\item \textbf{Accordion grad IV} er reoperasjon i generell anestesi  \emph{eller} \'enorgansvikt med funksjonserstattende behandling
-\item \textbf{Accordion grad V} er flerorgansvikt eller \emph{begge} momentene under Grad IV.
-\item \textbf{Accordion grad VI} er død.
+\item \textbf{Accordion grad III}: Komplikasjon som nødvendiggjør endoskopisk intervensjon eller perkutan drenasje/punksjon (med/uten narkose) eller annen intervensjon uten narkose
+\item \textbf{Accordion grad IV}: Singel organsvikt (se under) eller relaparotomi/-laparoskopi i narkose
+\item \textbf{Accordion grad V}:  Flerorgansvikt (se under)
+\item \textbf{Accordion grad VI}: Død
 \end{itemize}
 
-\clearpage
+\noindent NB: Scoring av begge kriterier for grad IV (singelorgansvikt + reoperasjon) gir samlet Accordion grad V (den kalkuleringen gjøres automatisk hos de som har kryss på begge grad IV).\\
+
+\noindent \textbf{Organsvikt} skal følge av en komplikasjon og ikke reflektere forlenget organstøtte etter elektiv narkose.
+
+\begin{itemize}
+\item \textbf{Nyresvikt}: Behov for dialyse
+\item \textbf{Respirasjonssvikt}: Reintubasjon etter kirurgi eller respiratorbehandling > 72 t for pasient som ikke ekstuberes operasjonsdagen.
+\item \textbf{Sirkulasjonssvikt}: Tilbakeføring til intensivenhet og pressorstøtte > 24 t
+\item \textbf{Leversvikt}: Bilirubin > 200 og INR enten over 2,5 eller som må korrigeres med plasma.
+\item \textbf{CNS}: Glasgow Coma Scale 6 eller lavere
+\end{itemize}
+
+\textbf{Ny anastomose} defineres strikt: blind lukning eller enterotomi som er suturert regnes ikke som anastomose
+
+
+% \clearpage
 
 % \addtolength{\hoffset}{-1.5cm}
 
 \section{Registrerende avdelinger}
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabell <- NorgastAntallRegPrSykehus(RegData=RegData, datoFra=datoFra, datoTil=datoTil)
+# Tabell <- NorgastAntallRegPrSykehus(RegData=RegData, datoFra=datoFra, datoTil=datoTil)
+# print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+#                      caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
+#                      label='tab:RegistrenrendeAvd'),
+#       include.rownames=TRUE,
+#       include.colnames=FALSE,
+#       hline.after=NULL,
+#       add.to.row = list(pos=list(-1,0,0,0, nrow(Tabell)-1, nrow(Tabell)),
+#                         command=c('\\toprule\n', '& & Oppfølgings- & Hovedskjema & Oppfølging & Forløp\\\\\n',
+#                                   'Sykehus & Hovedskjema & skjema & i kladd & i kladd & totalt\\\\\n',
+#                                   '\\midrule\n','\\midrule\n','\\bottomrule\n')))
+RegData <- NorgastPreprosess(RegData=RegData)
+Tabell <- table(RegData$Sykehusnavn, RegData$Aar)
+Tabell <- addmargins(Tabell)
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+
+# Tabell <- as.data.frame(Tabell)
+# Tabell[-dim(Tabell)[1]] <- Tabell[order(Tabell$Totalt, decreasing = T), ]
+
+# Tabell <- cbind(Tabell, rowSums(Tabell))
+# Tabell <- as.data.frame(Tabell)
+# Tabell <- Tabell[order(Tabell$Totalt, decreasing = T), ]
+# Tabell <- rbind(Tabell, colSums(Tabell))
+# rownames(Tabell)[dim(Tabell)[1]] <- 'Nasjonalt'
+
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
                      caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
                      label='tab:RegistrenrendeAvd'),
       include.rownames=TRUE,
-      include.colnames=FALSE,
-      hline.after=NULL,
-      add.to.row = list(pos=list(-1,0,0,0, nrow(Tabell)-1, nrow(Tabell)),
-                        command=c('\\toprule\n', '& & Oppfølgings- & Hovedskjema & Oppfølging & Forløp\\\\\n',
-                                  'Sykehus & Hovedskjema & skjema & i kladd & i kladd & totalt\\\\\n',
-                                  '\\midrule\n','\\midrule\n','\\bottomrule\n')))
+      include.colnames=TRUE,
+      add.to.row = list(pos=list(nrow(Tabell)-1),
+                        command=c('\\midrule\n')))
+
 @
 
 
@@ -150,7 +181,7 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
 \section{Innregistrerte operasjoner}
 
 <<'Tabell:InnregistrerteOpNasjon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-RegData <- NorgastPreprosess(RegData=RegData)
+# RegData <- NorgastPreprosess(RegData=RegData)
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
@@ -227,7 +258,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG-gruppe for ', gruppe, 'reseksjoner.')}}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 
@@ -305,7 +336,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG-gruppe for ', gruppe, 'reseksjoner.')}}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
@@ -389,7 +420,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG-gruppe for ', gruppe, 'reseksjoner.')}}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
@@ -473,7 +504,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{Fordeling etter WHO-ECOG-gruppe for øsofagusreseksjoner.}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for øsofagusreseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -558,7 +589,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{Fordeling etter WHO-ECOG-gruppe for \Sexpr{gruppe}reseksjoner.}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -644,7 +675,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
-\caption{Fordeling etter WHO-ECOG-gruppe for \Sexpr{gruppe} reseksjoner.}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -757,7 +788,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{AvlastendeStomiRektum_\Sexpr{gruppe}.pdf}
-\caption{Andel med avlastende stomi ved \Sexpr{tolower(gruppe)}reseksjoner. Basert på kombinasjonen ''Ny stomi'' \emph{og} ''Ny anastomose''.}
+\caption{Andel med avlastende stomi ved \Sexpr{tolower(gruppe)}reseksjoner med ny anastomose. (Basert på kombinasjonen ''ny anastomose'' og deretter ''ny stomi'' fra registreringsskjemaet.)}
 \end{figure}
 
 
@@ -899,7 +930,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved \Sexpr{gruppe}reseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 
@@ -937,7 +968,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved \Sexpr{gruppe}reseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 
@@ -974,7 +1005,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved \Sexpr{gruppe}reseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 
@@ -1011,7 +1042,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved øsofagusreseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved øsofagusreseksjoner.}
 \end{figure}
 
 
@@ -1048,7 +1079,7 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved \Sexpr{gruppe}reseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 
@@ -1085,43 +1116,16 @@ for (p in 1:length(varNavn)){
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi ved \Sexpr{gruppe} reseksjoner.}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
 
 \clearpage
-% \addtolength{\hoffset}{-1.5cm}
 
-\subsection{Anastomoselekkasje}
 
-<<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                                      minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
-addtorow <- list()
-addtorow$pos <- list()
-addtorow$pos[[1]] <- 0
-addtorow$pos[[2]] <- 0
-addtorow$command <- c('& & Rate &  & Rate \\\\\n',
-                      'Operasjonsgruppe & $N_{lokal}$ & lokal (\\%)& $N_{øvrig}$ & øvrig (\\%) \\\\\n')
-print(xtable::xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
-                     caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
-                     label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
-# addtorow$command <- c('& & Rate anastomose- &  & Rate anastomose- \\\\\n',
-#                       'Operasjonsgruppe & $N_{lokal}$ & lekkasje, lokal & $N_{øvrig}$ & lekkasje, øvrig \\\\\n')
-print(xtable::xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
-                     caption='Rate av anastomoselekkasje med og uten avlastende stomi (med ny anastomose).',
-                     label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
-      add.to.row = addtorow, sanitize.text.function = function(x){x})
-print(xtable::xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
-                     caption='Anastomoselekkasje og onkologisk forbehandling.',
-                     label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
-      add.to.row = addtorow, sanitize.text.function = function(x){x})
-@
-
-\clearpage
 
 \subsection{Reoperasjoner}
-
+\addtolength{\hoffset}{-2.5cm}
 % \addtolength{\hoffset}{0.5cm}
 
 \begin{table}[htb]
@@ -1163,5 +1167,37 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
 \end{minipage}
 \end{table}
+
+\clearpage
+
+
+\subsection{Anastomoselekkasje påvist v/ reoperasjon}
+\addtolength{\hoffset}{2.5cm}
+<<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+                                      minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
+addtorow <- list()
+addtorow$pos <- list()
+addtorow$pos[[1]] <- 0
+addtorow$pos[[2]] <- 0
+addtorow$command <- c('& & Rate &  & Rate \\\\\n',
+                      'Operasjonsgruppe & $N_{lokal}$ & lokal (\\%)& $N_{øvrig}$ & øvrig (\\%) \\\\\n')
+print(xtable::xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
+                     caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
+                     label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
+# addtorow$command <- c('& & Rate anastomose- &  & Rate anastomose- \\\\\n',
+#                       'Operasjonsgruppe & $N_{lokal}$ & lekkasje, lokal & $N_{øvrig}$ & lekkasje, øvrig \\\\\n')
+print(xtable::xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
+                     caption='Rate av anastomoselekkasje med og uten avlastende stomi.',
+                     label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
+      add.to.row = addtorow, sanitize.text.function = function(x){x})
+print(xtable::xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
+                     caption='Anastomoselekkasje og onkologisk forbehandling.',
+                     label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
+      add.to.row = addtorow, sanitize.text.function = function(x){x})
+@
+
+
+
 
 \end{document}
