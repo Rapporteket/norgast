@@ -5,8 +5,16 @@ data/*
 inst/doc
 inst/*.gitignore
 inst/jrxml/*.gitignore
+<<<<<<< HEAD
 NoRGastKolonTromso2015.csv
+=======
+*.png
+>>>>>>> dev
 NoRGastObligOperasjoner2014.csv
 NoRGastObligOperasjoner2014RESH.csv
 NoRGastObligOperasjoner2015.csv
 NoRGastObligOperasjoner2015RESH.csv
+<<<<<<< HEAD
+=======
+NoRGastKolonTromso2015.csv
+>>>>>>> dev
