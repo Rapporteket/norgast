@@ -105,7 +105,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   }
 
   ## Preparer variabler for fremstilling i figur
-  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar, enhetsUtvalg=enhetsUtvalg)
   RegData <- PlotParams$RegData
   PlotParams$RegData <- NA
 
