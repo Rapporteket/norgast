@@ -167,7 +167,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   #if (dim(RegData)[1] < 10 | (length(which(RegData$ReshId == reshID))<5 & medSml == 1)) {
   if (length(indHoved) < 10 | (medSml ==1 & length(indRest)<10)) {
     #-----------Figur---------------------------------------
-    FigTypUt <- figtype(outfile, fargepalett=NorgastUtvalg$fargepalett)
+    # FigTypUt <- figtype(outfile, fargepalett=NorgastUtvalg$fargepalett)
     farger <- FigTypUt$farger
     plot.new()
     title(main=paste('variabel: ', valgtVar, sep=''))	#, line=-6)

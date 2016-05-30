@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 
 \title{Resultater fra NoRGast}
-% \author{Kevin Thon (SKDE)}
+\author{NoRGast}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -73,7 +73,7 @@ if(hentData){
                         'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
-  reshID <- 601225
+  reshID <- 700413
 }
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
@@ -354,7 +354,7 @@ for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+             reshID=reshID, enhetsUtvalg=1, preprosess=F)}
 
 varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
 
