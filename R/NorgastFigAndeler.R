@@ -121,7 +121,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   if (valgtVar %in% c('DECEASED', 'OpDoedTid')) {
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
-    }
+  }
 
 
   if (valgtShus[1]!='') {
@@ -177,11 +177,19 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   #Hvis for få observasjoner..
   if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)) {
     #-----------Figur---------------------------------------
-    figtype(outfile)
+#     figtype(outfile)
+#     plot.new()
+#     title(main=valgtVar, line=-1)
+#     text(0.5, 0.7, 'Færre enn 5 registreringer ved egen avdeling',cex=1.3)
+#     text(0.5, 0.6, 'eller landet forøvrig for dette utvalget.',cex=1.3)
+#     if ( outfile != '') {dev.off()}
+#
+    # FigTypUt <- figtype(outfile)
+    farger <- FigTypUt$farger
     plot.new()
-    title(main=valgtVar, line=-1)
-    text(0.5, 0.7, 'Færre enn 5 registreringer ved egen avdeling',cex=1.3)
-    text(0.5, 0.6, 'eller landet forøvrig for dette utvalget.',cex=1.3)
+    # title(tittel)	#, line=-6)
+    legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
+    text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
     if ( outfile != '') {dev.off()}
   } else {
 
@@ -266,14 +274,16 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
         }
       }
     }
+
+    krymp <- .9
+    title(main = tittel, line=1, font.main=1, cex.main=1.3*cexgr)
+    mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
+
+    par('fig'=c(0, 1, 0, 1))
+
+    if ( outfile != '') {dev.off()}
+
   }
-  krymp <- .9
-  title(main = tittel, line=1, font.main=1, cex.main=1.3*cexgr)
-  mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
-
-  par('fig'=c(0, 1, 0, 1))
-
-  if ( outfile != '') {dev.off()}
 
 }
 
