@@ -5,16 +5,30 @@ data/*
 inst/doc
 inst/*.gitignore
 inst/jrxml/*.gitignore
-<<<<<<< HEAD
-NoRGastKolonTromso2015.csv
-=======
-*.png
->>>>>>> dev
 NoRGastObligOperasjoner2014.csv
 NoRGastObligOperasjoner2014RESH.csv
 NoRGastObligOperasjoner2015.csv
 NoRGastObligOperasjoner2015RESH.csv
-<<<<<<< HEAD
-=======
+ASA_kolon.pdf
+ASA_rektum.pdf
+Alder_kolon.pdf
+Alder_rektum.pdf
+BMI_kodet_kolon.pdf
+BMI_kodet_rektum.pdf
+DIABETES_kolon.pdf
+DIABETES_rektum.pdf
+DIABETES_ventrikkel.pdf
+Forbehandling_rektum.pdf
+MODIFIED_GLASGOW_SCORE_kolon.pdf
+MODIFIED_GLASGOW_SCORE_rektum.pdf
+MODIFIED_GLASGOW_SCORE_ventrikkel.pdf
+PRS_SCORE_kolon.pdf
+PRS_SCORE_rektum.pdf
+Vektendring_kolon.pdf
+Vektendring_rektum.pdf
+WHO_ECOG_SCORE_kolon.pdf
+WHO_ECOG_SCORE_rektum.pdf
+erMann_kolon.pdf
+erMann_rektum.pdf
+erMann_ventrikkel.pdf
 NoRGastKolonTromso2015.csv
->>>>>>> dev
