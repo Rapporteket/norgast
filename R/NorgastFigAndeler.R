@@ -121,7 +121,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   if (valgtVar %in% c('DECEASED', 'OpDoedTid')) {
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
-    }
+  }
 
 
   if (valgtShus[1]!='') {
@@ -177,12 +177,12 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   #Hvis for få observasjoner..
   if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)) {
     #-----------Figur---------------------------------------
-    figtype(outfile)
+    NutvTxt <- length(utvalgTxt)
+    par('fig'=c(0, 1, 0, 1-0.02*(NutvTxt-1)))  #Har alltid datoutvalg med
     plot.new()
-    title(main=valgtVar, line=-1)
-    text(0.5, 0.7, 'Færre enn 5 registreringer ved egen avdeling',cex=1.3)
-    text(0.5, 0.6, 'eller landet forøvrig for dette utvalget.',cex=1.3)
-    if ( outfile != '') {dev.off()}
+    text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
+
+
   } else {
 
     #Plottspesifikke parametre:
@@ -274,6 +274,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   par('fig'=c(0, 1, 0, 1))
 
   if ( outfile != '') {dev.off()}
+
+
 
 }
 

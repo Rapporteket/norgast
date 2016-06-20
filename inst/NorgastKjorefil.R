@@ -16,16 +16,16 @@ RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
-reshID <- 601225 #  #Må sendes med til funksjon
+reshID <- 700413 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2016-01-01'
-enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+datoTil <- '2017-01-01'
+enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
 valgtVar <- 'erMann'
-op_gruppe<- 0
+op_gruppe<- ''
 outfile <- ''
 preprosess<-T
 hentData <- F
@@ -339,18 +339,33 @@ IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN
 #
 ########################## datokødd
 
-datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2016-12-31'
+# datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+# datoTil <- '2016-12-31'
+#
+#
+# dFra <- as.POSIXlt(datoFra)
+# dTil <- as.POSIXlt(datoTil)
+#
+#
+# difftid <- dTil-dFra
+#
+#
 
-
-dFra <- as.POSIXlt(datoFra)
-dTil <- as.POSIXlt(datoTil)
-
-
-difftid <- dTil-dFra
-
-
-
-
+erMann=99
+minald=0
+maxald=130
+enhetsUtvalg=1
+stabel=F
+preprosess=F
+elektiv=99
+BMI=''
+tilgang=99
+valgtShus=c('')
+minPRS=0
+maxPRS=2
+ASA=''
+whoEcog= ''
+forbehandling=99
+hentData=F
 
 
