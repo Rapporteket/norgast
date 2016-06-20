@@ -22,7 +22,7 @@ maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
-enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+enhetsUtvalg <- 0 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
 valgtVar <- 'erMann'
 op_gruppe<- ''
@@ -35,7 +35,7 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
-tilgang <- 3
+tilgang <- 5
 minPRS <- 0
 maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
