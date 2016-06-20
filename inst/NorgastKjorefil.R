@@ -21,11 +21,11 @@ minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2016-01-01'
-enhetsUtvalg <- 2 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+datoTil <- '2017-01-01'
+enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
 valgtVar <- 'erMann'
-op_gruppe<- 0
+op_gruppe<- ''
 outfile <- ''
 preprosess<-T
 hentData <- F
@@ -339,18 +339,33 @@ IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN
 #
 ########################## datokødd
 
-datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2016-12-31'
+# datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+# datoTil <- '2016-12-31'
+#
+#
+# dFra <- as.POSIXlt(datoFra)
+# dTil <- as.POSIXlt(datoTil)
+#
+#
+# difftid <- dTil-dFra
+#
+#
 
-
-dFra <- as.POSIXlt(datoFra)
-dTil <- as.POSIXlt(datoTil)
-
-
-difftid <- dTil-dFra
-
-
-
-
+erMann=99
+minald=0
+maxald=130
+enhetsUtvalg=1
+stabel=F
+preprosess=F
+elektiv=99
+BMI=''
+tilgang=99
+valgtShus=c('')
+minPRS=0
+maxPRS=2
+ASA=''
+whoEcog= ''
+forbehandling=99
+hentData=F
 
 
