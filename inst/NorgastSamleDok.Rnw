@@ -63,8 +63,8 @@ if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else
 {library(norgast)
-  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-27 10-19-08.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-27 10-19-11.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-06-10 12-27-00.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-06-10 12-27-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
   RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
                         'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
@@ -74,6 +74,7 @@ if(hentData){
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
   reshID <- 700413
+
 }
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
@@ -353,8 +354,7 @@ gruppe <- 'ventrikkel'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, preprosess=F)}
+             op_gruppe=4, outfile=outfile, reshID=reshID, preprosess=F)}
 
 varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
 
