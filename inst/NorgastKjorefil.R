@@ -16,7 +16,7 @@ RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
-reshID <- 700413 #  #Må sendes med til funksjon
+reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
@@ -35,7 +35,7 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 # valgtShus <- c('708761', '102145', '601225')
 valgtShus <- c('')
-tilgang <- 99
+tilgang <- 3
 minPRS <- 0
 maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
