@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-NorgastFigAndelSykehus <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014-01-01', datoTil='2050-12-31',
+NorgastFigAndelSykehus <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014-01-01', datoTil='2050-12-31',
                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                                reshID, enhetsUtvalg=1, preprosess=F,
                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,

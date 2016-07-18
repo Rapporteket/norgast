@@ -13,7 +13,7 @@
 NorgastAntallRegPrSykehus  <- function(RegData, datoFra='2014-01-01', datoTil='2050-12-31')
 
 {
-RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d")
+RegData$OperasjonsDato <- as.POSIXlt(RegData$OpDato, format="%Y-%m-%d")
 RegData <- RegData[which(RegData$OperasjonsDato >= as.POSIXlt(datoFra) & RegData$OperasjonsDato <= as.POSIXlt(datoTil)),]
 
 RegData$Sykehusnavn <- as.factor(as.character(RegData$Sykehusnavn))
@@ -27,10 +27,10 @@ lik1 <- function(x) {
   return(invisible(ut))
 }
 
-tmp1 <-  tapply(RegData$STATUS, RegData$Sykehusnavn, lik1)
-tmp2 <-  tapply(RegData$STATUS, RegData$Sykehusnavn, lik0)
-tmp3 <-  tapply(RegData$READMISSION_STATUS, RegData$Sykehusnavn, lik1)
-tmp4 <-  tapply(RegData$READMISSION_STATUS, RegData$Sykehusnavn, lik0)
+tmp1 <-  tapply(RegData$RegistreringStatus, RegData$Sykehusnavn, lik1)
+tmp2 <-  tapply(RegData$RegistreringStatus, RegData$Sykehusnavn, lik0)
+tmp3 <-  tapply(RegData$OppfStatus, RegData$Sykehusnavn, lik1)
+tmp4 <-  tapply(RegData$OppfStatus, RegData$Sykehusnavn, lik0)
 
 Tabell <- as.data.frame(cbind(tmp1,tmp3,tmp2,tmp4, tmp1+tmp2))
 names(Tabell) <- c('Hovedskjema', 'Oppfolging', 'HovedKladd', 'OppfolgKladd', 'Totalt')

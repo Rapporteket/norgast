@@ -55,7 +55,7 @@ knitr::opts_knit$set(root.dir = './')
 \clearpage
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 datoFra='2014-01-01'
 datoTil=Sys.Date()
 ## Hvis spørring skjer fra R på server. ######################
@@ -63,16 +63,17 @@ if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else
 {library(norgast)
-  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-07-18 10-57-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-07-18 10-56-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
   ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-07-18 10-56-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
-  RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
-                        'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
-                        'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
-                        'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
-                        'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
+  RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                        'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                        'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                        'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                        'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato')]
+
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-  RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
+  RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
   reshID <- 700413
 
 }
@@ -186,7 +187,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(
 
 
 <<'Demografisk_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe<-'kolon'
 
 for (p in 1:length(varNavn)){
@@ -195,7 +196,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -236,26 +237,26 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
 \end{figure}
 
@@ -264,7 +265,7 @@ for (p in 1:length(varNavn)){
 \subsection{Rektumreseksjoner}
 
 <<'Demografisk_rektum', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'rektum'
 
 for (p in 1:length(varNavn)){
@@ -273,7 +274,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -314,25 +315,25 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
 \end{figure}
 
@@ -348,7 +349,7 @@ for (p in 1:length(varNavn)){
 \subsection{Ventrikkelreseksjoner}
 
 <<'Demografisk_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'ventrikkel'
 
 for (p in 1:length(varNavn)){
@@ -356,7 +357,7 @@ for (p in 1:length(varNavn)){
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              op_gruppe=4, outfile=outfile, reshID=reshID, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -397,25 +398,25 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
 \end{figure}
 
@@ -431,7 +432,7 @@ for (p in 1:length(varNavn)){
 \subsection{Øsofagusreseksjoner}
 
 <<'Demografisk_osofagus', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'oesofagus'
 
 for (p in 1:length(varNavn)){
@@ -440,7 +441,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -481,25 +482,25 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter WHO-ECOG funksjonsscore for øsofagusreseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{Andel som er medisinert mot diabetes for øsofagusreseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for øsofagusreseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter mE-PASS for øsofagusreseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
 \end{figure}
 
@@ -516,7 +517,7 @@ for (p in 1:length(varNavn)){
 \subsection{Leverreseksjoner}
 
 <<'Demografisk_lever', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'lever'
 
 for (p in 1:length(varNavn)){
@@ -525,7 +526,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -566,25 +567,25 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe}reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter mE-PASS for \Sexpr{gruppe}reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
 \end{figure}
 
@@ -602,7 +603,7 @@ for (p in 1:length(varNavn)){
 \subsection{Whipples reseksjoner}
 
 <<'Demografisk_whipple', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('erMann', 'DIABETES','MODIFIED_GLASGOW_SCORE')
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'Whipples'
 
 for (p in 1:length(varNavn)){
@@ -611,7 +612,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=6, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHO_ECOG_SCORE', 'PRS_SCORE', 'Forbehandling')
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -652,25 +653,25 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{WHO_ECOG_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{DIABETES_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
 \caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{MODIFIED_GLASGOW_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe} reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width= \Sexpr{figstr}\textwidth]{PRS_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
 \caption{Fordeling etter mE-PASS for \Sexpr{gruppe} reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
 \end{figure}
 
@@ -691,7 +692,7 @@ for (p in 1:length(varNavn)){
 
 
 <<'OpTid_kolon', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','ABDOMINAL_ACCESS','ROBOTASSISTANCE', 'ANASTOMOSIS')
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose')
 gruppe<-'Kolon'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -708,19 +709,19 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ROBOTASSISTANCE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
 \caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ANASTOMOSIS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
 \caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
@@ -730,7 +731,7 @@ for (p in 1:length(varNavn)){
 \subsection{Rektumreseksjoner}
 
 <<'OpTid_rektum', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','ABDOMINAL_ACCESS','ROBOTASSISTANCE', 'ANASTOMOSIS','AvlastendeStomiRektum')
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose','AvlastendeStomiRektum')
 gruppe<-'Rektum'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -747,19 +748,19 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ROBOTASSISTANCE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
 \caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ANASTOMOSIS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
 \caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
@@ -775,7 +776,7 @@ for (p in 1:length(varNavn)){
 \subsection{Ventrikkelreseksjoner}
 
 <<'OpTid_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','ABDOMINAL_ACCESS', 'ANASTOMOSIS')
+varNavn <- c('Hastegrad','Tilgang', 'NyAnastomose')
 gruppe<-'Ventrikkel'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -792,13 +793,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ANASTOMOSIS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
 \caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
 \end{figure}
 
@@ -808,7 +809,7 @@ for (p in 1:length(varNavn)){
 \subsection{Øsofagusreseksjoner}
 
 <<'OpTid_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('THORAX_ACCESS', 'ABDOMINAL_ACCESS')
+varNavn <- c('ThoraxTilgang', 'Tilgang')
 gruppe<-'oesofagus'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -819,13 +820,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{THORAX_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ThoraxTilgang_\Sexpr{gruppe}.pdf}
 \caption{Tilgang i thorax ved øsofagusreseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Tilgang i abdomen ved øsofagusreseksjoner.}
 \end{figure}
 
@@ -836,7 +837,7 @@ for (p in 1:length(varNavn)){
 \subsection{Leverreseksjoner}
 
 <<'OpTid_lever', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('ABDOMINAL_ACCESS')
+varNavn <- c('Tilgang')
 gruppe<-'lever'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -847,7 +848,7 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Tilgang i abdomen ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
@@ -857,7 +858,7 @@ for (p in 1:length(varNavn)){
 \subsection{Whipples reseksjoner}
 
 <<'OpTid_whipple', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('ABDOMINAL_ACCESS')
+varNavn <- c('Tilgang')
 gruppe<-'Whipples'
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -868,7 +869,7 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ABDOMINAL_ACCESS_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
 \caption{Tilgang i abdomen ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
@@ -882,7 +883,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_kolon', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'kolon'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -890,7 +891,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -901,13 +902,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
@@ -920,7 +921,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_rektum', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'rektum'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -928,7 +929,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -939,13 +940,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
@@ -957,7 +958,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'ventrikkel'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -965,7 +966,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -976,13 +977,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
@@ -994,7 +995,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'oesofagus'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1002,7 +1003,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1013,13 +1014,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved øsofagusreseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved øsofagusreseksjoner.}
 \end{figure}
 
@@ -1031,7 +1032,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_lever', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'lever'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1039,7 +1040,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1050,13 +1051,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
 \end{figure}
 
@@ -1068,7 +1069,7 @@ for (p in 1:length(varNavn)){
 <<'Komplikasjoner_whipple', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'Whipples'
 
-varNavn <- c('RELAPAROTOMY')
+varNavn <- c('ReLapNarkose')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1076,7 +1077,7 @@ for (p in 1:length(varNavn)){
              minald=0, maxald=130, erMann='', op_gruppe=6, outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
 
-varNavn <- c('ACCORDION_SCORE')
+varNavn <- c('AccordionGrad')
 
 for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
@@ -1087,13 +1088,13 @@ for (p in 1:length(varNavn)){
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ACCORDION_SCORE_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
 \caption{Accordion score ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{RELAPAROTOMY_\Sexpr{gruppe}.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 

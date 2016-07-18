@@ -24,14 +24,14 @@ NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=dato
 RegData <- NorgastUtvalg$RegData
 
 ####################    Lag tabell over alle operasjoner (noen gruppert)  ###########################################
-RegData$NCSP <- paste0(substr(RegData$NCSP, 7, 100), ' (', substr(RegData$NCSP, 1, 5), ')')
+RegData$Hovedoperasjon <- paste0(substr(RegData$Hovedoperasjon, 7, 100), ' (', substr(RegData$Hovedoperasjon, 1, 5), ')')
 
 N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
-RegData$NCSP[RegData$Op_gr %in% 1:(N_opgr-1)] <- RegData$Operasjonsgrupper[RegData$Op_gr %in% 1:(N_opgr-1)]
+RegData$Hovedoperasjon[RegData$Op_gr %in% 1:(N_opgr-1)] <- RegData$Operasjonsgrupper[RegData$Op_gr %in% 1:(N_opgr-1)]
 
 
-RegData$NCSP <- gsub("[\r\n]", "", RegData$NCSP)
-res <- sort(table(RegData$NCSP), decreasing=T)
+RegData$Hovedoperasjon <- gsub("[\r\n]", "", RegData$Hovedoperasjon)
+res <- sort(table(RegData$Hovedoperasjon), decreasing=T)
 Tabell <- data.frame('Operasjonsgruppe'=names(res[res>=Terskel]), 'Antall'=as.numeric(res[res>=Terskel]))
 
 # Tabellen skal inneholde maks 14 operasjonskoder
@@ -49,8 +49,8 @@ Tabell$Andel <- Tabell$Antall/sum(Tabell$Antall)*100
 ###  Lag tabell over reoperasjonsrater sammen med årsak til reoperasjon splittet på operasjonsgrupper ######################
 
 grtxt <- c('Nei','Ja')
-RegData <- RegData[which(RegData$RELAPAROTOMY %in% c(0, 1)), ] # Ekskluderer de som ikke har registrert om reoperasjon er utført
-RegData$VariabelGr <- factor(RegData$RELAPAROTOMY, levels=c(0, 1), labels = grtxt)
+RegData <- RegData[which(RegData$ReLapNarkose %in% c(0, 1)), ] # Ekskluderer de som ikke har registrert om reoperasjon er utført
+RegData$VariabelGr <- factor(RegData$ReLapNarkose, levels=c(0, 1), labels = grtxt)
 
 Tabell2 <- data.frame(Operasjonsgruppe=RegData$Operasjonsgrupper[match(c(1:(N_opgr-1),99), RegData$Op_gr)],
                      N=numeric(N_opgr), Reoperasjonsrate=numeric(N_opgr), Anastomoselekkasje=numeric(N_opgr),
@@ -58,7 +58,7 @@ Tabell2 <- data.frame(Operasjonsgruppe=RegData$Operasjonsgrupper[match(c(1:(N_op
                      Annet=numeric(N_opgr))
 
 
-RegData$RELAPAROTOMY_YES[which(RegData$RELAPAROTOMY_YES==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
+RegData$ViktigsteFunn[which(RegData$ViktigsteFunn==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
 
 grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur', 'Annet')
 
@@ -67,8 +67,8 @@ for (p in  1:N_opgr){
   if (p==N_opgr) Subset <- RegData[RegData$Op_gr==99, ]
   Tabell2$Reoperasjonsrate[p] <- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)[2]
   Tabell2$N[p] <- dim(Subset)[1]
-  Subset <- Subset[Subset$RELAPAROTOMY==1,]
-  Subset$VariabelGr <- factor(Subset$RELAPAROTOMY_YES, levels=1:5, labels = grtxt)
+  Subset <- Subset[Subset$ReLapNarkose==1,]
+  Subset$VariabelGr <- factor(Subset$ViktigsteFunn, levels=1:5, labels = grtxt)
 #   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)
   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/Tabell2$N[p]*100,2)
 }
