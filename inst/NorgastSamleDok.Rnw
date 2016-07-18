@@ -55,7 +55,7 @@ knitr::opts_knit$set(root.dir = './')
 \clearpage
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- F
+hentData <- T
 datoFra='2014-01-01'
 datoTil=Sys.Date()
 ## Hvis spørring skjer fra R på server. ######################
