@@ -96,6 +96,13 @@ NorgastPreprosess <- function(RegData)
   RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$NyAnastomose==0))] <- 7
   RegData$Op_gr2[RegData$Operasjonsgrupper=='Whipples operasjon'] <- 8
 
+  #### Quickfix: OppfStatus skal være numerisk kodet i AlleVariablerNum
+  RegData$OppfStatus <- as.character(RegData$OppfStatus)
+  RegData$OppfStatus[RegData$OppfStatus=='Opprettet'] <- '-1'
+  RegData$OppfStatus[RegData$OppfStatus=='Kladd'] <- '0'
+  RegData$OppfStatus[RegData$OppfStatus=='Ferdigstilt'] <- '1'
+  RegData$OppfStatus[RegData$OppfStatus=='Ukjent'] <- ''
+  RegData$OppfStatus <- as.numeric(RegData$OppfStatus)
 
   #### Inkluder ACCORDION SCORE fra oppfølgingsskjema
   RegData$AccordionGrad <- as.character(RegData$AccordionGrad)
