@@ -14,13 +14,13 @@ NorgastPreprosess <- function(RegData)
 {
   names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
-  RegData <- RegData[which(RegData$STATUS==1),] # Inkluder kun lukkede registreringer
-  RegData$OperasjonsDato <- as.POSIXlt(RegData$OPERATION_DATE, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
+  RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
+  RegData$OperasjonsDato <- as.POSIXlt(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
   RegData$Mnd <- RegData$OperasjonsDato$mon +1
   RegData$Kvartal <- floor((RegData$Mnd - 1)/3)+1
   RegData$Halvaar <- floor((RegData$Mnd - 1)/6)+1
   RegData$Aar <- RegData$OperasjonsDato$year + 1900
-  RegData$DoedsDato <- as.POSIXlt(RegData$DECEASED_DATE, format="%Y-%m-%d")
+  RegData$DoedsDato <- as.POSIXlt(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
   # RegData$Avdeling <- as.character(RegData$Avdeling)
 
@@ -29,30 +29,30 @@ NorgastPreprosess <- function(RegData)
   # shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
   # RegData$Alder <- floor(RegData[ ,'decimalAge'])
 
-  RegData$ncsp_lowercase <- substr(tolower(RegData$NCSP), 1, 5)
-  lowercase <- which(substr(RegData$NCSP, 1, 5)!=toupper(substr(RegData$NCSP, 1, 5))) # index til der NCSP-kode er i lowercase
-  uppercase <- match(toupper(RegData$NCSP[lowercase]), substr(RegData$NCSP, 1, 5))  # index til første forekomst av samme NCSP-kode i uppercase
+  RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
+  lowercase <- which(substr(RegData$Hovedoperasjon, 1, 5)!=toupper(substr(RegData$Hovedoperasjon, 1, 5))) # index til der NCSP-kode er i lowercase
+  uppercase <- match(toupper(RegData$Hovedoperasjon[lowercase]), substr(RegData$Hovedoperasjon, 1, 5))  # index til første forekomst av samme NCSP-kode i uppercase
   # som den som finnes i lowercase
-  RegData$NCSP[lowercase[which(!is.na(uppercase))]] <- RegData$NCSP[uppercase[which(!is.na(uppercase))]] # Der det finnes, erstatt lowercase
+  RegData$Hovedoperasjon[lowercase[which(!is.na(uppercase))]] <- RegData$Hovedoperasjon[uppercase[which(!is.na(uppercase))]] # Der det finnes, erstatt lowercase
   # tilfellet med den fulle beskrivelsen fra uppercase
-  RegData$NCSP <- iconv(RegData$NCSP, "UTF-8", "latin1")
-  RegData$Vektendring <- -RegData$WEIGHTLOSS
+  RegData$Hovedoperasjon <- iconv(RegData$Hovedoperasjon, "UTF-8", "latin1")
+  RegData$Vektendring <- -RegData$VekttapProsent
   RegData$Forbehandling <- NA
-  RegData$Forbehandling[which(as.numeric(RegData$CHEMOTHERAPY_ONLY)==1)] <- 1
-  RegData$Forbehandling[which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==1)] <- 2
-  RegData$Forbehandling[which(as.numeric(RegData$CHEMORADIOTHERAPY)==1)] <- 3
-  RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$CHEMOTHERAPY_ONLY)==0),
-                                            which(as.numeric(RegData$RADIATION_THERAPY_ONLY)==0)),
-                                  which(as.numeric(RegData$CHEMORADIOTHERAPY)==0))] <- 4
+  RegData$Forbehandling[which(as.numeric(RegData$KunCytostatika)==1)] <- 1
+  RegData$Forbehandling[which(as.numeric(RegData$KunStraaleterapi)==1)] <- 2
+  RegData$Forbehandling[which(as.numeric(RegData$KjemoRadioKombo)==1)] <- 3
+  RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$KunCytostatika)==0),
+                                            which(as.numeric(RegData$KunStraaleterapi)==0)),
+                                  which(as.numeric(RegData$KjemoRadioKombo)==0))] <- 4
   RegData$BMI_kodet <- NA
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Alvorlig undervekt')] <- 1
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Undervekt')] <- 2
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Mild undervekt')] <- 3
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Normal')] <- 4
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Overvekt')] <- 5
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Moderat fedme, klasse I')] <- 6
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Fedme, klasse II')] <- 7
-  RegData$BMI_kodet[which(RegData$BMI_CATEGORY=='Fedme, klasse III')] <- 8
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Alvorlig undervekt')] <- 1
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Undervekt')] <- 2
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Mild undervekt')] <- 3
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Normal')] <- 4
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Overvekt')] <- 5
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Moderat fedme, klasse I')] <- 6
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse II')] <- 7
+  RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse III')] <- 8
 
   # Definer operasjonsgrupper basert på NCSP kode
   RegData <- RegData[which(RegData$ncsp_lowercase!=''),]    # Fjerner registreringer uten operasjonskode
@@ -87,34 +87,34 @@ NorgastPreprosess <- function(RegData)
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
   RegData$Op_gr2 <- 9
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$ANASTOMOSIS==1))] <- 1
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$ANASTOMOSIS==0))] <- 2
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Rektumreseksjoner'), which(RegData$ANASTOMOSIS==1))] <- 3
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Rektumreseksjoner'), which(RegData$ANASTOMOSIS==0))] <- 4
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$NyAnastomose==1))] <- 1
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$NyAnastomose==0))] <- 2
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Rektumreseksjoner'), which(RegData$NyAnastomose==1))] <- 3
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Rektumreseksjoner'), which(RegData$NyAnastomose==0))] <- 4
   RegData$Op_gr2[RegData$Operasjonsgrupper=='Øsofagusreseksjoner'] <- 5
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$ANASTOMOSIS==1))] <- 6
-  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$ANASTOMOSIS==0))] <- 7
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$NyAnastomose==1))] <- 6
+  RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$NyAnastomose==0))] <- 7
   RegData$Op_gr2[RegData$Operasjonsgrupper=='Whipples operasjon'] <- 8
 
 
   #### Inkluder ACCORDION SCORE fra oppfølgingsskjema
-  RegData$ACCORDION_SCORE <- as.character(RegData$ACCORDION_SCORE)
-  RegData$ACCORDION_SCORE[RegData$ACCORDION_SCORE=='Mindre enn 3'] <- '1'
-  RegData$ACCORDION_SCORE <- as.numeric(RegData$ACCORDION_SCORE)
-  RegData$READMISSION_ACCORDION_SCORE <- as.character(RegData$READMISSION_ACCORDION_SCORE)
-  RegData$READMISSION_ACCORDION_SCORE[RegData$READMISSION_ACCORDION_SCORE=='Mindre enn 3'] <- 1
-  RegData$READMISSION_ACCORDION_SCORE <- as.numeric(RegData$READMISSION_ACCORDION_SCORE)
-  RegData$READMISSION_ACCORDION_SCORE[RegData$READMISSION_STATUS!=1]<-NA
-  RegData$ACCORDION_SCORE[!is.na(pmax(RegData$ACCORDION_SCORE, RegData$READMISSION_ACCORDION_SCORE))] <-
-    pmax(RegData$ACCORDION_SCORE, RegData$READMISSION_ACCORDION_SCORE)[!is.na(pmax(RegData$ACCORDION_SCORE,
-                                                                                   RegData$READMISSION_ACCORDION_SCORE))]
+  RegData$AccordionGrad <- as.character(RegData$AccordionGrad)
+  RegData$AccordionGrad[RegData$AccordionGrad=='Mindre enn 3'] <- '1'
+  RegData$AccordionGrad <- as.numeric(RegData$AccordionGrad)
+  RegData$OppfAccordionGrad <- as.character(RegData$OppfAccordionGrad)
+  RegData$OppfAccordionGrad[RegData$OppfAccordionGrad=='Mindre enn 3'] <- 1
+  RegData$OppfAccordionGrad <- as.numeric(RegData$OppfAccordionGrad)
+  RegData$OppfAccordionGrad[RegData$OppfStatus!=1]<-NA
+  RegData$AccordionGrad[!is.na(pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad))] <-
+    pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad)[!is.na(pmax(RegData$AccordionGrad,
+                                                                                   RegData$OppfAccordionGrad))]
 
   #### Inkluder Relaparotomi fra oppfølgingsskjema
 
-  RegData$READMISSION_RELAPAROTOMY[RegData$READMISSION_STATUS!=1] <- NA
-  RegData$READMISSION_RELAPAROTOMY_YES[RegData$READMISSION_STATUS!=1] <- NA
-  RegData$RELAPAROTOMY <- pmax(RegData$RELAPAROTOMY, RegData$READMISSION_RELAPAROTOMY, na.rm = TRUE)
-  RegData$RELAPAROTOMY_YES <- pmin(RegData$RELAPAROTOMY_YES, RegData$READMISSION_RELAPAROTOMY_YES, na.rm = TRUE)
+  RegData$OppfReLapNarkose[RegData$OppfStatus!=1] <- NA
+  RegData$OppfViktigsteFunn[RegData$OppfStatus!=1] <- NA
+  RegData$ReLapNarkose <- pmax(RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
+  RegData$ViktigsteFunn <- pmin(RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
 
   ##############
   # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
@@ -123,39 +123,39 @@ NorgastPreprosess <- function(RegData)
   Helligdager <- sort(Helligdager2008til2022$Dato)
 
   RegData$Hastegrad <- NA
-  RegData$Hastegrad[as.numeric(RegData$ANESTHESIA_START) %in% 8:15] <- 1
-  RegData$Hastegrad[as.numeric(RegData$ANESTHESIA_START) %in% c(1:7, 16:24)] <- 0
+  RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
+  RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
   RegData$Hastegrad[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0
   RegData$Hastegrad[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$AvlastendeStomiRektum <- NA
-  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$ANASTOMOSIS)==1), which(RegData$Op_gr==2)),
-                                          which(as.numeric(RegData$OSTOMY)==0))] <- 0
-  RegData$AvlastendeStomiRektum[union(which(is.na(RegData$ANASTOMOSIS)), which(is.na(RegData$OSTOMY)))] <- NA
-  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$ANASTOMOSIS)==1),
-                                                    which(as.numeric(RegData$OSTOMY)==1)),which(RegData$Op_gr==2))] <- 1
+  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1), which(RegData$Op_gr==2)),
+                                          which(as.numeric(RegData$NyStomi)==0))] <- 0
+  RegData$AvlastendeStomiRektum[union(which(is.na(RegData$NyAnastomose)), which(is.na(RegData$NyStomi)))] <- NA
+  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1),
+                                                    which(as.numeric(RegData$NyStomi)==1)),which(RegData$Op_gr==2))] <- 1
 
   RegData$PermanentStomiColorektal <- NA
-  RegData$PermanentStomiColorektal[intersect(union(which(as.numeric(RegData$ANASTOMOSIS)==1), which(as.numeric(RegData$OSTOMY)==0)),
+  RegData$PermanentStomiColorektal[intersect(union(which(as.numeric(RegData$NyAnastomose)==1), which(as.numeric(RegData$NyStomi)==0)),
                                              union(which(RegData$Op_gr==1),which(RegData$Op_gr==2)))] <- 0
-  RegData$PermanentStomiColorektal[union(which(is.na(RegData$ANASTOMOSIS)), which(is.na(RegData$OSTOMY)))] <- NA
-  RegData$PermanentStomiColorektal[intersect(intersect(which(as.numeric(RegData$ANASTOMOSIS)==0),which(as.numeric(RegData$OSTOMY)==1)),
+  RegData$PermanentStomiColorektal[union(which(is.na(RegData$NyAnastomose)), which(is.na(RegData$NyStomi)))] <- NA
+  RegData$PermanentStomiColorektal[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==0),which(as.numeric(RegData$NyStomi)==1)),
                                              union(which(RegData$Op_gr==1),which(RegData$Op_gr==2)))] <- 1
 
   RegData$Anastomoselekkasje <- NA
-  RegData$Anastomoselekkasje[RegData$ANASTOMOSIS==1] <- 0
-  RegData$Anastomoselekkasje[RegData$RELAPAROTOMY_YES==1] <- 1
-  RegData$Anastomoselekkasje[RegData$ANASTOMOSIS!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
-  RegData$Anastomoselekkasje[is.na(RegData$ANASTOMOSIS)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
+  RegData$Anastomoselekkasje[RegData$NyAnastomose==1] <- 0
+  RegData$Anastomoselekkasje[RegData$ViktigsteFunn==1] <- 1
+  RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
+  RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 
-  RegData$LapTilgang <- as.numeric(RegData$ABDOMINAL_ACCESS)
+  RegData$LapTilgang <- as.numeric(RegData$Tilgang)
   RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0
   RegData$LapTilgang[RegData$LapTilgang == 2] <- 1
   RegData$LapTilgang[!(RegData$LapTilgang %in% c(0,1))] <- NA
 
   RegData$KumAcc <- NA
-  RegData$KumAcc[RegData$ACCORDION_SCORE < 3] <- 0
-  RegData$KumAcc[RegData$ACCORDION_SCORE >= 3] <- 1
+  RegData$KumAcc[RegData$AccordionGrad < 3] <- 0
+  RegData$KumAcc[RegData$AccordionGrad >= 3] <- 1
   # Data <- list(RegData=RegData, shtxt=shtxt)
 
   return(invisible(RegData))

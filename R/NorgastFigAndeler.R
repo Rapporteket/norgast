@@ -118,7 +118,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
   # For variabler som går på person, ikke per operasjon
-  if (valgtVar %in% c('DECEASED', 'OpDoedTid')) {
+  if (valgtVar %in% c('Avdod', 'OpDoedTid')) {
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
   }

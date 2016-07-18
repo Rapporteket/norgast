@@ -5,14 +5,14 @@ rm(list=ls())
 RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-06-10 12-27-00.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-06-10 12-27-02.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
-RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY','RADIATION_THERAPY_ONLY',
-                      'CHEMORADIOTHERAPY','WHO_ECOG_SCORE','MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
-                      'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS','RELAPAROTOMY','RELAPAROTOMY_YES',
-                      'ACCORDION_SCORE', 'PRS_SCORE','STATUS', 'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE',
-                      'READMISSION_RELAPAROTOMY', 'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato')]
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 
-RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 # RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
@@ -70,7 +70,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 
 regdata <- NorgastPreprosess(RegData)
 
-regdata <- regdata[regdata$Aar==2015 & regdata$Op_gr==1 & regdata$AvdRESH==601225, c("PasientID", "MCEID")]
+regdata <- regdata[regdata$Aar==2015 & regdata$Op_gr==1 & regdata$AvdRESH==601225, c("PasientID", "ForlopsID")]
 write.csv2(regdata, 'NoRGastKolonTromso2015.csv', row.names = F)
 
 ################ Lag liste for NPR ######################
@@ -110,7 +110,7 @@ tosdata <- NorgastPreprosess(RegData)
 tosdata <- tosdata[tosdata$AvdRESH==reshID & tosdata$Op_gr == 3, ]
 
 
-tosdata$MCEID[tosdata$Op_gr==6 & tosdata$ANASTOMOSIS==0]
+tosdata$ForlopsID[tosdata$Op_gr==6 & tosdata$NyAnastomose==0]
 
 
 
@@ -119,10 +119,10 @@ tosdata$MCEID[tosdata$Op_gr==6 & tosdata$ANASTOMOSIS==0]
 
 RegData <- NorgastPreprosess(RegData=RegData)
 
-# Uttrekk <- RegData[RegData$ACCORDION_SCORE >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+# Uttrekk <- RegData[RegData$AccordionGrad >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
 
-Uttrekk <- RegData[which((RegData$ACCORDION_SCORE >= 3 | RegData$DECEASED ==1 | RegData$RELAPAROTOMY == 1 |
-                            RegData$READMISSION_OTHER_INSTITUTIONS == 1 | RegData$READMISSION_OWN_INSTITUTION == 1) &
+Uttrekk <- RegData[which((RegData$AccordionGrad >= 3 | RegData$Avdod ==1 | RegData$ReLapNarkose == 1 |
+                            RegData$ReinnlAndreInst == 1 | RegData$ReinnlEgenInst == 1) &
                            RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
 
 Uttrekk <- Uttrekk[Uttrekk$OperasjonsDato >= as.POSIXlt('2015-09-29') & Uttrekk$OperasjonsDato <= as.POSIXlt('2016-02-25'), ]
@@ -131,31 +131,31 @@ sort(table(Uttrekk$PasientID, useNA = 'ifany'), decreasing = TRUE)
 tmp1 <- as.numeric(names(table(Uttrekk$PasientID, useNA = 'ifany')))
 
 RegData[RegData$PasientID %in% setdiff(tmp2, tmp1) & RegData$OperasjonsDato >= as.POSIXlt('2015-09-29') &
-          RegData$OperasjonsDato <= as.POSIXlt('2016-02-25'), c('PasientID', 'ACCORDION_SCORE', 'DECEASED', 'RELAPAROTOMY',
-                                                      'READMISSION_OTHER_INSTITUTIONS', 'READMISSION_OWN_INSTITUTION', 'READMISSION_STATUS')]
+          RegData$OperasjonsDato <= as.POSIXlt('2016-02-25'), c('PasientID', 'AccordionGrad', 'Avdod', 'ReLapNarkose',
+                                                      'ReinnlAndreInst', 'ReinnlEgenInst', 'OppfStatus')]
 
 
 
-RegData$DECEASED[which((RegData$ACCORDION_SCORE >= 3 | RegData$DECEASED ==1 | RegData$RELAPAROTOMY == 1 |
-                           RegData$READMISSION_OTHER_INSTITUTIONS == 1 | RegData$READMISSION_OWN_INSTITUTION == 1) &
+RegData$Avdod[which((RegData$AccordionGrad >= 3 | RegData$Avdod ==1 | RegData$ReLapNarkose == 1 |
+                           RegData$ReinnlAndreInst == 1 | RegData$ReinnlEgenInst == 1) &
                           RegData$AvdRESH == 601225)]
 
 
 
 ## Studerer avdøde #########################
-tmp <- RegData$PasientID[RegData$DECEASED == 1]
+tmp <- RegData$PasientID[RegData$Avdod == 1]
 
 tmp <- sort(table(tmp), decreasing = T)
 tmp <- tmp[tmp>1]
 
 multiIDer <- as.numeric(names(tmp))
 
-tellehjelp <- RegData[RegData$PasientID %in% multiIDer, c('DECEASED', 'DECEASED_DATE', 'PasientID', 'OperasjonsDato', 'MCEID')]
+tellehjelp <- RegData[RegData$PasientID %in% multiIDer, c('Avdod', 'AvdodDato', 'PasientID', 'OperasjonsDato', 'ForlopsID')]
 tellehjelp <- tellehjelp[order(tellehjelp$PasientID), ]
 
 maxidato <- tapply(tellehjelp$OperasjonsDato, tellehjelp$PasientID, max)
 
-tapply(tellehjelp$MCEID, tellehjelp$PasientID, max)
+tapply(tellehjelp$ForlopsID, tellehjelp$PasientID, max)
 
 
 
@@ -166,42 +166,42 @@ tmpdata <- NorgastPreprosess(RegData)
 
 aux1 <- test[test$OperasjonsDato>=as.POSIXlt('2014-01-01') & test$OperasjonsDato<=as.POSIXlt('2015-12-31'), ]
 aux1 <- aux1[aux1$Op_gr==1, ]
-aux2 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 8:15, ]
-aux3 <- aux1[as.numeric(aux1$ANESTHESIA_START) %in% 0:7 | as.numeric(aux1$ANESTHESIA_START) %in% 16:23, ]
+aux2 <- aux1[as.numeric(aux1$AnestesiStartKl) %in% 8:15, ]
+aux3 <- aux1[as.numeric(aux1$AnestesiStartKl) %in% 0:7 | as.numeric(aux1$AnestesiStartKl) %in% 16:23, ]
 
 
 ### mE-PASS (PRS-score) utenfor range #############
 
-RegData0 <- RegData_old[RegData_old$PRS_SCORE<0 & !is.na(RegData_old$PRS_SCORE), c('decimalAge', 'HEART_DISEASE',
-                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+RegData0 <- RegData_old[RegData_old$PRSScore<0 & !is.na(RegData_old$PRSScore), c('decimalAge', 'Hjertesykdom',
+                                                           'Lungesykdom', 'MedDiabetes', 'WHOECOG', 'ASA', 'PRSScore')]
 
-RegData1 <- RegData[RegData$PRS_SCORE<0 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
-                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
+RegData1 <- RegData[RegData$PRSScore<0 & !is.na(RegData$PRSScore), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'Hjertesykdom',
+                                                           'Lungesykdom', 'MedDiabetes', 'WHOECOG', 'ASA', 'PRSScore')]
 
-RegData2 <- RegData[RegData$PRS_SCORE>1.1 & !is.na(RegData$PRS_SCORE), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'HEART_DISEASE',
-                                                           'LUNG_DISEASE', 'DIABETES', 'WHO_ECOG_SCORE', 'ASA', 'PRS_SCORE')]
-
-
--0.0686 +0.00345*RegData1$PasientAlder + 0.323*RegData1$HEART_DISEASE + 0.205*RegData1$LUNG_DISEASE + 0.153*RegData1$DIABETES +
-  0.148*RegData1$WHO_ECOG_SCORE + 0.0666*RegData1$ASA
+RegData2 <- RegData[RegData$PRSScore>1.1 & !is.na(RegData$PRSScore), c('Sykehusnavn','HovedDato' ,'PasientAlder', 'Hjertesykdom',
+                                                           'Lungesykdom', 'MedDiabetes', 'WHOECOG', 'ASA', 'PRSScore')]
 
 
--0.0686 +0.00345*RegData2$PasientAlder + 0.323*RegData2$HEART_DISEASE + 0.205*RegData2$LUNG_DISEASE + 0.153*RegData2$DIABETES +
-  0.148*RegData2$WHO_ECOG_SCORE + 0.0666*RegData2$ASA
-
-RegData <- RegData[!is.na(RegData$PRS_SCORE), ]
-
-RegData$PRS_SCORE_minutregning <- (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$HEART_DISEASE + 0.205*RegData$LUNG_DISEASE +
-                    0.153*RegData$DIABETES + 0.148*RegData$WHO_ECOG_SCORE + 0.0666*RegData$ASA)
+-0.0686 +0.00345*RegData1$PasientAlder + 0.323*RegData1$Hjertesykdom + 0.205*RegData1$Lungesykdom + 0.153*RegData1$MedDiabetes +
+  0.148*RegData1$WHOECOG + 0.0666*RegData1$ASA
 
 
-tmp <- RegData[,c('MCEID', 'PRS_SCORE', 'PRS_SCORE_minutregning')]
-tmp$PRS_SCORE_minutregning[RegData$WHO_ECOG_SCORE==9] <- NA
+-0.0686 +0.00345*RegData2$PasientAlder + 0.323*RegData2$Hjertesykdom + 0.205*RegData2$Lungesykdom + 0.153*RegData2$MedDiabetes +
+  0.148*RegData2$WHOECOG + 0.0666*RegData2$ASA
 
-forskjell <- tmp$PRS_SCORE - tmp$PRS_SCORE_minutregning
+RegData <- RegData[!is.na(RegData$PRSScore), ]
 
-indUlik <- which(abs(forskjell)>10^(-12) | (is.na(tmp$PRS_SCORE) & !is.na(tmp$PRS_SCORE_minutregning)) |
-                   (!is.na(tmp$PRS_SCORE) & is.na(tmp$PRS_SCORE_minutregning)) )
+RegData$PRSScore_minutregning <- (-0.0686 +0.00345*RegData$PasientAlder + 0.323*RegData$Hjertesykdom + 0.205*RegData$Lungesykdom +
+                    0.153*RegData$MedDiabetes + 0.148*RegData$WHOECOG + 0.0666*RegData$ASA)
+
+
+tmp <- RegData[,c('ForlopsID', 'PRSScore', 'PRSScore_minutregning')]
+tmp$PRSScore_minutregning[RegData$WHOECOG==9] <- NA
+
+forskjell <- tmp$PRSScore - tmp$PRSScore_minutregning
+
+indUlik <- which(abs(forskjell)>10^(-12) | (is.na(tmp$PRSScore) & !is.na(tmp$PRSScore_minutregning)) |
+                   (!is.na(tmp$PRSScore) & is.na(tmp$PRSScore_minutregning)) )
 avvik <- tmp[indUlik,]
 
 setwd('C:/SVN/jasper/norgast/doc/')
@@ -211,46 +211,46 @@ prs<-read.table('C:/SVN/jasper/norgast/doc/Rescoring_PRS_score.csv', header=TRUE
 prs$Endring <- as.character(prs$Endring)
 prs_forskj <- prs[substr(prs$Endring, 1, 9)!='No change', ]
 prs_forskj$Endring<-gsub('.*=([0-9]+).*','\\1', prs_forskj$Endring)
-names(prs_forskj)[1] <- 'MCEID'
-prs_forskj$MCEID <- as.numeric(prs_forskj$MCEID)
+names(prs_forskj)[1] <- 'ForlopsID'
+prs_forskj$ForlopsID <- as.numeric(prs_forskj$ForlopsID)
 prs_forskj$PRS_GAMMEL <- as.numeric(as.character(prs_forskj$PRS_GAMMEL))
 prs_forskj$PRS_NY <- as.numeric(as.character(prs_forskj$PRS_NY))
 
 
-avvik[avvik$MCEID %in% setdiff(avvik$MCEID, prs_forskj$MCEID), ]
-prs_forskj[prs_forskj$MCEID %in% setdiff(prs_forskj$MCEID, avvik$MCEID), ]
+avvik[avvik$ForlopsID %in% setdiff(avvik$ForlopsID, prs_forskj$ForlopsID), ]
+prs_forskj[prs_forskj$ForlopsID %in% setdiff(prs_forskj$ForlopsID, avvik$ForlopsID), ]
 
 
 prsTorkil<-read.table('C:/SVN/jasper/norgast/doc/Rescoring_PRS_score Torkil.csv', header=TRUE, sep=",", encoding = 'UFT-8')
 prsTorkil$NEW_PRSCORE <- as.numeric(as.character(prsTorkil$NEW_PRSCORE))
-prsTorkil$OLD_PRS_SCORE <- as.numeric(as.character(prsTorkil$OLD_PRS_SCORE))
+prsTorkil$OLD_PRSScore <- as.numeric(as.character(prsTorkil$OLD_PRSScore))
 
-forskjell2 <- prsTorkil$OLD_PRS_SCORE - prsTorkil$NEW_PRSCORE
+forskjell2 <- prsTorkil$OLD_PRSScore - prsTorkil$NEW_PRSCORE
 
-indUlik <- which(abs(forskjell2)>10^(-12) | (is.na(prsTorkil$OLD_PRS_SCORE) & !is.na(prsTorkil$NEW_PRSCORE)) |
-                   (!is.na(prsTorkil$OLD_PRS_SCORE) & is.na(prsTorkil$NEW_PRSCORE)) )
+indUlik <- which(abs(forskjell2)>10^(-12) | (is.na(prsTorkil$OLD_PRSScore) & !is.na(prsTorkil$NEW_PRSCORE)) |
+                   (!is.na(prsTorkil$OLD_PRSScore) & is.na(prsTorkil$NEW_PRSCORE)) )
 avvik2 <- prsTorkil[indUlik,]
 
-setdiff(avvik$MCEID, avvik2$MCEID)
-setdiff(avvik2$MCEID, avvik$MCEID)
+setdiff(avvik$ForlopsID, avvik2$ForlopsID)
+setdiff(avvik2$ForlopsID, avvik$ForlopsID)
 
-RegData[RegData$MCEID %in% c(setdiff(avvik$MCEID, avvik2$MCEID), setdiff(avvik2$MCEID, avvik$MCEID)),
-        c('MCEID', 'PRS_SCORE', 'PRS_SCORE_minutregning')]
-prsTorkil[prsTorkil$MCEID %in% c(setdiff(avvik$MCEID, avvik2$MCEID), setdiff(avvik2$MCEID, avvik$MCEID)), ]
-
-
+RegData[RegData$ForlopsID %in% c(setdiff(avvik$ForlopsID, avvik2$ForlopsID), setdiff(avvik2$ForlopsID, avvik$ForlopsID)),
+        c('ForlopsID', 'PRSScore', 'PRSScore_minutregning')]
+prsTorkil[prsTorkil$ForlopsID %in% c(setdiff(avvik$ForlopsID, avvik2$ForlopsID), setdiff(avvik2$ForlopsID, avvik$ForlopsID)), ]
 
 
-Endelig <- merge(tmp, prsTorkil, by = 'MCEID')
 
-forskjell3 <- Endelig$PRS_SCORE_minutregning - Endelig$NEW_PRSCORE
-indUlik <- which(abs(forskjell3)>10^(-12) | (is.na(Endelig$NEW_PRSCORE) & !is.na(Endelig$PRS_SCORE_minutregning)) |
-                   (!is.na(Endelig$NEW_PRSCORE) & is.na(Endelig$PRS_SCORE_minutregning)) )
+
+Endelig <- merge(tmp, prsTorkil, by = 'ForlopsID')
+
+forskjell3 <- Endelig$PRSScore_minutregning - Endelig$NEW_PRSCORE
+indUlik <- which(abs(forskjell3)>10^(-12) | (is.na(Endelig$NEW_PRSCORE) & !is.na(Endelig$PRSScore_minutregning)) |
+                   (!is.na(Endelig$NEW_PRSCORE) & is.na(Endelig$PRSScore_minutregning)) )
 
 avvik <- Endelig[indUlik, ]
 
 setwd('C:/SVN/jasper/norgast/doc/')
-write.csv2(avvik[, c('MCEID', 'NEW_PRSCORE', 'PRS_SCORE_minutregning')], 'avvik.csv', row.names = F)
+write.csv2(avvik[, c('ForlopsID', 'NEW_PRSCORE', 'PRSScore_minutregning')], 'avvik.csv', row.names = F)
 
 
 -0.0686 +0.00345*130 + 0.323*1 + 0.205*1 + 0.153*1 +0.148*4 + 0.0666*4
@@ -269,9 +269,9 @@ tmp3 <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-01-22 09-42-0
 # tmp3 <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2015-12-15 10-14-43.txt', header=TRUE, sep=";")
 
 
-DoedData <- RegData[intersect(which(RegData$AvdRESH==102141), which(RegData$IN_HOUSE_DEATH==1 | RegData$READMISSION_IN_HOUSE_DEATH == 1)),]
+DoedData <- RegData[intersect(which(RegData$AvdRESH==102141), which(RegData$DodUnderOpphold==1 | RegData$OppfDodUnderOpphold == 1)),]
 
-IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN_HOUSE_DEATH==1 | RegData$READMISSION_IN_HOUSE_DEATH == 1))]
+IDer <- RegData$ForlopsID[intersect(which(RegData$AvdRESH==102141), which(RegData$DodUnderOpphold==1 | RegData$OppfDodUnderOpphold == 1))]
 
 
 ## Lag kobling til Sykehusnavn #####################
@@ -283,11 +283,11 @@ IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN
 # RegData <- RegData[which(RegData$Op_gr==op_gruppe),]
 #
 #
-# RegData2 <- RegData[which(RegData$ABDOMINAL_ACCESS==2),]
-# RegData2 <- RegData[which(RegData$ANESTHESIA_START>=7 & RegData$ANESTHESIA_START<=15),]
-# RegData2 <- RegData[which(RegData$ANESTHESIA_START<7 | RegData$ANESTHESIA_START>15),]
+# RegData2 <- RegData[which(RegData$Tilgang==2),]
+# RegData2 <- RegData[which(RegData$AnestesiStartKl>=7 & RegData$AnestesiStartKl<=15),]
+# RegData2 <- RegData[which(RegData$AnestesiStartKl<7 | RegData$AnestesiStartKl>15),]
 #
-# vekttap <- RegData2$WEIGHTLOSS[!is.na(RegData2$WEIGHTLOSS)]
+# vekttap <- RegData2$VekttapProsent[!is.na(RegData2$VekttapProsent)]
 # asa <- RegData2$ASA[!is.na(RegData2$ASA)]
 #
 # mean(vekttap)
@@ -324,11 +324,11 @@ IDer <- RegData$MCEID[intersect(which(RegData$AvdRESH==102141), which(RegData$IN
 # # RegData<- RegData[RegData$Op_gr==1,]
 # #
 # #
-# # sum(RegData$ANASTOMOSIS)
-# # sum(RegData$OSTOMY[RegData$ANASTOMOSIS==1])
+# # sum(RegData$NyAnastomose)
+# # sum(RegData$NyStomi[RegData$NyAnastomose==1])
 # #
-# # RegData2 <- RegData[RegData$ANASTOMOSIS==0,]
-# # sum(RegData2$OSTOMY)
+# # RegData2 <- RegData[RegData$NyAnastomose==0,]
+# # sum(RegData2$NyStomi)
 #
 #
 #
