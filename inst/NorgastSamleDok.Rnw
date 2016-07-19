@@ -1,4 +1,4 @@
-\documentclass[norsk,a4paper,twoside]{article}
+\documentclass[norsk,a4paper]{article} % ,twoside
 \usepackage[norsk]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage{subfig}
@@ -6,6 +6,7 @@
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{amssymb}
+\usepackage[a4paper]{geometry}
 
 \title{Resultater fra NoRGast}
 \author{NoRGast}
@@ -19,13 +20,15 @@
 %setter grå skrift fremfort sort
 \usepackage{xcolor}
 \usepackage{graphicx}
+\pagestyle{myheadings}
 % \definecolor{SKDE}{rgb}{0,0.32,0.61}
-% \definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
+\definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
 % \definecolor{moerkblaa}{rgb}{0.0,0.0,0.47}
 % \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
 % \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
 \color{moerkgraa}
+% \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
@@ -33,29 +36,9 @@ knitr::opts_knit$set(root.dir = './')
 @
 
 \begin{document}
-\thispagestyle{empty}
-\includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
-\thispagestyle{empty}
-\cleardoublepage
-\setcounter{page}{1}
-
-\addtolength{\hoffset}{-0.5cm}
-\addtolength{\textwidth}{1cm}
-\addtolength{\voffset}{-1cm}
-\addtolength{\textheight}{2cm}
-
-\maketitle
-
-\tableofcontents
-\newpage
-
-\listoffigures
-\listoftables
-
-\clearpage
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 datoFra='2014-01-01'
 datoTil=Sys.Date()
 ## Hvis spørring skjer fra R på server. ######################
@@ -78,8 +61,97 @@ if(hentData){
 }
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
-figstr <- 0.58
+figstr <- 0.61
 @
+
+%%%%% Forside
+% \thispagestyle{empty}
+% \includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
+\begin{titlepage}
+\newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+\color{lysblaa}
+\begin{flushleft}
+\Huge
+\textbf{NoRGast}\\
+\vspace{0.3cm}
+\LARGE
+Norsk Register for Gastrokirurgi
+\end{flushleft}
+% \vspace{0.5cm}
+\vfill
+
+\begin{center}
+{\LARGE \textbf{RESULTATER}}
+\vspace{0.1cm}
+\vspace{1pt}\vspace{-\baselineskip}
+\rule{1.0\textwidth}{1pt}\par   % Horisontal linje
+\vspace{0.5cm}
+\includegraphics[width=1.0\textwidth]{\Sexpr{system.file(file='forsidebilde.png', package='norgast')}} % Inkluder bilde
+% \vspace{0.1cm}
+\vspace{1pt}\vspace{-\baselineskip}
+{\color{moerkgraa} \small Bernard Safran: "A surgeon working", 37" x 48", oil on masonite, 1982}
+\end{center}
+
+% \vspace{2.2cm}
+\vfill
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\textsc{Rapportdato:}
+
+\today\\
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+\flushright
+\textsc{For sykehus:}
+
+\textbf{\Sexpr{shtxt}}\\
+\end{minipage}
+\\ \\
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\textsc{Data registrert:}
+
+\Sexpr{format(as.POSIXlt(datoFra), "%d. %B %Y")} til \Sexpr{format(datoTil, "%d. %B %Y")}\\
+\end{minipage}
+
+\vfill
+
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\includegraphics[width=0.7\textwidth]{\Sexpr{system.file(file='norgastlogo.png', package='norgast')}} % Inkluder logo
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+\flushright
+\normalsize
+Templatversjon II, 2016
+\end{minipage}
+
+
+%%%%%%%%%%%%
+
+% \addtolength{\hoffset}{1.5cm}
+% \addtolength{\textwidth}{-3cm}
+% \restoregeometry
+\color{moerkgraa}
+\thispagestyle{empty}
+\cleardoublepage
+\setcounter{page}{1}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\listoffigures
+\newpage
+\listoftables
+
+\clearpage
 
 \section{Bakgrunn}
 Norsk Register for Gastrokirurgi (NoRGast) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NoRGast er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
@@ -131,10 +203,7 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 
 \textbf{Ny anastomose} defineres strikt: blind lukning eller enterotomi som er suturert regnes ikke som anastomose
 
-
-% \clearpage
-
-% \addtolength{\hoffset}{-1.5cm}
+\newpage
 
 \section{Registrerende avdelinger}
 
@@ -156,7 +225,6 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
 
 
 \clearpage
-% \addtolength{\hoffset}{1.5cm}
 \section{Innregistrerte operasjoner}
 
 <<'Tabell:InnregistrerteOpNasjon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
@@ -181,10 +249,8 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(
 
 \clearpage
 
-\section{Demografiske data og utvalgte risikovariabler}
-\subsection{Kolonreseksjoner}
-
-
+\section{Kolonreseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe<-'kolon'
@@ -261,8 +327,82 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
-\subsection{Rektumreseksjoner}
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_kolon', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose')
+gruppe<-'Kolon'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+@
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
+\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_kolon', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'kolon'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+
+\section{Rektumreseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_rektum', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'rektum'
@@ -345,8 +485,86 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
-\subsection{Ventrikkelreseksjoner}
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_rektum', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose','AvlastendeStomiRektum')
+gruppe<-'Rektum'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+@
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
+\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AvlastendeStomiRektum_\Sexpr{gruppe}.pdf}
+\caption{Andel med avlastende stomi ved \Sexpr{tolower(gruppe)}reseksjoner med ny anastomose. (Basert på kombinasjonen ''ny anastomose'' og deretter ''ny stomi'' fra registreringsskjemaet.)}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_rektum', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'rektum'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\section{Ventrikkelreseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'ventrikkel'
@@ -428,8 +646,74 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
-\subsection{Øsofagusreseksjoner}
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang', 'NyAnastomose')
+gruppe<-'Ventrikkel'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+@
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'ventrikkel'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\section{Øsofagusreseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_osofagus', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'oesofagus'
@@ -510,11 +794,70 @@ for (p in 1:length(varNavn)){
 \label{fig:Forbehandling_\Sexpr{gruppe}}
 \end{figure}
 
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('ThoraxTilgang', 'Tilgang')
+gruppe<-'oesofagus'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ThoraxTilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i thorax ved øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved øsofagusreseksjoner.}
+\end{figure}
 
 \clearpage
 
-\subsection{Leverreseksjoner}
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'oesofagus'
 
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved øsofagusreseksjoner.}
+\end{figure}
+
+\clearpage
+
+\section{Leverreseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_lever', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'lever'
@@ -595,12 +938,64 @@ for (p in 1:length(varNavn)){
 \label{fig:Forbehandling_\Sexpr{gruppe}}
 \end{figure}
 
+\clearpage
 
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_lever', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Tilgang')
+gruppe<-'lever'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
 
 \clearpage
 
-\subsection{Whipples reseksjoner}
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_lever', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'lever'
 
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\section{Whipples reseksjoner}
+\subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_whipple', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
 gruppe <- 'Whipples'
@@ -681,181 +1076,9 @@ for (p in 1:length(varNavn)){
 \label{fig:Forbehandling_\Sexpr{gruppe}}
 \end{figure}
 
-
-
-
 \clearpage
 
-\section{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
-\subsection{Kolonreseksjoner}
-
-
-<<'OpTid_kolon', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose')
-gruppe<-'Kolon'
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
-\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
-\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
-\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Rektumreseksjoner}
-
-<<'OpTid_rektum', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose','AvlastendeStomiRektum')
-gruppe<-'Rektum'
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
-\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
-\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
-\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AvlastendeStomiRektum_\Sexpr{gruppe}.pdf}
-\caption{Andel med avlastende stomi ved \Sexpr{tolower(gruppe)}reseksjoner med ny anastomose. (Basert på kombinasjonen ''ny anastomose'' og deretter ''ny stomi'' fra registreringsskjemaet.)}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Ventrikkelreseksjoner}
-
-<<'OpTid_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Hastegrad','Tilgang', 'NyAnastomose')
-gruppe<-'Ventrikkel'
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
-\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
-\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Øsofagusreseksjoner}
-
-<<'OpTid_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('ThoraxTilgang', 'Tilgang')
-gruppe<-'oesofagus'
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ThoraxTilgang_\Sexpr{gruppe}.pdf}
-\caption{Tilgang i thorax ved øsofagusreseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
-\caption{Tilgang i abdomen ved øsofagusreseksjoner.}
-\end{figure}
-
-
-
-\clearpage
-
-\subsection{Leverreseksjoner}
-
-<<'OpTid_lever', include=FALSE, echo=FALSE, eval=T>>=
-varNavn <- c('Tilgang')
-gruppe<-'lever'
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
-\caption{Tilgang i abdomen ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Whipples reseksjoner}
-
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
 <<'OpTid_whipple', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('Tilgang')
 gruppe<-'Whipples'
@@ -872,199 +1095,9 @@ for (p in 1:length(varNavn)){
 \caption{Tilgang i abdomen ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
-
 \clearpage
 
-\section{Komplikasjoner}
-
-\subsection{Kolonreseksjoner}
-
-<<'Komplikasjoner_kolon', include=FALSE, echo=FALSE, eval=T>>=
-gruppe<-'kolon'
-
-varNavn <- c('ReLapNarkose')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-
-varNavn <- c('AccordionGrad')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=1, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
-\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-
-
-\clearpage
-
-\subsection{Rektumreseksjoner}
-
-<<'Komplikasjoner_rektum', include=FALSE, echo=FALSE, eval=T>>=
-gruppe<-'rektum'
-
-varNavn <- c('ReLapNarkose')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-
-varNavn <- c('AccordionGrad')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=2, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
-\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Ventrikkelreseksjoner}
-
-<<'Komplikasjoner_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
-gruppe<-'ventrikkel'
-
-varNavn <- c('ReLapNarkose')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-
-varNavn <- c('AccordionGrad')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=4, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
-\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Øsofagusreseksjoner}
-
-<<'Komplikasjoner_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
-gruppe<-'oesofagus'
-
-varNavn <- c('ReLapNarkose')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-
-varNavn <- c('AccordionGrad')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=3, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
-\caption{Accordion score ved øsofagusreseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi/-laparoskopi ved øsofagusreseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Leverreseksjoner}
-
-<<'Komplikasjoner_lever', include=FALSE, echo=FALSE, eval=T>>=
-gruppe<-'lever'
-
-varNavn <- c('ReLapNarkose')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F)}
-
-varNavn <- c('AccordionGrad')
-
-for (p in 1:length(varNavn)){
-  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
-  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
-             minald=0, maxald=130, erMann='', op_gruppe=5, outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=F, preprosess=F)}
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
-\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
-\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
-\end{figure}
-
-
-\clearpage
-
-\subsection{Whipples reseksjoner}
-
+\subsection{Komplikasjoner}
 <<'Komplikasjoner_whipple', include=FALSE, echo=FALSE, eval=T>>=
 gruppe<-'Whipples'
 
@@ -1097,15 +1130,17 @@ for (p in 1:length(varNavn)){
 \caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe} reseksjoner.}
 \end{figure}
 
-
 \clearpage
+\newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+% \addtolength{\hoffset}{-1.5cm}
+% \addtolength{\hoffset}{-0.5cm}
+% \addtolength{\textwidth}{1cm}
+% \addtolength{\voffset}{-2cm}
+% \addtolength{\textheight}{4cm}
 
 
-
+\section{Reoperasjoner og komplikasjoner}
 \subsection{Reoperasjoner}
-\addtolength{\hoffset}{-2.5cm}
-% \addtolength{\hoffset}{0.5cm}
-
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
@@ -1148,9 +1183,9 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 
 \clearpage
 
-
+\restoregeometry
+% \addtolength{\hoffset}{1.5cm}
 \subsection{Anastomoselekkasje påvist v/ reoperasjon}
-\addtolength{\hoffset}{2.5cm}
 <<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
                                       minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
