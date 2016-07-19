@@ -38,7 +38,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -66,8 +66,8 @@ figstr <- 0.61
 %%%%% Forside
 % \thispagestyle{empty}
 % \includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
-\begin{titlepage}
 \newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+\begin{titlepage}
 \color{lysblaa}
 \begin{flushleft}
 \Huge
@@ -86,12 +86,10 @@ Norsk Register for Gastrokirurgi
 \rule{1.0\textwidth}{1pt}\par   % Horisontal linje
 \vspace{0.5cm}
 \includegraphics[width=1.0\textwidth]{\Sexpr{system.file(file='forsidebilde.png', package='norgast')}} % Inkluder bilde
-% \vspace{0.1cm}
 \vspace{1pt}\vspace{-\baselineskip}
 {\color{moerkgraa} \small Bernard Safran: "A surgeon working", 37" x 48", oil on masonite, 1982}
 \end{center}
 
-% \vspace{2.2cm}
 \vfill
 \noindent
 \begin{minipage}[t]{6cm}
@@ -129,7 +127,7 @@ Norsk Register for Gastrokirurgi
 \normalsize
 Templatversjon II, 2016
 \end{minipage}
-
+\end{titlepage}
 
 %%%%%%%%%%%%
 
