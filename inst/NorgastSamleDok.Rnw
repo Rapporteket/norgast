@@ -38,9 +38,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- F
-datoFra='2014-01-01'
-datoTil=Sys.Date()
+hentData <- T
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -57,7 +55,8 @@ if(hentData){
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
   reshID <- 700413
-
+  datoFra='2014-01-01'
+  datoTil=Sys.Date()
 }
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
@@ -139,16 +138,17 @@ Templatversjon II, 2016
 % \restoregeometry
 \color{moerkgraa}
 \thispagestyle{empty}
-\cleardoublepage
-\setcounter{page}{1}
+% \cleardoublepage
+% \setcounter{page}{1}
 
 \maketitle
 
 \tableofcontents
 \newpage
-
+\thispagestyle{empty}
 \listoffigures
 \newpage
+\thispagestyle{empty}
 \listoftables
 
 \clearpage
@@ -1131,7 +1131,7 @@ for (p in 1:length(varNavn)){
 \end{figure}
 
 \clearpage
-\newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+% \newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
 % \addtolength{\hoffset}{-1.5cm}
 % \addtolength{\hoffset}{-0.5cm}
 % \addtolength{\textwidth}{1cm}
@@ -1183,7 +1183,7 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 
 \clearpage
 
-\restoregeometry
+% \restoregeometry
 % \addtolength{\hoffset}{1.5cm}
 \subsection{Anastomoselekkasje påvist v/ reoperasjon}
 <<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
