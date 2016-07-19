@@ -61,6 +61,7 @@ if(hentData){
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
 figstr <- 0.61
+tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
 
 %%%%% Forside
