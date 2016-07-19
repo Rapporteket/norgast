@@ -56,7 +56,7 @@ if(hentData){
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
   reshID <- 700413
   datoFra='2014-01-01'
-  datoTil=Sys.Date()
+  datoTil=as.character(Sys.Date())
 }
 
 shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
@@ -113,7 +113,7 @@ Norsk Register for Gastrokirurgi
 \flushleft
 \textsc{Data registrert:}
 
-\Sexpr{format(as.POSIXlt(datoFra), "%d. %B %Y")} til \Sexpr{format(datoTil, "%d. %B %Y")}\\
+\Sexpr{format(as.POSIXlt(datoFra), "%d. %B %Y")} til \Sexpr{format(as.POSIXlt(datoTil), "%d. %B %Y")}\\
 \end{minipage}
 
 \vfill
