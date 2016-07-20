@@ -38,7 +38,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- F
+hentData <- T
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -245,7 +245,7 @@ if (length(valgtShus) > 1) {
   RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
   RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
   reshID <- 99
-  shtxt <- 'Ditt utvalg'
+  shtxt <- 'ditt utvalg'
 }
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
