@@ -33,8 +33,8 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-# valgtShus <- c('708761', '102145', '601225')
-valgtShus <- c('')
+valgtShus <- c('708761', '102145', '601225')
+# valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0
 maxPRS <- 2
@@ -119,11 +119,11 @@ tosdata$ForlopsID[tosdata$Op_gr==6 & tosdata$NyAnastomose==0]
 
 RegData <- NorgastPreprosess(RegData=RegData)
 
-# Uttrekk <- RegData[RegData$AccordionGrad >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+# Uttrekk <- RegData[RegData$AccordionGrad >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'Sykehusnavn')]
 
 Uttrekk <- RegData[which((RegData$AccordionGrad >= 3 | RegData$Avdod ==1 | RegData$ReLapNarkose == 1 |
                             RegData$ReinnlAndreInst == 1 | RegData$ReinnlEgenInst == 1) &
-                           RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+                           RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'Sykehusnavn')]
 
 Uttrekk <- Uttrekk[Uttrekk$OperasjonsDato >= as.POSIXlt('2015-09-29') & Uttrekk$OperasjonsDato <= as.POSIXlt('2016-02-25'), ]
 sort(table(Uttrekk$PasientID, useNA = 'ifany'), decreasing = TRUE)
@@ -303,7 +303,7 @@ IDer <- RegData$ForlopsID[intersect(which(RegData$AvdRESH==102141), which(RegDat
 # for (p in reshID){
 # #   x11()
 # #   print(p)
-#   sh<-as.character(RegData$SykehusNavn[match(p, RegData$AvdRESH)])
+#   sh<-as.character(RegData$Sykehusnavn[match(p, RegData$AvdRESH)])
 #   outfile <- paste0(valgtVar, op_gr, sh, '.pdf')
 #   print(outfile)
 #

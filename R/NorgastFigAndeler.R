@@ -132,7 +132,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   if (enhetsUtvalg==0) {
     shtxt <- 'Hele landet'
   } else {
-    shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+    shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
   }
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {

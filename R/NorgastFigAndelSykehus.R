@@ -101,7 +101,7 @@ NorgastFigAndelSykehus <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='
 #   if (enhetsUtvalg==0) {
 #     shtxt <- 'Hele landet'
 #   } else {
-#     shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+#     shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
 #   }	#'Eget sykehus' #
 #
 #   if (enhetsUtvalg!=0 & length(valgtShus)>1) {
