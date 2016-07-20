@@ -66,7 +66,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
 
-## Liste overkolonreseksjoner i NoRGast 2015 #############
+## Liste over kolonreseksjoner i NoRGast 2015 #############
 
 regdata <- NorgastPreprosess(RegData)
 

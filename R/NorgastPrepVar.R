@@ -55,6 +55,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='Vektendring') {
+    RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'Fra premorbid til preoperativ vektendring'
     RegData$Variabel <- as.numeric(RegData$Variabel)
     gr <- c(-100, -10, -5, -2, 2, 5, 10, 200)
