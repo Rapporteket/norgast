@@ -45,7 +45,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -286,9 +286,10 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(
 
 \clearpage
 
+\section{Kolonreseksjoner}
+
 \ifkolon
 
-\section{Kolonreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -440,12 +441,14 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få kolon
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
+
+\section{Rektumreseksjoner}
 
 \ifrektum
 
-\section{Rektumreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_rektum', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -608,12 +611,14 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få rektum
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
+
+\section{Ventrikkelreseksjoner}
 
 \ifventrikkel
 
-\section{Ventrikkelreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -763,12 +768,14 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få ventrikkel
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
+
+\section{Øsofagusreseksjoner}
 
 \ifoesofagus
 
-\section{Øsofagusreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_osofagus', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -913,12 +920,14 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få øsofagus
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
+
+\section{Leverreseksjoner}
 
 \iflever
 
-\section{Leverreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_lever', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -1057,12 +1066,14 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få lever
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
+
+\section{Whipples reseksjoner}
 
 \ifwhipple
 
-\section{Whipples reseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_whipple', include=FALSE, echo=FALSE, eval=T>>=
 varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
@@ -1201,7 +1212,8 @@ for (p in 1:length(varNavn)){
 \clearpage
 
 \else
-  % for få Whipples
+Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+\clearpage
 \fi
 % \newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
 % \addtolength{\hoffset}{-1.5cm}
