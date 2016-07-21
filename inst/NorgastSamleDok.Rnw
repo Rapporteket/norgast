@@ -61,7 +61,7 @@ if(hentData){
                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato')]
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-  reshID <- 601225
+  reshID <- 102141
   datoFra='2014-01-01'
   datoTil=as.character(Sys.Date())
   flervalgsliste <- '' #c('708761', '102145', '601225')
@@ -227,8 +227,8 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 RegData <- NorgastPreprosess(RegData=RegData)
-Op_grupper <- table(RegData$Op_gr[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID]) # Bare inkluder kapittel der avdelingen har 5
-Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<120]))                         # eller flere operasjoner
+Op_grupper <- table(as.factor(RegData$Op_gr)[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID])[1:6] # Bare inkluder kapittel der avdelingen
+Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<5]))                                          # har 5 eller flere operasjoner
 Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue')
 aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse')
 Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
