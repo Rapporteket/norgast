@@ -54,7 +54,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     subtxt <- 'Tid i dager'
   }
 
-  if (valgtVar=='Vektendring') {
+  if (valgtVar=='Vektendring') {  # NA fikset
     RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'Fra premorbid til preoperativ vektendring'
     RegData$Variabel <- as.numeric(RegData$Variabel)
@@ -86,6 +86,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   if (valgtVar=='PRSScore') {
+    RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'mE-PASS'
     gr <- seq(0, 2, .4)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)

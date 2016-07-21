@@ -8,6 +8,13 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
+\newif\ifkolon
+\newif\ifrektum
+\newif\ifoesofagus
+\newif\ifventrikkel
+\newif\iflever
+\newif\ifwhipple
+
 \title{Resultater fra NoRGast}
 \author{NoRGast}
 
@@ -220,6 +227,12 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 RegData <- NorgastPreprosess(RegData=RegData)
+Op_grupper <- table(RegData$Op_gr[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID]) # Bare inkluder kapittel der avdelingen har 5
+Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<120]))                         # eller flere operasjoner
+Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue')
+aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse')
+Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
+
 Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
@@ -234,6 +247,12 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
                         command=c('\\midrule\n')))
 @
 
+\Sexpr{Inkl_i_rapp[1]}
+\Sexpr{Inkl_i_rapp[2]}
+\Sexpr{Inkl_i_rapp[3]}
+\Sexpr{Inkl_i_rapp[4]}
+\Sexpr{Inkl_i_rapp[5]}
+\Sexpr{Inkl_i_rapp[6]}
 
 \clearpage
 \section{Innregistrerte operasjoner}
@@ -266,6 +285,8 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(
 @
 
 \clearpage
+
+\ifkolon
 
 \section{Kolonreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
@@ -418,6 +439,11 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+\else
+  % for få kolon
+\fi
+
+\ifrektum
 
 \section{Rektumreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
@@ -581,6 +607,12 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+\else
+  % for få rektum
+\fi
+
+\ifventrikkel
+
 \section{Ventrikkelreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
@@ -730,6 +762,12 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+\else
+  % for få ventrikkel
+\fi
+
+\ifoesofagus
+
 \section{Øsofagusreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_osofagus', include=FALSE, echo=FALSE, eval=T>>=
@@ -874,6 +912,12 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+\else
+  % for få øsofagus
+\fi
+
+\iflever
+
 \section{Leverreseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_lever', include=FALSE, echo=FALSE, eval=T>>=
@@ -1012,6 +1056,12 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+\else
+  % for få lever
+\fi
+
+\ifwhipple
+
 \section{Whipples reseksjoner}
 \subsection{Demografiske data og utvalgte risikovariabler}
 <<'Demografisk_whipple', include=FALSE, echo=FALSE, eval=T>>=
@@ -1149,6 +1199,10 @@ for (p in 1:length(varNavn)){
 \end{figure}
 
 \clearpage
+
+\else
+  % for få Whipples
+\fi
 % \newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
 % \addtolength{\hoffset}{-1.5cm}
 % \addtolength{\hoffset}{-0.5cm}
