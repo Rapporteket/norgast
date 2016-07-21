@@ -64,7 +64,7 @@ if(hentData){
   reshID <- 102141
   datoFra='2014-01-01'
   datoTil=as.character(Sys.Date())
-  flervalgsliste <- '' #c('708761', '102145', '601225')
+  flervalgsliste <- c('601231', '102141') #, '601225')
 }
 valgtShus <- flervalgsliste
 
@@ -227,12 +227,6 @@ Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes
 
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 RegData <- NorgastPreprosess(RegData=RegData)
-Op_grupper <- table(as.factor(RegData$Op_gr)[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID])[1:6] # Bare inkluder kapittel der avdelingen
-Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<5]))                                          # har 5 eller flere operasjoner
-Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue')
-aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse')
-Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
-
 Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
@@ -247,13 +241,6 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
                         command=c('\\midrule\n')))
 @
 
-\Sexpr{Inkl_i_rapp[1]}
-\Sexpr{Inkl_i_rapp[2]}
-\Sexpr{Inkl_i_rapp[3]}
-\Sexpr{Inkl_i_rapp[4]}
-\Sexpr{Inkl_i_rapp[5]}
-\Sexpr{Inkl_i_rapp[6]}
-
 \clearpage
 \section{Innregistrerte operasjoner}
 
@@ -266,6 +253,13 @@ if (length(valgtShus) > 1) {
   reshID <- 99
   shtxt <- 'ditt utvalg'
 }
+
+Op_grupper <- table(as.factor(RegData$Op_gr)[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID])[1:6] # Bare inkluder kapittel der avdelingen
+Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<5]))                                          # har 5 eller flere operasjoner
+Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue')
+aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse')
+Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
+
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
@@ -283,6 +277,13 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(
                      caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{', shtxt, '}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_egen$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
                      label='tab:OpgrSh'), include.rownames=FALSE)
 @
+
+\Sexpr{Inkl_i_rapp[1]}
+\Sexpr{Inkl_i_rapp[2]}
+\Sexpr{Inkl_i_rapp[3]}
+\Sexpr{Inkl_i_rapp[4]}
+\Sexpr{Inkl_i_rapp[5]}
+\Sexpr{Inkl_i_rapp[6]}
 
 \clearpage
 
