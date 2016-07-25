@@ -18,7 +18,7 @@
 #'
 #' @export
 #'
-NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014-01-01', datoTil='2050-12-31',
+NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014-01-01', datoTil='2050-12-31',
                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99,
                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
@@ -49,7 +49,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
   # For variabler som går på person, ikke per operasjon
-  if (valgtVar %in% c('DECEASED')) {
+  if (valgtVar %in% c('Avdod')) {
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
   }
@@ -92,7 +92,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='RELAPAROTOMY', datoFra='2014
   if (enhetsUtvalg==0) {
     shtxt <- 'Hele landet'
   } else {
-    shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+    shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
   }	#'Eget sykehus' #
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {

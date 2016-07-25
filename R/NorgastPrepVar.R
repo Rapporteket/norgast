@@ -17,14 +17,14 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   RegData$Variabel <- NA
-  if (valgtVar %in% c('Alder', 'Vektendring', 'DIABETES','WHO_ECOG_SCORE', 'ASA', 'MODIFIED_GLASGOW_SCORE', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad', 'ABDOMINAL_ACCESS', 'THORAX_ACCESS', 'ACCORDION_SCORE', 'RELAPAROTOMY',
-                      'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'ROBOTASSISTANCE', 'erMann', 'PRS_SCORE',
-                      'ANASTOMOSIS','Anastomoselekkasje', 'DECEASED', 'OpDoedTid', 'LapTilgang', 'KumAcc')) {
+  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
+                      'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
+                      'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
+                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'KumAcc')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
-  if (valgtVar=='DECEASED') {
+  if (valgtVar=='Avdod') {
     tittel <- c('Andel avdøde uansett årsak', '(Egenregistrerte og fra folkeregister)')
     VarTxt <- 'avdøde'
     grtxt <- c('I live', 'Avdød')
@@ -54,7 +54,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     subtxt <- 'Tid i dager'
   }
 
-  if (valgtVar=='Vektendring') {
+  if (valgtVar=='Vektendring') {  # NA fikset
+    RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'Fra premorbid til preoperativ vektendring'
     RegData$Variabel <- as.numeric(RegData$Variabel)
     gr <- c(-100, -10, -5, -2, 2, 5, 10, 200)
@@ -84,7 +85,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
 
-  if (valgtVar=='PRS_SCORE') {
+  if (valgtVar=='PRSScore') {
+    RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'mE-PASS'
     gr <- seq(0, 2, .4)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
@@ -93,7 +95,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
 
-  if (valgtVar=='WHO_ECOG_SCORE') {
+  if (valgtVar=='WHOECOG') {
     tittel <- 'WHO-ECOG FUNKSJONSSCORE'
     grtxt <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid', '2: Oppe > 50% av dagen, selvstelt',
                '3: Oppe < 50% av dagen, delvis selvstelt', '4: Kun i stol/seng, hjelp til alt stell', 'Ukjent')
@@ -128,7 +130,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='MODIFIED_GLASGOW_SCORE') {
+  if (valgtVar=='ModGlasgowScore') {
     tittel <- 'Modified Glasgow Prognostic Score'
     grtxt <- c('0', '1', '2')
     # grtxt <- c('0', '1', '2', 'Ukjent')
@@ -156,7 +158,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='ABDOMINAL_ACCESS') {
+  if (valgtVar=='Tilgang') {
     tittel <- 'Tilgang i abdomen'
     grtxt <- c('Åpen', 'Laparoskopisk', 'Konvertert')
     RegData <- RegData[which(RegData$Variabel %in% 1:3), ]
@@ -164,7 +166,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='THORAX_ACCESS') {
+  if (valgtVar=='ThoraxTilgang') {
     tittel <- 'Tilgang i thorax v/ øsofaguskirurgi'
     grtxt <- c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)')
     RegData <- RegData[which(RegData$Variabel %in% 4:6), ]
@@ -172,7 +174,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='ACCORDION_SCORE') {
+  if (valgtVar=='AccordionGrad') {
     tittel <- 'Komplikasjoner'
     grtxt <- c('<3', '3', '4', '5', '6')
     subtxt <- 'Accordion score'
@@ -185,7 +187,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 #     VarTxt <- 'med accordion score 3-6'
 # #     grtxt <- c('<3', '3', '4', '5', '6')
 #     grtxt <- c('Nei','Ja')
-#     RegData$Variabel <- RegData$ACCORDION_SCORE
+#     RegData$Variabel <- RegData$AccordionGrad
 #     RegData$Variabel[RegData$Variabel == 1] <- 0
 #     RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
 #     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
@@ -193,7 +195,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 #     if (enhetsUtvalg==1) {stabel=T}
 #   }
 
-  if (valgtVar=='DIABETES') {
+  if (valgtVar=='MedDiabetes') {
     tittel <- 'Medisinert mot diabetes'
     VarTxt <- 'med diabetes'
     # grtxt <- c('Nei','Ja', 'Ikke registrert')
@@ -224,17 +226,17 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='ROBOTASSISTANCE') {
+  if (valgtVar=='Robotassistanse') {
     tittel <- 'Robotassistert laparoskopi'
     VarTxt <- 'robotassistert laparoskopi'
     grtxt <- c('Nei','Ja')
-    RegData <- RegData[which(RegData$ABDOMINAL_ACCESS %in% c(2,3)), ]
+    RegData <- RegData[which(RegData$Tilgang %in% c(2,3)), ]
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
-  if (valgtVar=='RELAPAROTOMY') {
+  if (valgtVar=='ReLapNarkose') {
     tittel <- 'Relaparotomi/-laparoskopi'
     VarTxt <- 'relaparotomier/-laparoskopier'
     grtxt <- c('Nei','Ja')
@@ -244,7 +246,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     inkl_konf <- 1
   }
 
-  if (valgtVar=='ANASTOMOSIS') {
+  if (valgtVar=='NyAnastomose') {
     tittel <- 'Ny anastomose'
     VarTxt <- 'nye anastomoser'
     grtxt <- c('Nei','Ja')

@@ -23,7 +23,7 @@ grtxt <- c('Kolonreseksjoner, ny anastomose', 'Kolonreseksjoner, øvrige', "Rekt
            'Ventrikkelreseksjoner, øvrige','Whipples operasjon')
 
 RegData$variabel <- 0
-RegData$variabel[RegData$RELAPAROTOMY_YES==1] <- 1
+RegData$variabel[RegData$ViktigsteFunn==1] <- 1
 
 NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
                                   erMann=erMann, op_gruppe=0, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)

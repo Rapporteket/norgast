@@ -15,10 +15,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   "%i%" <- intersect
   # "%u%" <- union
   N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
-  if (tilgang %in% c(1,2)) {
-    RegData$Tilgang <- as.numeric(RegData$ABDOMINAL_ACCESS)
-    RegData$Tilgang[RegData$Tilgang==3] <- 1
-  }
+#   if (tilgang %in% c(1,2)) {
+#     RegData$Tilgang <- as.numeric(RegData$Tilgang)
+#     RegData$Tilgang[RegData$Tilgang==3] <- 1
+#   }
 
   #Hvis "Variabel" ikke definert
   # if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
@@ -32,10 +32,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indOp_gr <- if (op_gruppe %in% c(1:(N_opgr-1), 99)){which(RegData$Op_gr == op_gruppe)} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}
   indBMI <- if (BMI[1] != '') {which(RegData$BMI_kodet %in% as.numeric(BMI))} else {indBMI <- 1:Ninn}
-  indTilgang <- if (tilgang %in% c(1,2)) {which(RegData$Tilgang == tilgang)} else {indTilgang <- 1:Ninn}
-  indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRS_SCORE >= minPRS & RegData$PRS_SCORE <= maxPRS)} else {indPRS <- 1:Ninn}
+  indTilgang <- if (tilgang %in% c(1,2,3,5)) {which(RegData$Tilgang == tilgang)} else {indTilgang <- 1:Ninn}
+  indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
-  indWHO <- if (whoEcog[1] != '') {which(RegData$WHO_ECOG_SCORE %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
+  indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
   indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
@@ -52,10 +52,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (op_gruppe == 99) {'Operasjonsgruppe: Annet'},
                  if (elektiv %in% c(0,1)) {paste0('Hastegrad: ', c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1])},
                  if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
-                 if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=','))},
-                 if (tilgang %in% c(1,2)) {paste0('Tilgang: ', c('Åpen/konvertert', 'Laparoskopisk')[tilgang])},
-                 if ((minPRS>0) | (maxPRS<2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRS_SCORE, na.rm=T)), ' til ',
-                          sprintf('%.2f', max(RegData$PRS_SCORE, na.rm=T)))},
+                 if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=', '))},
+                 if (tilgang %in% c(1,2,3,5)) {paste0('Tilgang: ', c('Åpen', 'Laparoskopisk', 'Konvertert', '','Endoskopisk')[tilgang])},
+                 if ((minPRS>0) | (maxPRS<2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRSScore, na.rm=T)), ' til ',
+                          sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
                  if (forbehandling %in% 1:4) {paste0('Onkologisk forbehandling: ',
