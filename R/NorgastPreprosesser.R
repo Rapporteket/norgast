@@ -22,12 +22,6 @@ NorgastPreprosess <- function(RegData)
   RegData$Aar <- RegData$OperasjonsDato$year + 1900
   RegData$DoedsDato <- as.POSIXlt(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
-  # RegData$Avdeling <- as.character(RegData$Avdeling)
-
-  RegData$SykehusNavn <- RegData$Sykehusnavn
-
-  # shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
-  # RegData$Alder <- floor(RegData[ ,'decimalAge'])
 
   RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
   lowercase <- which(substr(RegData$Hovedoperasjon, 1, 5)!=toupper(substr(RegData$Hovedoperasjon, 1, 5))) # index til der NCSP-kode er i lowercase

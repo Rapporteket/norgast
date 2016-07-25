@@ -132,7 +132,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   if (enhetsUtvalg==0) {
     shtxt <- 'Hele landet'
   } else {
-    shtxt <- as.character(RegData$SykehusNavn[match(reshID, RegData$AvdRESH)])
+    shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
   }
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {
@@ -144,29 +144,48 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
 
-  utvalg <- c('Hoved', 'Rest')
+################
+#   utvalg <- c('Hoved', 'Rest')
+#   Andeler <- list(Hoved = 0, Rest =0)
+#
+#   indHoved <-which(RegData$AvdRESH == reshID)
+#   indRest <- which(RegData$AvdRESH != reshID)
+#   RegDataLand <- RegData
+#   ind <- list(Hoved=indHoved, Rest=indRest)
+#   Nrest <- 0
+#
+#   for (teller in 1:2) {
+#     if (teller==2 & enhetsUtvalg != 1) {break}
+#
+#     if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Hoved = ind$Hoved, Rest=ind$Rest), ]}
+#
+#     #Variablene kjøres to ganger for sammenligning med Resten.
+#
+#     if (teller == 1) {Andeler$Hoved <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+#     NHoved <- dim(RegData)[1]}
+#     if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
+#     Nrest <- dim(RegData)[1]}
+#   }
+####################
+  # Initialiserer nødvendige størrelser
   Andeler <- list(Hoved = 0, Rest =0)
-
-  indHoved <-which(RegData$AvdRESH == reshID)
-  indRest <- which(RegData$AvdRESH != reshID)
-  RegDataLand <- RegData
-  ind <- list(Hoved=indHoved, Rest=indRest)
-  # NHoved <- dim(RegData)[1]
+  ind <- list(Hoved=which(RegData$AvdRESH == reshID), Rest=which(RegData$AvdRESH != reshID))
   Nrest <- 0
 
-  for (teller in 1:2) {
-    if (teller==2 & enhetsUtvalg != 1) {break}
-
-    if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Hoved = ind$Hoved, Rest=ind$Rest), ]}
-
-    #Variablene kjøres to ganger for sammenligning med Resten.
-
-    if (teller == 1) {Andeler$Hoved <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-    NHoved <- dim(RegData)[1]}
-    if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-    Nrest <- dim(RegData)[1]}
+  if (enhetsUtvalg==1) {
+    AntHoved <- table(RegData$VariabelGr[ind$Hoved])
+    NHoved <- sum(AntHoved)
+    Andeler$Hoved <- 100*AntHoved/NHoved
+    AntRest <- table(RegData$VariabelGr[ind$Rest])
+    Nrest <- sum(AntRest)	#length(indRest)- Kan inneholde NA
+    Andeler$Rest <- 100*AntRest/Nrest
+  } else {
+    AntHoved <- table(RegData$VariabelGr)
+    NHoved <- sum(AntHoved)
+    Andeler$Hoved <- 100*AntHoved/NHoved
   }
 
+####################
 
   ##-----------Figur---------------------------------------
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;

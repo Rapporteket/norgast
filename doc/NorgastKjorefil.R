@@ -24,7 +24,7 @@ datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'erMann'
+valgtVar <- 'PRSScore'
 op_gruppe<- ''
 outfile <- ''
 preprosess<-T
@@ -33,8 +33,8 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-# valgtShus <- c('708761', '102145', '601225')
-valgtShus <- c('')
+valgtShus <- c('708761', '102145', '601225')
+# valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0
 maxPRS <- 2
@@ -66,7 +66,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
 
 
-## Liste overkolonreseksjoner i NoRGast 2015 #############
+## Liste over kolonreseksjoner i NoRGast 2015 #############
 
 regdata <- NorgastPreprosess(RegData)
 
@@ -119,11 +119,11 @@ tosdata$ForlopsID[tosdata$Op_gr==6 & tosdata$NyAnastomose==0]
 
 RegData <- NorgastPreprosess(RegData=RegData)
 
-# Uttrekk <- RegData[RegData$AccordionGrad >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+# Uttrekk <- RegData[RegData$AccordionGrad >= 3 & RegData$AvdRESH == 601225, c('PasientID', 'OperasjonsDato', 'Sykehusnavn')]
 
 Uttrekk <- RegData[which((RegData$AccordionGrad >= 3 | RegData$Avdod ==1 | RegData$ReLapNarkose == 1 |
                             RegData$ReinnlAndreInst == 1 | RegData$ReinnlEgenInst == 1) &
-                           RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'SykehusNavn')]
+                           RegData$AvdRESH == 601225), c('PasientID', 'OperasjonsDato', 'Sykehusnavn')]
 
 Uttrekk <- Uttrekk[Uttrekk$OperasjonsDato >= as.POSIXlt('2015-09-29') & Uttrekk$OperasjonsDato <= as.POSIXlt('2016-02-25'), ]
 sort(table(Uttrekk$PasientID, useNA = 'ifany'), decreasing = TRUE)
@@ -303,7 +303,7 @@ IDer <- RegData$ForlopsID[intersect(which(RegData$AvdRESH==102141), which(RegDat
 # for (p in reshID){
 # #   x11()
 # #   print(p)
-#   sh<-as.character(RegData$SykehusNavn[match(p, RegData$AvdRESH)])
+#   sh<-as.character(RegData$Sykehusnavn[match(p, RegData$AvdRESH)])
 #   outfile <- paste0(valgtVar, op_gr, sh, '.pdf')
 #   print(outfile)
 #
