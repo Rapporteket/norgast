@@ -90,6 +90,19 @@ NorgastPreprosess <- function(RegData)
   RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$NyAnastomose==0))] <- 7
   RegData$Op_gr2[RegData$Operasjonsgrupper=='Whipples operasjon'] <- 8
 
+  RegData$Op_grAarsrapp <- 99
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
+  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
+  RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" &
+                                (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
+                                 as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
+  RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" &
+                                (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <- 8 # Gallegang
+
   #### Quickfix: OppfStatus skal være numerisk kodet i AlleVariablerNum
   RegData$OppfStatus <- as.character(RegData$OppfStatus)
   RegData$OppfStatus[RegData$OppfStatus=='Opprettet'] <- '-1'
