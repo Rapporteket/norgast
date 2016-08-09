@@ -97,8 +97,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='WHOECOG') {
     tittel <- 'WHO-ECOG FUNKSJONSSCORE'
-    grtxt <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid', '2: Oppe > 50% av dagen, selvstelt',
-               '3: Oppe < 50% av dagen, delvis selvstelt', '4: Kun i stol/seng, hjelp til alt stell', 'Ukjent')
+    grtxt <- c('0: Fullt aktiv', '1: Lett husarbeid og\n sittende arbeid', '2: Oppe > 50% av\n dagen, selvstelt',
+               '3: Oppe < 50% av\n dagen, delvis selvstelt', '4: Kun i stol/seng,\n hjelp til alt stell', 'Ukjent')
     RegData <- RegData[which(RegData$Variabel %in% c(0:4,9)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0:4,9), labels = grtxt)
     retn <- 'H'
@@ -107,8 +107,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar=='BMI_kodet') {
     tittel <- 'BMI'
     subtxt <- expression(BMI (kg/m^2))
-    grtxt <- c('Alvorlig undervekt (<16)','Undervekt (16-17)','Mild undervekt (17-17.5)','Normal (18.5-25)','Overvekt (25-30)',
-               'Moderat fedme, klasse I (30-35)','Fedme, klasse II (35-40)','Fedme, klasse III (40-50)')
+    grtxt <- c('Alvorlig undervekt\n (<16)','Undervekt\n (16-17)','Mild undervekt\n (17-17.5)','Normal\n (18.5-25)','Overvekt\n (25-30)',
+               'Moderat fedme,\n klasse I (30-35)','Fedme, klasse II\n (35-40)','Fedme, klasse III\n (40-50)')
     RegData <- RegData[which(RegData$Variabel %in% c(1:8)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1:8), labels = grtxt)
     retn <- 'H'
