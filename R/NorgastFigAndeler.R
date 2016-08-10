@@ -94,6 +94,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 {
 
+  print(datoFra)
+
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
     RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
