@@ -20,8 +20,22 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
-                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'KumAcc')) {
+                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'KumAcc', 'MissingVekt',
+                      'Sykehusnavn')) {
     RegData$Variabel <- RegData[ ,valgtVar]
+  }
+
+  if (valgtVar=='Sykehusnavn') {
+    tittel <- 'Registrerende avdelinger i NoRGast'
+    RegData$Variabel <- as.character(RegData$Variabel)
+    aux <- sort(table(RegData$Variabel), decreasing = T)
+    grtxt <- names(aux)
+    for (p in 1:length(aux)) {
+      RegData$Variabel[RegData$Variabel==grtxt[p]] <- p
+    }
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=1:length(aux), labels = grtxt)
+    incl_N=T
+    retn= 'H'
   }
 
   if (valgtVar=='Avdod') {
@@ -267,6 +281,14 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar=='PermanentStomiColorektal') {
     tittel <- 'Permanent stomi'
     grtxt <- c('Nei','Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='MissingVekt') {
+    tittel <- 'Andel med vekt \"missing\"'
+    grtxt <- c('Reg.','Ikke reg.')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}

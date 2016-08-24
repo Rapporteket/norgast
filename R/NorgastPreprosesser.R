@@ -170,7 +170,9 @@ NorgastPreprosess <- function(RegData)
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0
   RegData$KumAcc[RegData$AccordionGrad >= 3] <- 1
-  # Data <- list(RegData=RegData, shtxt=shtxt)
+
+  RegData$MissingVekt <- 0
+  RegData$MissingVekt[is.na(RegData$VekttapProsent)] <- 1
 
   return(invisible(RegData))
 

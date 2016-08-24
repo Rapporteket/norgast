@@ -15,7 +15,7 @@ Dette dokumentet skal dokumentere funksjonene og alt annet som er relevant for p
 
 ## Registerets oppbygging og variabler
 
-NoRGast består av to skjemaer. Et operasjonsskjema fylles ut i forbindelse med operasjonen og et oppfølgingsskjema fylles ut 30 dager etter. Det meste av variabler som brukes i denne pakken kommer direkte fra innregistreringen, men noen få endres eller defineres i pakken. Dette skjer i all hovedsak i funksjonen NorgastPreprosess.
+NoRGast består av to skjemaer. Et operasjonsskjema fylles ut i forbindelse med operasjonen og et oppfølgingsskjema fylles ut 30 dager etter. Det meste av variabler som brukes i denne pakken kommer direkte fra innregistreringen, men noen få endres eller defineres i pakken. Dette skjer i all hovedsak i funksjonen NorgastPreprosess. OBS! MÅ OPPDATERES ETTER ENDRING AV VARIABELNAVN PÅ STAGING.
 
 Følgende variabler endres/defineres i pakken:
 
@@ -66,9 +66,9 @@ Følgende variabler endres/defineres i pakken:
     + 7: Ventrikkelreseksjoner, øvrige
     + 8: Whipples operasjon
     + 9: Annet
-* `ACCORDION_SCORE` - `ACCORDION_SCORE` og `READMISSION_ACCORDION_SCORE` gjøres numerisk og kategorien 'Mindre enn 3' settes lik 1. Settes så lik maksimum av de to.
-* `RELAPAROTOMY` - Settes lik 1 hvis `RELAPAROTOMY` eller `READMISSION_RELAPAROTOMY` er lik 1.
-* `RELAPAROTOMY_YES` - Settes til minimum av `RELAPAROTOMY_YES` og `READMISSION_RELAPAROTOMY_YES`, dvs. den mest alvorlige komplikasjonen.
+* `AccordionGrad` - `AccordionGrad` og `OppfAccordionGrad` gjøres numerisk og kategorien 'Mindre enn 3' settes lik 1. Settes så lik maksimum av de to.
+* `ReLapNarkose` - Settes lik 1 hvis `ReLapNarkose` eller `OppfReLapNarkose` er lik 1.
+* `ViktigsteFunn` - Settes til minimum av `ViktigsteFunn` og `OppfViktigsteFunn`, dvs. den mest alvorlige komplikasjonen.
 * `Hastegrad` - Elektiv eller ø-hjelp, basert på når operasjonen fant sted
     + 1: Elektiv - Operasjon 8-16 på en vanlig arbeidsdag (ikke helg eller off. helligdag)
     + 0: Ø-hjelp - Operasjon uten vanlig arbeidstid
@@ -84,23 +84,23 @@ Denne funksjonen lager en tidstrend av rate/andel for en gitt variabel. Funksjon
 
 ```{r, include=FALSE, echo = FALSE}
 library(norgast)
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-04-13 09-28-55.txt', header=TRUE, 
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-08-16 09-59-09.txt', header=TRUE, 
                       sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-04-13 09-28-58.txt', 
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-08-16 09-59-13.txt', 
                          header=TRUE, sep=";", encoding = 'UFT-8')
-RegData <- RegData[,c('MCEID','BMI_CATEGORY','WEIGHTLOSS','DIABETES','CHEMOTHERAPY_ONLY',
-                      'RADIATION_THERAPY_ONLY','CHEMORADIOTHERAPY','WHO_ECOG_SCORE',
-                      'MODIFIED_GLASGOW_SCORE','ASA','ANESTHESIA_START','NCSP','OPERATION_DATE',
-                      'ANASTOMOSIS','OSTOMY','ABDOMINAL_ACCESS','ROBOTASSISTANCE','THORAX_ACCESS',
-                      'RELAPAROTOMY','RELAPAROTOMY_YES','ACCORDION_SCORE', 'PRS_SCORE','STATUS', 
-                      'READMISSION_STATUS', 'READMISSION_ACCORDION_SCORE','READMISSION_RELAPAROTOMY', 
-                      'READMISSION_RELAPAROTOMY_YES', 'DECEASED', 'DECEASED_DATE')]
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika',
+                      'KunStraaleterapi','KjemoRadioKombo','WHOECOG',
+                      'ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang',
+                      'ReLapNarkose','ViktigsteFunn','AccordionGrad', 'PRSScore','RegistreringStatus', 
+                      'OppfStatus', 'OppfAccordionGrad','OppfReLapNarkose', 
+                      'OppfViktigsteFunn', 'Avdod', 'AvdodDato')]
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 
                             'BasisRegStatus', 'ForlopsID', 'PasientID')]
-RegData <- merge(RegData, ForlopData, by.x = "MCEID", by.y = "ForlopsID")
-NorgastFigAndelTid(RegData=RegData, valgtVar='RELAPAROTOMY', reshID=601225, preprosess=T, 
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+NorgastFigAndelTid(RegData=RegData, valgtVar='ReLapNarkose', reshID=601225, preprosess=T, 
                    outfile = 'MndMKonf.png', tidsenhet='Mnd')
-NorgastFigAndelTid(RegData=RegData, valgtVar='RELAPAROTOMY', reshID=601225, preprosess=T, 
+NorgastFigAndelTid(RegData=RegData, valgtVar='ReLapNarkose', reshID=601225, preprosess=T, 
                    outfile = 'MndUKonf.png', tidsenhet='Mnd', inkl_konf = F)
 
 ```

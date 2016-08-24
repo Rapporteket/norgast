@@ -4,7 +4,7 @@
 \alias{NorgastFigAndelSykehus}
 \title{Rate/andel for en gitt variabel for hvert sykehus}
 \usage{
-NorgastFigAndelSykehus(RegData = 0, valgtVar = "RELAPAROTOMY",
+NorgastFigAndelSykehus(RegData = 0, valgtVar = "ReLapNarkose",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
   enhetsUtvalg = 1, preprosess = F, elektiv = 99, BMI = "",

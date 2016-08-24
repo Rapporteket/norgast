@@ -61,17 +61,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                 (RegData$Aar-min(RegData$Aar))*4,
                               Halvaar = RegData$Halvaar-min(RegData$Halvaar[RegData$Aar==min(RegData$Aar)])+1+
                                 (RegData$Aar-min(RegData$Aar))*2
-                              # Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12
                                 )
 
-#   if (tidsenhet == 'Mnd') {
-#     Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
-#                     sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
-#   }
-#   if (tidsenhet == 'Aar') {
-#     Tidtxt <- as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)])
-#   }
-#
   Tidtxt <- switch(tidsenhet,
                    Mnd = paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
                                sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.'),
@@ -131,17 +122,6 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   AndelHoved <- NTidHendHoved/NTidHoved*100
   Andeler <- rbind(AndelRest, AndelHoved)
 
-  binomkonf <- function(n, N, konfnivaa=0.95) {
-    binkonf <- matrix(nrow=2, ncol = length(n))
-    for (i in 1:length(n)) {
-      if (N[i]>0) {
-        binkonf[,i] <- binom.test(n[i],N[i], alternative = 'two.sided', conf.level = konfnivaa)$conf.int[1:2]
-      } else {
-        binkonf[,i] <- c(0,0)
-      }
-    }
-    return(invisible(binkonf))
-  }
   NTidHendHoved[is.na(NTidHendHoved)] <- 0
   NTidHoved[is.na(NTidHoved)] <- 0
   NTidHendRest[is.na(NTidHendRest)] <- 0
