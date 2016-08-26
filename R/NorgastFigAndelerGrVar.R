@@ -65,7 +65,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
   grVar <- 'Sykehusnavn'
   RegData[ ,grVar] <- as.factor(as.character(RegData[ ,grVar]))
-  Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
+  Ngrense <- 30		#Minste antall registreringer for at ei gruppe skal bli vist
 
   N <- dim(RegData)[1]
   Nvar <- tapply(RegData$Variabel, RegData[ ,grVar], sum, na.rm=T)
@@ -127,7 +127,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
     if (inkl_konf == 1) {
       xmax <- min(max(KI)*1.15,100)
     } else {
-      xmax <- min(max(AndelerGrSort)*1.15,100)
+      xmax <- min(max(AndelerGrSort)*1.15,107)
     }
 
     pos <- barplot(as.numeric(AndelerGrSort), horiz=T, border=NA, col=farger[3], #main=tittel,

@@ -38,7 +38,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
   N <- dim(RegData)[1]
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
-  Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
+  Ngrense <- 30		#Minste antall registreringer for at ei gruppe skal bli vist
 
   Ngrtxt <- paste(', N=', as.character(Ngr), sep='')
   indGrUt <- as.numeric(which(Ngr < Ngrense))

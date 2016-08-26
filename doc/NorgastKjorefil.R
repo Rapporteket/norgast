@@ -13,6 +13,8 @@ RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData=RegData)
+
 # RegData$AvdRESH <- RegData$AvdRESH.x
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
@@ -24,10 +26,11 @@ datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'MissingVekt'
+valgtVar <- 'KumAcc'
+# valgtVar <- 'MissingVekt'
 op_gruppe<- ''
 outfile <- ''
-preprosess<-T
+preprosess<-F
 hentData <- F
 stabel=F
 # andel=T
@@ -61,6 +64,13 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
 
+if (outfile == '') {x11()}
+NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+                       minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+                       reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
+                       preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+                       valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+                       whoEcog=whoEcog, forbehandling=forbehandling)
 
 
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)

@@ -12,12 +12,46 @@
 #'
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
-                                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                                                reshID, enhetsUtvalg=1, stabel=F, preprosess=F,
-                                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                                                maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
+                                       minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
+                                       reshID, enhetsUtvalg=1, stabel=F, preprosess=F,
+                                       elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
+                                       maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 
 {
+#   valgtVar='AccordionGrad'
+#   datoFra='2014-01-01'
+#   datoTil='2050-12-31'
+#   minald=0
+#   maxald=130
+#   erMann=99
+# #   op_gruppe=0
+#   outfile=''
+#   reshID <- 601225
+#   enhetsUtvalg=1
+#   stabel=F
+#   preprosess=F
+#   elektiv=99
+#   BMI=''
+#   tilgang=99
+#   valgtShus=c('')
+#   minPRS=0
+#   maxPRS=2
+#   ASA=''
+#   whoEcog= ''
+#   forbehandling=99
+#   hentData=F
+
+  ## Hvis spørring skjer fra R på server. ######################
+  if(hentData){
+    RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
+  }
+
+  ## Hvis RegData ikke har blitt preprosessert
+  if (preprosess){
+    RegData <- NorgastPreprosess(RegData=RegData)
+  }
+
+
   grVar <- 'Sykehusnavn'
 
   RegData$Variabel <- RegData[, valgtVar]
@@ -35,7 +69,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   N <- dim(RegData)[1]
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
-  Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
+  Ngrense <- 30		#Minste antall registreringer for at ei gruppe skal bli vist
 
   Ngrtxt <- paste('N=', as.character(Ngr), sep='')
   indGrUt <- as.numeric(which(Ngr < Ngrense))
@@ -56,41 +90,78 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
     if ( outfile != '') {dev.off()}
   } else {
-    tittel <- 'Modified Glasgow score'
-    xkr <- 1
-    cexGrNavn <- 1.2
-    GrNavnSort <- paste(names(Ngr), Ngrtxt, sep='')
-    AntGr <- length(which(Ngr >= Ngrense))
-    grTypeTxt <- 'alle '
-
-    FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
-    farger <- FigTypUt$farger
-    #Tilpasse marger for å kunne skrive utvalgsteksten
-    NutvTxt <- length(utvalgTxt)
-    vmarg <- max(0, strwidth(GrNavnSort, units='figure', cex=cexGrNavn)*0.7)
-    #NB: strwidth oppfører seg ulikt avh. av device...
-    par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
-    ymin <- 0.5/xkr^4	#Fordi avstand til x-aksen av en eller annen grunn øker når antall sykehus øker
-    ymax <- 0.2+1.2*length(Ngr)
-
-
-    AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr,3)*100
-    AndelerGr[which(Ngr<10),] <- 0
-    sortInd <- order(AndelerGr[,2])
-    dataAlle <- table(RegData$Variabel)/N*100
-
-    #Legger til resultat for hele gruppa. Og legger til en tom etter for å få plass til legend
-    pos <- barplot(cbind(as.numeric(dataAlle), rep(0,3), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
-                   border=NA, col=farger[1:3],
-                   main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2), las=1, cex.names=xkr ) 	# ylim=c(0.05, 1.24)*length(Ngr),xlim=c(0,ymax), cex.axis=0.9, cex.names=0.8*xkr,
-    GrNavnSort <- c(paste(grTypeTxt, 'sykehus', sep=''), '', names(Ngr)[sortInd])
-    NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd])
-    legend(x=50, y=1.05*ymax+2, c('0','1', '2'), xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
-           fill=farger[1:3], border=farger[1:3], ncol=3, bty='n')	#cex=0.9,  ncol=6,
-    xmax <- 100
-    mtext('(sortert på modified Glasgow scale = 1)', line=0.5, cex=1)
+    tittel <- switch (valgtVar,
+                      'ModGlasgowScore' = 'Modified Glasgow score',
+                      'AccordionGrad' = 'Komplikasjoner',
+                      'Tilgang' = 'Tilgang i abdomen'
+    )
+    legendTxt <- switch (valgtVar,
+                         'ModGlasgowScore' = c('0','1', '2'),
+                         'AccordionGrad' = c('3','4', '5', '6'),
+                         'Tilgang' = c('Åpen', 'Laparoskopisk', 'Konvertert')
+    )
+    legendTitle <- switch (valgtVar,
+                         'ModGlasgowScore' = NULL,
+                         'AccordionGrad' = 'Accordiongrad',
+                         'Tilgang' = NULL
+    )
 
 
+    # if (fullSoyle == 1) {
+      xkr <- 1
+      cexGrNavn <- 1.2
+      GrNavnSort <- paste(names(Ngr), Ngrtxt, sep=' ')
+      AntGr <- length(which(Ngr >= Ngrense))
+      grTypeTxt <- 'alle '
+
+      FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
+      farger <- FigTypUt$farger
+      #Tilpasse marger for å kunne skrive utvalgsteksten
+      NutvTxt <- length(utvalgTxt)
+      vmarg <- max(0, strwidth(GrNavnSort, units='figure', cex=cexGrNavn)*0.7)
+      #NB: strwidth oppfører seg ulikt avh. av device...
+      par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
+      ymin <- 0.5/xkr^4	#Fordi avstand til x-aksen av en eller annen grunn øker når antall sykehus øker
+      ymax <- 0.2+1.2*length(Ngr)
+
+      N_kat <- length(unique(RegData[,valgtVar]))
+      AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
+      AndelerGr[which(Ngr<Ngrense),] <- 0
+
+      if (N_kat==3){
+        sortInd <- order(AndelerGr[,2])
+      } else {
+        sortInd <- order(AndelerGr[,1])
+      }
+
+      if (valgtVar == 'AccordionGrad') {
+        AndelerGr <- AndelerGr[, -1]
+        N_kat <- N_kat -1
+      }
+      xmax <- max(rowSums(AndelerGr))
+
+      if (valgtVar == 'AccordionGrad') {
+        dataAlle <- table(RegData$Variabel)[-1]/N*100
+      } else {
+        dataAlle <- table(RegData$Variabel)/N*100
+      }
+
+
+      #Legger til resultat for hele gruppa. Og legger til en tom etter for å få plass til legend
+      pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
+                     border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2),
+                     xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
+      GrNavnSort <- c(paste(grTypeTxt, 'sykehus', sep=''), '', names(Ngr)[sortInd])
+      NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd])
+#       legend(x=10, y=1.05*ymax+2, legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
+#              fill=farger[1:3], border=farger[1:N_kat], ncol=3, bty='n')	#cex=0.9,  ncol=6,
+      legend(x= 'topright', legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
+             fill=farger[1:N_kat], border=farger[1:N_kat], ncol=2, bty='n', title = legendTitle) #, ncol=3
+      if (valgtVar == 'ModGlasgowScore') {mtext('(sortert på modified Glasgow scale = 1)', line=0.5, cex=1)}
+
+    # } else {
+
+    # }
     mtext(at=pos, GrNavnSort, side=2, las=1, cex=cexGrNavn*xkr, adj=1, line=0.25)	#Sykehusnavn
     Nfarge <-  farger[4]
     text(x=0.005*xmax, y=pos, NgrtxtSort, las=1, cex=xkr, adj=0, lwd=3, col=Nfarge)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
@@ -100,7 +171,6 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     #Tekst som angir hvilket utvalg som er gjort
     mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
-
 
 
     par('fig'=c(0, 1, 0, 1))
