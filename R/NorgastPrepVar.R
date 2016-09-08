@@ -91,7 +91,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='Alder') {
-    tittel <- 'Aldersfordeling'
+    tittel <- c('Aldersfordeling', paste0('Median: ', median(RegData$Variabel, na.rm = T), ' Gj.snitt: ', round(mean(RegData$Variabel, na.rm = T), 1)))
     gr <- c(0, seq(45, 85, 10), 120)  #c(0,16,31,46,61,76,200)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
     grtxt <- c('<45','45-54','55-64','65-74','75-84','85+')
@@ -119,7 +119,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='BMI_kodet') {
-    tittel <- 'BMI'
+    tittel <- c('BMI', paste0('Median: ', median(RegData$BMI, na.rm = T), ' Gj.snitt: ', round(mean(RegData$BMI, na.rm = T), 1)))
     subtxt <- expression(BMI (kg/m^2))
     grtxt <- c('Alvorlig undervekt\n (<16)','Undervekt\n (16-17)','Mild undervekt\n (17-17.5)','Normal\n (18.5-25)','Overvekt\n (25-30)',
                'Moderat fedme,\n klasse I (30-35)','Fedme, klasse II\n (35-40)','Fedme, klasse III\n (40-50)')

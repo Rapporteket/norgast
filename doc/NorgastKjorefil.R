@@ -5,7 +5,7 @@ rm(list=ls())
 RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-07-18 10-56-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-07-18 10-56-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
-RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
@@ -24,9 +24,9 @@ maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
-enhetsUtvalg <- 1 #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+enhetsUtvalg <- 0       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'KumAcc'
+valgtVar <- 'Alder'
 # valgtVar <- 'MissingVekt'
 op_gruppe<- ''
 outfile <- ''
@@ -36,7 +36,7 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <- c('708761', '102145', '601225')
+valgtShus <- '708761' # c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0

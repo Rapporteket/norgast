@@ -104,10 +104,6 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     RegData <- NorgastPreprosess(RegData=RegData)
   }
 
-  ## Preparer variabler for fremstilling i figur
-  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar, enhetsUtvalg=enhetsUtvalg)
-  RegData <- PlotParams$RegData
-  PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
@@ -143,6 +139,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
+
+  ## Preparer variabler for fremstilling i figur
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar, enhetsUtvalg=enhetsUtvalg)
+  RegData <- PlotParams$RegData
+  PlotParams$RegData <- NA
 
 ################
 #   utvalg <- c('Hoved', 'Rest')
