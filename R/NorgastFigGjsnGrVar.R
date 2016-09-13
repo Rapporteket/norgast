@@ -18,7 +18,27 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
                                      maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 
   {
-  # valgtVar <- 'VekttapProsent'  #'BMI'
+#   valgtVar <- 'VekttapProsent'
+#   datoFra='2014-01-01'
+#   datoTil='2050-12-31'
+#   minald=0
+#   maxald=130
+#   erMann=99
+#   # op_gruppe=0
+#   outfile=''
+#   enhetsUtvalg=1
+#   stabel=F
+#   preprosess=F
+#   elektiv=99
+#   BMI=''
+#   tilgang=99
+#   valgtShus=c('')
+#   minPRS=0
+#   maxPRS=2
+#   ASA=''
+#   whoEcog= ''
+#   forbehandling=99
+#   hentData=F
 
   grVar <- 'Sykehusnavn'
   smltxt <- 'alle sykehus'
@@ -89,7 +109,8 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
 
   #--------------------------FIGUR---------------------------------------------------
   soyletxt <- c(sprintf('%.1f',Midt[1:AntGr]), rep('',length(Ngr)-AntGr))	#	#round(Midt[1:AntGr],1)
-  xmax <-  min(1.1*max(c(Midt, KIned, KIopp)), 1.4*max(Midt))
+  # xmax <-  min(1.1*max(c(Midt, KIned, KIopp)), 1.4*max(Midt))
+  xmax <-  1.1*max(c(Midt, KIned, KIopp))
   cexGrNavn <- 0.8
   cexSoyletxt <- 0.75
 
