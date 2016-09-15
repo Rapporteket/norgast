@@ -24,9 +24,9 @@ maxald <- 130	#alder, til og med
 erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
-enhetsUtvalg <- 0       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
+enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 # valgtVar <- 'LapTilgang'
-valgtVar <- 'Alder'
+valgtVar <- 'AccordionGrad'
 # valgtVar <- 'MissingVekt'
 op_gruppe<- ''
 outfile <- ''
@@ -36,7 +36,7 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <- '708761' # c('708761', '102145', '601225')
+valgtShus <- '' #'708761' # c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0
@@ -44,7 +44,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Kvartal'
+tidsenhet <- 'Aar'
 inkl_konf <- 1
 
 if (outfile == '') {x11()}
@@ -71,6 +71,9 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, dato
                        preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
                        whoEcog=whoEcog, forbehandling=forbehandling)
+
+if (outfile == '') {x11()}
+NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=1, elektiv=0, outfile=outfile, reshID=reshID)
 
 
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)

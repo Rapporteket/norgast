@@ -121,6 +121,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   NTidHendHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'TidsEnhet'],sum, na.rm=T)
   AndelHoved <- NTidHendHoved/NTidHoved*100
   Andeler <- rbind(AndelRest, AndelHoved)
+  AndelHovedGjsn <- sum(RegData[indHoved, 'Variabel'])/length(RegData[indHoved, 'Variabel'])*100
+  AndelRestGjsn <- sum(RegData[indRest, 'Variabel'])/length(RegData[indRest, 'Variabel'])*100
 
   NTidHendHoved[is.na(NTidHendHoved)] <- 0
   NTidHoved[is.na(NTidHoved)] <- 0
@@ -185,8 +187,13 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
         polygon( c(xskala, xskala[Ant_tidpkt:1]), c(KonfRest[1,], KonfRest[2,Ant_tidpkt:1]),
                  col=fargeRestRes, border=NA)
         legend('top', bty='n', fill=fargeRestRes, border=fargeRestRes, cex=cexgr,
-               paste('95% konfidensintervall for ', smltxt, ', N=', sum(NTidRest, na.rm=T), sep=''))
+               c(paste0('95% konfidensintervall for ', smltxt, ', N=', sum(NTidRest, na.rm=T)) ))
+
+        lines(range(xskala),rep(AndelRestGjsn,2), col=farger[3], lwd=2, lty=2)
+        mtext(sprintf("%.1f", AndelRestGjsn), side=2, at = AndelRestGjsn,las=1, cex=0.9, adj=0, col=farger[3], line=2)
       }
+      lines(range(xskala),rep(AndelHovedGjsn,2), col=farger[1], lwd=2, lty=2)
+      mtext(sprintf("%.1f", AndelHovedGjsn), side=2, at = AndelHovedGjsn,las=1, cex=0.9, adj=0, col=farger[1], line=2)
       h <- strheight(1, cex=cexgr)*0.7	#,  units='figure',
       b <- 1.1*strwidth(max(NTidHoved, na.rm=T), cex=cexgr)/2	#length(Aartxt)/30
       rect(xskala-b, AndelHoved-h, xskala+b, AndelHoved+h, border = fargeHovedRes, lwd=1)	#border=farger[4], col=farger[4]
@@ -231,6 +238,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
       axis(side=1, at = xskala, labels = Tidtxt, cex.axis=0.9)
       title(tittel, line=1, font.main=1)
       text(xskala, AndelHoved, pos=3, NTidHoved, cex=0.9, col=fargeHoved)#pos=1,
+      lines(range(xskala),rep(AndelHovedGjsn,2), col=fargeHoved, lwd=2, lty=2)
+      mtext(sprintf("%.1f", AndelHovedGjsn), side=2, at = AndelHovedGjsn,las=1, cex=0.9, adj=0, col=fargeRest, line=2)
 
       # Ttxt <- paste('(Tall ved punktene angir antall ', VarTxt, ')', sep='')
       if (medSml == 1) {
@@ -238,9 +247,14 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
         lines(xskala, AndelRest, col=fargeRest, lwd=3)
         points(xskala, AndelRest, pch="'", cex=2, col=fargeRest)	#}
         text(xskala, AndelRest, pos=3, NTidRest, cex=0.9, col=fargeRest)
-        legend('topleft', border=NA, c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''),
-                                       paste(smltxt, ' (N=', NSmlRes, ')', sep='')), bty='n', ncol=1, cex=cexleg,
-               col=c(fargeHoved, fargeRest, NA), lwd=3)
+#         legend('topleft', border=NA, c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''),
+#                                        paste(smltxt, ' (N=', NSmlRes, ')', sep='')), bty='n', ncol=1, cex=cexleg,
+#                col=c(fargeHoved, fargeRest, NA), lwd=3)
+        legend('topleft', border=NA, c(paste0(shtxt, ' (N=', NHovedRes, ')'),
+                                       paste0(smltxt, ' (N=', NSmlRes, ')'), paste0(shtxt, ' Gj.snitt'), paste0(smltxt, ' Gj.snitt')), bty='n', lty=c(1,1,2,2), ncol=2, cex=cexleg,
+               col=c(fargeHoved, fargeRest, fargeHoved, fargeRest), lwd=c(3,3,2,2))
+        lines(range(xskala),rep(AndelRestGjsn,2), col=fargeRest, lwd=2, lty=2)
+        mtext(sprintf("%.1f", AndelRestGjsn), side=2, at = AndelRestGjsn,las=1, cex=0.9, adj=0, col=fargeRest, line=2)
 
       } else {
         legend('top', paste0(shtxt, ' (N=', NHovedRes, ')'),
