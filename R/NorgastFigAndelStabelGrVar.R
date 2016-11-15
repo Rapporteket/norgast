@@ -13,7 +13,7 @@
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
                                        minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                                       reshID, enhetsUtvalg=1, stabel=F, preprosess=F,
+                                       reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 
@@ -61,7 +61,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -98,7 +98,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
-                         'Tilgang' = c('Åpen', 'Laparoskopisk', 'Konvertert')
+                         'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert')
     )
     legendTitle <- switch (valgtVar,
                          'ModGlasgowScore' = NULL,
@@ -155,8 +155,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
       NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd])
 #       legend(x=10, y=1.05*ymax+2, legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
 #              fill=farger[1:3], border=farger[1:N_kat], ncol=3, bty='n')	#cex=0.9,  ncol=6,
-      legend(x= 'topright', legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
-             fill=farger[1:N_kat], border=farger[1:N_kat], ncol=2, bty='n', title = legendTitle) #, ncol=3
+      legend(x= 'top', legendTxt, xjust=0.5, yjust=0.5, ncol=3,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
+             fill=farger[1:N_kat], border=farger[1:N_kat], bty='n', title = legendTitle) #, ncol=3
       if (valgtVar == 'ModGlasgowScore') {mtext('(sortert på modified Glasgow scale = 1)', line=0.5, cex=1)}
 
     # } else {

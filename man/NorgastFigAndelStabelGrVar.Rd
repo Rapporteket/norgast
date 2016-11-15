@@ -7,9 +7,10 @@
 NorgastFigAndelStabelGrVar(RegData = 0, valgtVar = "ModGlasgowScore",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
-  enhetsUtvalg = 1, stabel = F, preprosess = F, elektiv = 99,
-  BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0, maxPRS = 2,
-  ASA = "", whoEcog = "", forbehandling = 99, hentData = F)
+  enhetsUtvalg = 1, stabel = F, preprosess = F, malign = malign,
+  elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0,
+  maxPRS = 2, ASA = "", whoEcog = "", forbehandling = 99,
+  hentData = F)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

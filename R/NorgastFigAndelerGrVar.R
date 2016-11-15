@@ -12,7 +12,7 @@
 #'
 NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                                   reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=F,
+                                   reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=F, malign=99,
                                    elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                    maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0)
 {
@@ -59,13 +59,13 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
   grVar <- 'Sykehusnavn'
   RegData[ ,grVar] <- as.factor(as.character(RegData[ ,grVar]))
-  Ngrense <- 30		#Minste antall registreringer for at ei gruppe skal bli vist
+  Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
 
   N <- dim(RegData)[1]
   Nvar <- tapply(RegData$Variabel, RegData[ ,grVar], sum, na.rm=T)

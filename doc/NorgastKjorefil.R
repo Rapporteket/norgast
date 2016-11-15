@@ -1,15 +1,17 @@
-# setwd('C:/GIT/norgast/inst/')
+setwd('C:/GIT/norgast/doc/')
+library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-07-18 10-56-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-07-18 10-56-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-10-19 10-37-47.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+# RegData2 <- read.table('C:/SVN/jasper/norgast/data/AlleVar2016-10-11 09-34-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-10-19 10-37-45.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato')]
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'PostopLiggedogn', "Hoveddiagnose")]
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
@@ -25,11 +27,12 @@ erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-# valgtVar <- 'LapTilgang'
-valgtVar <- 'AccordionGrad'
+valgtVar <- 'LapTilgang'
+# valgtVar <- 'Malign'
 # valgtVar <- 'MissingVekt'
 op_gruppe<- ''
 outfile <- ''
+# outfile <- paste0(valgtVar, '.pdf')
 preprosess<-F
 hentData <- F
 stabel=F
@@ -46,6 +49,8 @@ whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
 tidsenhet <- 'Aar'
 inkl_konf <- 1
+malign <- 99
+
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
@@ -53,7 +58,7 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling)
+           whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
 
 
 if (outfile == '') {x11()}
@@ -62,7 +67,7 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet)
+           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign)
 
 if (outfile == '') {x11()}
 NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
@@ -70,7 +75,9 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, dato
                        reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
                        preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-                       whoEcog=whoEcog, forbehandling=forbehandling)
+                       whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
+
+
 
 if (outfile == '') {x11()}
 NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=1, elektiv=0, outfile=outfile, reshID=reshID)
@@ -380,5 +387,47 @@ ASA=''
 whoEcog= ''
 forbehandling=99
 hentData=F
+
+
+RegData <- RegData[which(RegData$Op_gr %in% 1:6), ]
+old <- RegData
+RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
+RegData$Sykehusnavn[RegData$Sykehusnavn != 'St. Olavs Hospital HF'] <- 'Landet.forovrig'
+RegData$Sykehusnavn <- as.factor(RegData$Sykehusnavn)
+
+tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), mean, na.rm=T)
+Gj_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+
+tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), function(x){length(!is.na(x))})
+N_liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+
+
+tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), sum, na.rm=T)
+Sum_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+
+#################################################################################################
+################### Fiks diagnosebeskrivelser   ###################################################
+
+tmp1 <- sort(table(RegData$Hoveddiagnose, useNA = 'ifany'), decreasing = T)
+tmp2 <- sort(table(substr(RegData$Hoveddiagnose, 1, 4), useNA = 'ifany'), decreasing = T)
+tmp3 <- sort(table(substr(RegData$Hoveddiagnose, 1, 5), useNA = 'ifany'), decreasing = T)
+
+navn1 <- sort(names(tmp2))
+navn2 <- sort(names(tmp3))
+
+
+navn1 <- c(navn1, rep(NA, length(navn2)-length(navn1)))
+
+navndiff <- data.frame(navn2=navn2, navn1=navn1)
+
+
+
+
+
+
+
+
+
+
 
 
