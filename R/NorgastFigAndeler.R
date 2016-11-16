@@ -81,6 +81,10 @@
 #'                3: Komb. kjemo/radioterapi
 #'                4: Ingen
 #'                99: Alle
+#' @param malign Er diagnosen malign eller benign
+#'                0: Benign
+#'                1: Malign
+#'                99: Alle
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'

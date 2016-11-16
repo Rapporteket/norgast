@@ -7,7 +7,7 @@
 NorgastFigAndelStabelGrVar(RegData = 0, valgtVar = "ModGlasgowScore",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
-  enhetsUtvalg = 1, stabel = F, preprosess = F, malign = malign,
+  enhetsUtvalg = 1, stabel = F, preprosess = F, malign = 99,
   elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0,
   maxPRS = 2, ASA = "", whoEcog = "", forbehandling = 99,
   hentData = F)
@@ -58,6 +58,11 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 \item{preprosess}{Preprosesser data
 FALSE: Nei (Default)
 TRUE: Ja}
+
+\item{malign}{Er diagnosen malign eller benign
+0: Benign
+1: Malign
+99: Alle}
 
 \item{elektiv}{Elektiv eller øyeblikkelig hjelp
 0: Øyeblikkelig hjelp

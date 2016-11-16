@@ -59,6 +59,11 @@ hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 FALSE: Nei (Default)
 TRUE: Ja}
 
+\item{malign}{Er diagnosen malign eller benign
+0: Benign
+1: Malign
+99: Alle}
+
 \item{elektiv}{Elektiv eller øyeblikkelig hjelp
 0: Øyeblikkelig hjelp
 1: Elektiv

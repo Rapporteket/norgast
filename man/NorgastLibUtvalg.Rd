@@ -86,6 +86,11 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 4: Ingen
 99: Alle}
 
+\item{malign}{Er diagnosen malign eller benign
+0: Benign
+1: Malign
+99: Alle}
+
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 }
 \value{
