@@ -17,29 +17,6 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
                                    maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0)
 {
 
-#   inkl_konf <- 1
-#   valgtVar='MissingVekt'
-#   datoFra='2014-01-01'
-#   datoTil='2050-12-31'
-#   minald=0
-#   maxald=130
-#   erMann=99
-#   op_gruppe=1
-#   outfile=''
-#   reshID<-0
-#   enhetsUtvalg=1
-#   preprosess=F
-#   elektiv=99
-#   BMI=''
-#   tilgang=99
-#   valgtShus=c('')
-#   minPRS=0
-#   maxPRS=2
-#   ASA=''
-#   whoEcog= ''
-#   forbehandling=99
-#   hentData=F
-
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
     RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
