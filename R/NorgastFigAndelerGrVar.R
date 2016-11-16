@@ -12,7 +12,7 @@
 #'
 NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                                   reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=F, malign=99,
+                                   reshID, preprosess=F, inkl_konf=F, malign=99,
                                    elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                    maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0)
 {
@@ -26,6 +26,9 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
   if (preprosess){
     RegData <- NorgastPreprosess(RegData=RegData)
   }
+
+  if (valgtShus[1] != '') {RegData <- RegData[which(RegData$AvdRESH %in% as.numeric(valgtShus)), ]}
+
 
   ## Preparer variabler for fremstilling i figur
   PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)

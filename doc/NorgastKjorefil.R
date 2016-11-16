@@ -39,7 +39,7 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <- '' #'708761' # c('708761', '102145', '601225')
+valgtShus <- c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0
@@ -69,10 +69,11 @@ NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign)
 
+valgtVar <- 'erMann'
 if (outfile == '') {x11()}
 NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
                        minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-                       reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
+                       reshID=reshID, inkl_konf=inkl_konf,
                        preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
                        whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
