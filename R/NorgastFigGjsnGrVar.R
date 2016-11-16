@@ -13,11 +13,24 @@
 #'
 NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                                      minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                                     reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=malign,
+                                     reshID, preprosess=F, malign=99,
                                      elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                      maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 
   {
+
+  ## Hvis spørring skjer fra R på server. ######################
+  if(hentData){
+    RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
+  }
+
+  ## Hvis RegData ikke har blitt preprosessert
+  if (preprosess){
+    RegData <- NorgastPreprosess(RegData=RegData)
+  }
+
+  if (valgtShus[1] != '') {RegData <- RegData[which(RegData$AvdRESH %in% as.numeric(valgtShus)), ]}
+
 
   grVar <- 'Sykehusnavn'
   smltxt <- 'alle sykehus'
@@ -47,12 +60,14 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
   vt <- switch(valgtVar,
                'BMI' = 'BMI',
                'VekttapProsent' = 'vekttap i prosent',
-               'ModGlasgowScore' = 'modifisert Glasgow score'
+               'ModGlasgowScore' = 'modifisert Glasgow score',
+               'Alder' = 'alder'
   )
   xaksetxt <- switch(valgtVar,
                      'BMI' = 'BMI',
                      'VekttapProsent' = 'Vekttap %',
-                     'ModGlasgowScore' = 'Modifisert Glasgow score'
+                     'ModGlasgowScore' = 'Modifisert Glasgow score',
+                     'Alder' = 'Alder (år)'
   )
 
   tittel <- paste0('Gjennomsnittlig ', vt)

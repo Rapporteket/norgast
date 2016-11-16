@@ -7,10 +7,9 @@
 NorgastFigGjsnGrVar(RegData = 0, valgtVar = "Alder",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
-  enhetsUtvalg = 1, stabel = F, preprosess = F, malign = malign,
-  elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0,
-  maxPRS = 2, ASA = "", whoEcog = "", forbehandling = 99,
-  hentData = F)
+  preprosess = F, malign = 99, elektiv = 99, BMI = "", tilgang = 99,
+  valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
+  forbehandling = 99, hentData = F)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -45,15 +44,6 @@ til systemets default output device (som regel skjerm))}
 
 \item{reshID}{Parameter følger fra innlogging helseregister.no og angir
 hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
-
-\item{enhetsUtvalg}{Lag figur for
-0: Hele landet
-1: Egen enhet mot resten av landet (Default)
-2: Egen enhet}
-
-\item{stabel}{Stabelplot
-0: Stabel
-1: Søyle (Default)}
 
 \item{preprosess}{Preprosesser data
 FALSE: Nei (Default)

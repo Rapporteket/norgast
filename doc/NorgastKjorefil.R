@@ -39,7 +39,7 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <- c('708761', '102145', '601225')
+valgtShus <-''  #c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- ''
 minPRS <- 0
@@ -78,7 +78,12 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, dato
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
                        whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
 
-
+if (outfile == '') {x11()}
+NorgastFigGjsnGrVar(RegData=RegData, valgtVar='Alder', datoFra=datoFra, datoTil=datoTil,
+                    minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+                                reshID=reshID, preprosess=preprosess, malign=malign,
+                                elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
+                                maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling, hentData=hentData)
 
 if (outfile == '') {x11()}
 NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=1, elektiv=0, outfile=outfile, reshID=reshID)

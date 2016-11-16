@@ -29,6 +29,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     RegData <- NorgastPreprosess(RegData=RegData)
   }
 
+  if (valgtShus[1] != '') {RegData <- RegData[which(RegData$AvdRESH %in% as.numeric(valgtShus)), ]}
 
   grVar <- 'Sykehusnavn'
 
