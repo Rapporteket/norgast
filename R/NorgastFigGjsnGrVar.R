@@ -61,13 +61,15 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
                'BMI' = 'BMI',
                'VekttapProsent' = 'vekttap i prosent',
                'ModGlasgowScore' = 'modifisert Glasgow score',
-               'Alder' = 'alder'
+               'Alder' = 'alder',
+               'PRSScore' = 'mE-PASS'
   )
   xaksetxt <- switch(valgtVar,
                      'BMI' = 'BMI',
                      'VekttapProsent' = 'Vekttap %',
                      'ModGlasgowScore' = 'Modifisert Glasgow score',
-                     'Alder' = 'Alder (år)'
+                     'Alder' = 'Alder (år)',
+                     'PRSScore' = 'PRSScore'
   )
 
   tittel <- paste0('Gjennomsnittlig ', vt)
