@@ -86,6 +86,14 @@ NorgastFigGjsnGrVar(RegData=RegData, valgtVar='Alder', datoFra=datoFra, datoTil=
                                 maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling, hentData=hentData)
 
 if (outfile == '') {x11()}
+NorgastFigAndelStabelGrVar(RegData=RegData, valgtVar='Tilgang', datoFra=datoFra, datoTil=datoTil,
+                                       minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+                                       reshID=reshID, preprosess=preprosess, malign=malign,
+                                       elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
+                                       maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling, hentData=hentData)
+
+
+if (outfile == '') {x11()}
 NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=1, elektiv=0, outfile=outfile, reshID=reshID)
 
 
