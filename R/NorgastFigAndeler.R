@@ -81,6 +81,10 @@
 #'                3: Komb. kjemo/radioterapi
 #'                4: Ingen
 #'                99: Alle
+#' @param malign Er diagnosen malign eller benign
+#'                0: Benign
+#'                1: Malign
+#'                99: Alle
 #'
 #' @return En figur med søylediagram eller et stabelplot av ønsket variabel
 #'
@@ -89,7 +93,7 @@
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                         minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                        reshID, enhetsUtvalg=1, stabel=F, preprosess=F,
+                        reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                         maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
 {
@@ -104,16 +108,12 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     RegData <- NorgastPreprosess(RegData=RegData)
   }
 
-  ## Preparer variabler for fremstilling i figur
-  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar, enhetsUtvalg=enhetsUtvalg)
-  RegData <- PlotParams$RegData
-  PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -143,6 +143,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   #Hvis man ikke skal sammenligne, får man ut resultat for eget sykehus
   if (enhetsUtvalg == 2) {RegData <- RegData[which(RegData$AvdRESH == reshID), ]}	#{indHovedUt <- which(RegData$AvdRESH != reshID)}
+
+  ## Preparer variabler for fremstilling i figur
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar, enhetsUtvalg=enhetsUtvalg)
+  RegData <- PlotParams$RegData
+  PlotParams$RegData <- NA
 
 ################
 #   utvalg <- c('Hoved', 'Rest')

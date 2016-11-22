@@ -20,7 +20,7 @@
 #'
 NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014-01-01', datoTil='2050-12-31',
                                minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
-                               reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99,
+                               reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
                                elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F, tidsenhet='Aar')
 {
@@ -44,7 +44,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -61,17 +61,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                 (RegData$Aar-min(RegData$Aar))*4,
                               Halvaar = RegData$Halvaar-min(RegData$Halvaar[RegData$Aar==min(RegData$Aar)])+1+
                                 (RegData$Aar-min(RegData$Aar))*2
-                              # Mnd = RegData$Mnd-min(RegData$Mnd)+1+(RegData$Aar-min(RegData$Aar))*12
-                                )
+  )
 
-#   if (tidsenhet == 'Mnd') {
-#     Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
-#                     sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.')
-#   }
-#   if (tidsenhet == 'Aar') {
-#     Tidtxt <- as.character(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)])
-#   }
-#
   Tidtxt <- switch(tidsenhet,
                    Mnd = paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
                                sprintf('%02.0f', RegData$Mnd[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='.'),
@@ -93,6 +84,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
     shtxt <- 'Hele landet'
   } else {
     shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
+
   }	#'Eget sykehus' #
 
   if (enhetsUtvalg!=0 & length(valgtShus)>1) {
@@ -130,18 +122,9 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   NTidHendHoved <- tapply(RegData[indHoved, 'Variabel'], RegData[indHoved ,'TidsEnhet'],sum, na.rm=T)
   AndelHoved <- NTidHendHoved/NTidHoved*100
   Andeler <- rbind(AndelRest, AndelHoved)
+  AndelHovedGjsn <- sum(RegData[indHoved, 'Variabel'])/length(RegData[indHoved, 'Variabel'])*100
+  AndelRestGjsn <- sum(RegData[indRest, 'Variabel'])/length(RegData[indRest, 'Variabel'])*100
 
-  binomkonf <- function(n, N, konfnivaa=0.95) {
-    binkonf <- matrix(nrow=2, ncol = length(n))
-    for (i in 1:length(n)) {
-      if (N[i]>0) {
-        binkonf[,i] <- binom.test(n[i],N[i], alternative = 'two.sided', conf.level = konfnivaa)$conf.int[1:2]
-      } else {
-        binkonf[,i] <- c(0,0)
-      }
-    }
-    return(invisible(binkonf))
-  }
   NTidHendHoved[is.na(NTidHendHoved)] <- 0
   NTidHoved[is.na(NTidHoved)] <- 0
   NTidHendRest[is.na(NTidHendRest)] <- 0
@@ -204,9 +187,29 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
 
         polygon( c(xskala, xskala[Ant_tidpkt:1]), c(KonfRest[1,], KonfRest[2,Ant_tidpkt:1]),
                  col=fargeRestRes, border=NA)
-        legend('top', bty='n', fill=fargeRestRes, border=fargeRestRes, cex=cexgr,
-               paste('95% konfidensintervall for ', smltxt, ', N=', sum(NTidRest, na.rm=T), sep=''))
+        #         legend('top', bty='n', fill=fargeRestRes, border=fargeRestRes, cex=cexgr,
+        #                legend = c(paste0('95% konfidensintervall for ', smltxt, ', N=', sum(NTidRest, na.rm=T)) ))
+        legend('top', cex=0.9, bty='o', bg='white', box.col='white', lty = c(NA, 2,2),
+               lwd=c(NA,2,2), pch=c(15,NA,NA), pt.cex=c(2,1,1), col=c(fargeRestRes,farger[1],farger[3]),
+               legend = c(paste0('95% konfidensintervall for ', smltxt, ', N=', sum(NTidRest, na.rm=T)),
+                          paste0('Gjennomsnitt hele perioden, ', shtxt, ' = ', sprintf("%.1f", AndelHovedGjsn), ' (',
+                                 sprintf("%.1f", binomkonf(sum(NTidHendHoved), sum(NTidHoved))[1]*100), '-',
+                                 sprintf("%.1f", binomkonf(sum(NTidHendHoved), sum(NTidHoved))[2]*100), ')'),
+                          paste0('Gjennomsnitt hele perioden, ', smltxt, ' = ', sprintf("%.1f", AndelRestGjsn), ' (',
+                                 sprintf("%.1f", binomkonf(sum(NTidHendRest), sum(NTidRest))[1]*100), '-',
+                                 sprintf("%.1f", binomkonf(sum(NTidHendRest), sum(NTidRest))[2]*100), ')')) )
+        #         legend(x=82, y=ypos[2]+1,xjust=0, cex=1.2, bty='o', bg='white', box.col='white',
+        #                lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1,1,2), col=c('black','black',farger[3]),
+        #                legend=c('2013','2014', '2015') )
+
+        lines(range(xskala),rep(AndelRestGjsn,2), col=farger[3], lwd=2, lty=2)
+        # mtext(sprintf("%.1f", AndelRestGjsn), side=2, at = AndelRestGjsn,las=1, cex=0.9, adj=0, col=farger[3], line=2)
+      } else {
+        legend('top', cex=0.9, bty='o', bg='white', box.col='white', lty = 2,
+               lwd=2, col=farger[1], legend = paste0('Gjennomsnitt hele perioden, ', shtxt, ' = ', round(AndelHovedGjsn, 1)))
       }
+      lines(range(xskala),rep(AndelHovedGjsn,2), col=farger[1], lwd=2, lty=2)
+      # mtext(sprintf("%.1f", AndelHovedGjsn), side=2, at = AndelHovedGjsn,las=1, cex=0.9, adj=0, col=farger[1], line=2)
       h <- strheight(1, cex=cexgr)*0.7	#,  units='figure',
       b <- 1.1*strwidth(max(NTidHoved, na.rm=T), cex=cexgr)/2	#length(Aartxt)/30
       rect(xskala-b, AndelHoved-h, xskala+b, AndelHoved+h, border = fargeHovedRes, lwd=1)	#border=farger[4], col=farger[4]
@@ -220,8 +223,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
       ind2 <- which(Konf[2, ] < AndelHoved+h) #Øvre konfidensintervall som er mindre enn boksen
       arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=replace(Konf[2, ], ind2, AndelHoved[ind2]+h),
              length=0.08, code=2, angle=90, col=fargeHovedRes, lwd=1.5)
-#       arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=replace(Konf[2, ], ind, AndelHoved[ind]+h),
-#              length=0.08, code=2, angle=90, col=fargeHovedRes, lwd=1.5)
+      #       arrows(x0=xskala, y0=AndelHoved+h, x1=xskala, y1=replace(Konf[2, ], ind, AndelHoved[ind]+h),
+      #              length=0.08, code=2, angle=90, col=fargeHovedRes, lwd=1.5)
 
       title(main=tittel, font.main=1, line=1)
       mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
@@ -251,6 +254,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
       axis(side=1, at = xskala, labels = Tidtxt, cex.axis=0.9)
       title(tittel, line=1, font.main=1)
       text(xskala, AndelHoved, pos=3, NTidHoved, cex=0.9, col=fargeHoved)#pos=1,
+      lines(range(xskala),rep(AndelHovedGjsn,2), col=fargeHoved, lwd=2, lty=2)
+      mtext(sprintf("%.1f", AndelHovedGjsn), side=2, at = AndelHovedGjsn,las=1, cex=0.9, adj=0, col=fargeRest, line=2)
 
       # Ttxt <- paste('(Tall ved punktene angir antall ', VarTxt, ')', sep='')
       if (medSml == 1) {
@@ -258,9 +263,14 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
         lines(xskala, AndelRest, col=fargeRest, lwd=3)
         points(xskala, AndelRest, pch="'", cex=2, col=fargeRest)	#}
         text(xskala, AndelRest, pos=3, NTidRest, cex=0.9, col=fargeRest)
-        legend('topleft', border=NA, c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''),
-                                       paste(smltxt, ' (N=', NSmlRes, ')', sep='')), bty='n', ncol=1, cex=cexleg,
-               col=c(fargeHoved, fargeRest, NA), lwd=3)
+        #         legend('topleft', border=NA, c(paste(shtxt, ' (N=', NHovedRes, ')', sep=''),
+        #                                        paste(smltxt, ' (N=', NSmlRes, ')', sep='')), bty='n', ncol=1, cex=cexleg,
+        #                col=c(fargeHoved, fargeRest, NA), lwd=3)
+        legend('topleft', border=NA, c(paste0(shtxt, ' (N=', NHovedRes, ')'),
+                                       paste0(smltxt, ' (N=', NSmlRes, ')'), paste0(shtxt, ' Gj.snitt'), paste0(smltxt, ' Gj.snitt')), bty='n', lty=c(1,1,2,2), ncol=2, cex=cexleg,
+               col=c(fargeHoved, fargeRest, fargeHoved, fargeRest), lwd=c(3,3,2,2))
+        lines(range(xskala),rep(AndelRestGjsn,2), col=fargeRest, lwd=2, lty=2)
+        mtext(sprintf("%.1f", AndelRestGjsn), side=2, at = AndelRestGjsn,las=1, cex=0.9, adj=0, col=fargeRest, line=2)
 
       } else {
         legend('top', paste0(shtxt, ' (N=', NHovedRes, ')'),

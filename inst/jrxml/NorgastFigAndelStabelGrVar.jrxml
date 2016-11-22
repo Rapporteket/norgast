@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
-<!-- 2016-11-16T09:59:56 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NorgastFigAndelTid" language="groovy" pageWidth="595" pageHeight="595" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" scriptletClass="no.skde.report.norgast.NorgastCommonScriptletRPackage" isIgnorePagination="true" uuid="9ca92060-e90f-4e3c-acec-23662a03f059">
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.1.0  -->
+<!-- 2016-11-17T10:17:24 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NorgastFigAndelStabelGrVar" language="groovy" pageWidth="595" pageHeight="595" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" scriptletClass="no.skde.report.norgast.NorgastCommonScriptletRPackage" isIgnorePagination="true" uuid="9ca92060-e90f-4e3c-acec-23662a03f059">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<property name="ireport.jasperserver.url" value="https://test.helseregister.no/rapporteket_test/"/>
-	<property name="ireport.jasperserver.report.resource" value="/organizations/NoRGast/Reports/NorgastFigAndelTid_files/MainJrxml"/>
-	<property name="ireport.jasperserver.reportUnit" value="/organizations/NoRGast/Reports/NorgastFigAndelTid"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -19,6 +16,9 @@
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="ireport.jasperserver.user" value="superuser"/>
+	<property name="ireport.jasperserver.url" value="https://test.helseregister.no/rapporteket_test/"/>
+	<property name="ireport.jasperserver.report.resource" value="/organizations/NoRGast/Reports/NorgastFigAndelStabelGrVar_files/main_jrxml"/>
+	<property name="ireport.jasperserver.reportUnit" value="/organizations/NoRGast/Reports/NorgastFigAndelStabelGrVar"/>
 	<parameter name="LoggedInUser" class="com.jaspersoft.jasperserver.api.metadata.user.domain.User" isForPrompting="false">
 		<parameterDescription><![CDATA[At server side, gets the User object from the JRS logged in user]]></parameterDescription>
 	</parameter>
@@ -32,16 +32,16 @@
 		<defaultValueExpression><![CDATA[$P{LoggedInUserAttribute_AVD_RESH}]]></defaultValueExpression>
 	</parameter>
 	<parameter name="reportName" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[new String("NorgastFigAndelTid")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("NorgastFigAndelStabelGrVar")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="rPackageName" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA[new String("norgast")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="rFunctionCallString" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[new String("NorgastFigAndelTid(RegData=0, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, enhetsUtvalg=enhetsUtvalg, preprosess=T, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, hentData=T, tidsenhet=tidsenhet, inkl_konf=inkl_konf, malign=malign)")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("NorgastFigAndelStabelGrVar(RegData=0, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, preprosess=T, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, hentData=T, malign=malign)")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="varName" class="java.lang.String">
-		<defaultValueExpression><![CDATA[new String("Alder")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("ReLapNarkose")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="minAge" class="java.lang.Integer">
 		<defaultValueExpression><![CDATA[new java.lang.Integer(0)]]></defaultValueExpression>
@@ -67,10 +67,6 @@
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
 	</parameter>
-	<parameter name="malign" class="java.lang.Integer">
-		<parameterDescription><![CDATA[]]></parameterDescription>
-		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
-	</parameter>
 	<parameter name="preTreat" class="java.lang.Integer">
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
@@ -79,12 +75,9 @@
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
 	</parameter>
-	<parameter name="inkl_konf" class="java.lang.Integer">
+	<parameter name="malign" class="java.lang.Integer">
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
-	</parameter>
-	<parameter name="tidsenhet" class="java.lang.String">
-		<defaultValueExpression><![CDATA[new String("Aar")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="minPRS" class="java.lang.Double">
 		<defaultValueExpression><![CDATA[new java.lang.Double(0)]]></defaultValueExpression>

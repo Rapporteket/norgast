@@ -170,7 +170,17 @@ NorgastPreprosess <- function(RegData)
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0
   RegData$KumAcc[RegData$AccordionGrad >= 3] <- 1
-  # Data <- list(RegData=RegData, shtxt=shtxt)
+
+  RegData$MissingVekt <- 0
+  RegData$MissingVekt[is.na(RegData$VekttapProsent)] <- 1
+
+  RegData <- RegData[order(RegData$HovedDato, decreasing = TRUE), ]
+  # RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+
+  RegData$Malign <- NA
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) == 'C')] <- 1
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) != 'C')] <- 0
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) == '')] <- 9
 
   return(invisible(RegData))
 
