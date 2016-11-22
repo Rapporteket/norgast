@@ -27,7 +27,7 @@ erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'LapTilgang'
+valgtVar <- 'Anastomoselekkasje'
 # valgtVar <- 'Malign'
 # valgtVar <- 'MissingVekt'
 op_gruppe<- ''
@@ -79,7 +79,7 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, dato
                        whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
 
 if (outfile == '') {x11()}
-NorgastFigGjsnGrVar(RegData=RegData, valgtVar='Alder', datoFra=datoFra, datoTil=datoTil,
+NorgastFigGjsnGrVar(RegData=RegData, valgtVar='PRSScore', datoFra=datoFra, datoTil=datoTil,
                     minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
                                 reshID=reshID, preprosess=preprosess, malign=malign,
                                 elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
