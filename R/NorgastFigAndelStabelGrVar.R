@@ -102,16 +102,16 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
       #NB: strwidth oppfører seg ulikt avh. av device...
       par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
       ymin <- 0.5/xkr^4	#Fordi avstand til x-aksen av en eller annen grunn øker når antall sykehus øker
-      ymax <- 0.2+1.2*length(Ngr)
+      ymax <- 0.2+1.2*(length(Ngr)+1)
 
       N_kat <- length(unique(RegData[,valgtVar]))
       AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
       AndelerGr[which(Ngr<Ngrense),] <- 0
 
       if (N_kat==3){
-        sortInd <- order(AndelerGr[,2])
+        sortInd <- order(AndelerGr[,2], decreasing = F)
       } else {
-        sortInd <- order(AndelerGr[,1])
+        sortInd <- order(AndelerGr[,1], decreasing = F)
       }
 
       if (valgtVar == 'AccordionGrad') {
@@ -131,8 +131,11 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
       pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
                      border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2),
                      xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
-      GrNavnSort <- c(paste(grTypeTxt, 'sykehus', sep=''), '', names(Ngr)[sortInd])
-      NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd])
+#       pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,]),0), horiz=T, beside=FALSE,
+#                      border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='',
+#                      xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
+      GrNavnSort <- c(paste(grTypeTxt, 'sykehus', sep=''), '', names(Ngr)[sortInd], '')
+      NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd], '')
 #       legend(x=10, y=1.05*ymax+2, legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
 #              fill=farger[1:3], border=farger[1:N_kat], ncol=3, bty='n')	#cex=0.9,  ncol=6,
       legend(x= 'top', legendTxt, xjust=0.5, yjust=0.5, ncol=3,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
