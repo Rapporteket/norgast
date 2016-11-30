@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-10-19 10-37-47.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-11-30 08-20-39.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 # RegData2 <- read.table('C:/SVN/jasper/norgast/data/AlleVar2016-10-11 09-34-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-10-19 10-37-45.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-11-30 08-20-42.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -106,6 +106,14 @@ regdata <- NorgastPreprosess(RegData)
 
 regdata <- regdata[regdata$Aar==2015 & regdata$Op_gr==1 & regdata$AvdRESH==601225, c("PasientID", "ForlopsID")]
 write.csv2(regdata, 'NoRGastKolonTromso2015.csv', row.names = F)
+
+## Liste over elektive kolonreseksjoner 2014-2015 med accordion-grad  3 eller høyere#############
+Pasientliste <- RegData$PasientID[which(RegData$Op_gr==1 & RegData$AvdRESH==601225 & RegData$Aar %in% c(2014,2015) &
+                                          RegData$Hastegrad == 1 & RegData$AccordionGrad >=3)]
+
+Forlopsliste <- RegData$ForlopsID[which(RegData$Op_gr==1 & RegData$AvdRESH==601225 & RegData$Aar %in% c(2014,2015) &
+                                          RegData$Hastegrad == 1 & RegData$AccordionGrad >=3)]
+
 
 ################ Lag liste for NPR ######################
 

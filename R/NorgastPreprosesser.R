@@ -133,6 +133,7 @@ NorgastPreprosess <- function(RegData)
   ##############
   # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
   # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
+  # Definer Hastegrad med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
 
   Helligdager <- sort(Helligdager2008til2022$Dato)
 
