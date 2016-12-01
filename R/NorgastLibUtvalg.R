@@ -9,7 +9,7 @@
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
                              valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='',
-                             forbehandling=99, fargepalett='BlaaRapp')
+                             forbehandling=99, malign=99, fargepalett='BlaaRapp')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -37,9 +37,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
   indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
+  indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
@@ -59,7 +60,8 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
                  if (forbehandling %in% 1:4) {paste0('Onkologisk forbehandling: ',
-                                                     c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[forbehandling])}
+                                                     c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[forbehandling])},
+                 if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])}
   )
 
 

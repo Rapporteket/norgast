@@ -14,6 +14,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
 
   query <- paste0("SELECT
                   BMIKategori,
+                  BMI,
                   VekttapProsent,
                   MedDiabetes,
                   KunCytostatika,
@@ -41,6 +42,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   OppfViktigsteFunn,
                   Avdod,
                   AvdodDato,
+                  Hoveddiagnose,
                   ForlopsOversikt.ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.Sykehusnavn,

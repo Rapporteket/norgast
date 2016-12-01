@@ -133,6 +133,7 @@ NorgastPreprosess <- function(RegData)
   ##############
   # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
   # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
+  # Definer Hastegrad med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
 
   Helligdager <- sort(Helligdager2008til2022$Dato)
 
@@ -170,7 +171,17 @@ NorgastPreprosess <- function(RegData)
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0
   RegData$KumAcc[RegData$AccordionGrad >= 3] <- 1
-  # Data <- list(RegData=RegData, shtxt=shtxt)
+
+  RegData$MissingVekt <- 0
+  RegData$MissingVekt[is.na(RegData$VekttapProsent)] <- 1
+
+  RegData <- RegData[order(RegData$HovedDato, decreasing = TRUE), ]
+  # RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+
+  RegData$Malign <- NA
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) == 'C')] <- 1
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) != 'C')] <- 0
+  RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) == '')] <- 9
 
   return(invisible(RegData))
 

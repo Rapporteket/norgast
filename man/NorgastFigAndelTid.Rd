@@ -4,13 +4,13 @@
 \alias{NorgastFigAndelTid}
 \title{Tidstrend (år/mnd) av rate/andel for en gitt variabel}
 \usage{
-NorgastFigAndelTid(RegData = 0, valgtVar = "RELAPAROTOMY",
+NorgastFigAndelTid(RegData = 0, valgtVar = "ReLapNarkose",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
-  enhetsUtvalg = 1, preprosess = F, inkl_konf = 99, elektiv = 99,
-  BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0, maxPRS = 2,
-  ASA = "", whoEcog = "", forbehandling = 99, hentData = F,
-  tidsenhet = "Aar")
+  enhetsUtvalg = 1, preprosess = F, inkl_konf = 99, malign = 99,
+  elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""), minPRS = 0,
+  maxPRS = 2, ASA = "", whoEcog = "", forbehandling = 99,
+  hentData = F, tidsenhet = "Aar")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -59,6 +59,11 @@ TRUE: Ja}
 0: Nei
 1: Ja
 99: Bruk default som definert i NorgastPrepVar}
+
+\item{malign}{Er diagnosen malign eller benign
+0: Benign
+1: Malign
+99: Alle}
 
 \item{elektiv}{Elektiv eller øyeblikkelig hjelp
 0: Øyeblikkelig hjelp
