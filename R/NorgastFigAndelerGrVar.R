@@ -16,6 +16,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
                                    elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                    maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0)
 {
+  print(paste0('Brukerkontroll: ', malign))
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
