@@ -1,21 +1,22 @@
-$P{reseksjoner} == '(JFB[2-5][0-9]|JFB6[0-4])|JFH' ? 'Kolonreseksjoner' : 
-$P{reseksjoner} == 'JDC|JDD' ? 'Ventrikkelreseksjoner' : 
-$P{reseksjoner} == 'JGB' ? 'Rektumreseksjoner' : 
-$P{reseksjoner} == 'JCC' ? 'Øsofagusreseksjoner' : 
+$P{reseksjoner} == '(JFB[2-5][0-9]|JFB6[0-4])|JFH' ? 'Kolonreseksjoner' :
+$P{reseksjoner} == 'JDC|JDD' ? 'Ventrikkelreseksjoner' :
+$P{reseksjoner} == 'JGB' ? 'Rektumreseksjoner' :
+$P{reseksjoner} == 'JCC' ? '?sofagusreseksjoner' :
 $P{reseksjoner} == 'JLC30' ? 'Whipples' :
+$P{reseksjoner} == 'JL[A-B]|JL[D-Z]|JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]' ? 'Andre pankreas' :
 $P{reseksjoner} == 'JJB' ? 'Leverreseksjoner' :
 $P{reseksjoner} == 'JKA21|JKA20' ? 'Cholecystektomi' :
 $P{reseksjoner} == 'JEA00|JEA01' ? 'Appendektomi' :
 $P{reseksjoner} == 'JFB00|JFB01' ? 'Tynntarmsreseksjon' :
 $P{reseksjoner} == 'JDF10|JDF11' ? 'Gastric bypass' :
-$P{reseksjoner} == 'JDF96|JDF97' ? 'Gastric sleeve' 
+$P{reseksjoner} == 'JDF96|JDF97' ? 'Gastric sleeve'
 
 
 
 (JFB[2-5][0-9]|JFB6[0-4])|JFH
 
 
-SELECT DISTINCT Hovedoperasjon 
+SELECT DISTINCT Hovedoperasjon
   FROM AlleVariablerNum
  WHERE Hovedoperasjon REGEXP 'JL[A-B]|JL[D-Z]|JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]'
  ORDER BY Hovedoperasjon
@@ -56,6 +57,6 @@ try {
 	rconn.voidEval("ncsp=" + ncsp);
 } catch (Exception e) {
 	log.debug("Parameter ncsp is not defined: " + e.getMessage());
-}                                            
+}
 
 

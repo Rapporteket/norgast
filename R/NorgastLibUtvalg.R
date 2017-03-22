@@ -9,19 +9,27 @@
 
 NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
                              valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='',
-                             forbehandling=99, malign=99, fargepalett='BlaaRapp')
+                             forbehandling=99, malign=99, fargepalett='BlaaRapp', reseksjonsGr='', ncsp='')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
-  # "%u%" <- union
-  N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
-#   if (tilgang %in% c(1,2)) {
-#     RegData$Tilgang <- as.numeric(RegData$Tilgang)
-#     RegData$Tilgang[RegData$Tilgang==3] <- 1
-#   }
 
-  #Hvis "Variabel" ikke definert
-  # if (length(which(names(RegData) == 'Variabel')) == 0 ) {RegData$Variabel <- 0}
+  # Mapping fra ny til gammel op_gruppe
+  mapping_ny_gml <- data.frame(ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
+                                    'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
+                                    'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97'),
+                               gammel=1:12)
+
+  if (reseksjonsGr!=''){
+    op_gruppe <- mapping_ny_gml$gammel[match(reseksjonsGr, mapping_ny_gml$ny)]
+  } else {
+    op_gruppe <- 0
+  }
+
+
+
+  N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
+
   Ninn <- dim(RegData)[1]
   indVarMed <- 1:Ninn
 #   indVarMed <- which(RegData$Variabel != 'NA') %i% which(RegData$Variabel != 'NaN') %i%
@@ -36,11 +44,12 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
+  indNCSP <- if (ncsp[1] != '') {which(RegData$Hovedoperasjon %in% ncsp)} else {ncsp <- 1:Ninn}
   indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP
   RegData <- RegData[indMed,]
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
@@ -48,9 +57,9 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if ((minald>0) | (maxald<130)) {
                    paste('Pasienter fra ', min(RegData$Alder, na.rm=T), ' til ', max(RegData$Alder, na.rm=T), ' år', sep='')},
                  if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinner', 'Menn')[erMann+1], sep='')},
-                 if (op_gruppe %in% 1:(N_opgr-1)) {paste('Operasjonsgruppe: ',
-                                                         RegData$Operasjonsgrupper[match(1:(N_opgr-1), RegData$Op_gr)][op_gruppe], sep='')},
-                 if (op_gruppe == 99) {'Operasjonsgruppe: Annet'},
+                 if (op_gruppe %in% 1:(N_opgr-1)) {paste0('Operasjonsgruppe: ',
+                                                         RegData$Operasjonsgrupper[match(op_gruppe, RegData$Op_gr)])},
+                 if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(substr(ncsp, 1,5), collapse=', '))},
                  if (elektiv %in% c(0,1)) {paste0('Hastegrad: ', c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1])},
                  if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
                  if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=', '))},

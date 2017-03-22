@@ -17,7 +17,13 @@ ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData=RegData)
 
-# RegData$AvdRESH <- RegData$AvdRESH.x
+tmp <- sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==2]))
+tmp <- tmp[-(5:10)]
+ncsp <- tmp
+ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
+     'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
+     'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
+reseksjonsGr <- ny[2]
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
 reshID <- 601225 #  #Må sendes med til funksjon
@@ -58,7 +64,7 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
+           whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 
 if (outfile == '') {x11()}
