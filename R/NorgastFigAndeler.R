@@ -100,7 +100,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 {
 
   # Debug
-  paste0('NCSP: ', ncsp)
+  print(paste0('NCSP: ', ncsp))
+
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
