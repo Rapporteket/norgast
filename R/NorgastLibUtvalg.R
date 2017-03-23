@@ -26,8 +26,6 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
     op_gruppe <- 0
   }
 
-  ncsp <- as.character(ncsp)
-
   N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
 
   Ninn <- dim(RegData)[1]
