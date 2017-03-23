@@ -42,7 +42,7 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
-  indNCSP <- if (ncsp[1] != '') {which(RegData$Hovedoperasjon %in% ncsp)} else {indNCSP <- 1:Ninn}
+  indNCSP <- if (ncsp[1] != '') {which(substr(RegData$Hovedoperasjon, 1, 5) %in% ncsp)} else {indNCSP <- 1:Ninn}
   indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
 
