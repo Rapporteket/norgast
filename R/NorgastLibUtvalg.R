@@ -49,7 +49,7 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP
   RegData <- RegData[indMed,]
-  if (ncsp[1] != '') {ncsp <- sort(unique(RegData$Hovedoperasjon))}
+  if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
                        min(RegData$OperasjonsDato, na.rm=T), ' til ', max(RegData$OperasjonsDato, na.rm=T), sep='' ),
@@ -58,10 +58,10 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                  if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinner', 'Menn')[erMann+1], sep='')},
                  if (op_gruppe %in% 1:(N_opgr-1)) {paste0('Operasjonsgruppe: ',
                                                          RegData$Operasjonsgrupper[match(op_gruppe, RegData$Op_gr)])},
-                 if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(substr(ncsp[which(!is.na(ncsp[1:9]))], 1,5), collapse=', '))},
-                 if (length(ncsp) > 9) {paste0('  ', paste(substr(ncsp[which(!is.na(ncsp[10:20]))+9], 1,5), collapse=', '))},
-                 if (length(ncsp) > 20) {paste0('  ', paste(substr(ncsp[which(!is.na(ncsp[21:31]))+20], 1,5), collapse=', '))},
-                 if (length(ncsp) > 31) {paste0('  ', paste(substr(ncsp[which(!is.na(ncsp[32:42]))+31], 1,5), collapse=', '))},
+                 if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(ncsp[which(!is.na(ncsp[1:9]))], collapse=', '))},
+                 if (length(ncsp) > 9) {paste0('  ', paste(ncsp[which(!is.na(ncsp[10:20]))+9], collapse=', '))},
+                 if (length(ncsp) > 20) {paste0('  ', paste(ncsp[which(!is.na(ncsp[21:31]))+20], collapse=', '))},
+                 if (length(ncsp) > 31) {paste0('  ', paste(ncsp[which(!is.na(ncsp[32:42]))+31], collapse=', '))},
                  if (elektiv %in% c(0,1)) {paste0('Hastegrad: ', c('Øyeblikkelig hjelp', 'Elektiv kirurgi')[elektiv+1])},
                  if (BMI[1] != '') {paste0('BMI-gruppe: ', paste(BMI, collapse=','))},
                  if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=', '))},
