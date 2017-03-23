@@ -99,13 +99,6 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         reseksjonsGr='', ncsp='')
 {
 
-  # Debugging:
-  print(paste0('ncsp: ', ncsp))
-  print(paste0('ncsp: ', ncsp[1]))
-  ncsp[1] != ''
-  str(ncsp)
-
-
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
     RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)

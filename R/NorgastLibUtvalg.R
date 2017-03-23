@@ -49,9 +49,9 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP
   RegData <- RegData[indMed,]
-  if (ncsp[1] != '') {
-    ncsp <- sort(unique(RegData$Hovedoperasjon))
-    print('fcuk')}
+  # if (ncsp[1] != '') {
+  #   ncsp <- sort(unique(RegData$Hovedoperasjon))
+  #   print('fcuk')}
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
                        min(RegData$OperasjonsDato, na.rm=T), ' til ', max(RegData$OperasjonsDato, na.rm=T), sep='' ),
