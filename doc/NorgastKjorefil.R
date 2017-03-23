@@ -33,7 +33,7 @@ erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Anastomoselekkasje'
+valgtVar <- 'Alder'
 # valgtVar <- 'Malign'
 # valgtVar <- 'MissingVekt'
 op_gruppe<- ''
