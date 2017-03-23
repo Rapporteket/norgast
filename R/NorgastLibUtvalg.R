@@ -42,16 +42,14 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
   indPRS <- if ((minPRS>0) | (maxPRS<2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
-  indNCSP <- if (ncsp[1] != '') {which(RegData$Hovedoperasjon %in% ncsp)} else {ncsp <- 1:Ninn}
+  indNCSP <- if (ncsp[1] != '') {which(RegData$Hovedoperasjon %in% ncsp)} else {indNCSP <- 1:Ninn}
   indForb <- if (forbehandling %in% 1:4) {which(RegData$Forbehandling == forbehandling)} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP
   RegData <- RegData[indMed,]
-  # if (ncsp[1] != '') {
-  #   ncsp <- sort(unique(RegData$Hovedoperasjon))
-  #   print('fcuk')}
+  if (ncsp[1] != '') {ncsp <- sort(unique(RegData$Hovedoperasjon))}
 
   utvalgTxt <- c(paste('Operasjonsdato: ',
                        min(RegData$OperasjonsDato, na.rm=T), ' til ', max(RegData$OperasjonsDato, na.rm=T), sep='' ),

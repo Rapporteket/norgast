@@ -19,7 +19,7 @@ RegData <- NorgastPreprosess(RegData=RegData)
 
 tmp <- sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==1]))
 # tmp <- tmp[-(5:15)]
-ncsp <- tmp
+ncsp <- ''
 ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
      'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
      'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
