@@ -7,7 +7,7 @@
 #'
 #' @export
 
-NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe, elektiv, BMI,
+NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, elektiv, BMI,
                              valgtShus='', tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog='',
                              forbehandling=99, malign=99, fargepalett='BlaaRapp', reseksjonsGr='', ncsp='')
 {
@@ -20,7 +20,7 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
                                     'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97'),
                                gammel=1:12)
 
-  if (reseksjonsGr!=''){
+  if (reseksjonsGr[1]!=''){
     op_gruppe <- mapping_ny_gml$gammel[match(reseksjonsGr, mapping_ny_gml$ny)]
   } else {
     op_gruppe <- 0

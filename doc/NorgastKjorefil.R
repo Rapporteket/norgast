@@ -36,7 +36,6 @@ enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-ege
 valgtVar <- 'Alder'
 # valgtVar <- 'Malign'
 # valgtVar <- 'MissingVekt'
-op_gruppe<- ''
 outfile <- ''
 # outfile <- paste0(valgtVar, '.pdf')
 preprosess<-F
@@ -60,47 +59,50 @@ malign <- 99
 
 if (outfile == '') {x11()}
 FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+           minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, stabel=stabel,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
-
+valgtVar <- 'Anastomoselekkasje'
 if (outfile == '') {x11()}
 NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-           minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+           minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign)
+           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
-valgtVar <- 'erMann'
+
 if (outfile == '') {x11()}
 NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
-                       minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
+                       minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
                        reshID=reshID, inkl_konf=inkl_konf,
                        preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-                       whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
+                       whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 if (outfile == '') {x11()}
 NorgastFigGjsnGrVar(RegData=RegData, valgtVar='PRSScore', datoFra=datoFra, datoTil=datoTil,
-                    minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-                                reshID=reshID, preprosess=preprosess, malign=malign,
-                                elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
-                                maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling, hentData=hentData)
+                    minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
+                    reshID=reshID, preprosess=preprosess, malign=malign,
+                    elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
+                    maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling,
+                    hentData=hentData, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 if (outfile == '') {x11()}
 NorgastFigAndelStabelGrVar(RegData=RegData, valgtVar='AccordionGrad', datoFra=datoFra, datoTil=datoTil,
-                                       minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile,
-                                       reshID=reshID, preprosess=preprosess, malign=malign,
-                                       elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
-                                       maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling, hentData=hentData)
+                           minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
+                           reshID=reshID, preprosess=preprosess, malign=malign,
+                           elektiv=elektiv, BMI=BMI, tilgang=tilgang, valgtShus=valgtShus, minPRS=minPRS,
+                           maxPRS=maxPRS, ASA=ASA, whoEcog= whoEcog, forbehandling=forbehandling,
+                           hentData=hentData, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 
 if (outfile == '') {x11()}
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=1, elektiv=0, outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', elektiv=0, outfile=outfile,
+                                 reshID=reshID, reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH')
 
 
 # NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, reshID=reshID, preprosess=preprosess)
