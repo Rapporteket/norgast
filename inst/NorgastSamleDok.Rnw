@@ -1241,7 +1241,7 @@ for (p in 1:length(varNavn)){
   outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              minald=0, maxald=130, erMann='', outfile=outfile,
-             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, reseksjonsGr = 'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', ncsp = c('JLC10', 'JLC11'))}
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
 
 varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
 

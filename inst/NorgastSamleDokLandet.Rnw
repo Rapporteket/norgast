@@ -1213,6 +1213,152 @@ for (p in 1:length(varNavn)){
 
 \clearpage
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Distale pankreasreseksjoner}
+
+% \ifwhipple
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'Distpankreas'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{Kjønnsfordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{Aldersfordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av ASA-score for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av vektendring for \Sexpr{gruppe} reseksjoner. Negativ verdi illustrerer vekttap (\%).}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{BMI-fordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe} reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter mE-PASS for \Sexpr{gruppe} reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter onkologisk forbehandling for \Sexpr{gruppe} reseksjoner.}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Tilgang')
+gruppe<-'Distpankreas'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'Distpankreas'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\clearpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % \else
 % Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
 % \clearpage
