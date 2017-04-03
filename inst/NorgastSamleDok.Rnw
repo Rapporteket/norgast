@@ -68,7 +68,7 @@ if(hentData){
   datoTil=as.character(Sys.Date())
   flervalgsliste <- c('601231', '102141', '601225') #, '601225')
 }
-valgtShus <- '' #flervalgsliste
+valgtShus <- flervalgsliste
 
 if (valgtShus[1] == '') {
   shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
