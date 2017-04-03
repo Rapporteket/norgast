@@ -19,11 +19,11 @@ RegData <- NorgastPreprosess(RegData=RegData)
 
 tmp <- substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==1])), 1, 5)
 # tmp <- tmp[-(5:15)]
-ncsp <- tmp
+ncsp <- '' #tmp
 ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
      'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
      'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
-reseksjonsGr <- ny[1]
+reseksjonsGr <-  '' #ny[1]
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
 reshID <- 601225 #  #Må sendes med til funksjon
@@ -33,7 +33,7 @@ erMann <- 99
 datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
 datoTil <- '2017-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
-valgtVar <- 'Alder'
+valgtVar <- 'Saarruptur'
 # valgtVar <- 'Malign'
 # valgtVar <- 'MissingVekt'
 outfile <- ''
@@ -52,7 +52,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Aar'
+tidsenhet <- 'Mnd'
 inkl_konf <- 1
 malign <- 99
 
