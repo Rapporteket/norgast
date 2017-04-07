@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-11-30 08-20-39.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-# RegData2 <- read.table('C:/SVN/jasper/norgast/data/AlleVar2016-10-11 09-34-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-11-30 08-20-42.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-03-09 13-09-21.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-03-09 13-09-25.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -46,7 +46,7 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 valgtShus <-''  #c('708761', '102145', '601225')
 # valgtShus <- c('')
-tilgang <- ''
+tilgang <- 1
 minPRS <- 0
 maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
