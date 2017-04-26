@@ -21,4 +21,3 @@ uferdige hovedskjema og oppfølgingsskjema.
 \description{
 Denne funksjonen lager en liste over hvor mange pasienter som er registrert per sykehus.
 }
-

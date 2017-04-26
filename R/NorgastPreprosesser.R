@@ -128,6 +128,7 @@ NorgastPreprosess <- function(RegData)
   #### Definerer variabelen Saarruptur basert på funn ved reoperasjon under opphold eller v/ reinnleggelse innen 30 dager
   #### UTELUKKER LAPAROSKOPISKE INNGREP, PR. BESTILLING LINN.
   RegData$Saarruptur <- NA
+  # RegData$Saarruptur[which(RegData$ReLapNarkose == 1 | RegData$OppfReLapNarkose == 1), ] <- 0
   RegData$Saarruptur[RegData$Tilgang %in% 1:3] <- 0
   RegData$Saarruptur[which(RegData$ViktigsteFunn==4 | RegData$OppfViktigsteFunn==4)] <- 1
   RegData$Saarruptur[!(RegData$Tilgang %in% 1:3)] <- NA

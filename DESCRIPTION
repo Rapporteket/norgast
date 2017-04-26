@@ -13,7 +13,7 @@ Depends: R (>= 3.0.2), rapbase
 Imports:
   xtable,
   plotrix
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

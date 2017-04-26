@@ -64,4 +64,3 @@ Tabell En tabell med de vanligste operasjonstypene
 Lag en tabell over de vanligste operasjonstypene samt en tabell med de komplikasjonsrater for de ulike
 komplikasjonstypene for de obligatoriske operasjonsgruppene.
 }
-

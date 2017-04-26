@@ -17,4 +17,3 @@ RegData data frame
 \description{
 Provides NoRGast data from staging
 }
-

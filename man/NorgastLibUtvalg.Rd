@@ -4,10 +4,10 @@
 \alias{NorgastLibUtvalg}
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
-NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
-  elektiv, BMI, valgtShus = "", tilgang = 99, minPRS = 0, maxPRS = 2,
-  ASA = "", whoEcog = "", forbehandling = 99, malign = 99,
-  fargepalett = "BlaaRapp")
+NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, elektiv,
+  BMI, valgtShus = "", tilgang = 99, minPRS = 0, maxPRS = 2, ASA = "",
+  whoEcog = "", forbehandling = 99, malign = 99,
+  fargepalett = "BlaaRapp", reseksjonsGr = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -24,16 +24,6 @@ NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann, op_gruppe,
 1: menn
 0: kvinner
 99: begge (alt annet enn 0 og 1) (Default)}
-
-\item{op_gruppe}{Operasjonsgruppe
-0: Alle grupper (Default)
-1: Kolonreseksjoner
-2: Rektumreseksjoner
-3: Øsofagusreseksjoner
-4: Ventrikkelreseksjoner
-5: Leverreseksjoner
-6: Whipple's operasjon
-9: Annet}
 
 \item{elektiv}{Elektiv eller øyeblikkelig hjelp
 0: Øyeblikkelig hjelp
@@ -92,6 +82,22 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 99: Alle}
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
+
+\item{reseksjonsGr}{Reseksjonsgruppe (Erstatter op_gruppe)
+'(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
+'JGB': Rektumreseksjoner
+'JCC': Øsofagusreseksjoner
+'JDC|JDD': Ventrikkelreseksjoner
+'JJB': Leverreseksjoner
+'JLC30|JLC31': Whipple's operasjon
+'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
+'JKA21|JKA20': Cholecystektomi
+'JEA00|JEA01': Appendektomi
+'JFB00|JFB01': Tynntarmsreseksjon
+'JDF10|JDF11': Gastric bypass
+'JDF96|JDF97': Gastric sleeve}
+
+\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }
 \value{
 UtData En liste bestående av det filtrerte datasettet, utvalgstekst for figur og tekststreng som angir fargepalett
@@ -99,4 +105,3 @@ UtData En liste bestående av det filtrerte datasettet, utvalgstekst for figur o
 \description{
 Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.
 }
-

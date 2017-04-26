@@ -55,4 +55,3 @@ Tabell En list med tre tabeller over anastomoselekkasjerater
 \description{
 Denne funksjonen lager tre tabeller for bruk i samlerapport
 }
-
