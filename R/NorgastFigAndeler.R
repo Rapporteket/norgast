@@ -22,6 +22,20 @@
 #'                 5: Leverreseksjoner
 #'                 6: Whipple's operasjon
 #'                 9: Annet
+#' @param reseksjonsGr Reseksjonsgruppe (Erstatter op_gruppe)
+#'                     '(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
+#'                     'JGB': Rektumreseksjoner
+#'                     'JCC': Øsofagusreseksjoner
+#'                     'JDC|JDD': Ventrikkelreseksjoner
+#'                     'JJB': Leverreseksjoner
+#'                     'JLC30|JLC31': Whipple's operasjon
+#'                     'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
+#'                     'JKA21|JKA20': Cholecystektomi
+#'                     'JEA00|JEA01': Appendektomi
+#'                     'JFB00|JFB01': Tynntarmsreseksjon
+#'                     'JDF10|JDF11': Gastric bypass
+#'                     'JDF96|JDF97': Gastric sleeve
+#' @param ncsp NCSP-koder(r) som skal være inkludert i utvalget
 #' @param outfile Navn på fil figuren skrives til. Default: '' (Figur skrives
 #'    til systemets default output device (som regel skjerm))
 #' @param reshID Parameter følger fra innlogging helseregister.no og angir
@@ -92,10 +106,11 @@
 
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
-                        minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
+                        minald=0, maxald=130, erMann=99, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F)
+                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F,
+                        reseksjonsGr='', ncsp='')
 {
 
   print(datoFra)
@@ -113,9 +128,10 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -151,29 +167,6 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   RegData <- PlotParams$RegData
   PlotParams$RegData <- NA
 
-################
-#   utvalg <- c('Hoved', 'Rest')
-#   Andeler <- list(Hoved = 0, Rest =0)
-#
-#   indHoved <-which(RegData$AvdRESH == reshID)
-#   indRest <- which(RegData$AvdRESH != reshID)
-#   RegDataLand <- RegData
-#   ind <- list(Hoved=indHoved, Rest=indRest)
-#   Nrest <- 0
-#
-#   for (teller in 1:2) {
-#     if (teller==2 & enhetsUtvalg != 1) {break}
-#
-#     if (enhetsUtvalg == 1) {RegData <- RegDataLand[switch(utvalg[teller], Hoved = ind$Hoved, Rest=ind$Rest), ]}
-#
-#     #Variablene kjøres to ganger for sammenligning med Resten.
-#
-#     if (teller == 1) {Andeler$Hoved <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-#     NHoved <- dim(RegData)[1]}
-#     if (teller == 2) {Andeler$Rest <- round(table(RegData$VariabelGr)/length(RegData$VariabelGr)*100,2)
-#     Nrest <- dim(RegData)[1]}
-#   }
-####################
   # Initialiserer nødvendige størrelser
   Andeler <- list(Hoved = 0, Rest =0)
   ind <- list(Hoved=which(RegData$AvdRESH == reshID), Rest=which(RegData$AvdRESH != reshID))

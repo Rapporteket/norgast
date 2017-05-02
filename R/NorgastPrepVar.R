@@ -21,7 +21,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
                       'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'KumAcc', 'MissingVekt',
-                      'Sykehusnavn', 'Malign')) {
+                      'Sykehusnavn', 'Malign', 'Saarruptur')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -46,6 +46,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
+
+  if (valgtVar=='Saarruptur') {
+    tittel <- c('Andel med sårruptur')
+    VarTxt <- 'med sårruptur'
+    grtxt <- c('Nei', 'Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
 
   if (valgtVar=='KumAcc') {
     tittel <- c('Accordion score \u2265 3')
@@ -92,9 +102,9 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='Op_gr') {
     tittel <- 'Operasjonsgrupper'
-    gr <- c(1:11,99)
+    gr <- c(1:12,99)
     grtxt <- c('Kolonreseksjoner','Rektumreseksjoner','Øsofagusreseksjoner','Ventrikkelreseksjoner',
-               'Leverreseksjoner',"Whipples operasjon", 'Cholecystektomi', 'Appendektomi', 'Tynntarmsreseksjon',
+               'Leverreseksjoner',"Whipples operasjon", "Andre pankreasreseksjoner", 'Cholecystektomi', 'Appendektomi', 'Tynntarmsreseksjon',
                'Gastric bypass', 'Gastric sleeve', 'Annet')
     RegData$VariabelGr <- factor(RegData$Variabel, levels=gr, labels = grtxt)
     subtxt <- 'Operasjonsgrupper'

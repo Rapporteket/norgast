@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
-<!-- 2016-11-28T14:26:56 -->
+<!-- 2017-03-28T15:01:43 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NoRGastFigGjsnGrVar" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" scriptletClass="no.skde.report.norgast.NorgastCommonScriptletRPackage" isIgnorePagination="true" uuid="9ca92060-e90f-4e3c-acec-23662a03f059">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
@@ -38,7 +38,7 @@
 		<defaultValueExpression><![CDATA[new String("norgast")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="rFunctionCallString" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[new String("NorgastFigGjsnGrVar(RegData=0, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, preprosess=T, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, hentData=T, malign=malign)")]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new String("NorgastFigGjsnGrVar(RegData=0, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald, erMann=erMann, outfile=outfile, reshID=reshID, preprosess=T, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, hentData=T, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)")]]></defaultValueExpression>
 	</parameter>
 	<parameter name="varName" class="java.lang.String">
 		<defaultValueExpression><![CDATA[new String("BMI")]]></defaultValueExpression>
@@ -59,9 +59,11 @@
 	<parameter name="erMann" class="java.lang.Integer">
 		<defaultValueExpression><![CDATA[new Integer(99)]]></defaultValueExpression>
 	</parameter>
-	<parameter name="opGroup" class="java.lang.Integer">
-		<parameterDescription><![CDATA[]]></parameterDescription>
-		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	<parameter name="reseksjonsGr" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ncsp" class="java.util.List">
+		<defaultValueExpression><![CDATA[[""]]]></defaultValueExpression>
 	</parameter>
 	<parameter name="elektiv" class="java.lang.Integer">
 		<parameterDescription><![CDATA[]]></parameterDescription>

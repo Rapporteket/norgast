@@ -59,6 +59,7 @@ NorgastPreprosess <- function(RegData)
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
+  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jlc")] <- "Andre pankreasreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jlc30","jlc31"))] <- "Whipples operasjon"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jka20","jka21"))] <- "Cholecystektomi"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jea00","jea01"))] <- "Appendektomi"
@@ -73,11 +74,12 @@ NorgastPreprosess <- function(RegData)
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 7
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 8
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 9
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 10
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 11
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Andre pankreasreseksjoner")] <- 7
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 8
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 9
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 10
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 11
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 12
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
   RegData$Op_gr2 <- 9
@@ -122,6 +124,14 @@ NorgastPreprosess <- function(RegData)
   RegData$AccordionGrad[!is.na(pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad))] <-
     pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad)[!is.na(pmax(RegData$AccordionGrad,
                                                                                    RegData$OppfAccordionGrad))]
+
+  #### Definerer variabelen Saarruptur basert på funn ved reoperasjon under opphold eller v/ reinnleggelse innen 30 dager
+  #### UTELUKKER LAPAROSKOPISKE INNGREP, PR. BESTILLING LINN.
+  RegData$Saarruptur <- NA
+  # RegData$Saarruptur[which(RegData$ReLapNarkose == 1 | RegData$OppfReLapNarkose == 1), ] <- 0
+  RegData$Saarruptur[RegData$Tilgang %in% 1:3] <- 0
+  RegData$Saarruptur[which(RegData$ViktigsteFunn==4 | RegData$OppfViktigsteFunn==4)] <- 1
+  RegData$Saarruptur[!(RegData$Tilgang %in% 1:3)] <- NA
 
   #### Inkluder Relaparotomi fra oppfølgingsskjema
 

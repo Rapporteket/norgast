@@ -6,10 +6,10 @@
 \usage{
 NorgastFigAndelStabelGrVar(RegData = 0, valgtVar = "ModGlasgowScore",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
-  maxald = 130, erMann = 99, op_gruppe = 0, outfile = "", reshID,
-  preprosess = F, malign = 99, elektiv = 99, BMI = "", tilgang = 99,
+  maxald = 130, erMann = 99, outfile = "", reshID, preprosess = F,
+  malign = 99, elektiv = 99, BMI = "", tilgang = 99,
   valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  forbehandling = 99, hentData = F)
+  forbehandling = 99, hentData = F, reseksjonsGr = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -28,16 +28,6 @@ NorgastFigAndelStabelGrVar(RegData = 0, valgtVar = "ModGlasgowScore",
 1: menn
 0: kvinner
 99: begge (alt annet enn 0 og 1) (Default)}
-
-\item{op_gruppe}{Operasjonsgruppe
-0: Alle grupper (Default)
-1: Kolonreseksjoner
-2: Rektumreseksjoner
-3: Øsofagusreseksjoner
-4: Ventrikkelreseksjoner
-5: Leverreseksjoner
-6: Whipple's operasjon
-9: Annet}
 
 \item{outfile}{Navn på fil figuren skrives til. Default: '' (Figur skrives
 til systemets default output device (som regel skjerm))}
@@ -108,6 +98,22 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 \item{hentData}{Gjør spørring mot database
 FALSE: Nei, RegData gis som input til funksjonen (Default)
 TRUE: Ja}
+
+\item{reseksjonsGr}{Reseksjonsgruppe (Erstatter op_gruppe)
+'(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
+'JGB': Rektumreseksjoner
+'JCC': Øsofagusreseksjoner
+'JDC|JDD': Ventrikkelreseksjoner
+'JJB': Leverreseksjoner
+'JLC30|JLC31': Whipple's operasjon
+'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
+'JKA21|JKA20': Cholecystektomi
+'JEA00|JEA01': Appendektomi
+'JFB00|JFB01': Tynntarmsreseksjon
+'JDF10|JDF11': Gastric bypass
+'JDF96|JDF97': Gastric sleeve}
+
+\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }
 \value{
 En figur med gjennomsnitt av valgt variabel pr grupperingsvariabel
@@ -118,4 +124,3 @@ Denne funksjonen andeler for valgt variabel og plotter de stablet per gruppering
 \details{
 Her kan detaljer skrives
 }
-

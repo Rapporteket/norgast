@@ -19,4 +19,3 @@ Nedre og øvre grense til konfidensintervallet
 \description{
 Dene funksjonen beregner konfidensintervall for binomisk fordelt data
 }
-

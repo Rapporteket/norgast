@@ -11,11 +11,12 @@
 #' @export
 #'
 NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
-                                   minald=0, maxald=130, erMann=99, op_gruppe=0, outfile='',
+                                   minald=0, maxald=130, erMann=99, outfile='',
                                    reshID, preprosess=F, inkl_konf=F, malign=99,
                                    elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                                   maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0)
+                                   maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0, reseksjonsGr='', ncsp='')
 {
+  print(paste0('Diagnose: ', malign))
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -37,9 +38,9 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, op_gruppe=op_gruppe, elektiv=elektiv,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

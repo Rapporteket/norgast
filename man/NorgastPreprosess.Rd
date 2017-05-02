@@ -16,4 +16,3 @@ Data En list med det filtrerte datasettet og sykehusnavnet som tilsvarer reshID
 \description{
 Må ha tilgang til filen Helligdager2008-2022.csv
 }
-
