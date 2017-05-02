@@ -35,7 +35,7 @@ datoTil <- '2017-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Saarruptur'
 # valgtVar <- 'Malign'
-# valgtVar <- 'MissingVekt'
+valgtVar <- 'Alder'
 outfile <- ''
 # outfile <- paste0(valgtVar, '.pdf')
 preprosess<-F
