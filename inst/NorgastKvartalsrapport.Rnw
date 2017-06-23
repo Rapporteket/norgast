@@ -167,19 +167,19 @@ Templatversjon II, 2016
 % \addtolength{\textwidth}{-3cm}
 % \restoregeometry
 \color{moerkgraa}
-\thispagestyle{empty}
+% \thispagestyle{empty}
 % \cleardoublepage
 % \setcounter{page}{1}
 
-\maketitle
+% \maketitle
 
-\tableofcontents
-\newpage
-\thispagestyle{empty}
-\listoffigures
-\newpage
-\thispagestyle{empty}
-\listoftables
+% \tableofcontents
+% \newpage
+% \thispagestyle{empty}
+% \listoffigures
+% \newpage
+% \thispagestyle{empty}
+% \listoftables
 
 \clearpage
 
@@ -239,6 +239,8 @@ print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)
 
 
 \section{Resultater}
+
+\subsection{Reoperasjoner}
 
 <<'Figur:ReopFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
@@ -337,6 +339,104 @@ NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=dato
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_pankreas.pdf}
 \caption{Relaparotomi pankreas}
 \end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+
+<<'Figur:KomplFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+valgtVar <- 'KumAcc'
+
+outfile <- 'KumAcc_kolon.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH')
+
+outfile <- 'KumAcc_rektum.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JGB')
+
+outfile <- 'KumAcc_oesofagus.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JCC')
+
+outfile <- 'KumAcc_ventrikkel.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JDC|JDD')
+
+outfile <- 'KumAcc_lever.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JJB')
+
+outfile <- 'KumAcc_whipple.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JLC30|JLC31')
+
+outfile <- 'KumAcc_pankreas.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]')
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_kolon.pdf}
+\caption{Komplikasjoner kolon}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_rektum.pdf}
+\caption{Komplikasjoner rektum}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_oesofagus.pdf}
+\caption{Komplikasjoner øsofagus}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_ventrikkel.pdf}
+\caption{Komplikasjoner ventrikkel}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_lever.pdf}
+\caption{Komplikasjoner lever}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_whipple.pdf}
+\caption{Komplikasjoner Whipple}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_pankreas.pdf}
+\caption{Komplikasjoner pankreas}
+\end{figure}
+
+\clearpage
+
+\subsection{Sårruptur}
 
 \begin{figure}[ht]
 \centering
