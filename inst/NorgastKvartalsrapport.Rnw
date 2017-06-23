@@ -38,7 +38,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- F
+hentData <- T
 datoTil <- as.character(Sys.Date())
 datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
 if (substr(datoTil, 6,10) %in% c('03-31', '06-30', '09-30', '12-31')) {
@@ -76,6 +76,7 @@ if(hentData){
   flervalgsliste <- '' # c('601231', '102141', '601225') #, '601225')
 }
 valgtShus <- flervalgsliste
+
 
 if (valgtShus[1] == '') {
   shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
