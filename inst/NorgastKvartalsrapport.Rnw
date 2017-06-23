@@ -260,85 +260,65 @@ print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)
 
 
 \section{Resultater}
-
-
-<<'Tabell:reoperasjoner', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-
-lokal <- RegData[which(RegData$AvdRESH == reshID), ]
-
-aarsak_reop <- as.data.frame(table(lokal$ViktigsteFunn_labels[lokal$ReLapNarkose==1], useNA = 'ifany'))
-names(aarsak_reop) <- c('Årsak', 'Antall')
-
-print(xtable::xtable(aarsak_reop, caption='Antall reoperasjoner på egen avdeling siste avsluttede kvartal fordelt på årsaker'), include.rownames = F)
-#
-# # reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(lokal$Op_gr[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-# reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-#
-# names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-#
-# reop_pst_lokal <- tidyr::spread(reop_pst, 'Kvartal', 'Rate')
-# reop_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
-#
-#
-# resten <- RegData[which(RegData$AvdRESH != reshID), ]
-#
-# reop_pst <- aggregate(resten$ReLapNarkose[resten$Op_gr %in% 1:7], by=list(Op_gr=resten$Op_gr[resten$Op_gr %in% 1:7], Kvartal=resten$TidsEnhet[resten$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-#
-# names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-#
-# reop_pst_rest <- tidyr::spread(reop_pst, 'Kvartal', 'Rate')
-# reop_pst_rest$Operasjonsgruppe <- resten$Operasjonsgrupper[match(reop_pst_rest$Operasjonsgruppe, resten$Op_gr)]
-
-lokal <- RegData[which(RegData$AvdRESH == reshID), ]
-
-reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
-
-names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-reop_pst$Rate[N$Rate<5] <- NA
-N$Rate[N$Rate<5] <- '<5'
-
-reop_pst_lokal <- tidyr::spread(reop_pst, Kvartal, Rate)
-N <- tidyr::spread(N, Kvartal, Rate)
-reop_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
-N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
-reop_pst_lokal$Enhet <- 'Egen avd.'
-N$Enhet <- 'Egen avd.'
-N_lokal <- N
-
-lokal <- RegData[which(RegData$AvdRESH != reshID), ]
-reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
-
-names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-reop_pst$Rate[N$Rate<5] <- NA
-N$Rate[N$Rate<5] <- '<5'
-
-reop_pst_rest <- tidyr::spread(reop_pst, Kvartal, Rate)
-N <- tidyr::spread(N, Kvartal, Rate)
-reop_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
-N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
-reop_pst_rest$Enhet <- 'Landet forøvrig'
-N$Enhet <- 'Landet forøvrig'
-
-
-Reop <- rbind(reop_pst_lokal, reop_pst_rest)
-Reop <- Reop[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
-N <- rbind(N_lokal, N)
-N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
-Reop <- cbind(Reop, N[, 3:6])
-Reop <- Reop[, c(1:3,7,4,8,5,9,6,10)]
-Reop[(1:7)*2, 1] <- ''
-# Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
-
-print(xtable::xtable(Reop, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Reop)-2)), caption = 'Reoperasjonsrater'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
-
-
-
-@
-
+%
+%
+% <<'Tabell:reoperasjoner', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+%
+% lokal <- RegData[which(RegData$AvdRESH == reshID), ]
+%
+% aarsak_reop <- as.data.frame(table(lokal$ViktigsteFunn_labels[lokal$ReLapNarkose==1], useNA = 'ifany'))
+% names(aarsak_reop) <- c('Årsak', 'Antall')
+%
+% print(xtable::xtable(aarsak_reop, caption='Antall reoperasjoner på egen avdeling siste avsluttede kvartal fordelt på årsaker'), include.rownames = F)
+%
+% lokal <- RegData[which(RegData$AvdRESH == reshID), ]
+%
+% reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+% N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+%
+% names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% reop_pst$Rate[N$Rate<5] <- NA
+% N$Rate[N$Rate<5] <- '<5'
+%
+% reop_pst_lokal <- tidyr::spread(reop_pst, Kvartal, Rate)
+% N <- tidyr::spread(N, Kvartal, Rate)
+% reop_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
+% N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+% reop_pst_lokal$Enhet <- 'Egen avd.'
+% N$Enhet <- 'Egen avd.'
+% N_lokal <- N
+%
+% lokal <- RegData[which(RegData$AvdRESH != reshID), ]
+% reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+% N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+%
+% names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% reop_pst$Rate[N$Rate<5] <- NA
+% N$Rate[N$Rate<5] <- '<5'
+%
+% reop_pst_rest <- tidyr::spread(reop_pst, Kvartal, Rate)
+% N <- tidyr::spread(N, Kvartal, Rate)
+% reop_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
+% N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+% reop_pst_rest$Enhet <- 'Landet forøvrig'
+% N$Enhet <- 'Landet forøvrig'
+%
+%
+% Reop <- rbind(reop_pst_lokal, reop_pst_rest)
+% Reop <- Reop[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+% N <- rbind(N_lokal, N)
+% N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+% Reop <- cbind(Reop, N[, 3:6])
+% Reop <- Reop[, c(1:3,7,4,8,5,9,6,10)]
+% Reop[(1:7)*2, 1] <- ''
+% # Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
+%
+% print(xtable::xtable(Reop, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Reop)-2)), caption = 'Reoperasjonsrater'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
+%
+% @
+%
 
 <<'Figur:ReopFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
@@ -387,7 +367,7 @@ NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=dato
            tidsenhet='Kvartal', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]')
 
 valgtVar <- 'Saarruptur'
-outfile <- 'tmp.pdf'
+outfile <- 'saarrupt.pdf'
 NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F, tilgang = 1,
            preprosess=F, hentData=F,
@@ -440,98 +420,62 @@ NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=dato
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{tmp.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{saarrupt.pdf}
 \caption{Sårruptur}
 \end{figure}
 
-
-
 %
-% <<'Figur:ReopFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 %
-% plotTabell1 <- t(reop_pst_lokal[, 2:ncol(reop_pst_lokal)])
-% colnames(plotTabell1) <- reop_pst_lokal[,1]
+% <<'Tabell:saar_ruptur', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% lokal <- RegData[which(RegData$AvdRESH == reshID & RegData$Tilgang == 1), ]
 %
-% # plotTabell1 <- as.data.frame(t(reop_pst_lokal))
-% # names(plotTabell1) <- plotTabell1[1,]
+% saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+% N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
 %
-% outfile <-  '' #'reoperasjon.pdf'
+% names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% saarrupt_pst$Rate[N$Rate<5] <- NA
+% N$Rate[N$Rate<5] <- '<5'
 %
-% FigTypUt <- figtype(outfile= outfile, fargepalett='BlaaRapp')
-% farger <- FigTypUt$farger
-% x11()
-% matplot(1:dim(plotTabell1)[1], plotTabell1, type = "l", lty = c(1,1,1,1,1,1,2), col = c(1:6,1), frame.plot=FALSE,
-%         xlab = 'År og kvartal', ylab = 'Andel reoperasjoner', xaxt='n')
-% axis(side=1, at = 1:dim(plotTabell1)[1], labels = Tidtxt)
-% legend(x=1, y=max(plotTabell1)*1.2, legend = row.names(Tabell)[1:dim(plotTabell)[2]], lty = c(1,1,1,1,1,1,2), col = c(1:6,1), ncol = 2, bty = "n",
-%        xpd=T)
-% dev.off()
+% saarrupt_pst_lokal <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
+% N <- tidyr::spread(N, Kvartal, Rate)
+% saarrupt_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
+% N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+% saarrupt_pst_lokal$Enhet <- 'Egen avd.'
+% N$Enhet <- 'Egen avd.'
+% N_lokal <- N
+%
+% lokal <- RegData[which(RegData$AvdRESH != reshID & RegData$Tilgang == 1), ]
+% saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+% N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+%
+% names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+% saarrupt_pst$Rate[N$Rate<5] <- NA
+% N$Rate[N$Rate<5] <- '<5'
+%
+% saarrupt_pst_rest <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
+% N <- tidyr::spread(N, Kvartal, Rate)
+% saarrupt_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
+% N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+% saarrupt_pst_rest$Enhet <- 'Landet forøvrig'
+% N$Enhet <- 'Landet forøvrig'
+%
+%
+% Saarrupt <- rbind(saarrupt_pst_lokal, saarrupt_pst_rest)
+% Saarrupt <- Saarrupt[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+% N <- rbind(N_lokal, N)
+% N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+% Saarrupt <- cbind(Saarrupt, N[, 3:6])
+% Saarrupt <- Saarrupt[, c(1:3,7,4,8,5,9,6,10)]
+% Saarrupt[(1:7)*2, 1] <- ''
+% # Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
+%
+% print(xtable::xtable(Saarrupt, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Saarrupt)-2)), caption = 'Rate for sårruptur ved åpne inngrep'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
+%
 % @
 %
-
-
-<<'Tabell:saar_ruptur', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-lokal <- RegData[which(RegData$AvdRESH == reshID & RegData$Tilgang == 1), ]
-
-saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
-
-names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-saarrupt_pst$Rate[N$Rate<5] <- NA
-N$Rate[N$Rate<5] <- '<5'
-
-saarrupt_pst_lokal <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
-N <- tidyr::spread(N, Kvartal, Rate)
-saarrupt_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
-N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
-saarrupt_pst_lokal$Enhet <- 'Egen avd.'
-N$Enhet <- 'Egen avd.'
-N_lokal <- N
-
-lokal <- RegData[which(RegData$AvdRESH != reshID & RegData$Tilgang == 1), ]
-saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
-N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
-
-names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
-saarrupt_pst$Rate[N$Rate<5] <- NA
-N$Rate[N$Rate<5] <- '<5'
-
-saarrupt_pst_rest <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
-N <- tidyr::spread(N, Kvartal, Rate)
-saarrupt_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
-N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
-saarrupt_pst_rest$Enhet <- 'Landet forøvrig'
-N$Enhet <- 'Landet forøvrig'
-
-
-Saarrupt <- rbind(saarrupt_pst_lokal, saarrupt_pst_rest)
-Saarrupt <- Saarrupt[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
-N <- rbind(N_lokal, N)
-N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
-Saarrupt <- cbind(Saarrupt, N[, 3:6])
-Saarrupt <- Saarrupt[, c(1:3,7,4,8,5,9,6,10)]
-Saarrupt[(1:7)*2, 1] <- ''
-# Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
-
-print(xtable::xtable(Saarrupt, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Saarrupt)-2)), caption = 'Rate for sårruptur ved åpne inngrep'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
-
-# print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)-1)),
-#                      caption='Registreringer av ikke-obligatoriske reseksjoner i NoRGast siste (avsluttede) kvartal',
-#                      label='tab:Registreringer:ikkeoblig'),
-#       include.rownames=TRUE,
-#       include.colnames=TRUE) list(pos=list(nrow(Tabell)-1),
-                        # command=c('\\midrule\n'))
-#       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-#                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
-#                                 '\\cline{4-8} \n',
-#                                 '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
-#                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-# alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n'))
-@
-
-
+%
 
 
 \end{document}
