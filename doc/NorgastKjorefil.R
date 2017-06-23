@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-03-09 13-09-21.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-05-12 14-37-28.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-03-09 13-09-25.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-05-12 14-37-34.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -65,7 +65,7 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
-valgtVar <- 'Anastomoselekkasje'
+valgtVar <- 'ReLapNarkose'
 if (outfile == '') {x11()}
 NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
@@ -419,21 +419,34 @@ forbehandling=99
 hentData=F
 
 
-RegData <- RegData[which(RegData$Op_gr %in% 1:6), ]
+RegData <- RegData[which(RegData$Op_gr %in% 1:7 & RegData$OperasjonsDato >= '2016-05-01' & RegData$OperasjonsDato < '2017-03-01'), ]
 old <- RegData
+RegData <- old
+RegData <- RegData[RegData$LapTilgang == 0, ]
 RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
 RegData$Sykehusnavn[RegData$Sykehusnavn != 'St. Olavs Hospital HF'] <- 'Landet.forovrig'
 RegData$Sykehusnavn <- as.factor(RegData$Sykehusnavn)
 
-tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), mean, na.rm=T)
+# tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), mean, na.rm=T)
+# Gj_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+
+tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Op_gr), mean, na.rm=T)
 Gj_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
 
-tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), function(x){length(!is.na(x))})
-N_liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+names(Gj_Liggetid) <- c('Sykehus', RegData$Operasjonsgrupper[match(sort(unique(RegData$Op_gr)), RegData$Op_gr)])
+Gj_Liggetid <- Gj_Liggetid[c(2,1), ]
+
+Gj_Liggetid[, -1] <- round(Gj_Liggetid[, -1], 1)
+
+write.csv2(Gj_Liggetid, 'Gjsn_liggetidStOlavÅpenKonv.csv', row.names = F)
 
 
-tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), sum, na.rm=T)
-Sum_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+# tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), function(x){sum(!is.na(x))})
+# N_liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
+#
+#
+# tmp <- aggregate(RegData$PostopLiggedogn, by=list(Sykehus=RegData$Sykehusnavn, Operasjonsgruppe=RegData$Operasjonsgrupper), sum, na.rm=T)
+# Sum_Liggetid <- reshape(tmp, direction = 'wide', timevar = 'Operasjonsgruppe', idvar = 'Sykehus')
 
 #################################################################################################
 ################### Fiks diagnosebeskrivelser   ###################################################
@@ -451,13 +464,13 @@ navn1 <- c(navn1, rep(NA, length(navn2)-length(navn1)))
 navndiff <- data.frame(navn2=navn2, navn1=navn1)
 
 
+#####################################################################################
+############# Accordion-grad 6 UNN 2017  ############################################
+
+ACC6 <- RegData$PasientID[which(RegData$AccordionGrad==6 & RegData$OperasjonsDato >= '2017-01-01' & RegData$AvdRESH == 601225)]
 
 
-
-
-
-
-
+ACC6 <- RegData$PasientID[which(RegData$OppfAccordionGrad==6 & RegData$OperasjonsDato >= '2017-01-01' & RegData$AvdRESH == 601225)]
 
 
 

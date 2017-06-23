@@ -39,13 +39,28 @@ knitr::opts_knit$set(root.dir = './')
 
 <<LastData, include=FALSE, cache=FALSE>>=
 hentData <- F
+datoTil <- as.character(Sys.Date())
+datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
+if (substr(datoTil, 6,10) %in% c('03-31', '06-30', '09-30', '12-31')) {
+  Kvartal <- floor(datoTil$mon/3)+1
+  datoTil <- as.character(datoTil)
+} else {
+  Kvartal <- floor(datoTil$mon/3)
+  konv <- data.frame(kvartal = 0:3, datotil = c(paste0(datoTil$year+1900-1, '-12-31'), paste0(datoTil$year+1900, '-03-31'),
+                                                paste0(datoTil$year+1900, '-06-30'), paste0(datoTil$year+1900, '-09-30')))
+  datoTil <- as.character(konv$datotil[match(Kvartal, konv$kvartal)])
+}
+datoFra <- as.POSIXlt(datoTil)
+datoFra$year <- datoFra$year - 1
+datoFra$mday <- datoFra$mday + 1
+datoFra <- as.character(datoFra)
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else
 {library(norgast)
-  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-04-11 14-38-13.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-04-11 14-38-19.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-05-12 14-37-28.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-05-12 14-37-34.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
   RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -55,21 +70,24 @@ if(hentData){
 
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-  reshID <- 102141
-  datoFra='2014-01-01'
-  datoTil=as.character(Sys.Date())
-  flervalgsliste <- c('601231', '102141', '601225') #, '601225')
+  reshID <- 601225
+  RegData$HovedDato <- as.POSIXlt(RegData$HovedDato, format="%Y-%m-%d")
+  RegData <- RegData[which(RegData$HovedDato >= datoFra & RegData$HovedDato <= datoTil), ]
+  flervalgsliste <- '' # c('601231', '102141', '601225') #, '601225')
 }
 valgtShus <- flervalgsliste
 
 if (valgtShus[1] == '') {
   shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
+  shtxt_flervalg <- shtxt
 } else {
   if (length(valgtShus)==1) {
     reshID<-as.numeric(valgtShus[1])
     shtxt <- as.character(RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)])
+    shtxt_flervalg <- shtxt
   } else {
     shtxt <- as.character(RegData$Sykehusnavn[match(as.numeric(valgtShus), RegData$AvdRESH)])
+    shtxt_flervalg <- 'valgte sykehus'
   }
 }
 
@@ -165,149 +183,501 @@ Templatversjon II, 2016
 
 \clearpage
 
-\section{Registrerende avdelinger}
+\section{Registreringer ved \Sexpr{shtxt_flervalg}}
 
-<<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+<<'Tabell:ObligInngrep', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 RegData <- NorgastPreprosess(RegData=RegData)
-Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
-colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
-rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
-Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+RegData$ViktigsteFunn_labels <- factor(RegData$ViktigsteFunn, levels = 1:6, labels = c('Anastomoselekkasje',
+                                               'Dyp infeksjon uten påvist lekkasje', 'Blødning', 'Sårruptur', 'Annet',
+                                               'Ingen funn/kun diagnostisk'))
+RegData$TidsEnhet <- RegData$Kvartal-min(RegData$Kvartal[RegData$Aar==min(RegData$Aar)])+1+
+  (RegData$Aar-min(RegData$Aar))*4
 
-print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
-                     label='tab:RegistrenrendeAvd'),
+Tidtxt <- paste(substr(RegData$Aar[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)], 3,4),
+                sprintf('%01.0f', RegData$Kvartal[match(1:max(RegData$TidsEnhet), RegData$TidsEnhet)]), sep='-')
+
+RegData$TidsEnhet <- factor(RegData$TidsEnhet, levels=1:max(RegData$TidsEnhet), labels = Tidtxt)
+
+lokal <- RegData[which(RegData$AvdRESH == reshID & RegData$Op_gr %in% 1:7), ]
+
+Tabell <- table(lokal$Op_gr, lokal$TidsEnhet)
+row.names(Tabell) <- lokal$Operasjonsgrupper[match(as.numeric(row.names(Tabell)), lokal$Op_gr)]
+plotTabell <- t(as.matrix(Tabell))
+Tabell <- addmargins(Tabell, 1)
+
+print(xtable::xtable(Tabell, digits=0, align=c('l', 'r', rep('r', ncol(Tabell)-1)),
+                     caption='Kvartalsvis oversikt over registreringer av obligatoriske reseksjoner i NoRGast',
+                     label='tab:Registreringer:oblig'),
       include.rownames=TRUE,
       include.colnames=TRUE,
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
+
 @
+
+% <<'Figur:ObligInngrepFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+%
+% outfile <- 'reseksjoner.pdf'
+% FigTypUt <- figtype(outfile= outfile, fargepalett='BlaaRapp')
+% farger <- FigTypUt$farger
+% # x11()
+% matplot(1:dim(plotTabell)[1], plotTabell, type = "l", lty = c(1,1,1,1,1,1,2), col = c(1:6,1), frame.plot=FALSE,
+%         xlab = 'År og kvartal', ylab = 'Antall registreringer', xaxt='n')
+% axis(side=1, at = 1:dim(plotTabell)[1], labels = Tidtxt)
+% legend(x=1, y=max(plotTabell)*1.2, legend = row.names(Tabell)[1:dim(plotTabell)[2]], lty = c(1,1,1,1,1,1,2), col = c(1:6,1), ncol = 2, bty = "n",
+%        xpd=T)
+% dev.off()
+% @
+%
+%
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{reseksjoner.pdf}
+% \caption{Registrering av obligatoriske reseksjoner i NoRGast}
+% \end{figure}
+
+
+<<'Tabell:IkkeObligInngrep', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+lokal <- RegData[which(RegData$AvdRESH == reshID & as.numeric(RegData$TidsEnhet) == max(as.numeric(RegData$TidsEnhet))), ]
+lokal <- lokal[which(!(lokal$Op_gr %in% 1:7)), ]
+
+Tabell2 <- table(lokal$Hovedoperasjon, as.character(lokal$TidsEnhet))
+
+Tabell2 <- as.data.frame(Tabell2[order(Tabell2[, dim(Tabell2)[2]], decreasing = T), ])
+names(Tabell2) <- 'Antall'
+
+print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)-1)),
+                     caption='Registreringer av ikke-obligatoriske reseksjoner i NoRGast siste (avsluttede) kvartal',
+                     label='tab:Registreringer:ikkeoblig'),
+      include.rownames=TRUE,
+      include.colnames=TRUE) # , add.to.row = list(pos=list(nrow(Tabell)-1), command=c('\\midrule\n'))
+
+@
+
 
 \clearpage
-\section{Estimert dekningsgrad}
 
-<<'Tabell:Dekningsgrad', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-DGdata <- read.table('C:/GIT/norgast/doc/DekningsgradNPR2015.csv', header=TRUE, sep=";", encoding = 'UFT-8', stringsAsFactors = F)
-DGdata[, c("NPR2014", "Norgast2014", "NPR2015", "Norgast2015")] <-
-  apply(DGdata[, c("NPR2014", "Norgast2014", "NPR2015", "Norgast2015")], 2, function(x){y<-as.numeric(gsub(' ', '', x))})
-save(DGdata, file = 'C:/GIT/norgast/data/DGdata.RData')
 
-kobling <- data.frame(AvdRESH = RegData$AvdRESH[match(sort(unique(RegData$Sykehusnavn)),
-                                                      RegData$Sykehusnavn)], Sykehusnavn = sort(unique(RegData$Sykehusnavn)))
-tmp <- merge(kobling, DGdata, by.x = 'AvdRESH', by.y = 'resh')
-tmp[, c("Sykehusnavn", "Sykehus")]
+\section{Resultater}
 
-# reshID
+
+<<'Tabell:reoperasjoner', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+lokal <- RegData[which(RegData$AvdRESH == reshID), ]
+
+aarsak_reop <- as.data.frame(table(lokal$ViktigsteFunn_labels[lokal$ReLapNarkose==1], useNA = 'ifany'))
+names(aarsak_reop) <- c('Årsak', 'Antall')
+
+print(xtable::xtable(aarsak_reop, caption='Antall reoperasjoner på egen avdeling siste avsluttede kvartal fordelt på årsaker'), include.rownames = F)
+#
+# # reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(lokal$Op_gr[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+# reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+#
+# names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+#
+# reop_pst_lokal <- tidyr::spread(reop_pst, 'Kvartal', 'Rate')
+# reop_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
+#
+#
+# resten <- RegData[which(RegData$AvdRESH != reshID), ]
+#
+# reop_pst <- aggregate(resten$ReLapNarkose[resten$Op_gr %in% 1:7], by=list(Op_gr=resten$Op_gr[resten$Op_gr %in% 1:7], Kvartal=resten$TidsEnhet[resten$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+#
+# names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+#
+# reop_pst_rest <- tidyr::spread(reop_pst, 'Kvartal', 'Rate')
+# reop_pst_rest$Operasjonsgruppe <- resten$Operasjonsgrupper[match(reop_pst_rest$Operasjonsgruppe, resten$Op_gr)]
+
+lokal <- RegData[which(RegData$AvdRESH == reshID), ]
+
+reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+
+names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+reop_pst$Rate[N$Rate<5] <- NA
+N$Rate[N$Rate<5] <- '<5'
+
+reop_pst_lokal <- tidyr::spread(reop_pst, Kvartal, Rate)
+N <- tidyr::spread(N, Kvartal, Rate)
+reop_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
+N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+reop_pst_lokal$Enhet <- 'Egen avd.'
+N$Enhet <- 'Egen avd.'
+N_lokal <- N
+
+lokal <- RegData[which(RegData$AvdRESH != reshID), ]
+reop_pst <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+N <- aggregate(lokal$ReLapNarkose[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+
+names(reop_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+reop_pst$Rate[N$Rate<5] <- NA
+N$Rate[N$Rate<5] <- '<5'
+
+reop_pst_rest <- tidyr::spread(reop_pst, Kvartal, Rate)
+N <- tidyr::spread(N, Kvartal, Rate)
+reop_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(reop_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
+N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+reop_pst_rest$Enhet <- 'Landet forøvrig'
+N$Enhet <- 'Landet forøvrig'
+
+
+Reop <- rbind(reop_pst_lokal, reop_pst_rest)
+Reop <- Reop[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+N <- rbind(N_lokal, N)
+N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+Reop <- cbind(Reop, N[, 3:6])
+Reop <- Reop[, c(1:3,7,4,8,5,9,6,10)]
+Reop[(1:7)*2, 1] <- ''
+# Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
+
+print(xtable::xtable(Reop, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Reop)-2)), caption = 'Reoperasjonsrater'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
+
 
 
 @
 
 
+<<'Figur:ReopFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
-\clearpage
-\section{Innregistrerte operasjoner}
+valgtVar <- 'ReLapNarkose'
 
-<<'Tabell:InnregistrerteOpNasjon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-# RegData <- NorgastPreprosess(RegData=RegData)
-RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
-if (length(valgtShus) > 1) {
-  RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
-  RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
-  reshID <- 99
-  shtxt <- 'ditt utvalg'
-}
+outfile <- 'reop_kolon.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH')
 
-Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                                     minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
-Tabell <- TabellData_landet$Tabell
-colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
-print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{hele landet}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_landet$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
-                     label='tab:OpgrLandet'), include.rownames=FALSE)
-Terskel<-5
-TabellData_egen <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                                   minald=0, maxald=130, erMann=99, enhetsUtvalg=2, Terskel=Terskel, reshID=reshID)
-Tabell <- TabellData_egen$Tabell
-colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
-print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{', shtxt, '}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_egen$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
-                     label='tab:OpgrSh'), include.rownames=FALSE)
+outfile <- 'reop_rektum.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JGB')
+
+outfile <- 'reop_oesofagus.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JCC')
+
+outfile <- 'reop_ventrikkel.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JDC|JDD')
+
+outfile <- 'reop_lever.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JJB')
+
+outfile <- 'reop_whipple.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JLC30|JLC31')
+
+outfile <- 'reop_pankreas.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]')
+
+valgtVar <- 'Saarruptur'
+outfile <- 'tmp.pdf'
+NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+           outfile=outfile, reshID=reshID, enhetsUtvalg=1, inkl_konf=F, tilgang = 1,
+           preprosess=F, hentData=F,
+           tidsenhet='Kvartal')
+
+
 @
 
-
-\section{Reoperasjoner og komplikasjoner}
-\subsection{Reoperasjoner}
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
+\begin{figure}[ht]
 \centering
-<<'Tabell:ReoperasjonerLandet', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabell <- TabellData_landet$Tabell2
-print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
-      floating=FALSE,
-      hline.after=NULL,
-      align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
-                                '\\cline{4-8} \n',
-                                '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
-                                'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
-@
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_kolon.pdf}
+\caption{Relaparotomi kolon}
+\end{figure}
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
+\begin{figure}[ht]
 \centering
-<<'Tabell:ReoperasjonerEget', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabell <- TabellData_egen$Tabell2
-print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
-      floating=FALSE,
-      hline.after=NULL,
-      align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
-                                '\\cline{4-8} \n',
-                                '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
-                                'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
-@
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
-\end{minipage}
-\end{table}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_rektum.pdf}
+\caption{Relaparotomi rektum}
+\end{figure}
 
-\clearpage
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_oesofagus.pdf}
+\caption{Relaparotomi kolon}
+\end{figure}
 
-% \restoregeometry
-% \addtolength{\hoffset}{1.5cm}
-\subsection{Anastomoselekkasje påvist v/ reoperasjon}
-<<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                                      minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
-addtorow <- list()
-addtorow$pos <- list()
-addtorow$pos[[1]] <- 0
-addtorow$pos[[2]] <- 0
-addtorow$command <- c('& & Rate &  & Rate \\\\\n',
-                      'Operasjonsgruppe & $N_{lokal}$ & lokal (\\%)& $N_{øvrig}$ & øvrig (\\%) \\\\\n')
-print(xtable::xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
-                     caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
-                     label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
-# addtorow$command <- c('& & Rate anastomose- &  & Rate anastomose- \\\\\n',
-#                       'Operasjonsgruppe & $N_{lokal}$ & lekkasje, lokal & $N_{øvrig}$ & lekkasje, øvrig \\\\\n')
-print(xtable::xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
-                     caption='Rate av anastomoselekkasje med og uten avlastende stomi.',
-                     label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
-      add.to.row = addtorow, sanitize.text.function = function(x){x})
-print(xtable::xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
-                     caption='Anastomoselekkasje og onkologisk forbehandling.',
-                     label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
-      add.to.row = addtorow, sanitize.text.function = function(x){x})
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_ventrikkel.pdf}
+\caption{Relaparotomi kolon}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_lever.pdf}
+\caption{Relaparotomi kolon}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_whipple.pdf}
+\caption{Relaparotomi kolon}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{reop_pankreas.pdf}
+\caption{Relaparotomi pankreas}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{tmp.pdf}
+\caption{Sårruptur}
+\end{figure}
+
+
+
+%
+% <<'Figur:ReopFigur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+%
+% plotTabell1 <- t(reop_pst_lokal[, 2:ncol(reop_pst_lokal)])
+% colnames(plotTabell1) <- reop_pst_lokal[,1]
+%
+% # plotTabell1 <- as.data.frame(t(reop_pst_lokal))
+% # names(plotTabell1) <- plotTabell1[1,]
+%
+% outfile <-  '' #'reoperasjon.pdf'
+%
+% FigTypUt <- figtype(outfile= outfile, fargepalett='BlaaRapp')
+% farger <- FigTypUt$farger
+% x11()
+% matplot(1:dim(plotTabell1)[1], plotTabell1, type = "l", lty = c(1,1,1,1,1,1,2), col = c(1:6,1), frame.plot=FALSE,
+%         xlab = 'År og kvartal', ylab = 'Andel reoperasjoner', xaxt='n')
+% axis(side=1, at = 1:dim(plotTabell1)[1], labels = Tidtxt)
+% legend(x=1, y=max(plotTabell1)*1.2, legend = row.names(Tabell)[1:dim(plotTabell)[2]], lty = c(1,1,1,1,1,1,2), col = c(1:6,1), ncol = 2, bty = "n",
+%        xpd=T)
+% dev.off()
+% @
+%
+
+
+<<'Tabell:saar_ruptur', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+lokal <- RegData[which(RegData$AvdRESH == reshID & RegData$Tilgang == 1), ]
+
+saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+
+names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+saarrupt_pst$Rate[N$Rate<5] <- NA
+N$Rate[N$Rate<5] <- '<5'
+
+saarrupt_pst_lokal <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
+N <- tidyr::spread(N, Kvartal, Rate)
+saarrupt_pst_lokal$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_lokal$Operasjonsgruppe, lokal$Op_gr)]
+N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+saarrupt_pst_lokal$Enhet <- 'Egen avd.'
+N$Enhet <- 'Egen avd.'
+N_lokal <- N
+
+lokal <- RegData[which(RegData$AvdRESH != reshID & RegData$Tilgang == 1), ]
+saarrupt_pst <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), function(x) {sum(x)/length(x)*100})
+N <- aggregate(lokal$Saarruptur[lokal$Op_gr %in% 1:7], by=list(Op_gr=lokal$Op_gr[lokal$Op_gr %in% 1:7], Kvartal=lokal$TidsEnhet[lokal$Op_gr %in% 1:7]), length)
+
+names(saarrupt_pst) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+names(N) <- c('Operasjonsgruppe', 'Kvartal', 'Rate')
+saarrupt_pst$Rate[N$Rate<5] <- NA
+N$Rate[N$Rate<5] <- '<5'
+
+saarrupt_pst_rest <- tidyr::spread(saarrupt_pst, Kvartal, Rate)
+N <- tidyr::spread(N, Kvartal, Rate)
+saarrupt_pst_rest$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(saarrupt_pst_rest$Operasjonsgruppe, lokal$Op_gr)]
+N$Operasjonsgruppe <- lokal$Operasjonsgrupper[match(N$Operasjonsgruppe, lokal$Op_gr)]
+saarrupt_pst_rest$Enhet <- 'Landet forøvrig'
+N$Enhet <- 'Landet forøvrig'
+
+
+Saarrupt <- rbind(saarrupt_pst_lokal, saarrupt_pst_rest)
+Saarrupt <- Saarrupt[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+N <- rbind(N_lokal, N)
+N <- N[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14), c(1,6,2:5)]
+Saarrupt <- cbind(Saarrupt, N[, 3:6])
+Saarrupt <- Saarrupt[, c(1:3,7,4,8,5,9,6,10)]
+Saarrupt[(1:7)*2, 1] <- ''
+# Saarrupt[, c(4,6,8,10)][which(Saarrupt[, c(4,6,8,10)] < 5)]
+
+print(xtable::xtable(Saarrupt, digits=1, align=c('l', 'l', 'l', rep('r', ncol(Saarrupt)-2)), caption = 'Rate for sårruptur ved åpne inngrep'), include.rownames = F, include.colnames = F, add.to.row = list(pos=list(0, 0), command=c('& Kvartal: & 16-2 &  & 16-3 &  & 16-4 &  & 17-1 &  \\\\', 'Operasjonsgruppe & Enhet & Rate & N & Rate & N & Rate & N & Rate & N \\\\')))
+
+# print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)-1)),
+#                      caption='Registreringer av ikke-obligatoriske reseksjoner i NoRGast siste (avsluttede) kvartal',
+#                      label='tab:Registreringer:ikkeoblig'),
+#       include.rownames=TRUE,
+#       include.colnames=TRUE) list(pos=list(nrow(Tabell)-1),
+                        # command=c('\\midrule\n'))
+#       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+#                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+#                                 '\\cline{4-8} \n',
+#                                 '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
+#                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+# alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n'))
 @
 
 
 
 
 \end{document}
+
+
+
+
+% <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% RegData <- NorgastPreprosess(RegData=RegData)
+% Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
+% colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+% rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+% Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+%
+% print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%                      caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
+%                      label='tab:RegistrenrendeAvd'),
+%       include.rownames=TRUE,
+%       include.colnames=TRUE,
+%       add.to.row = list(pos=list(nrow(Tabell)-1),
+%                         command=c('\\midrule\n')))
+% @
+
+
+% \clearpage
+% \section{Estimert dekningsgrad}
+%
+% <<'Tabell:Dekningsgrad', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% DGdata <- read.table('C:/GIT/norgast/doc/DekningsgradNPR2015.csv', header=TRUE, sep=";", encoding = 'UFT-8', stringsAsFactors = F)
+% DGdata[, c("NPR2014", "Norgast2014", "NPR2015", "Norgast2015")] <-
+%   apply(DGdata[, c("NPR2014", "Norgast2014", "NPR2015", "Norgast2015")], 2, function(x){y<-as.numeric(gsub(' ', '', x))})
+% save(DGdata, file = 'C:/GIT/norgast/data/DGdata.RData')
+%
+% kobling <- data.frame(AvdRESH = RegData$AvdRESH[match(sort(unique(RegData$Sykehusnavn)),
+%                                                       RegData$Sykehusnavn)], Sykehusnavn = sort(unique(RegData$Sykehusnavn)))
+% tmp <- merge(kobling, DGdata, by.x = 'AvdRESH', by.y = 'resh')
+% tmp[, c("Sykehusnavn", "Sykehus")]
+%
+% # reshID
+%
+%
+% @
+
+
+
+% \clearpage
+% \section{Innregistrerte operasjoner}
+%
+% <<'Tabell:InnregistrerteOpNasjon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% # RegData <- NorgastPreprosess(RegData=RegData)
+% RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
+% if (length(valgtShus) > 1) {
+%   RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
+%   RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
+%   reshID <- 99
+%   shtxt <- 'ditt utvalg'
+% }
+%
+% Terskel<-20
+% TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+%                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+% Tabell <- TabellData_landet$Tabell
+% colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
+% print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%                      caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{hele landet}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_landet$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
+%                      label='tab:OpgrLandet'), include.rownames=FALSE)
+% Terskel<-5
+% TabellData_egen <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+%                                    minald=0, maxald=130, erMann=99, enhetsUtvalg=2, Terskel=Terskel, reshID=reshID)
+% Tabell <- TabellData_egen$Tabell
+% colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
+% print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%                      caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{', shtxt, '}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_egen$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
+%                      label='tab:OpgrSh'), include.rownames=FALSE)
+% @
+%
+%
+% \section{Reoperasjoner og komplikasjoner}
+% \subsection{Reoperasjoner}
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerLandet', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Tabell <- TabellData_landet$Tabell2
+% print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+%       floating=FALSE,
+%       hline.after=NULL,
+%       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+%                                 '\\cline{4-8} \n',
+%                                 '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
+%                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+% alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
+%
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerEget', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Tabell <- TabellData_egen$Tabell2
+% print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+%       floating=FALSE,
+%       hline.after=NULL,
+%       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+%                                 '\\cline{4-8} \n',
+%                                 '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
+%                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+% alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
+% \end{minipage}
+% \end{table}
+%
+% \clearpage
+%
+% % \restoregeometry
+% % \addtolength{\hoffset}{1.5cm}
+% \subsection{Anastomoselekkasje påvist v/ reoperasjon}
+% <<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+%                                       minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
+% addtorow <- list()
+% addtorow$pos <- list()
+% addtorow$pos[[1]] <- 0
+% addtorow$pos[[2]] <- 0
+% addtorow$command <- c('& & Rate &  & Rate \\\\\n',
+%                       'Operasjonsgruppe & $N_{lokal}$ & lokal (\\%)& $N_{øvrig}$ & øvrig (\\%) \\\\\n')
+% print(xtable::xtable(Tabeller$Tabell1, digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-1)),
+%                      caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
+%                      label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
+% # addtorow$command <- c('& & Rate anastomose- &  & Rate anastomose- \\\\\n',
+% #                       'Operasjonsgruppe & $N_{lokal}$ & lekkasje, lokal & $N_{øvrig}$ & lekkasje, øvrig \\\\\n')
+% print(xtable::xtable(Tabeller$Tabell2, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-1)),
+%                      caption='Rate av anastomoselekkasje med og uten avlastende stomi.',
+%                      label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
+%       add.to.row = addtorow, sanitize.text.function = function(x){x})
+% print(xtable::xtable(Tabeller$Tabell3, digits=c(0,0,0,1,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-1)),
+%                      caption='Anastomoselekkasje og onkologisk forbehandling.',
+%                      label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
+%       add.to.row = addtorow, sanitize.text.function = function(x){x})
+% @
+%
+%
