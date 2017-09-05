@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-05-12 14-37-28.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-05-12 14-37-34.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-06-28 13-53-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+# aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-06-28 13-53-09.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -149,8 +149,30 @@ write.csv2(NoRGastObligOperasjoner2015, 'NoRGastObligOperasjoner2015.csv', row.n
 write.csv2(NoRGastObligOperasjoner2014RESH, 'NoRGastObligOperasjoner2014RESH.csv', row.names = TRUE)
 write.csv2(NoRGastObligOperasjoner2015RESH, 'NoRGastObligOperasjoner2015RESH.csv', row.names = TRUE)
 
+####### Liste NPR 2017-06-28  ##########################################################
+RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
+RegData$Operasjonsgrupper[RegData$Op_gr %in% 6:7] <- 'Pankreasreseksjoner'
+RegData$Operasjonsgrupper[RegData$Op_gr > 7] <- 'Annet'
+RegData2014 <- RegData[RegData$Aar == 2014, ]
+RegData2015 <- RegData[RegData$Aar == 2015, ]
+RegData2016 <- RegData[RegData$Aar == 2016, ]
 
+NoRGastObligOperasjoner2014 <- as.data.frame(addmargins(table(RegData2014[, c('Sykehusnavn', 'Operasjonsgrupper')], useNA = 'ifany')))
+NoRGastObligOperasjoner2014 <- tidyr::spread(data = NoRGastObligOperasjoner2014,key = Operasjonsgrupper, value = Freq)
+NoRGastObligOperasjoner2014$AvdRESH <- RegData$AvdRESH[match(NoRGastObligOperasjoner2014$Sykehusnavn, RegData$Sykehusnavn)]
+NoRGastObligOperasjoner2014 <- NoRGastObligOperasjoner2014[, c(10,1,3:8,2,9)]
+NoRGastObligOperasjoner2015 <- as.data.frame(addmargins(table(RegData2015[, c('Sykehusnavn', 'Operasjonsgrupper')], useNA = 'ifany')))
+NoRGastObligOperasjoner2015 <- tidyr::spread(data = NoRGastObligOperasjoner2015,key = Operasjonsgrupper, value = Freq)
+NoRGastObligOperasjoner2015$AvdRESH <- RegData$AvdRESH[match(NoRGastObligOperasjoner2015$Sykehusnavn, RegData$Sykehusnavn)]
+NoRGastObligOperasjoner2015 <- NoRGastObligOperasjoner2015[, c(10,1,3:8,2,9)]
+NoRGastObligOperasjoner2016 <- as.data.frame(addmargins(table(RegData2016[, c('Sykehusnavn', 'Operasjonsgrupper')], useNA = 'ifany')))
+NoRGastObligOperasjoner2016 <- tidyr::spread(data = NoRGastObligOperasjoner2016,key = Operasjonsgrupper, value = Freq)
+NoRGastObligOperasjoner2016$AvdRESH <- RegData$AvdRESH[match(NoRGastObligOperasjoner2016$Sykehusnavn, RegData$Sykehusnavn)]
+NoRGastObligOperasjoner2016 <- NoRGastObligOperasjoner2016[, c(10,1,3:8,2,9)]
 
+write.csv2(NoRGastObligOperasjoner2014, 'NPRtall2014.csv', row.names = FALSE)
+write.csv2(NoRGastObligOperasjoner2015, 'NPRtall2015.csv', row.names = FALSE)
+write.csv2(NoRGastObligOperasjoner2016, 'NPRtall2016.csv', row.names = FALSE)
 
 
 ####  Hent øsofagus for Tromsø

@@ -12,7 +12,7 @@
 #'
 NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='',
-                                   reshID, preprosess=F, inkl_konf=F, malign=99,
+                                   reshID, preprosess=F, inkl_konf=F, malign=99, Ngrense=10,
                                    elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
                                    maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0, reseksjonsGr='', ncsp='')
 {
@@ -46,7 +46,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
   grVar <- 'Sykehusnavn'
   RegData[ ,grVar] <- as.factor(as.character(RegData[ ,grVar]))
-  Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
+  # Ngrense <- 10		#Minste antall registreringer for at ei gruppe skal bli vist
 
   N <- dim(RegData)[1]
   Nvar <- tapply(RegData$Variabel, RegData[ ,grVar], sum, na.rm=T)
