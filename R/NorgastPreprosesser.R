@@ -16,6 +16,7 @@ NorgastPreprosess <- function(RegData)
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
   RegData$OperasjonsDato <- as.POSIXlt(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
+  RegData$HovedDato <- as.POSIXlt(RegData$HovedDato, format="%Y-%m-%d")
   RegData$Mnd <- RegData$OperasjonsDato$mon +1
   RegData$Kvartal <- floor((RegData$Mnd - 1)/3)+1
   RegData$Halvaar <- floor((RegData$Mnd - 1)/6)+1
