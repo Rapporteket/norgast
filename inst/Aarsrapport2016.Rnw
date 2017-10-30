@@ -74,7 +74,7 @@ RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
-RegData <- RegData[RegData$Aar==2016, ]
+# RegData <- RegData[RegData$Aar==2016, ]
 
 gr <- c(1:6)
 grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
@@ -91,6 +91,8 @@ datoTil='2016-12-31' #as.character(Sys.Date())
 
 RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
 
+RegDataAll <- RegData[RegData$Aar<2017, ]
+RegData <- RegData[RegData$Aar==2016, ]
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -111,150 +113,80 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 <<'Sykehusfig', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 outfile <- 'RegAvd.pdf'
 FigAndeler(RegData, valgtVar='Sykehusnavn', reseksjonsGr='', outfile=outfile, reshID=reshID, enhetsUtvalg=0)
+outfile <- 'RegAvd_alt.pdf'
+FigAndeler(RegDataAll, valgtVar='Sykehusnavn', reseksjonsGr='', outfile=outfile, datoFra='2014-01-01', datoTil=datoTil, reshID=reshID, enhetsUtvalg=0)
+
 @
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RegAvd.pdf}
+\caption{}
 \end{figure}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{RegAvd_alt.pdf}
+\caption{}
+\end{figure}
+
+\clearpage
+
+<<'Tabell:RegistrerendeAvd_alleår', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+# RegData <- NorgastPreprosess(RegData=RegData)
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn, RegDataAll$Aar))
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+                     caption='Antall registreringer i NoRGast per avdeling. Alle inngrep.'),
+      include.rownames=TRUE,
+      include.colnames=TRUE,
+      add.to.row = list(pos=list(nrow(Tabell)-1),
+                        command=c('\\midrule\n')))
+
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)], RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+                     caption='Antall registreringer i NoRGast per avdeling. Obligatoriske inngrep.'),
+      include.rownames=TRUE,
+      include.colnames=TRUE,
+      add.to.row = list(pos=list(nrow(Tabell)-1),
+                        command=c('\\midrule\n')))
+
+
+@
+
+
+
 <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabell <- table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp)
-Tabell[Tabell < 10] <- '<10'
+Tabell <- addmargins(table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp))
+# Tabell[Tabell < 10] <- '<10'
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
-                     caption='Registreringer av operasjonsgrupper i NoRGast. Dette er fordelingen av de obligatoriske inngrepene (se registerbeskrivelsen).
-Panc= annen pankreaskirurgi (ikke whipple). Galle = galleveisreseksjoner (ikke cholecystektomier). I tillegg til at OUS ikke har fått etablert korrekt registrering er det nok en underrapportering også fra St. Olav på flere av gruppene. Se dekningsgradsanalysen.',
+                     caption='',
                      label='tab:RegistrenrendeAvd'),
       include.rownames=TRUE,
-      include.colnames=TRUE) #,
-#       add.to.row = list(pos=list(nrow(Tabell)-1),
-#                         command=c('\\midrule\n')))
+      include.colnames=TRUE ,
+      add.to.row = list(pos=list(nrow(Tabell)-1),
+                        command=c('\\midrule\n')))
 @
 
 \clearpage
 
-%
-% <<'Tabell:Dekningsgrad_mm', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-% kolon <- table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp, useNA = 'no')[,1]
-% Sammenlign <- cbind(NPRDataKolon[1:11,1:2], NoRGast=kolon[NPRDataKolon$Sykehus[1:11]])
-% Sammenlign$DG <- round(100*Sammenlign$NoRGast/Sammenlign$NPR, 1)
-% Sammenlign$DG[Sammenlign$NoRGast <10] <- -1
-% Sammenlign$NoRGast[Sammenlign$NoRGast <10] <- -1
-% Sammenlign <- Sammenlign[order(Sammenlign$DG, decreasing = T),]
-% Sammenlign2 <- NPRDataKolon[-(1:11),1:2]
-% Sammenlign2 <- cbind(Sammenlign2, NoRGast=rep(0,dim(Sammenlign2)[1]), DG=rep(0,dim(Sammenlign2)[1]))
-% Sammenlign2 <- Sammenlign2[order(Sammenlign2$NPR, decreasing = T),]
-% DG_tabellKolon <- rbind(Sammenlign, Sammenlign2)
-% DG_tabellKolon$NoRGast[DG_tabellKolon$NoRGast == -1] <- '<10'
-% DG_tabellKolon$DG[DG_tabellKolon$DG == -1] <- '-'
-%
-% print(xtable::xtable(DG_tabellKolon, digits=0, align=c('l', 'l', rep('r', ncol(DG_tabellKolon)-1)),
-%                      caption='Kolonreseksjoner i NPR og i NoRGast. Dette er dekningsgradsanalyse basert på tall fra NPR. Vi har grunn til å tro at innrapporteringen av operasjonskoder til NPR er god (sammenlignet med innrapporteringen av diagnosekoder).  36 avdelinger gjør mer enn 15 kolonreseksjoner i året. 11 av disse har innrapportert til NoRGast i 2015 og ytterligere 8 sykehus har bekreftet at de vil levere tall for kommende år. Vi har fokusert på å få de store avdelingene med først. Det er viktig å være klar over at antall registrerte inngrep i NPR av naturlige årsaker alltid vil være høyere enn antall inngrep registrert i NoRGast. Dette skyldes at NoRGast ikke omfatter inngrep på personer under 18 år, utenlandske statsborgere eller kolonreseksjoner utført som ledd i annen samtidig større prosedyre eller utført av øvrige kirurgiske spesialiteter. En dekningsgrad på 85-90 \\% må derfor anses som nær komplett registrering, og over 75 \\% må på dette tidspunkt anses som svært tilfredsstillende. Både OUS, St.Olav og Stavanger hadde erklært oppstart før inngangen av 2015, og den lave dekningsgraden her er en bekymring.',
-%                      label='tab:kolon_dg'),
-%       include.rownames=FALSE,
-%       include.colnames=TRUE)
-%
-% rektum <- table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp, useNA = 'no')[,2]
-% Sammenlign <- cbind(NPRDataRektum[1:10,1:2], NoRGast=rektum[NPRDataRektum$Sykehus[1:10]])
-% Sammenlign$DG <- round(100*Sammenlign$NoRGast/Sammenlign$NPR, 1)
-% Sammenlign$DG[Sammenlign$NoRGast <10] <- -1
-% Sammenlign$NoRGast[Sammenlign$NoRGast <10] <- -1
-% Sammenlign <- Sammenlign[order(Sammenlign$DG, decreasing = T),]
-% Sammenlign2 <- NPRDataRektum[-(1:10),1:2]
-% Sammenlign2 <- cbind(Sammenlign2, NoRGast=rep(0,dim(Sammenlign2)[1]), DG=rep(0,dim(Sammenlign2)[1]))
-% Sammenlign2 <- Sammenlign2[order(Sammenlign2$NPR, decreasing = T),]
-% DG_tabellRektum <- rbind(Sammenlign, Sammenlign2)
-% DG_tabellRektum$NoRGast[DG_tabellRektum$NoRGast == -1] <- '<10'
-% DG_tabellRektum$DG[DG_tabellRektum$DG == -1] <- '-'
-%
-% print(xtable::xtable(DG_tabellRektum, digits=0, align=c('l', 'l', rep('r', ncol(DG_tabellRektum)-1)),
-%                      caption='Rektumreseksjoner i NPR og i NoRGast. Dette er dekningsgradsanalyse basert på tall fra NPR. De samme forbeholdene som over gjelder her, men en forventer færre tilfeller av  slik reseksjon gjort som ledd i annet inngrep, og færre barn. Således forventes høyere dekningsgrad innen rekkevidde, noe som reflekteres i tabellen. Det er en alvorlig bekymring at tallene fra OUS, Ahus og halvparten av tallene fra St. Olav mangler og det er tatt en rekke initiativer for å bøte på dette. Store avdelinger som Kristiansand og Østfold/Kalnes har bekreftet snarlig oppstart.',
-%                      label='tab:rektum_dg'),
-%       include.rownames=FALSE,
-%       include.colnames=TRUE)
-% @
-%
 
 \section{Kolonreseksjoner}
-
-<<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-
-# outfile <- 'MissingVekt.pdf'
-# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='MissingVekt', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', outfile=outfile, reshID=reshID, inkl_konf=F)
-# RegData_alle <- RegData
-# RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
-# RegData <- RegData[which(RegData$Sykehusnavn %in% c('Molde sjukehus', 'Rana sykehus', 'Haukeland Universitetssykehus', 'Drammen sykehus', 'UNN - Tromsø')), ]
-# RegData$Sykehusnavn <- as.factor(RegData$Sykehusnavn)
-
-
-outfile <- 'VekttapProsent.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='VekttapProsent', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', outfile=outfile, reshID=reshID)
-outfile <- 'BMI.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='ModGlasgowScore', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', outfile=outfile, reshID=reshID)
-outfile <- 'AccordionGrad_elektiv.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID)
-outfile <- 'AccordionGrad_ohjelp.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=0, outfile=outfile, reshID=reshID)
-outfile <- 'Tilgang_elektiv.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID)
-outfile <- 'Tilgang_ohjelp.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='Tilgang', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=0, outfile=outfile, reshID=reshID)
-outfile <- 'ReLapNarkose.pdf'
-NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', outfile=outfile, reshID=reshID, inkl_konf=T)
-outfile <- 'Anastomoselekkasje.pdf'
-NorgastFigAndelerGrVar(RegData=RegData, valgtVar='Anastomoselekkasje', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', outfile=outfile, reshID=reshID, inkl_konf=T)
-@
-
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{VekttapProsent.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_elektiv.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_ohjelp.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_elektiv.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_ohjelp.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose.pdf}
-\end{figure}
-
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Anastomoselekkasje.pdf}
-\end{figure}
-
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
 <<'Tabell:ReoperasjonerKolon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+TabellData_landet <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad==1), ], datoFra=datoFra, datoTil=datoTil,
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(1), ]
@@ -269,14 +201,74 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Elektive operasjoner. Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
+
+
+<<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+outfile <- 'AccordionGrad_elektiv.pdf'
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10)
+outfile <- 'AccordionGrad_ohjelp.pdf'
+NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=0, outfile=outfile, reshID=reshID)
+outfile <- 'Tilgang_elektiv.pdf'
+NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10)
+outfile <- 'Tilgang_ohjelp.pdf'
+NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='Tilgang', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=0, outfile=outfile, reshID=reshID)
+outfile <- 'ReLapNarkose.pdf'
+NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID, inkl_konf=T)
+outfile <- 'Anastomoselekkasje.pdf'
+NorgastFigAndelerGrVar(RegData=RegData, valgtVar='Anastomoselekkasje', reseksjonsGr='(JFB[2-5][0-9]|JFB6[0-4])|JFH', elektiv=1, outfile=outfile, reshID=reshID, inkl_konf=T)
+@
+
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_elektiv.pdf}
+\caption{}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_ohjelp.pdf}
+\caption{}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_elektiv.pdf}
+\caption{}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_ohjelp.pdf}
+\caption{}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose.pdf}
+\caption{}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Anastomoselekkasje.pdf}
+\caption{}
+\end{figure}
+
 
 \clearpage
 
 \section{Rektumreseksjoner}
 
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
 <<'Tabell:ReoperasjonerRektum', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
@@ -298,56 +290,49 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midr
 \end{minipage}
 \end{table}
 
+
 <<'fig_rektum', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-outfile <- 'VekttapProsent_rekt.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='VekttapProsent', reseksjonsGr='JGB', outfile=outfile, reshID=reshID)
-outfile <- 'BMI_rekt.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='BMI', reseksjonsGr='JGB', outfile=outfile, reshID=reshID)
 outfile <- 'AccordionGrad_rekt.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='JGB', outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='JGB', outfile=outfile, Ngrense=10, reshID=reshID)
 outfile <- 'Tilgang_rekt.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='JGB', outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='JGB', outfile=outfile, Ngrense=10, reshID=reshID)
 outfile <- 'ReLapNarkose_rekt.pdf'
-NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='JGB', outfile=outfile, reshID=reshID, inkl_konf=T)
+NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='JGB', outfile=outfile, Ngrense=10, reshID=reshID, inkl_konf=T)
 outfile <- 'Anastomoselekkasje_rekt.pdf'
-NorgastFigAndelerGrVar(RegData=RegData, valgtVar='Anastomoselekkasje', reseksjonsGr='JGB', outfile=outfile, reshID=reshID, inkl_konf=T)
+NorgastFigAndelerGrVar(RegData=RegData, valgtVar='Anastomoselekkasje', reseksjonsGr='JGB', outfile=outfile, Ngrense=10, reshID=reshID, inkl_konf=T)
 @
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{VekttapProsent_rekt.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_rekt.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_rekt.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_rekt.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_rekt.pdf}
+\caption{}
 \end{figure}
-
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Anastomoselekkasje_rekt.pdf}
+\caption{}
 \end{figure}
 
 \clearpage
 
 \section{Leverreseksjoner}
 
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
 <<'Tabell:ReoperasjonerLever', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
@@ -371,13 +356,8 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midr
 
 
 <<'fig_lever', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-
-outfile <- 'VekttapProsent_lever.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='VekttapProsent', reseksjonsGr='JJB', outfile=outfile, Ngrense=5,reshID=reshID)
-outfile <- 'BMI_lever.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='BMI', reseksjonsGr='JJB', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'AccordionGrad_lever.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='JJB', outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='JJB', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'Tilgang_lever.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='JJB', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'ReLapNarkose_lever.pdf'
@@ -386,33 +366,29 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='J
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{VekttapProsent_lever.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_lever.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_lever.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_lever.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_lever.pdf}
+\caption{}
 \end{figure}
 
 \clearpage
 
 \section{Whipples operasjon}
 
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
 <<'Tabell:ReoperasjonerWhipple', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
@@ -437,40 +413,32 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midr
 
 <<'fig_whipple', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
-outfile <- 'VekttapProsent_whipple.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='VekttapProsent', reseksjonsGr='JLC30|JLC31', outfile=outfile, Ngrense=5,reshID=reshID)
-outfile <- 'BMI_whipple.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='BMI', reseksjonsGr='JLC30|JLC31', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'AccordionGrad_whipple.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='JLC30|JLC31', outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='JLC30|JLC31', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'ReLapNarkose_whipple.pdf'
 NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='JLC30|JLC31', outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
 @
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{VekttapProsent_whipple.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_whipple.pdf}
-\end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_whipple.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_whipple.pdf}
+\caption{}
 \end{figure}
 
 \clearpage
 
 \section{Øvrige pankreasreseksjoner}
 
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
 <<'Tabell:ReoperasjonerPankreas', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
@@ -495,12 +463,9 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midr
 
 <<'fig_ovrigpankreas', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
-outfile <- 'VekttapProsent_ovrigpankreas.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='VekttapProsent', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, Ngrense=5,reshID=reshID)
-outfile <- 'BMI_ovrigpankreas.pdf'
-NorgastFigGjsnGrVar(RegData, valgtVar='BMI', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'AccordionGrad_ovrigpankreas.pdf'
-NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, reshID=reshID)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, Ngrense=5, reshID=reshID)
+# NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, reshID=reshID)
 outfile <- 'Tilgang_ovrigpankreas.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr='JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', outfile=outfile, Ngrense=5, reshID=reshID)
 outfile <- 'ReLapNarkose_ovrigpankreas.pdf'
@@ -509,27 +474,20 @@ NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='J
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{VekttapProsent_ovrigpankreas.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_ovrigpankreas.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_ovrigpankreas.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_ovrigpankreas.pdf}
+\caption{}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_ovrigpankreas.pdf}
+\caption{}
 \end{figure}
 
 

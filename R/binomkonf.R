@@ -1,6 +1,6 @@
 #' Beregn konfidensintervall for binomisk data med n suksess av N forsøk
 #'
-#' Dene funksjonen beregner konfidensintervall for binomisk fordelt data
+#' Denne funksjonen beregner konfidensintervall for binomisk fordelt data
 #'
 #' @param n - Antall suksess, skalar eller vektor
 #' @param N - Antall forsøk, skalar eller vektor av samme lengde som n
