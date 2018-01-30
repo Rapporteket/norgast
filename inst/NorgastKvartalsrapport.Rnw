@@ -47,7 +47,7 @@ knitr::opts_knit$set(root.dir = './')
 
 <<LastData, include=FALSE, cache=FALSE>>=
 library(norgast)
-rm(list=ls())
+# rm(list=ls())
 
 hentData <- T  ##### OBS: Må settes til TRUE før opplasting til server
 datoTil <- as.character(Sys.Date())
