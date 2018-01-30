@@ -107,7 +107,7 @@ if (length(valgtShus) > 1) {
   RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
   RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
   reshID <- 99
-  shtxt <- 'ditt utvalg'
+  # shtxt <- 'ditt utvalg'
 }
 
 
