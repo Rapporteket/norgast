@@ -64,7 +64,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     if (dim(RegData)[1]>0) {
       tekst <- paste('Færre enn ', Ngrense, ' registreringer ved hvert av sykehusene', sep='')
     } else {tekst <- 'Ingen registrerte data for dette utvalget'}
-    title(main=tittel, cex=0.95)	#line=-8,
+    title(main='For få registreringer', cex=0.95)	#line=-8,
     text(0.5, 0.6, tekst, cex=1.2)
     #text(0.5, 0.3, , cex=1.2)
     legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
@@ -160,6 +160,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     #savePlot(outfile, type=filtype)
     if ( outfile != '') {dev.off()}
 
+    return(invisible(list(andeler = cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), shus=GrNavnSort, N=NgrtxtSort)))
   }
 
 }

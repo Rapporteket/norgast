@@ -8,6 +8,14 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
+\newif\ifkolon
+\newif\ifrektum
+\newif\ifoesofagus
+\newif\ifventrikkel
+\newif\iflever
+\newif\ifwhipple
+\newif\ifpankreas
+
 \title{Resultater fra NoRGast}
 \author{NoRGast}
 
@@ -38,7 +46,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- T  ##### OBS: Må settes til TRUE før opplasting til server
 datoTil <- as.character(Sys.Date())
 datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
 if (substr(datoTil, 6,10) %in% c('03-31', '06-30', '09-30', '12-31')) {
@@ -59,8 +67,8 @@ if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else
 {library(norgast)
-  RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-05-12 14-37-28.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-  ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-05-12 14-37-34.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2018-01-29 14-54-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2018-01-29 14-54-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
   RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -70,7 +78,7 @@ if(hentData){
 
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-  reshID <- 601225
+  reshID <- 4204082
   RegData$HovedDato <- as.POSIXlt(RegData$HovedDato, format="%Y-%m-%d")
   RegData <- RegData[which(RegData$HovedDato >= datoFra & RegData$HovedDato <= datoTil), ]
   flervalgsliste <- '' # c('601231', '102141', '601225') #, '601225')
@@ -235,6 +243,22 @@ print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)
 
 @
 
+<<'Inkluder_i_rapport', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Op_grupper <- table(as.factor(RegData$Op_gr)[RegData$Op_gr %in% 1:7 & RegData$AvdRESH == reshID])[1:7] # Bare inkluder kapittel der avdelingen
+Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<5]))                                          # har 5 eller flere operasjoner
+Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue', '\\pankreastrue')
+aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse', '\\pankreasfalse')
+Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
+@
+
+\Sexpr{Inkl_i_rapp[1]}
+\Sexpr{Inkl_i_rapp[2]}
+\Sexpr{Inkl_i_rapp[3]}
+\Sexpr{Inkl_i_rapp[4]}
+\Sexpr{Inkl_i_rapp[5]}
+\Sexpr{Inkl_i_rapp[6]}
+\Sexpr{Inkl_i_rapp[7]}
+
 
 \clearpage
 
@@ -298,48 +322,61 @@ NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=dato
 
 
 @
-
+\ifkolon
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_kolon.pdf}
 \caption{Relaparotomi kolon}
 \end{figure}
+\fi
 
+\ifrektum
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_rektum.pdf}
 \caption{Relaparotomi rektum}
 \end{figure}
+\fi
 
+\ifoesofagus
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_oesofagus.pdf}
 \caption{Relaparotomi øsofagus}
 \end{figure}
+\fi
 
+\ifventrikkel
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_ventrikkel.pdf}
 \caption{Relaparotomi ventrikkel}
 \end{figure}
+\fi
 
+\iflever
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_lever.pdf}
 \caption{Relaparotomi lever}
 \end{figure}
+\fi
 
+\ifwhipple
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_whipple.pdf}
 \caption{Relaparotomi Whipple}
 \end{figure}
+\fi
 
+\ifpankreas
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{reop_pankreas.pdf}
 \caption{Relaparotomi pankreas}
 \end{figure}
+\fi
 
 \clearpage
 
@@ -393,47 +430,61 @@ NorgastFigAndelTid_kvartalsrapp(RegData=RegData, valgtVar=valgtVar, datoFra=dato
 
 @
 
+\ifkolon
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_kolon.pdf}
 \caption{Komplikasjoner kolon}
 \end{figure}
+\fi
 
+\ifrektum
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_rektum.pdf}
 \caption{Komplikasjoner rektum}
 \end{figure}
+\fi
 
+\ifoesofagus
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_oesofagus.pdf}
 \caption{Komplikasjoner øsofagus}
 \end{figure}
+\fi
 
+\ifventrikkel
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_ventrikkel.pdf}
 \caption{Komplikasjoner ventrikkel}
 \end{figure}
+\fi
 
+\iflever
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_lever.pdf}
 \caption{Komplikasjoner lever}
 \end{figure}
+\fi
 
+\ifwhipple
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_whipple.pdf}
 \caption{Komplikasjoner Whipple}
 \end{figure}
+\fi
 
+\ifpankreas
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_pankreas.pdf}
 \caption{Komplikasjoner pankreas}
 \end{figure}
+\fi
 
 \clearpage
 
