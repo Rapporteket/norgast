@@ -102,6 +102,15 @@ if (valgtShus[1] == '') {
   }
 }
 
+RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
+if (length(valgtShus) > 1) {
+  RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
+  RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
+  reshID <- 99
+  shtxt <- 'ditt utvalg'
+}
+
+
 figstr <- 0.61
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
