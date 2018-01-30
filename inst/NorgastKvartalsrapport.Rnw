@@ -46,6 +46,9 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
+library(norgast)
+rm(list=ls())
+
 hentData <- T  ##### OBS: Må settes til TRUE før opplasting til server
 datoTil <- as.character(Sys.Date())
 datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
@@ -65,8 +68,7 @@ datoFra <- as.character(datoFra)
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
-} else
-{library(norgast)
+} else {
   RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2018-01-29 14-54-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
   ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2018-01-29 14-54-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
