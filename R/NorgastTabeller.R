@@ -55,12 +55,12 @@ RegData$VariabelGr <- factor(RegData$ReLapNarkose, levels=c(0, 1), labels = grtx
 Tabell2 <- data.frame(Operasjonsgruppe=RegData$Operasjonsgrupper[match(c(1:(N_opgr-1),99), RegData$Op_gr)],
                      N=numeric(N_opgr), Reoperasjonsrate=numeric(N_opgr), Anastomoselekkasje=numeric(N_opgr),
                      DypInfUtenLekkasje=numeric(N_opgr),Bloedning=numeric(N_opgr),Saarruptur=numeric(N_opgr),
-                     Annet=numeric(N_opgr))
+                     Annet=numeric(N_opgr), Ingen=numeric(N_opgr))
 
 
-RegData$ViktigsteFunn[which(RegData$ViktigsteFunn==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
+# RegData$ViktigsteFunn[which(RegData$ViktigsteFunn==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
 
-grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur', 'Annet')
+grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur', 'Annet', 'Ingen')
 
 for (p in  1:N_opgr){
   Subset <- RegData[RegData$Op_gr==p, ]
@@ -68,7 +68,7 @@ for (p in  1:N_opgr){
   Tabell2$Reoperasjonsrate[p] <- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)[2]
   Tabell2$N[p] <- dim(Subset)[1]
   Subset <- Subset[Subset$ReLapNarkose==1,]
-  Subset$VariabelGr <- factor(Subset$ViktigsteFunn, levels=1:5, labels = grtxt)
+  Subset$VariabelGr <- factor(Subset$ViktigsteFunn, levels=1:6, labels = grtxt)
 #   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)
   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/Tabell2$N[p]*100,2)
 }
