@@ -1377,21 +1377,24 @@ Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
 
 \section{Reoperasjoner og komplikasjoner}
 \subsection{Reoperasjoner}
+
+\addtolength{\hoffset}{-1.5cm}
+
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
 <<'Tabell:ReoperasjonerLandet', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- TabellData_landet$Tabell2
-print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1,1)),
       floating=FALSE,
       hline.after=NULL,
       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
-                                '\\cline{4-8} \n',
-                                '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
+                      command=c('\\toprule\n', '& & & \\multicolumn{5}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&& \\\\\n',
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen\\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
 \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
@@ -1400,18 +1403,18 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-<<'Tabell:ReoperasjonerEget', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+<<'Tabell:ReoperasjonerEgne', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- TabellData_egen$Tabell2
-print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1)),
+print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1,1)),
       floating=FALSE,
       hline.after=NULL,
       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
-                                '\\cline{4-8} \n',
-                                '& & Reoperasjons- & Anastomose- & Dyp &&& Annet/ \\\\\n',
+                      command=c('\\toprule\n', '& & & \\multicolumn{5}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&& \\\\\n',
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen\\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
 \captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
 \end{minipage}
@@ -1419,7 +1422,7 @@ alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under
 
 \clearpage
 
-% \restoregeometry
+\restoregeometry
 % \addtolength{\hoffset}{1.5cm}
 \subsection{Anastomoselekkasje påvist v/ reoperasjon}
 <<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
