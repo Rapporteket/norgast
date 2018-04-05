@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2017-06-28 13-53-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/AlleVariablerNum2018-03-19 08-21-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 # aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2017-06-28 13-53-09.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-03-19 08-21-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -30,8 +30,8 @@ reshID <- 601225 #  #Må sendes med til funksjon
 minald <- 0  #alder, fra og med
 maxald <- 130	#alder, til og med
 erMann <- 99
-datoFra <- '2014-01-01'	 # min og max dato i utvalget vises alltid i figuren.
-datoTil <- '2017-01-01'
+datoFra <- '2016-01-01'	 # min og max dato i utvalget vises alltid i figuren.
+datoTil <- '2020-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Saarruptur'
 # valgtVar <- 'Malign'
@@ -44,7 +44,7 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <-''  #c('708761', '102145', '601225')
+valgtShus <- c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- 1
 minPRS <- 0
@@ -52,7 +52,7 @@ maxPRS <- 2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
 forbehandling <- 99
-tidsenhet <- 'Mnd'
+tidsenhet <- 'Halvaar'
 inkl_konf <- 1
 malign <- 99
 
@@ -66,6 +66,7 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 valgtVar <- 'ReLapNarkose'
+outfile <- 'ReLapNarkose.pdf'
 if (outfile == '') {x11()}
 NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
