@@ -7,7 +7,7 @@
 NorgastFigGjsnGrVar(RegData = 0, valgtVar = "Alder",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, outfile = "", reshID, preprosess = F,
-  malign = 99, elektiv = 99, BMI = "", tilgang = 99,
+  malign = 99, Ngrense = 30, elektiv = 99, BMI = "", tilgang = 99,
   valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
   forbehandling = 99, hentData = F, reseksjonsGr = "", ncsp = "")
 }
