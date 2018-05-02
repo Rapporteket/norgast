@@ -73,17 +73,20 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     tittel <- switch (valgtVar,
                       'ModGlasgowScore' = 'Modified Glasgow score',
                       'AccordionGrad' = 'Komplikasjoner',
-                      'Tilgang' = 'Tilgang i abdomen'
+                      'Tilgang' = 'Tilgang i abdomen',
+                      'ThoraxTilgang' <- 'Tilgang i thorax'
     )
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
-                         'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert')
+                         'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
+                         'ThoraxTilgang' <- c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)')
     )
     legendTitle <- switch (valgtVar,
                          'ModGlasgowScore' = NULL,
                          'AccordionGrad' = 'Accordiongrad',
-                         'Tilgang' = NULL
+                         'Tilgang' = NULL,
+                         'ThoraxTilgang' <- NULL
     )
 
 

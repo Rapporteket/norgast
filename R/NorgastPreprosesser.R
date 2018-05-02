@@ -174,10 +174,16 @@ NorgastPreprosess <- function(RegData)
   RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
   RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 
-  RegData$LapTilgang <- as.numeric(RegData$Tilgang)
+  RegData$LapTilgang <- as.numeric(RegData$Tilgang)  # Konverterte gruppert med åpne
   RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0
   RegData$LapTilgang[RegData$LapTilgang == 2] <- 1
   RegData$LapTilgang[!(RegData$LapTilgang %in% c(0,1))] <- NA
+
+  RegData$LapTilgang2 <- as.numeric(RegData$Tilgang) # Konverterte gruppert med laparoskopiske
+  RegData$LapTilgang2[RegData$LapTilgang2 == 1] <- 0
+  RegData$LapTilgang2[RegData$LapTilgang2 %in% c(2,3)] <- 1
+  RegData$LapTilgang2[!(RegData$LapTilgang2 %in% c(0,1))] <- NA
+
 
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0

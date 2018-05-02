@@ -13,10 +13,57 @@
 #'
 #' @export
 #'
-norgastFigAndelGrVarTid <- function(AntTilfeller, N, outfile, tittel, width=800, height=700, sideTxt='Boområde/opptaksområde',
+norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
                                    decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
-                                   minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F)
+                                   minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
+                                   minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
+                                   tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog= '', forbehandling=99,
+                                   hentData=0, reseksjonsGr='', ncsp='')
 {
+  ## Hvis spørring skjer fra R på server. ######################
+  if(hentData){
+    RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
+  }
+
+  ## Hvis RegData ikke har blitt preprosessert
+  if (preprosess){
+    RegData <- NorgastPreprosess(RegData=RegData)
+  }
+
+  ## Preparer variabler for fremstilling i figur
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  RegData <- PlotParams$RegData
+  if (tittel[1] == '') {
+    tittel <- paste0('Andel ', PlotParams$VarTxt)
+    if (inkl_konf) {tittel <- c(tittel, 'inkl. 95% konf. int.')}
+    }
+  PlotParams$RegData <- NA
+
+  ## Gjør utvalg basert på brukervalg (LibUtvalg)
+  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+  RegData <- NorgastUtvalg$RegData
+  utvalgTxt <- NorgastUtvalg$utvalgTxt
+  NutvTxt <- length(utvalgTxt)
+
+  RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ]
+
+  tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), sum)
+  AntTilfeller <- tidyr::spread(tmp, 'aar', 'x')
+  rownames(AntTilfeller) <- AntTilfeller$sh
+  AntTilfeller <- AntTilfeller[, -1]
+  AntTilfeller <- rbind(AntTilfeller, 'Norge'=colSums(AntTilfeller, na.rm = T))
+
+  tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), length)
+  N <- tidyr::spread(tmp, 'aar', 'x')
+  rownames(N) <- N$sh
+  N <- N[, -1]
+  N[is.na(N)] <- 0
+  N <- rbind(N, 'Norge'=colSums(N, na.rm = T))
+
   andeler <- AntTilfeller/N * 100
 
   # terskel <- 10
@@ -53,6 +100,7 @@ norgastFigAndelGrVarTid <- function(AntTilfeller, N, outfile, tittel, width=800,
     rownames(andeler) <- paste0(rownames(andeler), ' (', N[, dim(N)[2]], ')')
     andeler <- rbind(andeler, c(NA,NA,NA))
     rownames(andeler)[dim(andeler)[1]] <- '(N)'
+    KI <- cbind(KI, c(NA, NA))
   } else {
     andeler <- rbind(andeler, c(NA,NA,NA))
     rownames(andeler)[dim(andeler)[1]] <- ''
@@ -63,7 +111,7 @@ norgastFigAndelGrVarTid <- function(AntTilfeller, N, outfile, tittel, width=800,
   vmarg <- max(0, strwidth(rownames(andeler), units='figure', cex=cexgr)*0.75)
   par('fig'=c(vmarg, 1, 0, 1))
   par('mar'=c(5.1, 4.1, 5.1, 9.1))
-  par('oma'=c(0,1,0,0))
+  par('oma'=c(0,1,NutvTxt,0))
 
   if (inkl_konf) {
     par('mar'=c(5.1, 4.1, 5.1, 2.1))
@@ -171,6 +219,9 @@ norgastFigAndelGrVarTid <- function(AntTilfeller, N, outfile, tittel, width=800,
   #mtext(sideTxt, line=-1, cex=cexgr, outer=F)#WEST<-2,
   text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
 
+  #Tekst som angir hvilket utvalg som er gjort
+  # mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(5+0.8*((length(utvalgTxt)-1):0)))
+  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=(NutvTxt-1):0, outer=TRUE)
 
   par('mar'= oldpar_mar)
   par('fig'= oldpar_fig)

@@ -20,7 +20,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
-                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'KumAcc', 'MissingVekt',
+                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
                       'Sykehusnavn', 'Malign', 'Saarruptur')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
@@ -60,7 +60,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar=='KumAcc') {
     tittel <- c('Accordion score \u2265 3')
     tittel <- c('Accordion score >= 3')
-    VarTxt <- 'med accordion score \u2265 3'
+    VarTxt <- 'med accordion score >= 3'
     grtxt <- c('Nei', 'Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
@@ -252,6 +252,18 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
+
+  if (valgtVar=='LapTilgang2') {
+    tittel <- 'Laparoskopisk tilgang'
+    # grtxt <- c('Nei','Ja', 'Ikke registrert')
+    VarTxt <- 'laparoskopi/konvertert'
+    grtxt <- c('Åpen','Laparoskopisk/konvertert')
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    # RegData$Variabel[is.na(RegData$Variabel)] <- 99
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
 
   if (valgtVar=='Anastomoselekkasje') {
     tittel <- 'Anastomoselekkasje, ny anastomose'
