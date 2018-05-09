@@ -11,7 +11,7 @@
 #' @export
 #'
 
-NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
+NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
                                        minald=0, maxald=130, erMann=99, outfile='',
                                        reshID, preprosess=F, malign=99, Ngrense=30,
                                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
@@ -49,14 +49,6 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   N <- dim(RegData)[1]
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
-  # Ngrense <- 30		#Minste antall registreringer for at ei gruppe skal bli vist
-
-  Ngrtxt <- paste('N=', as.character(Ngr), sep='')
-  indGrUt <- as.numeric(which(Ngr < Ngrense))
-  if (length(indGrUt)==0) { indGrUt <- 0}
-  Ngrtxt[indGrUt] <- paste(' (<', Ngrense,')',sep='')
-
-
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
     FigTypUt <- figtype(outfile)
     farger <- FigTypUt$farger
@@ -66,7 +58,6 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     } else {tekst <- 'Ingen registrerte data for dette utvalget'}
     title(main='For få registreringer', cex=0.95)	#line=-8,
     text(0.5, 0.6, tekst, cex=1.2)
-    #text(0.5, 0.3, , cex=1.2)
     legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
     if ( outfile != '') {dev.off()}
   } else {
@@ -89,81 +80,87 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                          'ThoraxTilgang' <- NULL
     )
 
+      # Ngrtxt <- paste0('N=', as.character(Ngr))
+      # indGrUt <- as.numeric(which(Ngr < Ngrense))
+      # if (length(indGrUt)==0) { indGrUt <- 0}
+      # Ngrtxt[indGrUt] <- paste0(' (<', Ngrense,')')
+      #
 
-    # if (fullSoyle == 1) {
-      xkr <- 1
-      cexGrNavn <- 1.2
-      GrNavnSort <- paste(names(Ngr), Ngrtxt, sep=' ')
-      AntGr <- length(which(Ngr >= Ngrense))
-      grTypeTxt <- 'alle '
+      N_kat <- length(unique(RegData[,valgtVar]))
+      AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
+      AndelerGr[which(Ngr<Ngrense),] <- NA
+
+      dataAlle <- table(RegData$Variabel)/N*100
+
+      if (valgtVar == 'AccordionGrad') {
+        AndelerGr <- AndelerGr[, -1]
+        N_kat <- N_kat -1
+        dataAlle <- table(RegData$Variabel)[-1]/N*100
+      }
+
+      AndelerGr <- rbind(AndelerGr, as.numeric(dataAlle))
+      Ngr <- c(Ngr, Norge=sum(Ngr))
+      grtxt <- paste0(names(Ngr), ' (', Ngr, ')')
+      Ngrtxt <- rep(NA, length(Ngr))    #paste0('N=', Ngr)
+      Ngrtxt[Ngr<Ngrense] <- paste0('N<', Ngrense)
+
+      if (N_kat==3){
+        sortInd <- order(AndelerGr[,2], decreasing = F, na.last = F)
+      } else {
+        sortInd <- order(AndelerGr[,1], decreasing = F, na.last = F)
+      }
+
+      if (valgtVar == 'AccordionGrad') {
+        sortInd <- order(rowSums(AndelerGr), decreasing = F, na.last = F)
+      }
+
+      AndelerGr <- AndelerGr[sortInd, ]
+      AndelerGr <- rbind(AndelerGr, rep(NA, N_kat))
+      grtxt <- c(grtxt[sortInd], '(N)')
+      Ngrtxt <- c(Ngrtxt[sortInd], NA)
+
+      # if (valgtVar == 'AccordionGrad') {
+      #   AndelerGr <- rbind(AndelerGr, rep(NA, N_kat))
+      #   grtxt <- c(grtxt[sortInd], NA)
+      #   Ngrtxt <- c(Ngrtxt[sortInd], NA)
+      # }
+
+      xmax <- max(rowSums(AndelerGr), na.rm = T)
+      ymax <- length(grtxt)*1.2
 
       FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
       farger <- FigTypUt$farger
       #Tilpasse marger for å kunne skrive utvalgsteksten
       NutvTxt <- length(utvalgTxt)
-      vmarg <- max(0, strwidth(GrNavnSort, units='figure', cex=cexGrNavn)*0.7)
+      vmarg <- max(0, strwidth(grtxt, units='figure', cex=0.9))
       #NB: strwidth oppfører seg ulikt avh. av device...
       par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
-      ymin <- 0.5/xkr^4	#Fordi avstand til x-aksen av en eller annen grunn øker når antall sykehus øker
-      ymax <- 0.2+1.2*(length(Ngr)+1)
-
-      N_kat <- length(unique(RegData[,valgtVar]))
-      AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
-      AndelerGr[which(Ngr<Ngrense),] <- 0
-
-      if (N_kat==3){
-        sortInd <- order(AndelerGr[,2], decreasing = F)
-      } else {
-        sortInd <- order(AndelerGr[,1], decreasing = F)
-      }
-
-      if (valgtVar == 'AccordionGrad') {
-        AndelerGr <- AndelerGr[, -1]
-        N_kat <- N_kat -1
-      }
-      xmax <- max(rowSums(AndelerGr))
-
-      if (valgtVar == 'AccordionGrad') {
-        dataAlle <- table(RegData$Variabel)[-1]/N*100
-      } else {
-        dataAlle <- table(RegData$Variabel)/N*100
-      }
 
 
       #Legger til resultat for hele gruppa. Og legger til en tom etter for å få plass til legend
-      pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
-                     border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2),
-                     xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
-#       pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,]),0), horiz=T, beside=FALSE,
-#                      border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='',
-#                      xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
-      GrNavnSort <- c(paste(grTypeTxt, 'sykehus', sep=''), '', names(Ngr)[sortInd], '')
-      NgrtxtSort<- c(paste('N=', N, sep=''), '', Ngrtxt[sortInd], '')
-#       legend(x=10, y=1.05*ymax+2, legendTxt, xjust=0.5, yjust=0.5,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
-#              fill=farger[1:3], border=farger[1:N_kat], ncol=3, bty='n')	#cex=0.9,  ncol=6,
-      legend(x= 'top', legendTxt, xjust=0.5, yjust=0.5, ncol=3,	#inset=0.01,# max(pos)*1.01 x=50, y=ymax,
-             fill=farger[1:N_kat], border=farger[1:N_kat], bty='n', title = legendTitle) #, ncol=3
-      if (valgtVar == 'ModGlasgowScore') {mtext('(sortert på modified Glasgow scale = 1)', line=0.5, cex=1)}
+      # pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
+      #                border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2),
+      #                xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
+      pos <- barplot(t(AndelerGr), horiz=T, beside=FALSE, border=NA, col=farger[1:N_kat], main='', font.main=1,
+                     xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax))#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
 
-    # } else {
+      legend('top', legendTxt, ncol=3, fill=farger[1:N_kat], border=farger[1:N_kat],
+             bty='n', cex=0.7, xpd = T, title = legendTitle)
 
-    # }
-    mtext(at=pos, GrNavnSort, side=2, las=1, cex=cexGrNavn*xkr, adj=1, line=0.25)	#Sykehusnavn
-    # Nfarge <-  farger[4]
-    text(x=0.005*xmax, y=pos, NgrtxtSort, las=1, cex=xkr, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
-    mtext('Prosent (%)', las=1, side=1, cex=xkr, line=2.2*xkr)
+    mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
+    text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
+    mtext('Prosent (%)', las=1, side=1, line=2)
     title(tittel, line=1.5, font.main=1, cex.main=1.5)
-    mtext('(Tall på søylene angir antall registreringer)', las=1, side=1, cex=xkr, line=3.2*xkr)
+    # mtext('(Tall på søylene angir antall registreringer)', las=1, side=1, line=3)
 
     #Tekst som angir hvilket utvalg som er gjort
     mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
 
 
     par('fig'=c(0, 1, 0, 1))
-    #savePlot(outfile, type=filtype)
     if ( outfile != '') {dev.off()}
 
-    return(invisible(list(andeler = cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), shus=GrNavnSort, N=NgrtxtSort)))
+    # return(invisible(list(andeler = cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), shus=GrNavnSort, N=NgrtxtSort)))
   }
 
 }

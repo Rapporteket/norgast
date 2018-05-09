@@ -256,7 +256,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar=='LapTilgang2') {
     tittel <- 'Laparoskopisk tilgang'
     # grtxt <- c('Nei','Ja', 'Ikke registrert')
-    VarTxt <- 'laparoskopi/konvertert'
+    VarTxt <- 'laparoskopi (konverterte inngrep inkludert)'
     grtxt <- c('Åpen','Laparoskopisk/konvertert')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     # RegData$Variabel[is.na(RegData$Variabel)] <- 99

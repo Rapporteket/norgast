@@ -2,6 +2,58 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+### Linn Nymo/Kristin Woll - 07.05.2018 ###############################################################
+library(norgast)
+rm(list = ls())
+
+RegData <- read.table('I:/norgast/AlleVariablerNum2018-04-24 12-12-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+rap_aar <- 2017 # Året rapporten skal kjøres for
+datoFra= paste0(rap_aar, '-01-01')
+datoTil= paste0(rap_aar, '-12-31')
+
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData <- RegData[RegData$Aar==rap_aar, ]
+RegData <- RegData[RegData$Sykehusnavn=='UNN-Tromsø' & RegData$Op_gr==7, ]
+
+write.csv2(RegData[, c("PasientID", "ForlopsID", "OpDato", "Hovedoperasjon")], 'AndrePankreasUNN2017.csv', row.names = F)
+
+### Linn Nymo, avdøde Skien og Gjøvik - 07.05.2018 ###############################################################
+library(norgast)
+rm(list = ls())
+
+RegData <- read.table('I:/norgast/AlleVariablerNum2018-04-24 12-12-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+rap_aar <- 2017 # Året rapporten skal kjøres for
+datoFra= paste0(rap_aar, '-01-01')
+datoTil= paste0(rap_aar, '-12-31')
+
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData <- RegData[RegData$Aar==rap_aar, ]
+RegData <- RegData[RegData$Sykehusnavn %in% c('Skien', 'SI-Gjøvik') & RegData$Op_gr==1, ]
+RegData <- RegData[RegData$Hastegrad == 1 & RegData$Malign==0, ]
+
+
 ### Stig Norderval - 13.04.2018 ###############################################################
 library(norgast)
 rm(list = ls())

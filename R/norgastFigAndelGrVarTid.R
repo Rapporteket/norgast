@@ -129,7 +129,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
                    col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
   if (inkl_konf){
     arrows(x0 = KI[1,], y0 = ypos, x1 = KI[2,], y1 = ypos,
-           length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col=farger[1])
+           length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
   }
   # title(main = tittel, outer=T)
   title(main = tittel)

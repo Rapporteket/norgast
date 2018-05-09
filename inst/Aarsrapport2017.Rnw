@@ -71,6 +71,8 @@ datoFra= paste0(rap_aar, '-01-01')
 datoTil= paste0(rap_aar, '-12-31')
 
 RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn) # Fjern mellomrom før og etter sykehusnavn
 
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
@@ -187,8 +189,6 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 \end{table}
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-RegDataAll$Sykehusnavn <- trimws(RegDataAll$Sykehusnavn)
-RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
            'Lever',"Pankreas")
 width=600
@@ -211,7 +211,8 @@ inkl_konf <- T
 elektiv <- 1
 datoFra <- '2015-01-01'
 tittel <- ''
-
+hentData <- F
+preprosess <- F
 @
 
 <<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
@@ -221,7 +222,7 @@ reseksjonsGr <- '(JFB[2-5][0-9]|JFB6[0-4])|JFH'
 tittel <- ''
 outfile <- 'Tilgang_elektiv_benign.pdf'
 malign <- 0
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
 
 outfile <- 'Tilgang_elektiv_benign_aar.pdf'
 valgtVar <- 'LapTilgang2'
@@ -232,7 +233,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
 
 outfile <- 'Tilgang_elektiv_malign.pdf'
 malign <- 1
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
 
 outfile <- 'Tilgang_elektiv_malign_aar.pdf'
 norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
@@ -247,7 +248,7 @@ NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='Tilgang', reseksjonsGr=resek
 
 malign <- 0
 outfile <- 'AccordionGrad_elektiv_benign.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 
 outfile <- 'KumAcc_elektiv_benign_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -259,7 +260,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
 
 malign <- 1
 outfile <- 'AccordionGrad_elektiv_malign.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 
 outfile <- 'KumAcc_elektiv_malign_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -426,7 +427,7 @@ elektiv <- 99
 terskel <- 10
 
 outfile <- 'AccordionGrad_rekt.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'KumAcc_rekt_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -437,7 +438,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
 
 
 outfile <- 'Tilgang_rekt.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'Tilgang_rekt_aar.pdf'
 valgtVar <- 'LapTilgang2'
@@ -536,7 +537,7 @@ reseksjonsGr <- 'JCC'
 OpGr <- 'Øsof.'
 
 outfile <- 'AccordionGrad_osofagus.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'AccordionGrad_osofagus_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -546,10 +547,10 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
                         inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 
 outfile <- 'Tilgang_osofagus.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'TilgangThorax_osofagus.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='ThoraxTilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='ThoraxTilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 
 outfile <- 'Tilgang_osofagus_aar.pdf'
@@ -643,7 +644,7 @@ reseksjonsGr <- 'JDC|JDD'
 OpGr <- 'Ventr.'
 
 outfile <- 'AccordionGrad_ventrikkel.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'AccordionGrad_ventrikkel_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -653,7 +654,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
                         inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 
 outfile <- 'Tilgang_ventrikkel.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
 
 outfile <- 'Tilgang_ventrikkel_aar.pdf'
 valgtVar <- 'LapTilgang2'
@@ -739,7 +740,7 @@ OpGr <- 'Lever'
 reseksjonsGr <- 'JJB'
 
 outfile <- 'AccordionGrad_lever.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
 
 outfile <- 'AccordionGrad_lever_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -750,7 +751,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
 
 
 outfile <- 'Tilgang_lever.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
 
 outfile <- 'Tilgang_lever_aar.pdf'
 valgtVar <- 'LapTilgang2'
@@ -833,7 +834,7 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 reseksjonsGr <- 'JLC30|JLC31'
 
 outfile <- 'AccordionGrad_whipple.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
 
 outfile <- 'AccordionGrad_whipple_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -910,7 +911,7 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 reseksjonsGr <- 'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]'
 
 outfile <- 'AccordionGrad_ovrigpankreas.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
 
 outfile <- 'AccordionGrad_ovrigpankreas_aar.pdf'
 valgtVar <- 'KumAcc'
@@ -921,7 +922,7 @@ norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel
 
 
 outfile <- 'Tilgang_ovrigpankreas.pdf'
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
 
 outfile <- 'Tilgang_ovrigpankreas_aar.pdf'
 valgtVar <- 'LapTilgang2'
