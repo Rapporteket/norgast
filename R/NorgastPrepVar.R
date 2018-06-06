@@ -113,6 +113,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='Alder') {
+    RegData$Variabel <- as.numeric(RegData$Variabel)
     tittel <- c('Aldersfordeling', paste0('Median: ', median(RegData$Variabel, na.rm = T), ' Gj.snitt: ', round(mean(RegData$Variabel, na.rm = T), 1)))
     gr <- c(0, seq(45, 85, 10), 120)  #c(0,16,31,46,61,76,200)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
