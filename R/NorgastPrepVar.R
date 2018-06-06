@@ -58,7 +58,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   if (valgtVar=='KumAcc') {
-    tittel <- c('Accordion score \u2265 3')
+    # tittel <- c('Accordion score \u2265 3')
     tittel <- c('Accordion score >= 3')
     VarTxt <- 'med accordion score >= 3'
     grtxt <- c('Nei', 'Ja')
@@ -86,7 +86,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     gr <- c(0, 10, 20, 30, 40, 100, 10000)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
     grtxt <- levels(RegData$VariabelGr)
-    grtxt[length(grtxt)] <- paste0('\u2265', as.character(gr[length(gr)-1])) # Større eller lik unicode symbol
+    grtxt[length(grtxt)] <- paste0('>0', as.character(gr[length(gr)-1])) # Større eller lik unicode symbol
     subtxt <- 'Tid i dager'
   }
 
@@ -199,6 +199,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     grtxt <- c('Åpen', 'Laparoskopisk', 'Konvertert')
     RegData <- RegData[which(RegData$Variabel %in% 1:3), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=1:3, labels = grtxt)
+    retn <- 'H'
+    incl_pst <- T
     if (enhetsUtvalg==1) {stabel=T}
   }
 

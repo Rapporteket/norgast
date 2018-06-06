@@ -119,36 +119,42 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
       grtxt <- c(grtxt[sortInd], '(N)')
       Ngrtxt <- c(Ngrtxt[sortInd], NA)
 
-      # if (valgtVar == 'AccordionGrad') {
-      #   AndelerGr <- rbind(AndelerGr, rep(NA, N_kat))
-      #   grtxt <- c(grtxt[sortInd], NA)
-      #   Ngrtxt <- c(Ngrtxt[sortInd], NA)
-      # }
-
       xmax <- max(rowSums(AndelerGr), na.rm = T)
       ymax <- length(grtxt)*1.2
 
       FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
       farger <- FigTypUt$farger
+
+      landet <- AndelerGr
+      landet[-which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
+      AndelerGr[which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
+      ## Function for desaturating colors by specified proportion
+      desat <- function(cols, sat=0.5) {
+        X <- diag(c(1, sat, 1)) %*% rgb2hsv(col2rgb(cols))
+        hsv(X[1,], X[2,], X[3,])
+      }
       #Tilpasse marger for å kunne skrive utvalgsteksten
       NutvTxt <- length(utvalgTxt)
       vmarg <- max(0, strwidth(grtxt, units='figure', cex=0.9))
       #NB: strwidth oppfører seg ulikt avh. av device...
       par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
 
-
-      #Legger til resultat for hele gruppa. Og legger til en tom etter for å få plass til legend
-      # pos <- barplot(cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), horiz=T, beside=FALSE,
-      #                border=NA, col=farger[1:N_kat], main='', font.main=1, xlab='', ylim=c(ymin, 1.05*ymax+2),
-      #                xlim=c(0, min(1.1*xmax, 100)), las=1, cex.names=xkr )
       pos <- barplot(t(AndelerGr), horiz=T, beside=FALSE, border=NA, col=farger[1:N_kat], main='', font.main=1,
                      xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax))#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
-
+      barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=desat(farger[1:N_kat], 0.5), main='', font.main=1,
+              xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
+      # barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=rgb(col2rgb(farger[1:N_kat])*0.8, maxColorValue = 255), main='', font.main=1,
+      #         xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
       legend('top', legendTxt, ncol=3, fill=farger[1:N_kat], border=farger[1:N_kat],
              bty='n', cex=0.7, xpd = T, title = legendTitle)
 
     mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
     text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
+    x_pos_landet <- cumsum(c(0, landet[which(substr(grtxt, 1, 5) =='Norge'), ])[1:N_kat]) +
+      landet[which(substr(grtxt, 1, 5) =='Norge'), ]/2
+    text(x=x_pos_landet, y=pos[which(substr(grtxt, 1, 5) =='Norge')],
+         paste0(round(landet[which(substr(grtxt, 1, 5) =='Norge'), ]), '%'), las=1, cex=0.8, adj=0.5, lwd=3)
+
     mtext('Prosent (%)', las=1, side=1, line=2)
     title(tittel, line=1.5, font.main=1, cex.main=1.5)
     # mtext('(Tall på søylene angir antall registreringer)', las=1, side=1, line=3)
