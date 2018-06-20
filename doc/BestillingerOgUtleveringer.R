@@ -2,6 +2,137 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+### Linn - 18.06.2018 Liste av PID og op.dato for utvalgte op.koder ######################################################
+RegData <- read.table('I:/norgast/AlleVariablerNum2018-06-14 09-40-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData <- RegData[RegData$AvdRESH==601225, ]
+
+RegData <- RegData[which(substr(RegData$ncsp_lowercase, 1, 3) %in% 'jfb'), ]
+RegData <- RegData[which(as.numeric(substr(RegData$ncsp_lowercase, 4, 5)) %in% 21:54), ]
+RegData <- RegData[RegData$Aar < 2018, ]
+
+utlevering <- RegData[, c("PasientID", "OperasjonsDato")]
+write.csv2(utlevering, 'Utlevering_Linn_18.06.2018.csv', row.names = F)
+
+
+
+### Stig Norderval - 14.06.2018 ###############################################################
+RegData <- read.table('I:/norgast/AlleVariablerNum2018-06-14 09-40-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+# RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn) # Fjern mellomrom før og etter sykehusnavn
+
+width=600
+height=700
+sideTxt='Sykehus'
+decreasing=F
+terskel=10
+minstekrav = NA
+maal = NA
+skriftStr=1.3
+pktStr=1.4
+legPlass='top'
+minstekravTxt='Min.'
+maalTxt='Mål'
+graaUt=NA
+minald=0
+maxald=130
+erMann <- 99
+inkl_konf <- T
+elektiv=99
+datoFra <- '2015-01-01'
+datoTil <- '2050-01-01'
+tittel <- ''
+hentData <- F
+preprosess <- F
+BMI=''
+minPRS=0
+maxPRS=2
+ASA=''
+whoEcog= ''
+ncsp=''
+forbehandling=99
+valgtShus=c('')
+reseksjonsGr <- ''
+malign <- 99
+annet_format_ut <- F
+ut_format <- 'wmf'
+reshID <- 601225
+
+valgtVar <- 'Saarruptur'
+tilgang=1
+reseksjonsGr <- ''
+enhetsUtvalg <- 1
+
+outfile <- 'fig1.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+FigAndeler(RegData, valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+           datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang)
+outfile <- 'fig2.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+NorgastFigAndelTid(RegData, valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang)
+outfile <- 'fig2_konf.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+NorgastFigAndelTid(RegData, valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang, inkl_konf=inkl_konf)
+outfile <- 'fig3.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+FigAndeler(RegData[RegData$Op_gr %in% 1:2, ], valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+           datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang)
+outfile <- 'fig4.pdf'
+NorgastFigAndelTid(RegData[RegData$Op_gr %in% 1:2, ], valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang)
+outfile <- 'fig4_konf.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+NorgastFigAndelTid(RegData[RegData$Op_gr %in% 1:2, ], valgtVar=valgtVar, reseksjonsGr='', outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang, inkl_konf=inkl_konf)
+
+valgtVar <- 'Anastomoselekkasje'
+reseksjonsGr <- '(JFB[2-5][0-9]|JFB6[0-4])|JFH'
+outfile <- 'fig5.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+FigAndeler(RegData, valgtVar=valgtVar, reseksjonsGr=reseksjonsGr, outfile=outfile, datoFra='2014-01-01',
+           datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg)
+outfile <- 'fig6.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+FigAndeler(RegData, valgtVar=valgtVar, reseksjonsGr=reseksjonsGr, outfile=outfile, datoFra='2014-01-01',
+           datoTil='2017-08-31', reshID=reshID, enhetsUtvalg=enhetsUtvalg)
+outfile <- 'fig7.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+FigAndeler(RegData, valgtVar=valgtVar, reseksjonsGr=reseksjonsGr, outfile=outfile, datoFra='2017-09-01',
+           datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg)
+outfile <- 'fig8.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+NorgastFigAndelTid(RegData, valgtVar=valgtVar, reseksjonsGr=reseksjonsGr, outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang)
+outfile <- 'fig8_konf.pdf'
+if (annet_format_ut) {outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)}
+NorgastFigAndelTid(RegData, valgtVar=valgtVar, reseksjonsGr=reseksjonsGr, outfile=outfile, datoFra='2014-01-01',
+                   datoTil=datoTil, reshID=reshID, enhetsUtvalg=enhetsUtvalg, tilgang=tilgang, inkl_konf=inkl_konf)
+
+
+
 ### Linn Nymo/Kristin Woll - 07.05.2018 ###############################################################
 library(norgast)
 rm(list = ls())
