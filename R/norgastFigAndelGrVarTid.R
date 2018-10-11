@@ -99,7 +99,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   if (inkl_konf) {
     rownames(andeler) <- paste0(rownames(andeler), ' (', N[, dim(N)[2]], ')')
     andeler <- rbind(andeler, c(NA,NA,NA))
-    rownames(andeler)[dim(andeler)[1]] <- '(N)'
+    rownames(andeler)[dim(andeler)[1]] <- '(N, siste år)'
     KI <- cbind(KI, c(NA, NA))
   } else {
     andeler <- rbind(andeler, c(NA,NA,NA))
