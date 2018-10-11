@@ -33,7 +33,7 @@ NorgastLibUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, 
 #   indVarMed <- which(RegData$Variabel != 'NA') %i% which(RegData$Variabel != 'NaN') %i%
 #                          which(RegData$Variabel != '') %i% which(!is.na(RegData$Variabel)) %i% which(!is.nan(RegData$Variabel))
   indAld <- which(RegData$Alder >= minald & RegData$Alder <= maxald)
-  indDato <- which(RegData$OperasjonsDato >= as.POSIXlt(datoFra) & RegData$OperasjonsDato <= as.POSIXlt(datoTil))
+  indDato <- which(RegData$OperasjonsDato >= datoFra & RegData$OperasjonsDato <= datoTil)
   indKj <- if (erMann %in% 0:1) {which(RegData$erMann == erMann)} else {indKj <- 1:Ninn}
   indOp_gr <- if (op_gruppe != 0){which(RegData$Op_gr == op_gruppe)} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad == elektiv)} else {indElekt <- 1:Ninn}

@@ -15,13 +15,13 @@ NorgastPreprosess <- function(RegData)
   names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
-  RegData$OperasjonsDato <- as.POSIXlt(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
-  RegData$HovedDato <- as.POSIXlt(RegData$HovedDato, format="%Y-%m-%d")
-  RegData$Mnd <- RegData$OperasjonsDato$mon +1
+  RegData$OperasjonsDato <- as.Date(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
+  RegData$HovedDato <- as.Date(RegData$HovedDato, format="%Y-%m-%d")
+  RegData$Mnd <- as.numeric(format(RegData$OperasjonsDato, '%m')) # RegData$OperasjonsDato$mon +1
   RegData$Kvartal <- floor((RegData$Mnd - 1)/3)+1
   RegData$Halvaar <- floor((RegData$Mnd - 1)/6)+1
-  RegData$Aar <- RegData$OperasjonsDato$year + 1900
-  RegData$DoedsDato <- as.POSIXlt(RegData$AvdodDato, format="%Y-%m-%d")
+  RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y')) # RegData$OperasjonsDato$year + 1900
+  RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
 
   RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
@@ -146,12 +146,13 @@ NorgastPreprosess <- function(RegData)
   # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
   # Definer Hastegrad med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
 
-  Helligdager <- sort(Helligdager2008til2022$Dato)
+  Helligdager <- as.Date(sort(Helligdager2008til2022$Dato))
 
   RegData$Hastegrad <- NA
   RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
   RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
-  RegData$Hastegrad[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0
+  # RegData$Hastegrad[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0 # gammel
+  RegData$Hastegrad[as.numeric(format(RegData$OperasjonsDato, '%w')) %in% c(0, 6)] <- 0
   RegData$Hastegrad[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$AvlastendeStomiRektum <- NA
