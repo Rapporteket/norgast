@@ -106,11 +106,11 @@
 
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
-                        minald=0, maxald=130, erMann=99, outfile='',
+                        minald=0, maxald=120, erMann=99, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
-                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F,
-                        reseksjonsGr='', ncsp='')
+                        elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
+                        maxPRS=2, ASA='', whoEcog= '', forbehandling='', hentData=F,
+                        op_gruppe='', ncsp='')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -125,11 +125,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
