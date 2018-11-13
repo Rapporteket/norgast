@@ -81,10 +81,10 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                           ),
                           mainPanel(tabsetPanel(
                             tabPanel("Figur",
-                                     textOutput("testSessionObj"),
-                                     plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned bilde"))#,
-                            # tabPanel("Tabell",
-                            #          tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell")),
+                                     plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned bilde")),
+                            tabPanel("Tabell",
+                                     uiOutput("utvalg"),
+                                     tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell"))
                             # tabPanel("Tabell 2",
                             #          tableOutput("Tabell2"))
                           )
@@ -95,13 +95,6 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
 
 #
 server <- function(input, output, session) {
-
-  output$testSessionObj <- renderText({
-    paste("username:", rapbase::getShinyUserName(session, testCase = TRUE),
-          "groups:", rapbase::getShinyUserGroups(session, testCase = TRUE),
-          "role:", rapbase::getShinyUserRole(session, testCase = TRUE),
-          "reshId:", rapbase::getShinyUserReshId(session, testCase = TRUE))
-  })
 
   reshID <- reactive({
     ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 4204082)
@@ -142,94 +135,95 @@ server <- function(input, output, session) {
                         reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg)
   }, width = 700, height = 700)
 
-  # tabellReager <- reactive({
-  #   TabellData <- MuskelFigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-  #                                  maxald=as.numeric(input$alder[2]), datoFra = input$datoFra, datoTil = input$datoTil,
-  #                                  diagnosegr = if (!is.null(input$diagnosegr)) {as.numeric(input$diagnosegr)} else {-1},
-  #                                  diagnose = if (!is.null(input$icd10_kntr_verdi)) {input$icd10_kntr_verdi} else {'-1'},
-  #                                  undergr = if (!is.null(input$undergruppe1_verdi)) {as.numeric(input$undergruppe1_verdi)} else {-1},
-  #                                  undergr2 = if (!is.null(input$undergruppe2_verdi)) {as.numeric(input$undergruppe2_verdi)} else {-1},
-  #                                  reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg)
-  # })
-  #
-  # output$Tabell1 <- function() {
-  #
-  #   TabellData <- tabellReager()
-  #   if (input$enhetsUtvalg == 1) {
-  #     Tabell1 <- TabellData$Antall %>%
-  #       mutate(Kategori = rownames(.)) %>%
-  #       select(Kategori, everything()) %>%
-  #       mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-  #       mutate(AndelRest= 100*AntRest/Nrest)
-  #     Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-  #     names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
-  #     Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
-  #       kable_styling("hover", full_width = F) %>%
-  #       add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
-  #   } else {
-  #     Tabell1 <- TabellData$Antall %>%
-  #       mutate(Kategori = rownames(.)) %>%
-  #       select(Kategori, everything()) %>%
-  #       mutate(AndelHoved = 100*AntHoved/NHoved)
-  #     names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
-  #     Tabell1 %>%
-  #       knitr::kable("html", digits = c(0,0,0,1)) %>%
-  #       kable_styling("hover", full_width = F)
-  #   }
-  #
-  # }
-  #
-  # output$lastNed <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar, Sys.time(), '.csv')
-  #   },
-  #
-  #   content = function(file){
-  #     TabellData <- tabellReager()
-  #     if (input$enhetsUtvalg == 1) {
-  #       Tabell1 <- TabellData$Antall %>%
-  #         mutate(Kategori = rownames(.)) %>%
-  #         select(Kategori, everything()) %>%
-  #         mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-  #         mutate(AndelRest= 100*AntRest/Nrest)
-  #       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-  #     } else {
-  #       Tabell1 <- TabellData$Antall %>%
-  #         mutate(Kategori = rownames(.)) %>%
-  #         select(Kategori, everything()) %>%
-  #         mutate(AndelHoved = 100*AntHoved/NHoved)
-  #     }
-  #     write.csv2(Tabell1, file, row.names = F)
-  #   }
-  # )
+  tabellReager <- reactive({
+    TabellData <- norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
+                                      maxald=as.numeric(input$alder[2]), datoFra = input$datoFra, datoTil = input$datoTil,
+                                      valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+                                      op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+                                      ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+                                      reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg)
+  })
 
-  # output$lastNedBilde <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
-  #   },
-  #
-  #   content = function(file){
-  #     MuskelFigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-  #                      maxald=as.numeric(input$alder[2]), datoFra = input$datoFra, datoTil = input$datoTil,
-  #                      diagnosegr = if (!is.null(input$diagnosegr)) {as.numeric(input$diagnosegr)} else {-1},
-  #                      diagnose = if (!is.null(input$icd10_kntr_verdi)) {input$icd10_kntr_verdi} else {'-1'},
-  #                      undergr = if (!is.null(input$undergruppe1_verdi)) {as.numeric(input$undergruppe1_verdi)} else {-1},
-  #                      undergr2 = if (!is.null(input$undergruppe2_verdi)) {as.numeric(input$undergruppe2_verdi)} else {-1},
-  #                      reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg)
-  #   }
-  # )
+  output$utvalg <- renderText({
+    TabellData <- tabellReager()
+    utvalgstekst <- TabellData$utvalgTxt
+    paste0('Utvalg: ', utvalgstekst)
+  })
+
+  output$utvalg <- renderUI({
+    TabellData <- tabellReager()
+    tagList(
+      h3(TabellData$tittel),
+      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+    )})
 
 
-  # output$Tabell2 <- function() {
-  #   req(input$mpg)
-  #   mtcars %>%
-  #     mutate(car = rownames(.)) %>%
-  #     select(car, everything()) %>%
-  #     filter(mpg <= 20) %>%
-  #     knitr::kable("html") %>%
-  #     kable_styling("striped", full_width = F) %>%
-  #     add_header_above(c(" ", "Group 1" = 5, "Group 2" = 6))
-  # }
+
+  output$Tabell1 <- function() {
+
+    TabellData <- tabellReager()
+    if (input$enhetsUtvalg == 1) {
+      Tabell1 <- TabellData$Antall %>%
+        mutate(Kategori = rownames(.)) %>%
+        select(Kategori, everything()) %>%
+        mutate(AndelHoved = 100*AntHoved/NHoved) %>%
+        mutate(AndelRest= 100*AntRest/Nrest)
+      Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
+      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
+      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+        kable_styling("hover", full_width = F) %>%
+        add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
+    } else {
+      Tabell1 <- TabellData$Antall %>%
+        mutate(Kategori = rownames(.)) %>%
+        select(Kategori, everything()) %>%
+        mutate(AndelHoved = 100*AntHoved/NHoved)
+      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
+      Tabell1 %>%
+        knitr::kable("html", digits = c(0,0,0,1)) %>%
+        kable_styling("hover", full_width = F)
+    }
+
+  }
+
+  output$lastNed <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, Sys.time(), '.csv')
+    },
+
+    content = function(file){
+      TabellData <- tabellReager()
+      if (input$enhetsUtvalg == 1) {
+        Tabell1 <- TabellData$Antall %>%
+          mutate(Kategori = rownames(.)) %>%
+          select(Kategori, everything()) %>%
+          mutate(AndelHoved = 100*AntHoved/NHoved) %>%
+          mutate(AndelRest= 100*AntRest/Nrest)
+        Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
+      } else {
+        Tabell1 <- TabellData$Antall %>%
+          mutate(Kategori = rownames(.)) %>%
+          select(Kategori, everything()) %>%
+          mutate(AndelHoved = 100*AntHoved/NHoved)
+      }
+      write.csv2(Tabell1, file, row.names = F)
+    }
+  )
+
+  output$lastNedBilde <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
+    },
+
+    content = function(file){
+      norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
+                          maxald=as.numeric(input$alder[2]), datoFra = input$datoFra, datoTil = input$datoTil,
+                          valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+                          op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+                          ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+                          reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, outfile=file)
+    }
+  )
 
 }
 
