@@ -130,7 +130,7 @@ valgtShus=c('')
 reseksjonsGr <- ''
 malign <- 99
 annet_format_ut <- T
-ut_format <- 'wmf'
+ut_format <- 'png'
 @
 
 <<'Sykehusfig', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
