@@ -113,8 +113,10 @@ server <- function(input, output, session) {
                                              choices = if (is.null(input$op_gruppe)){
                                                ""
                                              } else {
-                                               substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                           as.numeric(input$op_gruppe)])), 1, 5)
+                                               setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+                                                                                                    as.numeric(input$op_gruppe)])), 1, 5),
+                                                      sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+                                                                                                    as.numeric(input$op_gruppe)])))
                                              },
                                              multiple = TRUE)})
 
