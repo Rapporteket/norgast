@@ -30,7 +30,7 @@ NorgastPreprosess <- function(RegData)
   # som den som finnes i lowercase
   RegData$Hovedoperasjon[lowercase[which(!is.na(uppercase))]] <- RegData$Hovedoperasjon[uppercase[which(!is.na(uppercase))]] # Der det finnes, erstatt lowercase
   # tilfellet med den fulle beskrivelsen fra uppercase
-  RegData$Hovedoperasjon <- iconv(RegData$Hovedoperasjon, "UTF-8", "latin1")
+  RegData$Hovedoperasjon <- iconv(RegData$Hovedoperasjon, "UTF-8", "")
   RegData$Vektendring <- -RegData$VekttapProsent
   RegData$Forbehandling <- NA
   RegData$Forbehandling[which(as.numeric(RegData$KunCytostatika)==1)] <- 1
