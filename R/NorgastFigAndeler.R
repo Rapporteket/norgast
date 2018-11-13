@@ -22,19 +22,19 @@
 #'                 5: Leverreseksjoner
 #'                 6: Whipple's operasjon
 #'                 9: Annet
-#' @param reseksjonsGr Reseksjonsgruppe (Erstatter op_gruppe)
-#'                     '(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
-#'                     'JGB': Rektumreseksjoner
-#'                     'JCC': Øsofagusreseksjoner
-#'                     'JDC|JDD': Ventrikkelreseksjoner
-#'                     'JJB': Leverreseksjoner
-#'                     'JLC30|JLC31': Whipple's operasjon
-#'                     'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
-#'                     'JKA21|JKA20': Cholecystektomi
-#'                     'JEA00|JEA01': Appendektomi
-#'                     'JFB00|JFB01': Tynntarmsreseksjon
-#'                     'JDF10|JDF11': Gastric bypass
-#'                     'JDF96|JDF97': Gastric sleeve
+#' @param op_gruppe Reseksjonsgruppe
+#'                     1: Kolonreseksjoner
+#'                     2: Rektumreseksjoner
+#'                     3: Øsofagusreseksjoner
+#'                     4: Ventrikkelreseksjoner
+#'                     5: Leverreseksjoner
+#'                     6: Whipple's operasjon
+#'                     7: Andre pankreas
+#'                     8: Cholecystektomi
+#'                     9: Appendektomi
+#'                     10: Tynntarmsreseksjon
+#'                     11: Gastric bypass
+#'                     12: Gastric sleeve
 #' @param ncsp NCSP-koder(r) som skal være inkludert i utvalget
 #' @param outfile Navn på fil figuren skrives til. Default: '' (Figur skrives
 #'    til systemets default output device (som regel skjerm))
@@ -177,10 +177,15 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     AntRest <- table(RegData$VariabelGr[ind$Rest])
     Nrest <- sum(AntRest)	#length(indRest)- Kan inneholde NA
     Andeler$Rest <- 100*AntRest/Nrest
+    Antall <- cbind(AntHoved, AntRest)
+    N_ut <- cbind(NHoved=rep(NHoved, dim(Antall)[1]), Nrest=rep(Nrest, dim(Antall)[1]))
+    Antall <- as.data.frame(cbind(Antall, N_ut))
   } else {
     AntHoved <- table(RegData$VariabelGr)
     NHoved <- sum(AntHoved)
     Andeler$Hoved <- 100*AntHoved/NHoved
+    N_ut <- rep(NHoved, dim(AntHoved)[1])
+    Antall <- as.data.frame(cbind(AntHoved, NHoved=N_ut))
   }
 
 ####################
@@ -292,6 +297,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   if ( outfile != '') {dev.off()}
 
+  utData <- list(tittel = tittel, utvalgTxt = utvalgTxt, Andeler = Andeler, Antall = Antall)
+  return(invisible(utData))
 
 
 }
