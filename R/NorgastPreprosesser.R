@@ -39,15 +39,22 @@ NorgastPreprosess <- function(RegData)
   RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$KunCytostatika)==0),
                                             which(as.numeric(RegData$KunStraaleterapi)==0)),
                                   which(as.numeric(RegData$KjemoRadioKombo)==0))] <- 4
-  RegData$BMI_kodet <- NA
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Alvorlig undervekt')] <- 1
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Undervekt')] <- 2
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Mild undervekt')] <- 3
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Normal')] <- 4
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Overvekt')] <- 5
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Moderat fedme, klasse I')] <- 6
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse II')] <- 7
-  RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse III')] <- 8
+  # RegData$BMI_kodet <- NA
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Alvorlig undervekt')] <- 1
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Undervekt')] <- 2
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Mild undervekt')] <- 3
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Normal')] <- 4
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Overvekt')] <- 5
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Moderat fedme, klasse I')] <- 6
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse II')] <- 7
+  # RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse III')] <- 8
+
+  # BMI-klassifisering basert på https://www.fhi.no/fp/overvekt/kroppsmasseindeks-kmi-og-helse/
+  RegData$BMI_kategori <- cut(RegData$BMI, breaks = c(0, 16, 17, 18.5, 25, 30, 35, 40, 500), include.lowest = F, right = F,
+                              levels=1:8, labels = c('Alvorlig undervekt', 'Moderat undervekt', 'Mild undervekt', 'Normal', 'Overvekt',
+                                                     'Fedme klasse I', 'Fedme klasse II', 'Fedme klasse III'))
+
+  RegData$BMI_kodet <- as.numeric(RegData$BMI_kategori)
 
   # Definer operasjonsgrupper basert på NCSP kode
   RegData <- RegData[which(RegData$ncsp_lowercase!=''),]    # Fjerner registreringer uten operasjonskode
@@ -144,16 +151,16 @@ NorgastPreprosess <- function(RegData)
   ##############
   # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
   # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
-  # Definer Hastegrad med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
+  # Definer Hastegrad_tid med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
 
   Helligdager <- as.Date(sort(Helligdager2008til2022$Dato))
 
-  RegData$Hastegrad <- NA
-  RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
-  RegData$Hastegrad[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
-  # RegData$Hastegrad[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0 # gammel
-  RegData$Hastegrad[as.numeric(format(RegData$OperasjonsDato, '%w')) %in% c(0, 6)] <- 0
-  RegData$Hastegrad[RegData$OperasjonsDato %in% Helligdager] <- 0
+  RegData$Hastegrad_tid <- NA
+  RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
+  RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
+  # RegData$Hastegrad_tid[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0 # gammel
+  RegData$Hastegrad_tid[as.numeric(format(RegData$OperasjonsDato, '%w')) %in% c(0, 6)] <- 0
+  RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$AvlastendeStomiRektum <- NA
   RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1), which(RegData$Op_gr==2)),
