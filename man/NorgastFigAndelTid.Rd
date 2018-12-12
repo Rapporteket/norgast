@@ -6,11 +6,12 @@
 \usage{
 NorgastFigAndelTid(RegData = 0, valgtVar = "ReLapNarkose",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
-  maxald = 130, erMann = 99, outfile = "", reshID, enhetsUtvalg = 1,
-  preprosess = F, inkl_konf = 99, malign = 99, elektiv = 99, BMI = "",
-  tilgang = 99, valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "",
-  whoEcog = "", forbehandling = 99, hentData = F, tidsenhet = "Aar",
-  reseksjonsGr = "", ncsp = "")
+  maxald = 130, erMann = 99, outfile = "", reshID,
+  enhetsUtvalg = 1, preprosess = F, inkl_konf = 99, malign = 99,
+  elektiv = 99, BMI = "", tilgang = "", valgtShus = c(""),
+  minPRS = 0, maxPRS = 2.2, ASA = "", whoEcog = "",
+  forbehandling = "", hentData = F, tidsenhet = "Aar",
+  op_gruppe = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -114,19 +115,15 @@ TRUE: Ja}
 'Aar' (Default)
 'Mnd'}
 
-\item{reseksjonsGr}{Reseksjonsgruppe (Erstatter op_gruppe)
-'(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
-'JGB': Rektumreseksjoner
-'JCC': Øsofagusreseksjoner
-'JDC|JDD': Ventrikkelreseksjoner
-'JJB': Leverreseksjoner
-'JLC30|JLC31': Whipple's operasjon
-'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
-'JKA21|JKA20': Cholecystektomi
-'JEA00|JEA01': Appendektomi
-'JFB00|JFB01': Tynntarmsreseksjon
-'JDF10|JDF11': Gastric bypass
-'JDF96|JDF97': Gastric sleeve}
+\item{op_gruppe}{Operasjonsgruppe
+0: Alle grupper (Default)
+1: Kolonreseksjoner
+2: Rektumreseksjoner
+3: Øsofagusreseksjoner
+4: Ventrikkelreseksjoner
+5: Leverreseksjoner
+6: Whipple's operasjon
+9: Annet}
 
 \item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }

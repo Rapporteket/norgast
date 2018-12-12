@@ -12,11 +12,10 @@
 #'
 NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='',
-                                   reshID, preprosess=F, inkl_konf=F, malign=99, Ngrense=10,
-                                   elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                                   maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=0, reseksjonsGr='', ncsp='')
+                                   preprosess=F, inkl_konf=F, malign=99, Ngrense=10,
+                                   elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
+                                   maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 {
-  print(paste0('Diagnose: ', malign))
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -37,10 +36,11 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
   PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                    op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -61,18 +61,19 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
   if (length(indGrUt)==0) { indGrUt <- 0}
   AndelerGr[indGrUt] <- -0.001
   KI[, indGrUt] <- 0
-  sortInd <- order(as.numeric(AndelerGr), decreasing=TRUE)
+  sortInd <- order(as.numeric(AndelerGr), decreasing=FALSE)
   Ngrtxt <- paste('N=', as.character(Ngr), sep='')	#
-  Ngrtxt[indGrUt] <- paste('N<', Ngrense,sep='')	#paste(' (<', Ngrense,')',sep='')	#
+  Ngrtxt[indGrUt] <- paste0('N<', Ngrense)	#paste(' (<', Ngrense,')',sep='')	#
 
   AndelerGrSort <- AndelerGr[sortInd]
   KI <- KI[, sortInd]
 
   AndelHele <- round(100*sum(RegData$Variabel)/N, 2)
-  GrNavnSort <- paste(names(Ngr)[sortInd], ', ',Ngrtxt[sortInd], sep='')
+  GrNavnSort <- paste0(names(Ngr)[sortInd], ', ',Ngrtxt[sortInd])
 
   andeltxt <- paste(sprintf('%.1f',AndelerGrSort), '%',sep='') 	#round(as.numeric(AndelerGrSort),1)
-  if (length(indGrUt)>0) {andeltxt[(AntGr+1):(AntGr+length(indGrUt))] <- ''}
+  # if (length(indGrUt)>0) {andeltxt[(AntGr+1):(AntGr+length(indGrUt))] <- ''}
+  if (length(indGrUt)>0) {andeltxt[1:length(indGrUt)] <- ''}
 
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
@@ -114,9 +115,11 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
     pos <- barplot(as.numeric(AndelerGrSort), horiz=T, border=NA, col=farger[3], #main=tittel,
                    xlim=c(0,xmax), ylim=c(0.05, 1.25)*length(Ngr), font.main=1, xlab='Andel (%)', las=1, cex.names=0.7)
 
-    posKI <- pos[1:AntGr]
+    # posKI <- pos[1:AntGr]
+    posKI <- pos[(length(pos)-AntGr+1):length(pos)]
     ybunn <- 0.1
-    ytopp <- max(posKI)*1.03	 #min(posKI)
+    # ytopp <- max(posKI)*1.03	 #min(posKI)
+    ytopp <- max(pos)
     if (inkl_konf == 1) {
       polygon( c(rep(KIHele[1],2), rep(KIHele[2],2)), c(ybunn, ytopp, ytopp, ybunn),
                col=farger[4], border=farger[4])
@@ -144,7 +147,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
     lines(x=rep(AndelHele, 2), y=c(ybunn, ytopp), col=farger[2], lwd=2)
 
     if (inkl_konf == 1){
-      arrows(x0 = KI[1,], y0 = posKI, x1 = KI[2,], y1 = posKI,
+      arrows(x0 = KI[1,(length(pos)-AntGr+1):length(pos)], y0 = posKI, x1 = KI[2,(length(pos)-AntGr+1):length(pos)], y1 = posKI,
              length=0.5/max(pos), code=3, angle=90, lwd=1.5, col=farger[1])
     }
 

@@ -5,9 +5,7 @@
 #' returnerer et søyleplot hvor søylene representerer sist år, fyllt sirkel er året
 #' før og åpen sirkel to år før
 #'
-#' @param AntTilfeller En dataramme med antall i spesifisert form
-#' @param outfile Angir filnavn og format på figuren som returneres,
-#' @param N En dataramme med nevneren i andelsberegningen
+#' @inheritParams FigAndeler
 #' @param graaUt En vektor med navn på enheter som skal ha grå søyler
 #' @return Et plot av andeler over tre år
 #'
@@ -17,8 +15,8 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
                                    decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
-                                   tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog= '', forbehandling=99,
-                                   hentData=0, reseksjonsGr='', ncsp='')
+                                   tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
+                                   hentData=0, op_gruppe='', ncsp='')
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -40,11 +38,11 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
@@ -89,7 +87,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]
   if (!is.na(graaUt[1])) {soyleFarger[which(rownames(andeler) %in% graaUt)] <- 'gray88'}
 
-  windows(width = width, height = height)
+  # windows(width = width, height = height)
 
   oldpar_mar <- par()$mar
   oldpar_fig <- par()$fig

@@ -109,7 +109,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         minald=0, maxald=120, erMann=99, outfile='',
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
-                        maxPRS=2, ASA='', whoEcog= '', forbehandling='', hentData=F,
+                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                         op_gruppe='', ncsp='')
 {
 

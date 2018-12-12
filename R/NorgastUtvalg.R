@@ -39,7 +39,7 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
                        min(RegData$OperasjonsDato, na.rm=T), ' til ', max(RegData$OperasjonsDato, na.rm=T), sep='' ),
                  if ((minald>0) | (maxald<120)) {
                    paste('Pasienter fra ', min(RegData$Alder, na.rm=T), ' til ', max(RegData$Alder, na.rm=T), ' år', sep='')},
-                 if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinner', 'Menn')[erMann+1], sep='')},
+                 if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinne', 'Mann')[erMann+1], sep='')},
                  if (op_gruppe[1] != '') {paste0('Operasjonsgruppe(r): ',
                                              paste(RegData$Operasjonsgrupper[match(op_gruppe, RegData$Op_gr)], collapse = ', '))},
                  if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(ncsp[which(!is.na(ncsp[1:9]))], collapse=', '))},

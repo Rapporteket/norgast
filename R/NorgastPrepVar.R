@@ -18,7 +18,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   RegData$Variabel <- NA
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
+                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
                       'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
                       'Sykehusnavn', 'Malign', 'Saarruptur')) {
@@ -186,10 +186,10 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     incl_pst <- T
   }
 
-  if (valgtVar=='Hastegrad') {
-    tittel <- 'Elektiv kirurgi'
-    grtxt <- c('Ø-hjelp', 'Elektiv')
-    VarTxt <- 'med elektiv kirurgi'
+  if (valgtVar=='Hastegrad_tid') {
+    tittel <- 'Operert i normalarbeidstid'
+    grtxt <- c('Utenfor normalarbeidstid', 'Innenfor normalarbeidstid')
+    VarTxt <- 'operert i normalarbeidstid'
     RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}

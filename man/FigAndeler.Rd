@@ -5,11 +5,12 @@
 \title{Lag søylediagram eller stabelplott som viser andeler av ulike variabler}
 \usage{
 FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
-  datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  outfile = "", reshID, enhetsUtvalg = 1, stabel = F, preprosess = F,
-  malign = 99, elektiv = 99, BMI = "", tilgang = 99,
-  valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  forbehandling = 99, hentData = F, reseksjonsGr = "", ncsp = "")
+  datoTil = "2050-12-31", minald = 0, maxald = 120, erMann = 99,
+  outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
+  preprosess = F, malign = 99, elektiv = 99, BMI = "",
+  tilgang = "", valgtShus = "", minPRS = 0, maxPRS = 2, ASA = "",
+  whoEcog = "", forbehandling = "", hentData = F, op_gruppe = "",
+  ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -108,22 +109,6 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 FALSE: Nei, RegData gis som input til funksjonen (Default)
 TRUE: Ja}
 
-\item{reseksjonsGr}{Reseksjonsgruppe (Erstatter op_gruppe)
-'(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
-'JGB': Rektumreseksjoner
-'JCC': Øsofagusreseksjoner
-'JDC|JDD': Ventrikkelreseksjoner
-'JJB': Leverreseksjoner
-'JLC30|JLC31': Whipple's operasjon
-'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
-'JKA21|JKA20': Cholecystektomi
-'JEA00|JEA01': Appendektomi
-'JFB00|JFB01': Tynntarmsreseksjon
-'JDF10|JDF11': Gastric bypass
-'JDF96|JDF97': Gastric sleeve}
-
-\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
-
 \item{op_gruppe}{Operasjonsgruppe
 0: Alle grupper (Default)
 1: Kolonreseksjoner
@@ -133,6 +118,22 @@ TRUE: Ja}
 5: Leverreseksjoner
 6: Whipple's operasjon
 9: Annet}
+
+\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
+
+\item{op_gruppe}{Reseksjonsgruppe
+1: Kolonreseksjoner
+2: Rektumreseksjoner
+3: Øsofagusreseksjoner
+4: Ventrikkelreseksjoner
+5: Leverreseksjoner
+6: Whipple's operasjon
+7: Andre pankreas
+8: Cholecystektomi
+9: Appendektomi
+10: Tynntarmsreseksjon
+11: Gastric bypass
+12: Gastric sleeve}
 }
 \value{
 En figur med søylediagram eller et stabelplot av ønsket variabel

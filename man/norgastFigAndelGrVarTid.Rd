@@ -4,20 +4,112 @@
 \alias{norgastFigAndelGrVarTid}
 \title{Plot andeler/andeler i angitt format}
 \usage{
-norgastFigAndelGrVarTid(AntTilfeller, N, outfile, tittel, width = 800,
-  height = 700, sideTxt = "Boomr�de/opptaksomr�de", decreasing = F,
+norgastFigAndelGrVarTid(RegData, valgtVar, tittel = "", width = 800,
+  height = 700, sideTxt = "Boområde/opptaksområde", decreasing = F,
   terskel = 30, minstekrav = NA, maal = NA, skriftStr = 1.3,
   pktStr = 1.4, legPlass = "top", minstekravTxt = "Min.",
-  maalTxt = "M�l", graaUt = NA)
+  maalTxt = "Mål", graaUt = NA, inkl_konf = F,
+  datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
+  maxald = 130, erMann = 99, outfile = "", preprosess = F,
+  malign = 99, elektiv = 99, BMI = "", tilgang = "", minPRS = 0,
+  maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
+  hentData = 0, op_gruppe = "", ncsp = "")
 }
 \arguments{
-\item{AntTilfeller}{En dataramme med antall i spesifisert form}
+\item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
 
-\item{N}{En dataramme med nevneren i andelsberegningen}
-
-\item{outfile}{Angir filnavn og format på figuren som returneres,}
+\item{valgtVar}{Hvilken variabel skal plottes}
 
 \item{graaUt}{En vektor med navn på enheter som skal ha grå søyler}
+
+\item{datoFra}{Tidligste dato i utvalget (vises alltid i figuren).}
+
+\item{datoTil}{Seneste dato i utvalget (vises alltid i figuren).}
+
+\item{minald}{Alder, fra og med (Default: 0)}
+
+\item{maxald}{Alder, til og med (Default: 130)}
+
+\item{erMann}{kjønn
+1: menn
+0: kvinner
+99: begge (alt annet enn 0 og 1) (Default)}
+
+\item{outfile}{Navn på fil figuren skrives til. Default: '' (Figur skrives
+til systemets default output device (som regel skjerm))}
+
+\item{preprosess}{Preprosesser data
+FALSE: Nei (Default)
+TRUE: Ja}
+
+\item{malign}{Er diagnosen malign eller benign
+0: Benign
+1: Malign
+99: Alle}
+
+\item{elektiv}{Elektiv eller øyeblikkelig hjelp
+0: Øyeblikkelig hjelp
+1: Elektiv
+99: Begge deler (Default)}
+
+\item{BMI}{BMI-klasse, flervalg hvor (Default alle)
+1: Alvorlig undervekt
+2: Undervekt
+3: Mild undervekt
+4: Normal
+5: Overvekt
+6: Moderat fedme, klasse I
+7: Fedme, klasse II
+8: Fedme, klasse III}
+
+\item{tilgang}{Tilgang i abdomen
+1: Åpen eller konvertert
+2: Lapaoskopisk
+99: Alle (Default)}
+
+\item{minPRS}{Minimum PRS (Default 0?)}
+
+\item{maxPRS}{Maksimum PRS (Default 2?)}
+
+\item{ASA}{ASA-grad, flervalg hvor (Default alle)
+1: Ingen organisk, fysiologisk, biokjemisk eller psykisk forstyrrelse.
+Den aktuelle lidelsen er lokalisert og gir ikke generelle systemforstyrrelser.
+2: Moderat sykdom eller forstyrrelser som ikke forårsaker funksjonelle begrensninger.
+3: Alvorlig sykdom eller forstyrrelse som gir definerte funksjonelle begrensninger.
+4: Livstruende organisk sykdom som ikke behøver å være knyttet til den aktuelle
+kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske inngrepet.
+5: Døende pasient som ikke forventes å overleve 24 timer uten kirurgi.}
+
+\item{whoEcog}{WHO WCOG score, flervalg hvor (Default alle)
+0: Fullt aktiv
+1: Lett husarbeid og sittende arbeid
+2: Oppe > 50% av dagen, selvstelt
+3: Oppe < 50% av dagen, delvis selvstelt
+4: Kun i stol/seng, hjelp til alt stell
+9: Ukjent}
+
+\item{forbehandling}{Onkologisk forbehandling
+1: Cytostatika
+2: Stråleterapi
+3: Komb. kjemo/radioterapi
+4: Ingen
+99: Alle}
+
+\item{hentData}{Gjør spørring mot database
+FALSE: Nei, RegData gis som input til funksjonen (Default)
+TRUE: Ja}
+
+\item{op_gruppe}{Operasjonsgruppe
+0: Alle grupper (Default)
+1: Kolonreseksjoner
+2: Rektumreseksjoner
+3: Øsofagusreseksjoner
+4: Ventrikkelreseksjoner
+5: Leverreseksjoner
+6: Whipple's operasjon
+9: Annet}
+
+\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }
 \value{
 Et plot av andeler over tre år
