@@ -17,6 +17,7 @@ context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
 onServer <- context == "TEST" | context == "QA" | context == "PRODUCTION"
 if (onServer) {
   RegData <- NorgastHentRegData()
+  skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
   # rm(list = ls())
   RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
@@ -36,10 +37,10 @@ if (onServer) {
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2018-11-14 14-31-15.txt', header=TRUE, sep=';', stringsAsFactors = F)
-  skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
-  skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
-  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 }
+skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
+skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
+skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 RegData <- NorgastPreprosess(RegData)
 RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
