@@ -10,8 +10,8 @@ NorgastFigAndelTid_kvartalsrapp(RegData = 0, valgtVar = "ReLapNarkose",
   enhetsUtvalg = 1, preprosess = F, inkl_konf = 99, malign = 99,
   elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""),
   minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  forbehandling = 99, hentData = F, tidsenhet = "Aar",
-  reseksjonsGr = "", ncsp = "")
+  forbehandling = "", hentData = F, tidsenhet = "Aar",
+  op_gruppe = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -114,6 +114,16 @@ TRUE: Ja}
 \item{tidsenhet}{Plot figur med år eller måned som tidsenhet
 'Aar' (Default)
 'Mnd'}
+
+\item{op_gruppe}{Operasjonsgruppe
+0: Alle grupper (Default)
+1: Kolonreseksjoner
+2: Rektumreseksjoner
+3: Øsofagusreseksjoner
+4: Ventrikkelreseksjoner
+5: Leverreseksjoner
+6: Whipple's operasjon
+9: Annet}
 
 \item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }

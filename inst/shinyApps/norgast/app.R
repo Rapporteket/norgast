@@ -188,7 +188,9 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                           ),
                           mainPanel(tabsetPanel(
                             tabPanel("Samledokument med nasjonale tall",
-                                     downloadButton("lastNed_saml_land", "Last ned samledokument")))
+                                     downloadButton("lastNed_saml_land", "Last ned samledokument")),
+                            tabPanel("Kvartalsrapport for din avdeling",
+                                     downloadButton("lastNed_kvartal", "Last ned kvartalsrapport")))
                           )
                  ),
                  tabPanel("Administrative tabeller",
@@ -456,9 +458,9 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################
   # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil) {
+  contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0) {
     src <- normalizePath(system.file(srcFile, package="norgast"))
-    reshID <- reshID()
+    # reshID <- reshID()
 
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -481,10 +483,20 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      contentFile(file, "NorgastSamleDokLandetShiny.Rnw", "tmpNorgastSamleLandet.Rnw", input$datovalg_sml[1], input$datovalg_sml[2])
+      contentFile(file, "NorgastSamleDokLandetShiny.Rnw", "tmpNorgastSamleLandet.Rnw", input$datovalg_sml[1],
+                  input$datovalg_sml[2], reshID=reshID())
     }
   )
 
+  output$lastNed_kvartal <- downloadHandler(
+    filename = function(){
+      paste0('Kvartalsrapp', RegData$Sykehusnavn[match(reshID(), RegData$AvdRESH)], Sys.time(), '.pdf')
+    },
+
+    content = function(file){
+      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", input$datovalg_sml[1], input$datovalg_sml[2])
+    }
+  )
   # datoFra <- '2014-01-01'
   # datoTil <- '2019-01-01'
   # srcFile <- 'NorgastSamleDokLandetShiny.Rnw'
