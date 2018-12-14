@@ -46,7 +46,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-library(norgast)
+# library(norgast)
 # rm(list=ls())
 
 # hentData <- T  ##### OBS: Må settes til TRUE før opplasting til server

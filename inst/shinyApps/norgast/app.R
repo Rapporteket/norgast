@@ -215,7 +215,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
 server <- function(input, output, session) {
 
   reshID <- reactive({
-    ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 4204082)
+    ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 601225)
   })
   userRole <- reactive({
     ifelse(onServer, rapbase::getShinyUserRole(session, testCase = TRUE), 'SC')
@@ -461,6 +461,7 @@ server <- function(input, output, session) {
   contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0) {
     src <- normalizePath(system.file(srcFile, package="norgast"))
     # reshID <- reshID()
+    print(reshID)
 
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -494,7 +495,8 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", input$datovalg_sml[1], input$datovalg_sml[2])
+      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", datoFra=input$datovalg_sml[1],
+                  datoTil=input$datovalg_sml[2], reshID=reshID())
     }
   )
   # datoFra <- '2014-01-01'
