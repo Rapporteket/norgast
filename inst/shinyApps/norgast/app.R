@@ -218,7 +218,7 @@ server <- function(input, output, session) {
     ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 601225)
   })
   userRole <- reactive({
-    ifelse(onServer, rapbase::getShinyUserRole(session, testCase = TRUE), 'SC')
+    ifelse(onServer, rapbase::getShinyUserRole(session, testCase = TRUE), 'LU')
   })
 
   observe(
@@ -230,6 +230,7 @@ server <- function(input, output, session) {
   )
 
   observe(
+    if (!is.null(input$tabs_andeler)) {
     if (input$tabs_andeler ==  "Figur, sykehusvisning") {
       shinyjs::hide(id = 'enhetsUtvalg2')
       shinyjs::hide(id = 'tidsenhet')
@@ -238,7 +239,7 @@ server <- function(input, output, session) {
       shinyjs::show(id = 'enhetsUtvalg2')
       shinyjs::show(id = 'tidsenhet')
       shinyjs::show(id = 'valgtShus2')
-    }
+    }}
   )
 
   shinyjs::onclick("toggleAdvanced",
