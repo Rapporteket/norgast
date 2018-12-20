@@ -20,23 +20,23 @@ if (onServer) {
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
   # rm(list = ls())
-  RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
-                        encoding = 'UFT-8', stringsAsFactors = F)
-  # RegData <- read.table('I:/norgast/AlleVarNum2018-11-26 12-42-46.txt', header=TRUE, sep=";",
+  # RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
   #                       encoding = 'UFT-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-11-14 14-31-11.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2018-12-20 12-31-21.txt', header=TRUE, sep=";",
+                        encoding = 'UFT-8', stringsAsFactors = F)
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-12-20 12-31-43.txt', header=TRUE, sep=";",
                            encoding = 'UFT-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                         'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-                        'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
-  # , "Hastegrad")]
+                        'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose'
+  , "Hastegrad")]
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2018-11-14 14-31-15.txt', header=TRUE, sep=';', stringsAsFactors = F)
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2018-12-20 12-31-48.txt', header=TRUE, sep=';', stringsAsFactors = F)
 }
 skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
 skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
