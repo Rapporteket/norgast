@@ -12,6 +12,8 @@ library(norgast)
 library(tidyverse)
 library(kableExtra)
 library(DT)
+library(shiny)
+library(shinyjs)
 
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
 onServer <- context == "TEST" | context == "QA" | context == "PRODUCTION"
@@ -82,8 +84,6 @@ names(whoEcog_valg) <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid
 
 
 ######################################################################
-library(shiny)
-library(shinyjs)
 
 # Define UI for application
 ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
@@ -109,9 +109,9 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                                             choices = reseksjonsgrupper, multiple = TRUE),
                                 uiOutput(outputId = 'ncsp'),
                                 selectInput(inputId = "elektiv", label = "Operasjonstid",
-                                            choices = c(' '=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+                                            choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
                                 selectInput(inputId = "hastegrad", label = "Hastegrad",
-                                            choices = c(' '=99, 'Elektiv'=0, 'Akutt'=1)),
+                                            choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
                                 selectInput(inputId = "BMI", label = "BMI", choices = bmi_valg, multiple = TRUE),
                                 selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
                                 sliderInput(inputId="PRS", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
@@ -119,7 +119,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                                 selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
                                 selectInput(inputId = "forbehandling", label = "Onkologisk forbehandling", multiple = TRUE,
                                             choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                                selectInput(inputId = "malign", label = "Diagnose", choices = c(' '=99, 'Malign'=1, 'Benign'=0)))),
+                                selectInput(inputId = "malign", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)))),
                             selectInput(inputId = "bildeformat", label = "Velg bildeformat",
                                         choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                             a(id = "toggleAdvanced", "Skjul/vis flere valg", href = "#")
@@ -155,9 +155,9 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                             selectInput(inputId = "inkl_konf", label = "Inkluder konfidensintervall",
                                         choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
                             selectInput(inputId = "elektiv2", label = "Operasjonstid",
-                                        choices = c(' '=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+                                        choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
                             selectInput(inputId = "hastegrad2", label = "Hastegrad",
-                                        choices = c(' '=99, 'Elektiv'=0, 'Akutt'=1)),
+                                        choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
                             selectInput(inputId = "BMI2", label = "BMI", choices = bmi_valg, multiple = TRUE),
                             selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
                             sliderInput(inputId="PRS2", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
@@ -165,18 +165,18 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                             selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
                             selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
                                         choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                            selectInput(inputId = "malign2", label = "Diagnose", choices = c(' '=99, 'Malign'=1, 'Benign'=0)),
+                            selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
                             selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar'))
                           ),
                           mainPanel(tabsetPanel(id = "tabs_andeler",
-                            tabPanel("Figur, sykehusvisning",
-                                     plotOutput("fig_andel_grvar", height="auto")),
-                                     # plotOutput("fig_andel_grvar_tid", height="auto")),
-                            tabPanel("Tabell, sykehusvisning",
-                                     "Her kommer tabell"),
                             tabPanel("Figur, tidssvisning",
                                      plotOutput("fig_andel_tid")),
                             tabPanel("Tabell, tidssvisning",
+                                     uiOutput("utvalg_tid")),
+                            tabPanel("Figur, sykehusvisning",
+                                     plotOutput("fig_andel_grvar", height="auto")),
+                            # plotOutput("fig_andel_grvar_tid", height="auto")),
+                            tabPanel("Tabell, sykehusvisning",
                                      "Her kommer tabell")
                           )
                           )
@@ -292,7 +292,7 @@ server <- function(input, output, session) {
                         forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                         malign = as.numeric(input$malign),
                         reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                        elektiv = as.numeric(input$elektiv))
+                        elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
   tabellReager <- reactive({
@@ -309,14 +309,14 @@ server <- function(input, output, session) {
                                       forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                                       malign = as.numeric(input$malign),
                                       reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                                      elektiv = as.numeric(input$elektiv))
+                                      elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
   })
 
-  output$utvalg <- renderText({
-    TabellData <- tabellReager()
-    utvalgstekst <- TabellData$utvalgTxt
-    paste0('Utvalg: ', utvalgstekst)
-  })
+  # output$utvalg <- renderText({
+  #   TabellData <- tabellReager()
+  #   utvalgstekst <- TabellData$utvalgTxt
+  #   paste0('Utvalg: ', utvalgstekst)
+  # })
 
   output$utvalg <- renderUI({
     TabellData <- tabellReager()
@@ -397,7 +397,7 @@ server <- function(input, output, session) {
                           forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                           malign = as.numeric(input$malign),
                           reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                          elektiv = as.numeric(input$elektiv), outfile = file)
+                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad), outfile = file)
     }
   )
 
@@ -421,6 +421,61 @@ server <- function(input, output, session) {
                                 tidsenhet = if (!is.null(input$tidsenhet)) {input$tidsenhet} else {'Aar'},
                                 inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99})
   }, width = 700, height = 700)
+
+  tabellReagerTid <- reactive({
+    TabellData_Tid <- norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                                  reshID = reshID(), enhetsUtvalg=as.numeric(input$enhetsUtvalg2), minald=as.numeric(input$alder2[1]),
+                                                  maxald=as.numeric(input$alder2[2]), valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+                                                  op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                                  ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+                                                  BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                                  tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                                  minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                                  ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                                  whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                                  forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                                  malign = as.numeric(input$malign2), erMann = as.numeric(input$erMann2),
+                                                  elektiv = as.numeric(input$elektiv2),
+                                                  tidsenhet = if (!is.null(input$tidsenhet)) {input$tidsenhet} else {'Aar'},
+                                                  inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99})
+  })
+
+  output$utvalg_tid <- renderUI({
+    TabellData <- tabellReagerTid()
+    tagList(
+      h3(TabellData$tittel),
+      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+    )})
+
+
+
+  output$Tabell_tid <- function() {
+
+    TabellData <- tabellReagerTid()
+    if (input$enhetsUtvalg == 1) {
+      Tabell1 <- TabellData$Antall %>%
+        mutate(Kategori = rownames(.)) %>%
+        select(Kategori, everything()) %>%
+        mutate(AndelHoved = 100*AntHoved/NHoved) %>%
+        mutate(AndelRest= 100*AntRest/Nrest)
+      Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
+      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
+      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+        kable_styling("hover", full_width = F) %>%
+        add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
+    } else {
+      Tabell1 <- TabellData$Antall %>%
+        mutate(Kategori = rownames(.)) %>%
+        select(Kategori, everything()) %>%
+        mutate(AndelHoved = 100*AntHoved/NHoved)
+      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
+      Tabell1 %>%
+        knitr::kable("html", digits = c(0,0,0,1)) %>%
+        kable_styling("hover", full_width = F)
+    }
+
+  }
+
 
 
   output$fig_andel_grvar <- renderPlot({

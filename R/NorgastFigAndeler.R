@@ -106,7 +106,7 @@
 
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
-                        minald=0, maxald=120, erMann=99, outfile='',
+                        minald=0, maxald=120, erMann=99, outfile='', hastegrad = 99,
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
                         maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
@@ -126,7 +126,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                     op_gruppe=op_gruppe, ncsp=ncsp)
