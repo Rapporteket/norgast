@@ -298,6 +298,9 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
 
     }
 
+    utData <- list(tittel = tittel, utvalgTxt = utvalgTxt, Andeler = list(AndelHoved=AndelHoved, AndelRest=AndelRest), Tidtxt = Tidtxt,
+                   NTid=list(NTidHoved=NTidHoved, NTidRest=NTidRest))
+    return(invisible(utData))
   }
 }
 
