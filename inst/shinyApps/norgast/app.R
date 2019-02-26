@@ -316,12 +316,6 @@ server <- function(input, output, session) {
                                       elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
   })
 
-  # output$utvalg <- renderText({
-  #   TabellData <- tabellReager()
-  #   utvalgstekst <- TabellData$utvalgTxt
-  #   paste0('Utvalg: ', utvalgstekst)
-  # })
-
   output$utvalg <- renderUI({
     TabellData <- tabellReager()
     tagList(
