@@ -15,8 +15,9 @@ Imports:
   plotrix,
   DT,
   tidyverse,
-  kableExtra
-RoxygenNote: 6.1.0
+  kableExtra,
+  shinyjs
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
