@@ -3,9 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('I:/norgast/AlleVariablerNum2018-03-19 08-21-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/AlleVarNum2019-02-12 10-51-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 # aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-03-19 08-21-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-02-12 10-51-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -17,13 +17,13 @@ ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData=RegData)
 
-tmp <- substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==1])), 1, 5)
+# tmp <- substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==1])), 1, 5)
 # tmp <- tmp[-(5:15)]
 ncsp <- '' #tmp
-ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
-     'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
-     'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
-reseksjonsGr <-  '' #ny[1]
+# ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
+#      'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
+#      'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
+# reseksjonsGr <-  '' #ny[1]
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
 reshID <- 601225 #  #Må sendes med til funksjon
@@ -44,17 +44,18 @@ stabel=F
 # andel=T
 elektiv=99
 BMI <- c('')  # c('1', '3', '5')
-valgtShus <- c('708761', '102145', '601225')
+valgtShus <-''  # c('708761', '102145', '601225')
 # valgtShus <- c('')
 tilgang <- 1
 minPRS <- 0
-maxPRS <- 2
+maxPRS <- 2.2
 ASA <- '' # c('1', '3', '5')
 whoEcog <- ''  #c('0', '1', '3', '5')
-forbehandling <- 99
+forbehandling <- ''
 tidsenhet <- 'Halvaar'
 inkl_konf <- 1
 malign <- 99
+op_gruppe <- ''
 
 
 if (outfile == '') {x11()}
@@ -66,14 +67,22 @@ FigAndeler(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
 
 valgtVar <- 'ReLapNarkose'
-outfile <- 'ReLapNarkose.pdf'
+# outfile <- 'ReLapNarkose.pdf'
 if (outfile == '') {x11()}
-NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+utdata <- NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
            minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
            reshID=reshID, enhetsUtvalg=enhetsUtvalg, inkl_konf=inkl_konf,
            preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+           whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
+
+data.frame(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+           N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
+           Antall = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+           N = utdata$NTid$NTidRest, Andel = utdata$Andeler$AndelRest)
+
+
+
 
 
 if (outfile == '') {x11()}

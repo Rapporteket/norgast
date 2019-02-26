@@ -1,4 +1,4 @@
-\documentclass[norsk,a4paper]{article} % ,twoside
+\documentclass[a4paper]{article} % ,twoside
 \usepackage[norsk]{babel}
 \usepackage[utf8x]{inputenc}
 \usepackage{subfig}
@@ -83,9 +83,11 @@ datoFra <- as.character(datoFra)
   # RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
   # reshID <- 4204082
   # RegData$HovedDato <- as.POSIXlt(RegData$HovedDato, format="%Y-%m-%d")
-  RegData <- RegData[which(RegData$HovedDato >= datoFra & RegData$HovedDato <= datoTil), ]
+  # RegData <- NorgastPreprosess(RegData=RegData)
+
 #   flervalgsliste <- '' # c('601231', '102141', '601225') #, '601225')
 # }
+RegData <- RegData[which(RegData$HovedDato >= datoFra & RegData$HovedDato <= datoTil), ]
 flervalgsliste <- ''
 valgtShus <- flervalgsliste
 

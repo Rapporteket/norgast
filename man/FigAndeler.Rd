@@ -6,11 +6,11 @@
 \usage{
 FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 120, erMann = 99,
-  outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
-  preprosess = F, malign = 99, elektiv = 99, BMI = "",
-  tilgang = "", valgtShus = "", minPRS = 0, maxPRS = 2.2,
-  ASA = "", whoEcog = "", forbehandling = "", hentData = F,
-  op_gruppe = "", ncsp = "")
+  outfile = "", hastegrad = 99, reshID, enhetsUtvalg = 1,
+  stabel = F, preprosess = F, malign = 99, elektiv = 99,
+  BMI = "", tilgang = "", valgtShus = "", minPRS = 0,
+  maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
+  hentData = F, op_gruppe = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

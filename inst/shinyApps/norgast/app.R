@@ -166,13 +166,17 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                             selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
                                         choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                             selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-                            selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar'))
+                            selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
+                            selectInput(inputId = "bildeformat2", label = "Velg bildeformat",
+                                        choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
                           ),
                           mainPanel(tabsetPanel(id = "tabs_andeler",
                             tabPanel("Figur, tidssvisning",
-                                     plotOutput("fig_andel_tid")),
+                                     plotOutput("fig_andel_tid", height="auto"),
+                                     downloadButton("lastNedBilde_tid", "Last ned bilde")),
                             tabPanel("Tabell, tidssvisning",
-                                     uiOutput("utvalg_tid")),
+                                     uiOutput("utvalg_tid"),
+                                     tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
                             tabPanel("Figur, sykehusvisning",
                                      plotOutput("fig_andel_grvar", height="auto")),
                             # plotOutput("fig_andel_grvar_tid", height="auto")),
@@ -231,15 +235,15 @@ server <- function(input, output, session) {
 
   observe(
     if (!is.null(input$tabs_andeler)) {
-    if (input$tabs_andeler ==  "Figur, sykehusvisning") {
-      shinyjs::hide(id = 'enhetsUtvalg2')
-      shinyjs::hide(id = 'tidsenhet')
-      shinyjs::hide(id = 'valgtShus2')
-    } else {
-      shinyjs::show(id = 'enhetsUtvalg2')
-      shinyjs::show(id = 'tidsenhet')
-      shinyjs::show(id = 'valgtShus2')
-    }}
+      if (input$tabs_andeler ==  "Figur, sykehusvisning") {
+        shinyjs::hide(id = 'enhetsUtvalg2')
+        shinyjs::hide(id = 'tidsenhet')
+        shinyjs::hide(id = 'valgtShus2')
+      } else {
+        shinyjs::show(id = 'enhetsUtvalg2')
+        shinyjs::show(id = 'tidsenhet')
+        shinyjs::show(id = 'valgtShus2')
+      }}
   )
 
   shinyjs::onclick("toggleAdvanced",
@@ -451,32 +455,73 @@ server <- function(input, output, session) {
 
   output$Tabell_tid <- function() {
 
-    TabellData <- tabellReagerTid()
-    if (input$enhetsUtvalg == 1) {
-      Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-        mutate(AndelRest= 100*AntRest/Nrest)
-      Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
-      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+    utdata <- tabellReagerTid()
+    if (input$enhetsUtvalg2 == 1) {
+      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+                               Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
+                               Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                               N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest)
+      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
+      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
         kable_styling("hover", full_width = F) %>%
         add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
     } else {
-      Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved)
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
-      Tabell1 %>%
+      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+                               Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved)
+      Tabell_tid %>%
         knitr::kable("html", digits = c(0,0,0,1)) %>%
         kable_styling("hover", full_width = F)
     }
 
   }
 
+  output$lastNed_tid <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
+    },
 
+    content = function(file){
+      utdata <- tabellReagerTid()
+      if (input$enhetsUtvalg2 == 1) {
+        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+                             Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
+                             Antall_ovrig = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                             N_ovrig = utdata$NTid$NTidRest, Andel_ovrig = utdata$Andeler$AndelRest)
+      } else {
+        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+                             Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved)
+      }
+      write.csv2(Tabell_tid, file, row.names = F)
+    }
+  )
+
+  output$lastNedBilde_tid <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat2)
+    },
+
+    content = function(file){
+      norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                  reshID = reshID(), enhetsUtvalg=as.numeric(input$enhetsUtvalg2), minald=as.numeric(input$alder2[1]),
+                                  maxald=as.numeric(input$alder2[2]), valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+                                  op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                  ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+                                  BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                  tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                  minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                  ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                  whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                  forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                  malign = as.numeric(input$malign2), erMann = as.numeric(input$erMann2),
+                                  elektiv = as.numeric(input$elektiv2),
+                                  tidsenhet = if (!is.null(input$tidsenhet)) {input$tidsenhet} else {'Aar'},
+                                  inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99}, outfile = file)
+    }
+  )
 
   output$fig_andel_grvar <- renderPlot({
     norgast::NorgastFigAndelerGrVar(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
@@ -555,11 +600,6 @@ server <- function(input, output, session) {
                   datoTil=input$datovalg_sml[2], reshID=reshID())
     }
   )
-  # datoFra <- '2014-01-01'
-  # datoTil <- '2019-01-01'
-  # srcFile <- 'NorgastSamleDokLandetShiny.Rnw'
-  # tmpFile <- 'tmpNorgastSamleLandet.Rnw'
-
 
 
 

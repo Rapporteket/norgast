@@ -8,8 +8,8 @@ NorgastFigAndelTid_kvartalsrapp(RegData = 0, valgtVar = "ReLapNarkose",
   datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
   maxald = 130, erMann = 99, outfile = "", reshID,
   enhetsUtvalg = 1, preprosess = F, inkl_konf = 99, malign = 99,
-  elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""),
-  minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
+  elektiv = 99, BMI = "", tilgang = "", valgtShus = c(""),
+  minPRS = 0, maxPRS = 2.2, ASA = "", whoEcog = "",
   forbehandling = "", hentData = F, tidsenhet = "Aar",
   op_gruppe = "", ncsp = "")
 }
