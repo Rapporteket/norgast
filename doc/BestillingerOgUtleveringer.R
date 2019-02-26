@@ -2,6 +2,39 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+
+
+
+
+
+
+###### Stig Norderval 08.02.2019 Pasienter ved UNN - Tromsø i NoRGast med rektum elektiv, malign 2016 og 2017 #########
+RegData <- read.table('I:/norgast/AlleVarNum2018-12-20 12-31-21.txt', header=TRUE, sep=";",
+                      encoding = 'UFT-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-12-20 12-31-43.txt', header=TRUE, sep=";",
+                         encoding = 'UFT-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose'
+                      , "Hastegrad")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+
+RegData <- RegData[RegData$Aar %in% c(2016,2017), ]
+RegData <- RegData[which(RegData$Malign == 1 & RegData$Op_gr == 2 & RegData$Sykehusnavn == 'UNN-Tromsø'), ]
+
+
+write.csv2(RegData[, c("ForlopsID", "PasientID", "OperasjonsDato", "Hovedoperasjon", "Hoveddiagnose")],
+           'stig08022019.csv', row.names = F)
+
+
 ### Trond Dehli - 21.09.2018 Liste av PID robotassisterte op. ved St. Olavs ######################################################
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-09-21 08-38-12.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-09-21 08-38-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
