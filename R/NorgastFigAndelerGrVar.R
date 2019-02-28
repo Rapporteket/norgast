@@ -70,7 +70,8 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
   AndelHele <- round(100*sum(RegData$Variabel)/N, 2)
   GrNavnSort <- paste0(names(Ngr)[sortInd], ', ',Ngrtxt[sortInd])
-
+  Ngr <- Ngr[sortInd]
+  Nvar <- Nvar[sortInd]
   andeltxt <- paste(sprintf('%.1f',AndelerGrSort), '%',sep='') 	#round(as.numeric(AndelerGrSort),1)
   # if (length(indGrUt)>0) {andeltxt[(AntGr+1):(AntGr+length(indGrUt))] <- ''}
   if (length(indGrUt)>0) {andeltxt[1:length(indGrUt)] <- ''}
@@ -159,6 +160,9 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
     par('fig'=c(0, 1, 0, 1))
     if ( outfile != '') {dev.off()}
 
+    utData <- list(tittel = tittel, utvalgTxt = utvalgTxt, Andeler = AndelerGrSort, AndelHele=AndelHele,
+                   KI=KI, KIHele=KIHele, Ngr=Ngr, Nvar=Nvar)
+    return(invisible(utData))
 
   }
 }

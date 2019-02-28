@@ -126,7 +126,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                           ),
                           mainPanel(tabsetPanel(
                             tabPanel("Figur",
-                                     plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned bilde")),
+                                     plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned figur")),
                             tabPanel("Tabell",
                                      uiOutput("utvalg"),
                                      tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell"))
@@ -173,22 +173,30 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                           mainPanel(tabsetPanel(id = "tabs_andeler",
                             tabPanel("Figur, tidssvisning",
                                      plotOutput("fig_andel_tid", height="auto"),
-                                     downloadButton("lastNedBilde_tid", "Last ned bilde")),
+                                     downloadButton("lastNedBilde_tid", "Last ned figur")),
                             tabPanel("Tabell, tidssvisning",
                                      uiOutput("utvalg_tid"),
                                      tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
                             tabPanel("Figur, sykehusvisning",
-                                     plotOutput("fig_andel_grvar", height="auto")),
-                            # plotOutput("fig_andel_grvar_tid", height="auto")),
+                                     plotOutput("fig_andel_grvar", height="auto"),
+                                     downloadButton("lastNedBilde_sykehus_andel", "Last ned figur")),
                             tabPanel("Tabell, sykehusvisning",
-                                     "Her kommer tabell")
+                                     uiOutput("utvalg_sykehus_andel"),
+                                     tableOutput("Tabell_sykehus_andel"), downloadButton("lastNed_sykehus_andel", "Last ned tabell"))
                           )
                           )
                  ),
                  tabPanel("Samledokumenter",
+                          h2("Samledokumenter", align='center'),
+                          p("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller",
+                             align='center'),
+                          br(),
+                          br(),
                           sidebarPanel(
                             dateRangeInput(inputId="datovalg_sml", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til ")
+                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                            selectInput(inputId = "valgtShus3", label = "Velg sykehus",
+                                        choices = sykehus, multiple = TRUE)
                           ),
                           mainPanel(tabsetPanel(
                             tabPanel("Samledokument med nasjonale tall",
@@ -451,43 +459,44 @@ server <- function(input, output, session) {
 
     utdata <- tabellReagerTid()
     if (input$enhetsUtvalg2 == 1) {
-      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
-                               Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
-                               Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-                               N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest)
-      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
-      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                           N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                           Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                           N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
+                           Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
+      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel', 'Konf.int.nedre', 'Konf.int.ovre', 'Antall', 'N', 'Andel',
+                             'Konf.int.nedre', 'Konf.int.ovre')
+      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
         kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
+        add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
     } else {
       Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
-                               Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved)
+                           Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                           N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                           Konf.int.ovre = utdata$KonfInt$Konf[2,])
       Tabell_tid %>%
-        knitr::kable("html", digits = c(0,0,0,1)) %>%
+        knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
         kable_styling("hover", full_width = F)
     }
-
   }
 
   output$lastNed_tid <- downloadHandler(
     filename = function(){
-      paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
+      paste0(input$valgtVar_andel, '_tid', Sys.time(), '.csv')
     },
-
     content = function(file){
       utdata <- tabellReagerTid()
       if (input$enhetsUtvalg2 == 1) {
-        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
-                             Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
-                             Antall_ovrig = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-                             N_ovrig = utdata$NTid$NTidRest, Andel_ovrig = utdata$Andeler$AndelRest)
+        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                             Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                             N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
+                             Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
       } else {
         Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
                              Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved)
+                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                             Konf.int.ovre = utdata$KonfInt$Konf[2,])
       }
       write.csv2(Tabell_tid, file, row.names = F)
     }
@@ -495,9 +504,8 @@ server <- function(input, output, session) {
 
   output$lastNedBilde_tid <- downloadHandler(
     filename = function(){
-      paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat2)
+      paste0(input$valgtVar_andel, '_tid', Sys.time(), '.', input$bildeformat2)
     },
-
     content = function(file){
       norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
                                   reshID = reshID(), enhetsUtvalg=as.numeric(input$enhetsUtvalg2), minald=as.numeric(input$alder2[1]),
@@ -532,6 +540,72 @@ server <- function(input, output, session) {
                                     ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
                                     # valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''})
   }, width = 700, height = 700)
+
+  tabellReagerSykehusAndel <- reactive({
+    TabellData <- norgast::NorgastFigAndelerGrVar(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                                      minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
+                                                      inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99},
+                                                      malign = as.numeric(input$malign2), Ngrense=10,
+                                                      elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                                      tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                                      minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                                      ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                                      whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                                      forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                                      op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                                      ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
+  })
+
+  output$utvalg_sykehus_andel <- renderUI({
+    TabellData <- tabellReagerSykehusAndel()
+    tagList(
+      h3(TabellData$tittel),
+      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+    )})
+
+  output$Tabell_sykehus_andel <- function() {
+    utdata <- tabellReagerSykehusAndel()
+    Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, Andel = as.numeric(utdata$Nvar/utdata$Ngr*100),
+                     KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
+    Tabell[utdata$Andeler==-0.001, 2:6] <- NA
+    Tabell <- Tabell[dim(Tabell)[1]:1, ]
+    Tabell %>% knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
+      kable_styling("hover", full_width = F)
+  }
+
+  output$lastNed_sykehus_andel <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar_andel, '_sykehus_andel_', Sys.time(), '.csv')
+    },
+    content = function(file){
+      utdata <- tabellReagerSykehusAndel()
+      Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, Andel = as.numeric(utdata$Nvar/utdata$Ngr*100),
+                       KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
+      Tabell[utdata$Andeler==-0.001, 2:6] <- NA
+      Tabell <- Tabell[dim(Tabell)[1]:1, ]
+      write.csv2(Tabell, file, row.names = F, na = '')
+    }
+  )
+
+  output$lastNedBilde_sykehus_andel <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar_andel, '_sykehus_andel_', Sys.time(), '.', input$bildeformat2)
+    },
+    content = function(file){
+      norgast::NorgastFigAndelerGrVar(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                      minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
+                                      inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99},
+                                      malign = as.numeric(input$malign2), Ngrense=10,
+                                      elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                      tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                      minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                      ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                      whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                      forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                      op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                      ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''}, outfile = file)
+    }
+  )
 
   # (RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
     # minald=0, maxald=130, erMann=99, outfile='',

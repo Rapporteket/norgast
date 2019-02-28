@@ -76,22 +76,29 @@ utdata <- NorgastFigAndelTid(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra
            valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
            whoEcog=whoEcog, forbehandling=forbehandling, tidsenhet=tidsenhet, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
 
-data.frame(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-           N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved,
-           Antall = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-           N = utdata$NTid$NTidRest, Andel = utdata$Andeler$AndelRest)
+tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+       N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, konf_nedre = utdata$KonfInt$Konf[1,],
+       konf_ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+       N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, konf_nedre2 = utdata$KonfInt$KonfRest[1,],
+       konf_ovre2 = utdata$KonfInt$KonfRest[2,])
 
 
 
 
 
 if (outfile == '') {x11()}
-NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+utdata <- NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
                        minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
-                       reshID=reshID, inkl_konf=inkl_konf,
+                       inkl_konf=inkl_konf,
                        preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
                        valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
-                       whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                       whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                       op_gruppe=op_gruppe, ncsp=ncsp)
+
+aux <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, Andel = utdata$Nvar/utdata$Ngr*100,
+              KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
+aux[utdata$Andeler==-0.001, 2:6] <- NA
+aux <- aux[dim(aux)[1]:1, ]
 
 if (outfile == '') {x11()}
 NorgastFigGjsnGrVar(RegData=RegData, valgtVar='PRSScore', datoFra=datoFra, datoTil=datoTil,
