@@ -228,14 +228,17 @@ server <- function(input, output, session) {
 
   reshID <- reactive({
     ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 601225)
+    # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({
     ifelse(onServer, rapbase::getShinyUserRole(session, testCase = TRUE), 'SC')
+    # rapbase::getUserRole(session)
   })
 
   observe(
     if (userRole() != 'SC') {
       shinyjs::hide(id = 'valgtShus')
+      shinyjs::hide(id = 'valgtShus2')
       hideTab(inputId = "tabs_andeler", target = "Figur, sykehusvisning")
       hideTab(inputId = "tabs_andeler", target = "Tabell, sykehusvisning")
     }
@@ -250,8 +253,9 @@ server <- function(input, output, session) {
       } else {
         shinyjs::show(id = 'enhetsUtvalg2')
         shinyjs::show(id = 'tidsenhet')
-        shinyjs::show(id = 'valgtShus2')
-      }}
+        if (userRole() == 'SC') { shinyjs::show(id = 'valgtShus2')}
+      }
+      }
   )
 
   shinyjs::onclick("toggleAdvanced",
@@ -627,10 +631,10 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################
   # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0) {
+  contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0, valgtShus='') {
     src <- normalizePath(system.file(srcFile, package="norgast"))
     # reshID <- reshID()
-    print(reshID)
+    # print(reshID)
 
     # temporarily switch to the temp dir, in case we do not have write
     # permission to the current working directory
@@ -665,7 +669,8 @@ server <- function(input, output, session) {
 
     content = function(file){
       contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", datoFra=input$datovalg_sml[1],
-                  datoTil=input$datovalg_sml[2], reshID=reshID())
+                  datoTil=input$datovalg_sml[2], reshID=reshID(),
+                  valgtShus=if (!is.null(input$valgtShus3)) {input$valgtShus3} else {''})
     }
   )
 

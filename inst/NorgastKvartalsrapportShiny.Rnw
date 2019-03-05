@@ -88,8 +88,8 @@ datoFra <- as.character(datoFra)
 #   flervalgsliste <- '' # c('601231', '102141', '601225') #, '601225')
 # }
 RegData <- RegData[which(RegData$HovedDato >= datoFra & RegData$HovedDato <= datoTil), ]
-flervalgsliste <- ''
-valgtShus <- flervalgsliste
+# flervalgsliste <- ''
+# valgtShus <- flervalgsliste
 
 
 if (valgtShus[1] == '') {
