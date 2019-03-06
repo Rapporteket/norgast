@@ -13,15 +13,6 @@
 #'                 1: menn
 #'                 0: kvinner
 #'                 99: begge (alt annet enn 0 og 1) (Default)
-#' @param op_gruppe Operasjonsgruppe
-#'                 0: Alle grupper (Default)
-#'                 1: Kolonreseksjoner
-#'                 2: Rektumreseksjoner
-#'                 3: Øsofagusreseksjoner
-#'                 4: Ventrikkelreseksjoner
-#'                 5: Leverreseksjoner
-#'                 6: Whipple's operasjon
-#'                 9: Annet
 #' @param op_gruppe Reseksjonsgruppe
 #'                     1: Kolonreseksjoner
 #'                     2: Rektumreseksjoner

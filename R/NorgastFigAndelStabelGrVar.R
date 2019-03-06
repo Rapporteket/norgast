@@ -13,9 +13,9 @@
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
                                        minald=0, maxald=130, erMann=99, outfile='',
-                                       reshID, preprosess=F, malign=99, Ngrense=30,
-                                       elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                                       maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F, reseksjonsGr='', ncsp='')
+                                       preprosess=F, malign=99, Ngrense=30,
+                                       elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
+                                       maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 
 {
 
@@ -38,10 +38,10 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   if (valgtVar == 'Tilgang') {RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -108,6 +108,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
       ymax <- 0.2+1.2*(length(Ngr)+1)
 
       N_kat <- length(unique(RegData[,valgtVar]))
+      Antall <- table(RegData[ ,c(grVar, valgtVar)])
       AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
       AndelerGr[which(Ngr<Ngrense),] <- 0
 
@@ -163,7 +164,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     #savePlot(outfile, type=filtype)
     if ( outfile != '') {dev.off()}
 
-    return(invisible(list(andeler = cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), shus=GrNavnSort, N=NgrtxtSort)))
+    return(invisible(list(tittel = tittel, utvalgTxt = utvalgTxt, Antall= Antall, Ngr=Ngr)))
   }
 
 }

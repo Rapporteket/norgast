@@ -4,7 +4,6 @@ rm(list=ls())
 
 # Les inn data
 RegData <- read.table('I:/norgast/AlleVarNum2019-02-12 10-51-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-# aux <- read.table('C:/SVN/jasper/norgast/data/AlleVar2017-03-09 13-09-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-02-12 10-51-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -16,14 +15,7 @@ ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 
 
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData=RegData)
-
-# tmp <- substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr==1])), 1, 5)
-# tmp <- tmp[-(5:15)]
-ncsp <- '' #tmp
-# ny=c('(JFB[2-5][0-9]|JFB6[0-4])|JFH', 'JGB', 'JCC', 'JDC|JDD', 'JJB', 'JLC30|JLC31',
-#      'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]', 'JKA21|JKA20', 'JEA00|JEA01',
-#      'JFB00|JFB01', 'JDF10|JDF11', 'JDF96|JDF97')
-# reseksjonsGr <-  '' #ny[1]
+ncsp <- ''
 
 # reshID <- c(708761, 102145, 102143, 102141, 707232, 700922, 700413, 601225, 107440, 108162, 114271, 100100, 4204082, 4204500)
 reshID <- 601225 #  #Må sendes med til funksjon
@@ -46,7 +38,7 @@ elektiv=99
 BMI <- c('')  # c('1', '3', '5')
 valgtShus <-''  # c('708761', '102145', '601225')
 # valgtShus <- c('')
-tilgang <- 1
+tilgang <- ''
 minPRS <- 0
 maxPRS <- 2.2
 ASA <- '' # c('1', '3', '5')
@@ -83,9 +75,6 @@ tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utd
        konf_ovre2 = utdata$KonfInt$KonfRest[2,])
 
 
-
-
-
 if (outfile == '') {x11()}
 utdata <- NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
                        minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
@@ -99,6 +88,21 @@ aux <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, A
               KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
 aux[utdata$Andeler==-0.001, 2:6] <- NA
 aux <- aux[dim(aux)[1]:1, ]
+
+valgtVar <- 'ModGlasgowScore'
+if (outfile == '') {x11()}
+utdata <- NorgastFigAndelStabelGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
+                                 minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
+                                 preprosess=preprosess, hentData=hentData, elektiv = elektiv, BMI = BMI,
+                                 valgtShus = valgtShus, tilgang = tilgang, minPRS=minPRS, maxPRS=maxPRS, ASA=ASA,
+                                 whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp)
+
+tmp <- as.data.frame.matrix(utdata$Antall)
+tmp$N <- utdata$Ngr
+tmp$Avdeling <- row.names(tmp)
+row.names(tmp) <- 1:dim(tmp)[1]
+tmp <- tmp[, c(dim(tmp)[2], dim(tmp)[2]-1, 1:(dim(tmp)[2]-2))]
 
 if (outfile == '') {x11()}
 NorgastFigGjsnGrVar(RegData=RegData, valgtVar='PRSScore', datoFra=datoFra, datoTil=datoTil,
