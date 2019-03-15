@@ -241,11 +241,11 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
 server <- function(input, output, session) {
 
   reshID <- reactive({
-    ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 601225)
+    ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
     # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({
-    ifelse(onServer, rapbase::getShinyUserRole(session, testCase = TRUE), 'SC')
+    ifelse(onServer, rapbase::getUserRole(session), 'SC')
     # rapbase::getUserRole(session)
   })
 
