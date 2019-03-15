@@ -11,6 +11,7 @@
 library(norgast)
 library(tidyverse)
 library(kableExtra)
+library(magrittr)
 library(DT)
 library(shiny)
 library(shinyjs)
@@ -233,6 +234,20 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                                      tableOutput("Tabell_adm2"), downloadButton("lastNed2", "Last ned tabell"))
                           )
                           )
+                 ),
+                 tabPanel("Abonnement",
+                          sidebarPanel(
+                            selectInput("subscriptionRep", "Rapport:", c("Samlerapport1", "Samlerapport2", "Samlerapport3")),
+                            selectInput("subscriptionFreq", "Frekvens:",
+                                        list(Årlig="year", Kvartalsvis="quarter", Månedlig="month", Ukentlig="week", Daglig="DSTday"),
+                                        selected = "month"),
+                            actionButton("subscribe", "Bestill!")
+                          ),
+                          mainPanel(
+                            p(paste("Aktive abonnement som sendes per epost til", rapbase::getUserName())),
+                            DT::dataTableOutput("activeSubscriptions")
+                          )
+
                  )
 )
 
@@ -796,6 +811,55 @@ server <- function(input, output, session) {
               options = list(pageLength = 25)
     )
   )
+
+  ###################################################################################################################################
+  ## Abonnemnt ######################################################################################################################
+
+  # functions
+  findNextRunDate <- function(runDayOfYear) {
+
+    todayNum <- as.POSIXlt(Sys.Date())$yday+1
+    year <- as.POSIXlt(Sys.Date())$year + 1900
+    returnFormat <- "%A %d. %B %Y" #e.g. 'Mandag 20. januar 2019'
+
+    if (todayNum >= max(runDayOfYear | length(runDayOfYear) == 1 &
+                        todayNum >= max(runDayOfYear))) {
+      # next run will be first run of next year
+      nextDayNum <- min(runDayOfYear)
+      year <- year + 1
+    } else {
+      # next run will be next run day this year
+      nextDayNum <- min(runDayOfYear[runDayOfYear > todayNum])
+    }
+
+    format(strptime(paste(year, nextDayNum), "%Y %j"), format = returnFormat)
+
+  }
+
+  makeTab <- function(autoRepList) {
+    l <- list()
+    for (n in names(autoRepList)){
+      r <- list("repId"=n,
+                "Rapport"=autoRepList[[n]]$fun,
+                "Neste"=findNextRunDate(autoRepList[[n]]$runDayOfYear))
+      l <- rbind(l, r)
+    }
+    l
+  }
+
+  # reactives
+  makeSubTab <- reactive({
+    autoReps <- raptools::readAutoReportData() %>%
+      raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
+      raptools::selectByOwner(., owner = rapbase::getUserName())
+
+  })
+  output$activeSubscriptions <- DT::renderDataTable({
+    rd <- raptools::readAutoReportData()
+    DT::datatable(makeTab(rd))
+
+    # rbind()
+  })
 }
 
 # Run the application
