@@ -13,6 +13,7 @@ library(tidyverse)
 library(kableExtra)
 library(magrittr)
 library(DT)
+library(raptools)
 library(shiny)
 library(shinyjs)
 
@@ -237,7 +238,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                  ),
                  tabPanel("Abonnement",
                           sidebarPanel(
-                            selectInput("subscriptionRep", "Rapport:", c("Samlerapport1", "Samlerapport2", "Samlerapport3")),
+                            selectInput("subscriptionRep", "Rapport:", c("Samlerapport1", "Samlerapport2")),
                             selectInput("subscriptionFreq", "Frekvens:",
                                         list(Årlig="year", Kvartalsvis="quarter", Månedlig="month", Ukentlig="week", Daglig="DSTday"),
                                         selected = "month"),
@@ -816,14 +817,15 @@ server <- function(input, output, session) {
   ## Abonnemnt ######################################################################################################################
 
   # functions
+
   findNextRunDate <- function(runDayOfYear) {
 
     todayNum <- as.POSIXlt(Sys.Date())$yday+1
     year <- as.POSIXlt(Sys.Date())$year + 1900
     returnFormat <- "%A %d. %B %Y" #e.g. 'Mandag 20. januar 2019'
 
-    if (todayNum >= max(runDayOfYear | length(runDayOfYear) == 1 &
-                        todayNum >= max(runDayOfYear))) {
+    if (todayNum >= max(runDayOfYear) | length(runDayOfYear) == 1 &
+                        todayNum >= max(runDayOfYear)) {
       # next run will be first run of next year
       nextDayNum <- min(runDayOfYear)
       year <- year + 1
@@ -836,29 +838,67 @@ server <- function(input, output, session) {
 
   }
 
-  makeTab <- function(autoRepList) {
+  makeTab <- function() {
     l <- list()
-    for (n in names(autoRepList)){
+    autoRep <- readAutoReportData()
+    for (n in names(autoRep)){
       r <- list("repId"=n,
-                "Rapport"=autoRepList[[n]]$fun,
-                "Neste"=findNextRunDate(autoRepList[[n]]$runDayOfYear))
+                "Rapport"=autoRep[[n]]$synopsis,
+                "Neste"=findNextRunDate(autoRep[[n]]$runDayOfYear),
+                "Slett"=as.character(
+                  actionButton(inputId = paste0("del_", n),
+                               label = "x",
+                               onclick = 'Shiny.onInputChange(\"del_button\",  this.id)',
+                               style = "color: red;")))
       l <- rbind(l, r)
     }
     l
   }
 
   # reactives
-  makeSubTab <- reactive({
-    autoReps <- raptools::readAutoReportData() %>%
-      raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
-      raptools::selectByOwner(., owner = rapbase::getUserName())
 
+  # reactive values to track new subscriptions
+  rv <- reactiveValues(subscriptionTab = makeTab())
+
+  # makeSubTab <- reactive({
+  #   autoReps <- raptools::readAutoReportData() #%>%
+  #     #raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
+  #     #raptools::selectByOwner(., owner = rapbase::getUserName())
+  #   DT::datatable(makeTab(autoReps))
+  #})
+
+  output$activeSubscriptions <- DT::renderDataTable(
+    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none')
+
+  observeEvent (input$subscribe, {
+    print
+    package <- "norgast"
+    owner <- getUserName()
+    runDayOfYear <- makeRunDayOfYearSequence(interval = input$subscriptionFreq)
+    email <- "test@test.no" # need new function i rapbase
+    if (input$subscriptionRep == "Samlerapport1") {
+      synopsis <- "Automatisk samlerapport1"
+      fun <- "samlerapport1Fun"
+      paramNames <- c("p1", "p2")
+      paramValues <- c("Alder", 1)
+
+    }
+    if (input$subscriptionRep == "Samlerapport2") {
+      synopsis <- "Automatisk samlerapport2"
+      fun <- "samlerapport2Fun"
+      paramNames <- c("p1", "p2")
+      paramValues <- c("BMI", 2)
+    }
+    createAutoReport(synopsis = synopsis, package = package, fun = fun,
+                     paramNames = paramNames, paramValues = paramValues,
+                     owner = owner, email = email, runDayOfYear = runDayOfYear)
+    rv$subscriptionTab <- makeTab()
   })
-  output$activeSubscriptions <- DT::renderDataTable({
-    rd <- raptools::readAutoReportData()
-    DT::datatable(makeTab(rd))
 
-    # rbind()
+  observeEvent(input$del_button, {
+    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
+    deleteAutoReport(selectedRepId)
+    rv$subscriptionTab <- makeTab()
   })
 }
 
