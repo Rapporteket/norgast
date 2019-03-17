@@ -838,6 +838,7 @@ server <- function(input, output, session) {
 
   }
 
+
   makeTab <- function() {
     l <- list()
     autoRep <- readAutoReportData()
