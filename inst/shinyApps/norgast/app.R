@@ -245,8 +245,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                             actionButton("subscribe", "Bestill!")
                           ),
                           mainPanel(
-                            p(paste("Aktive abonnement som sendes per epost til", rapbase::getUserName())),
-                            DT::dataTableOutput("activeSubscriptions")
+                            uiOutput("subscriptionContent")
                           )
 
                  )
@@ -841,7 +840,10 @@ server <- function(input, output, session) {
 
   makeTab <- function() {
     l <- list()
-    autoRep <- readAutoReportData()
+    autoRep <- readAutoReportData() %>%
+      raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
+      raptools::selectByOwner(., owner = rapbase::getUserName())
+
     for (n in names(autoRep)){
       r <- list("repId"=n,
                 "Rapport"=autoRep[[n]]$synopsis,
@@ -861,15 +863,22 @@ server <- function(input, output, session) {
   # reactive values to track new subscriptions
   rv <- reactiveValues(subscriptionTab = makeTab())
 
-  # makeSubTab <- reactive({
-  #   autoReps <- raptools::readAutoReportData() #%>%
-  #     #raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
-  #     #raptools::selectByOwner(., owner = rapbase::getUserName())
-  #   DT::datatable(makeTab(autoReps))
-  #})
-
   output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none')
+    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+    options = list(dom = 't')
+  )
+
+  output$subscriptionContent <- renderUI({
+    if (length(rv$subscriptionTab) == 0) {
+      p(paste("Ingen aktive abonnement for", rapbase::getUserName()))
+    } else {
+      tagList(
+      p(paste0("Aktive abonnement som sendes per epost til ",
+              rapbase::getUserName(), ":")),
+      DT::dataTableOutput("activeSubscriptions")
+      )
+    }
+  })
 
   observeEvent (input$subscribe, {
     package <- "norgast"
