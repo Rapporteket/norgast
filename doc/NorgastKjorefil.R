@@ -103,6 +103,32 @@ tmp$N <- utdata$Ngr
 tmp$Avdeling <- row.names(tmp)
 row.names(tmp) <- 1:dim(tmp)[1]
 tmp <- tmp[, c(dim(tmp)[2], dim(tmp)[2]-1, 1:(dim(tmp)[2]-2))]
+aux<-tmp
+aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
+aux[,-1] <- apply(aux[,-1], 2, as.numeric)
+aux2 <- aux[,-(1:2)]/aux$N*100
+aux <- cbind(aux, aux2)
+sketch <- paste0('<table>
+  <thead>
+  <tr>
+  <th rowspan="2">Avdeling</th>
+  <th rowspan="2">N</th>
+  <th colspan="', length(utdata$legendTxt), '">Antall</th>
+  <th colspan="', length(utdata$legendTxt), '">Prosent</th>
+  </tr>
+  <tr>',
+  paste(sapply(utdata$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+  paste(sapply(utdata$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+  '</tr>
+  </thead>',
+  tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]))),
+  '</table>')
+  # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
+print(sketch)
+
+
+
+
 
 if (outfile == '') {x11()}
 NorgastFigGjsnGrVar(RegData=RegData, valgtVar='PRSScore', datoFra=datoFra, datoTil=datoTil,

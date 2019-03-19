@@ -679,20 +679,37 @@ server <- function(input, output, session) {
     aux <- aux[, c(dim(aux)[2], dim(aux)[2]-1, 1:(dim(aux)[2]-2))]
     aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
     aux[,-1] <- apply(aux[,-1], 2, as.numeric)
-    sketch <- htmltools::withTags(table(
-      tableHeader(aux[-dim(aux)[1], ]),
-      tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
+    aux2 <- aux[,-(1:2)]/aux$N*100
+    aux <- cbind(aux, aux2)
+    sketch <- paste0('<table>
+                      <thead>
+                     <tr>
+                     <th rowspan="2">Avdeling</th>
+                     <th rowspan="2">N</th>
+                     <th colspan="', length(TabellData$legendTxt), '">Antall</th>
+                     <th colspan="', length(TabellData$legendTxt), '">Prosent</th>
+                     </tr>
+                     <tr>',
+                     paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+                     paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+                     '</tr>
+                     </thead>',
+                     tableFooter(c('Totalt' , round(as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]),1))),
+                     '</table>')
+      # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
+    # sketch <- htmltools::withTags(table(
+    #   tableHeader(aux[-dim(aux)[1], ]),
+    #   tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
     list(ant_skjema=aux, sketch=sketch)
   }
 
 
-  ##### Under Arbeid: Tall tolkes som tekst
   output$Tabell_sykehus_andel_stabel = renderDT(
     datatable(stabeltabell()$ant_skjema[-dim(stabeltabell()$ant_skjema)[1], ],
               container = stabeltabell()$sketch,
               rownames = F,
-              options = list(pageLength = 25)
-    )
+              options = list(pageLength = 30)
+    ) %>% formatRound(columns=(dim(stabeltabell()$ant_skjema)[2]/2+2):dim(stabeltabell()$ant_skjema)[2], digits=1)
   )
 
 

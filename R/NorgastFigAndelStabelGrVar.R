@@ -164,7 +164,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     #savePlot(outfile, type=filtype)
     if ( outfile != '') {dev.off()}
 
-    return(invisible(list(tittel = tittel, utvalgTxt = utvalgTxt, Antall= Antall, Ngr=Ngr)))
+    return(invisible(list(tittel = tittel, utvalgTxt = utvalgTxt, legendTxt=legendTxt, Antall= Antall, Ngr=Ngr)))
   }
 
 }
