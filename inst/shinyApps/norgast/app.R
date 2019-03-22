@@ -90,10 +90,15 @@ names(whoEcog_valg) <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid
 
 
 
+addResourcePath('rap', system.file('www', package='rapbase'))
+regTitle = "RAPPORTEKET NORGAST"
+
 ######################################################################
 
 # Define UI for application
-ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
+ui <- navbarPage(div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
+                     regTitle),
+                 windowTitle = regTitle, theme = "bootstrap.css",
                  tabPanel("Fordelingsfigurer",
                           # sidebarLayout(
                           sidebarPanel(
