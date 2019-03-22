@@ -820,51 +820,6 @@ server <- function(input, output, session) {
   ###################################################################################################################################
   ## Abonnemnt ######################################################################################################################
 
-  # functions
-
-  findNextRunDate <- function(runDayOfYear) {
-
-    todayNum <- as.POSIXlt(Sys.Date())$yday+1
-    year <- as.POSIXlt(Sys.Date())$year + 1900
-    returnFormat <- "%A %d. %B %Y" #e.g. 'Mandag 20. januar 2019'
-
-    if (todayNum >= max(runDayOfYear) | length(runDayOfYear) == 1 &
-                        todayNum >= max(runDayOfYear)) {
-      # next run will be first run of next year
-      nextDayNum <- min(runDayOfYear)
-      year <- year + 1
-    } else {
-      # next run will be next run day this year
-      nextDayNum <- min(runDayOfYear[runDayOfYear > todayNum])
-    }
-
-    format(strptime(paste(year, nextDayNum), "%Y %j"), format = returnFormat)
-
-  }
-
-
-  makeTab <- function() {
-    l <- list()
-    autoRep <- readAutoReportData() %>%
-      raptools::selectByReg(., reg = rapbase::getUserGroups()) %>%
-      raptools::selectByOwner(., owner = rapbase::getUserName())
-
-    for (n in names(autoRep)){
-      r <- list("repId"=n,
-                "Rapport"=autoRep[[n]]$synopsis,
-                "Neste"=findNextRunDate(autoRep[[n]]$runDayOfYear),
-                "Slett"=as.character(
-                  actionButton(inputId = paste0("del_", n),
-                               label = "x",
-                               onclick = 'Shiny.onInputChange(\"del_button\",  this.id)',
-                               style = "color: red;")))
-      l <- rbind(l, r)
-    }
-    l
-  }
-
-  # reactives
-
   # reactive values to track new subscriptions
   rv <- reactiveValues(subscriptionTab = rapbase::makeUserSubscriptionTab(session))
 
