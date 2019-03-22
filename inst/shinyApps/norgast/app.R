@@ -829,12 +829,12 @@ server <- function(input, output, session) {
   )
 
   output$subscriptionContent <- renderUI({
+    userName <- rapbase::getUserName(session)
     if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", rapbase::getUserName(session)))
+      p(paste("Ingen aktive abonnement for", userName))
     } else {
       tagList(
-      p(paste0("Aktive abonnement som sendes per epost til ",
-              rapbase::getUserName(session), ":")),
+      p(paste0("Aktive abonnement som sendes per epost til ", userName, ":")),
       DT::dataTableOutput("activeSubscriptions")
       )
     }
