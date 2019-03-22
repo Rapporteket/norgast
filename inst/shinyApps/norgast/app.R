@@ -866,7 +866,7 @@ server <- function(input, output, session) {
   # reactives
 
   # reactive values to track new subscriptions
-  rv <- reactiveValues(subscriptionTab = makeTab())
+  rv <- reactiveValues(subscriptionTab = rapbase::makeUserSubscriptionTab(session))
 
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
@@ -875,11 +875,11 @@ server <- function(input, output, session) {
 
   output$subscriptionContent <- renderUI({
     if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", rapbase::getUserName()))
+      p(paste("Ingen aktive abonnement for", rapbase::getUserName(session)))
     } else {
       tagList(
       p(paste0("Aktive abonnement som sendes per epost til ",
-              rapbase::getUserName(), ":")),
+              rapbase::getUserName(session), ":")),
       DT::dataTableOutput("activeSubscriptions")
       )
     }
@@ -887,7 +887,7 @@ server <- function(input, output, session) {
 
   observeEvent (input$subscribe, {
     package <- "norgast"
-    owner <- getUserName()
+    owner <- getUserName(session)
     runDayOfYear <- makeRunDayOfYearSequence(interval = input$subscriptionFreq)
     email <- "test@test.no" # need new function i rapbase
     if (input$subscriptionRep == "Samlerapport1") {
@@ -906,13 +906,13 @@ server <- function(input, output, session) {
     createAutoReport(synopsis = synopsis, package = package, fun = fun,
                      paramNames = paramNames, paramValues = paramValues,
                      owner = owner, email = email, runDayOfYear = runDayOfYear)
-    rv$subscriptionTab <- makeTab()
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- makeTab()
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 }
 
