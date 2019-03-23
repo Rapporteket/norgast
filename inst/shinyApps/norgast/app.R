@@ -818,14 +818,16 @@ server <- function(input, output, session) {
   ###################################################################################################################################
   ## Abonnement #####################################################################################################################
 
-  # reactive values to track new subscriptions
+  # reactive values to track subscriptions changes
   rv <- reactiveValues(subscriptionTab = rapbase::makeUserSubscriptionTab(session))
 
+  # render current subscriptions
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
     options = list(dom = 't')
   )
 
+  # do not render a table when no subscriptions
   output$subscriptionContent <- renderUI({
     userName <- rapbase::getUserName(session)
     if (length(rv$subscriptionTab) == 0) {
@@ -838,6 +840,7 @@ server <- function(input, output, session) {
     }
   })
 
+  # new subscription
   observeEvent (input$subscribe, {
     package <- "norgast"
     owner <- getUserName(session)
@@ -865,6 +868,7 @@ server <- function(input, output, session) {
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
+  # remove existing subscription
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
