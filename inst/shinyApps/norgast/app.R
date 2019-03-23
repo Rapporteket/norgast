@@ -13,7 +13,6 @@ library(tidyverse)
 library(kableExtra)
 library(magrittr)
 library(DT)
-library(raptools)
 library(shiny)
 library(shinyjs)
 
