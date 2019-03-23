@@ -11,7 +11,6 @@
 library(norgast)
 library(tidyverse)
 library(kableExtra)
-library(magrittr)
 library(DT)
 library(shiny)
 library(shinyjs)
