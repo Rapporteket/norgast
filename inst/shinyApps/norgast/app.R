@@ -843,7 +843,9 @@ server <- function(input, output, session) {
   observeEvent (input$subscribe, {
     package <- "norgast"
     owner <- getUserName(session)
-    runDayOfYear <- makeRunDayOfYearSequence(interval = input$subscriptionFreq)
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
+      interval = input$subscriptionFreq
+      )
     email <- "test@test.no" # need new function i rapbase
     if (input$subscriptionRep == "Samlerapport1") {
       synopsis <- "Automatisk samlerapport1"
@@ -858,15 +860,16 @@ server <- function(input, output, session) {
       paramNames <- c("p1", "p2")
       paramValues <- c("BMI", 2)
     }
-    createAutoReport(synopsis = synopsis, package = package, fun = fun,
-                     paramNames = paramNames, paramValues = paramValues,
-                     owner = owner, email = email, runDayOfYear = runDayOfYear)
+    rapbase::createAutoReport(synopsis = synopsis, package = package,
+                              fun = fun, paramNames = paramNames,
+                              paramValues = paramValues, owner = owner,
+                              email = email, runDayOfYear = runDayOfYear)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    deleteAutoReport(selectedRepId)
+    rapbase::deleteAutoReport(selectedRepId)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 }
