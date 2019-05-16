@@ -11,7 +11,7 @@
 #'
 #' @export
 #'
-norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
+norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
                                    decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
@@ -54,6 +54,8 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   rownames(AntTilfeller) <- AntTilfeller$sh
   AntTilfeller <- AntTilfeller[, -1]
   AntTilfeller <- rbind(AntTilfeller, 'Norge'=colSums(AntTilfeller, na.rm = T))
+  AntTilfeller[,paste0(names(AntTilfeller)[1], '-', names(AntTilfeller)[dim(AntTilfeller)[2]])] <- rowSums(AntTilfeller, na.rm = T)
+  AntTilfeller <- AntTilfeller[, (dim(AntTilfeller)[2]-1):dim(AntTilfeller)[2]]
 
   tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), length)
   N <- tidyr::spread(tmp, 'aar', 'x')
@@ -61,6 +63,8 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   N <- N[, -1]
   N[is.na(N)] <- 0
   N <- rbind(N, 'Norge'=colSums(N, na.rm = T))
+  N[,paste0(names(N)[1], '-', names(N)[dim(N)[2]])] <- rowSums(N, na.rm = T)
+  N <- N[, (dim(N)[2]-1):dim(N)[2]]
 
   andeler <- AntTilfeller/N * 100
 
@@ -78,7 +82,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]], N[, dim(andeler)[2]])*100
   KI[, is.na(andeler[, dim(andeler)[2]])] <- NA
   pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
-  pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' siste år')
+  pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel)
   pst_txt <- c(pst_txt, NA)
 
   FigTypUt <- rapbase::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
@@ -97,7 +101,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   if (inkl_konf) {
     rownames(andeler) <- paste0(rownames(andeler), ' (', N[, dim(N)[2]], ')')
     andeler <- rbind(andeler, c(NA,NA,NA))
-    rownames(andeler)[dim(andeler)[1]] <- '(N, siste år)'
+    rownames(andeler)[dim(andeler)[1]] <- paste0('(N, ', names(andeler)[dim(andeler)[2]], ')')
     KI <- cbind(KI, c(NA, NA))
   } else {
     andeler <- rbind(andeler, c(NA,NA,NA))
@@ -125,27 +129,37 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
                    names.arg=rep('',dim(andeler)[1]),
                    horiz=T, axes=F, space=c(0,0.3),
                    col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
-  if (inkl_konf){
-    arrows(x0 = KI[1,], y0 = ypos, x1 = KI[2,], y1 = ypos,
-           length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
-  }
+
+  fargerMaalNiva <-  c('#4fc63f', '#fbf850','#c6312a') #c('green','yellow', 'red')
+  # fargerMaalNiva <-  c('green','yellow', 'red')
+  # rect(xleft=KImaalGrenser[1:antMaalNivaa], ybottom=0, xright=KImaalGrenser[2:(antMaalNivaa+1)],
+  #      ytop=max(ypos)+0.4, col = fargerMaalNiva[1:antMaalNivaa], border = NA)
+  rect(xleft=minstekrav, ybottom=0, xright=maal,
+       ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
+  rect(xleft=maal, ybottom=0, xright=min(xmax, 100),
+       ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)
+  barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
+          names.arg=rep('',dim(andeler)[1]),
+           horiz=T, axes=F, space=c(0,0.3),
+           col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
+
   # title(main = tittel, outer=T)
   title(main = tittel)
   ypos <- as.numeric(ypos) #as.vector(ypos)
   yposOver <- max(ypos) + 0.5*diff(ypos)[1]
   if (!is.na(minstekrav)) {
-    lines(x=rep(minstekrav, 2), y=c(-1, yposOver), col=farger[2], lwd=2)
-    barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
-            names.arg=rep('',dim(andeler)[1]),
-             horiz=T, axes=F, space=c(0,0.3),
-             col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
+    lines(x=rep(minstekrav, 2), y=c(-1, yposOver), col=fargerMaalNiva[2], lwd=2)
+    # barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
+    #         names.arg=rep('',dim(andeler)[1]),
+    #          horiz=T, axes=F, space=c(0,0.3),
+    #          col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
     par(xpd=TRUE)
     text(x=minstekrav, y=yposOver, labels = minstekravTxt, #paste0(minstekravTxt, minstekrav,' %'),
          pos = 3, cex=cexgr*0.65)
     par(xpd=FALSE)
   }
   if (!is.na(maal)) {
-    lines(x=rep(maal, 2), y=c(-1, yposOver), col=farger[2], lwd=2)
+    lines(x=rep(maal, 2), y=c(-1, yposOver), col=fargerMaalNiva[1], lwd=2)
     barplot( t(andeler[, dim(andeler)[2]]), beside=T, las=1,
              names.arg=rep('',dim(andeler)[1]),
              horiz=T, axes=F, space=c(0,0.3),
@@ -154,6 +168,14 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
     text(x=maal, y=yposOver, labels = maalTxt, pos = 3, cex=cexgr*0.65) #paste0(maalTxt,maal,'%')
     par(xpd=FALSE)
   }
+  if (inkl_konf){
+    arrows(x0 = KI[1,], y0 = ypos, x1 = KI[2,], y1 = ypos,
+           length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
+    legend('bottom', cex=0.9*cexgr, bty='n',
+           lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
+           legend='Konfidensintervall')
+  }
+
   axis(1,cex.axis=0.9)
   mtext( rownames(andeler), side=2, line=0.2, las=1, at=ypos, col=1, cex=cexgr)
   antAar <- dim(andeler)[2]
@@ -179,11 +201,14 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
     if (legPlass=='top'){
       legend('top', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
              lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
-             legend=names(N), ncol = dim(andeler)[2])
+             legend=names(N), ncol = dim(andeler)[2])}
+    if (legPlass=='topleft'){
+    legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+           legend=names(N), ncol = dim(andeler)[2])}
       # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
       #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
       #        legend=names(N), ncol = dim(andeler)[2])
-      } #
 
   } else {
     if (!inkl_konf) {

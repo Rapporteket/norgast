@@ -3,8 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('I:/norgast/AlleVarNum2019-02-12 10-51-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-02-12 10-51-16.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-04 15-53-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -27,7 +28,7 @@ datoTil <- '2020-01-01'
 enhetsUtvalg <- 1       #0-hele landet, 1-egen enhet mot resten av landet, 2-egen enhet
 valgtVar <- 'Saarruptur'
 # valgtVar <- 'Malign'
-valgtVar <- 'Alder'
+valgtVar <- 'Vekttap_registrert'
 outfile <- ''
 # outfile <- paste0(valgtVar, '.pdf')
 preprosess<-F
@@ -76,6 +77,20 @@ tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utd
 
 
 if (outfile == '') {x11()}
+utdata <- norgast::NorgastFigGjsnGrVar(RegData=RegData, valgtVar='BMI', datoFra = datoFra, datoTil = datoTil,
+                             minald=minald, maxald=maxald, erMann=erMann,  malign = malign, Ngrense=10,
+                             elektiv=elektiv,BMI = BMI, tilgang=tilgang, minPRS = minPRS, maxPRS = maxPRS,
+                             ASA=ASA, whoEcog = whoEcog, forbehandling = forbehandling, op_gruppe = op_gruppe, ncsp = ncsp)
+
+as_tibble(utdata$res, rownames='Sykehusnavn')
+
+
+
+
+
+
+
+
 utdata <- NorgastFigAndelerGrVar(RegData=RegData, valgtVar=valgtVar, datoFra=datoFra, datoTil=datoTil,
                        minald=minald, maxald=maxald, erMann=erMann, outfile=outfile,
                        inkl_konf=inkl_konf,

@@ -100,6 +100,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     subtxt <- 'Vektendring %'
   }
 
+  if (valgtVar=='Vekttap_registrert') {  # NA fikset
+    RegData$Variabel <- 0
+    RegData$Variabel[!is.na(RegData$VekttapProsent)] <- 1
+    tittel <- 'Premorbid vekttap registrert'
+    VarTxt <- 'med premorbid vekttap registrert'
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='Op_gr') {
     tittel <- 'Operasjonsgrupper'
     gr <- c(1:12,99)

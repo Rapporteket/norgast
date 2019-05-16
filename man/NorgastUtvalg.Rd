@@ -83,15 +83,19 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 
 \item{fargepalett}{Hvilken fargepalett skal brukes i figurer (Default: BlaaRapp)}
 
-\item{op_gruppe}{Operasjonsgruppe
-0: Alle grupper (Default)
+\item{op_gruppe}{Reseksjonsgruppe
 1: Kolonreseksjoner
 2: Rektumreseksjoner
 3: Øsofagusreseksjoner
 4: Ventrikkelreseksjoner
 5: Leverreseksjoner
 6: Whipple's operasjon
-9: Annet}
+7: Andre pankreas
+8: Cholecystektomi
+9: Appendektomi
+10: Tynntarmsreseksjon
+11: Gastric bypass
+12: Gastric sleeve}
 
 \item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }

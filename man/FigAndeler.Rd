@@ -109,18 +109,6 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 FALSE: Nei, RegData gis som input til funksjonen (Default)
 TRUE: Ja}
 
-\item{op_gruppe}{Operasjonsgruppe
-0: Alle grupper (Default)
-1: Kolonreseksjoner
-2: Rektumreseksjoner
-3: Øsofagusreseksjoner
-4: Ventrikkelreseksjoner
-5: Leverreseksjoner
-6: Whipple's operasjon
-9: Annet}
-
-\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
-
 \item{op_gruppe}{Reseksjonsgruppe
 1: Kolonreseksjoner
 2: Rektumreseksjoner
@@ -134,6 +122,8 @@ TRUE: Ja}
 10: Tynntarmsreseksjon
 11: Gastric bypass
 12: Gastric sleeve}
+
+\item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }
 \value{
 En figur med søylediagram eller et stabelplot av ønsket variabel

@@ -2,6 +2,66 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+####### Tall til dekningsgradsanalyse NPR 2018 ##########################################
+
+persondata <- read.csv('I:/norgast/AlleNorgastPasienterApril2019.csv', colClasses = "character")
+persondata$PID <- as.numeric(persondata$PID)
+# RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";",
+#                       encoding = 'UFT-8', stringsAsFactors = F)
+# RegData$OpDato <- as.Date(RegData$OpDato)
+# RegData$Aar <- format(RegData$OpDato, '%Y')
+# RegData <- RegData[RegData$Aar == 2018 & RegData$RegistreringStatus==1, ]
+# RegData <- RegData[, c("PasientId", "OpDato", "Hovedoperasjon", "AvdRESH", "SenterNavn")]
+# RegData$Hovedoperasjon <- substr(RegData$Hovedoperasjon, 1,5)
+#
+
+# setdiff(RegData$PasientId, persondata$PID)
+# setdiff(persondata$PID, RegData$PasientId)
+# RegData[RegData$PasientId %in% setdiff(RegData$PasientId, persondata$PID), "RegistreringStatus"]
+# RegData[RegData$PasientId %in% c(22455, 22458, 22460, 22464), "RegistreringStatus"]
+
+RegData <- read.table('I:/norgast/AlleVarNum2019-04-11 09-02-00.txt', header=TRUE, sep=";",
+                      encoding = 'UFT-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-11 08-59-44.txt', header=TRUE, sep=";",
+                         encoding = 'UFT-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+RegData$op_gr_npr <- 'Annet'
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
+RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
+                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
+RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jlc"),
+                            which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% c(0:40, 96)))] <- "Pankreasreseksjoner"
+
+RegData <- RegData[RegData$Aar == 2018 & RegData$RegistreringStatus==1, ]
+RegData <- RegData[RegData$op_gr_npr != 'Annet', ]
+RegData <- RegData[, c("PasientID", "HovedDato", "Hovedoperasjon", "op_gr_npr", "AvdRESH", "Sykehusnavn")]
+RegData$Hovedoperasjon <- substr(RegData$Hovedoperasjon, 1,5)
+persondata <- persondata[persondata$PID %in% unique(RegData$PasientID), ]
+persondata <- persondata[match(unique(persondata$PID), persondata$PID), ]
+persondata <- persondata[, c("Fnr", "PID")]
+
+write.csv2(persondata, 'I:/norgast/koblingsfil_norgast.csv', row.names = F)
+write.csv2(RegData, 'I:/norgast/aktivitetsdata_norgast.csv', row.names = F)
+
+
+
 
 
 
