@@ -61,8 +61,12 @@ write.csv2(persondata, 'I:/norgast/koblingsfil_norgast.csv', row.names = F)
 write.csv2(RegData, 'I:/norgast/aktivitetsdata_norgast.csv', row.names = F)
 
 
+NoRGastObligOperasjoner2018 <- as.data.frame(addmargins(table(RegData[, c('Sykehusnavn', 'op_gr_npr')], useNA = 'ifany')))
+NoRGastObligOperasjoner2018 <- tidyr::spread(data = NoRGastObligOperasjoner2018,key = op_gr_npr, value = Freq)
+NoRGastObligOperasjoner2018$AvdRESH <- RegData$AvdRESH[match(NoRGastObligOperasjoner2018$Sykehusnavn, RegData$Sykehusnavn)]
+NoRGastObligOperasjoner2018 <- NoRGastObligOperasjoner2018[, c(dim(NoRGastObligOperasjoner2018)[2],1:(dim(NoRGastObligOperasjoner2018)[2]-1))]
 
-
+write.csv2(NoRGastObligOperasjoner2018, 'I:/norgast/norgast_telling.csv', row.names = F)
 
 
 

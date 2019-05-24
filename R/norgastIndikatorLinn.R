@@ -16,7 +16,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
                                    tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
-                                   hentData=0, op_gruppe='', ncsp='')
+                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy')
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -37,6 +37,8 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   if (inkl_konf) {tittel <- c(tittel, 'inkl. 95% konf. int.')}
   PlotParams$RegData <- NA
 
+  RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
+
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
@@ -46,8 +48,6 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
-
-  RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ]
 
   tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), sum)
   AntTilfeller <- tidyr::spread(tmp, 'aar', 'x')
@@ -134,10 +134,20 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   # fargerMaalNiva <-  c('green','yellow', 'red')
   # rect(xleft=KImaalGrenser[1:antMaalNivaa], ybottom=0, xright=KImaalGrenser[2:(antMaalNivaa+1)],
   #      ytop=max(ypos)+0.4, col = fargerMaalNiva[1:antMaalNivaa], border = NA)
-  rect(xleft=minstekrav, ybottom=0, xright=maal,
-       ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
-  rect(xleft=maal, ybottom=0, xright=min(xmax, 100),
-       ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)
+
+  if (maal > minstekrav & !is.na(maal) & !is.na(minstekrav)) {
+    rect(xleft=minstekrav, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=maal, ybottom=0, xright=min(xmax, 100), ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+  if (maal < minstekrav & !is.na(maal) & !is.na(minstekrav)) {
+    rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=0, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+  if (!is.na(maal) & is.na(minstekrav) & maalretn=='lav') {
+    # rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=0, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+  if (!is.na(maal) & is.na(minstekrav) & maalretn=='hoy') {
+    # rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=maal, ybottom=0, xright=min(xmax, 100), ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+
   barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
           names.arg=rep('',dim(andeler)[1]),
            horiz=T, axes=F, space=c(0,0.3),
@@ -154,8 +164,10 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     #          horiz=T, axes=F, space=c(0,0.3),
     #          col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
     par(xpd=TRUE)
+    # text(x=minstekrav, y=yposOver, labels = minstekravTxt, #paste0(minstekravTxt, minstekrav,' %'),
+    #      pos = 3, cex=cexgr*0.65)
     text(x=minstekrav, y=yposOver, labels = minstekravTxt, #paste0(minstekravTxt, minstekrav,' %'),
-         pos = 3, cex=cexgr*0.65)
+         pos = 4, cex=cexgr*0.65, srt = 90)
     par(xpd=FALSE)
   }
   if (!is.na(maal)) {
@@ -165,7 +177,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
              horiz=T, axes=F, space=c(0,0.3),
              col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
     par(xpd=TRUE)
-    text(x=maal, y=yposOver, labels = maalTxt, pos = 3, cex=cexgr*0.65) #paste0(maalTxt,maal,'%')
+    text(x=maal, y=yposOver, labels = maalTxt, pos = 4, cex=cexgr*0.65, srt = 90) #paste0(maalTxt,maal,'%')
     par(xpd=FALSE)
   }
   if (inkl_konf){
@@ -173,7 +185,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
            length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
     legend('bottom', cex=0.9*cexgr, bty='n',
            lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
-           legend='Konfidensintervall')
+           legend=paste0('Konfidensintervall ', names(N)[dim(N)[2]]))
   }
 
   axis(1,cex.axis=0.9)
@@ -206,6 +218,10 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
            lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
            legend=names(N), ncol = dim(andeler)[2])}
+    if (legPlass=='topright'){
+      legend('topright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+             lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+             legend=names(N), ncol = dim(andeler)[2])}
       # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
       #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
       #        legend=names(N), ncol = dim(andeler)[2])
@@ -252,5 +268,5 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   # if (outfile != '') {dev.off()}
 
   if (outfile != '') {savePlot(outfile, type=substr(outfile, nchar(outfile)-2, nchar(outfile)))}
-
+  if ( outfile != '') {dev.off()}
 }
