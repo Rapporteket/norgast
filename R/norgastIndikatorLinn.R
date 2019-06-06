@@ -130,8 +130,8 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                    horiz=T, axes=F, space=c(0,0.3),
                    col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
 
-  fargerMaalNiva <-  c('#4fc63f', '#fbf850','#c6312a') #c('green','yellow', 'red')
-  # fargerMaalNiva <-  c('green','yellow', 'red')
+  # fargerMaalNiva <-  c('#4fc63f', '#fbf850','#c6312a')
+  fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
   # rect(xleft=KImaalGrenser[1:antMaalNivaa], ybottom=0, xright=KImaalGrenser[2:(antMaalNivaa+1)],
   #      ytop=max(ypos)+0.4, col = fargerMaalNiva[1:antMaalNivaa], border = NA)
 

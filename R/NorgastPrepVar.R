@@ -40,6 +40,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='mortalitet90') {
     tittel <- 'Andel avdøde innen 90 dager etter operasjon'
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
+    RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$Variabel <- 0
     RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
     RegData <- RegData[-which(RegData$OpDoedTid < 0), ]
@@ -321,7 +323,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='Anastomoselekkasje') {
     tittel <- 'Anastomoselekkasje, ny anastomose'
-    VarTxt <- 'anastomoselekkasjer'
+    VarTxt <- 'anastomoselekkasjer, ny anastomose'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
