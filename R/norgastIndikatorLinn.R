@@ -28,15 +28,6 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     RegData <- NorgastPreprosess(RegData=RegData)
   }
 
-  ## Preparer variabler for fremstilling i figur
-  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
-  RegData <- PlotParams$RegData
-  if (tittel[1] == '') {
-    tittel <- paste0('Andel ', PlotParams$VarTxt)
-  }
-  if (inkl_konf) {tittel <- c(tittel, 'inkl. 95% konf. int.')}
-  PlotParams$RegData <- NA
-
   RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
@@ -48,6 +39,15 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
+
+  ## Preparer variabler for fremstilling i figur
+  PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+  RegData <- PlotParams$RegData
+  if (tittel[1] == '') {
+    tittel <- paste0('Andel ', PlotParams$VarTxt)
+  }
+  if (inkl_konf) {tittel <- c(tittel, 'inkl. 95% konf. int.')}
+  PlotParams$RegData <- NA
 
   tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), sum)
   AntTilfeller <- tidyr::spread(tmp, 'aar', 'x')

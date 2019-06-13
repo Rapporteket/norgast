@@ -44,7 +44,6 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$Variabel <- 0
     RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
-    RegData <- RegData[-which(RegData$OpDoedTid < 0), ]
     grtxt <- c('Nei', 'Ja')
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     retn <- 'V'
