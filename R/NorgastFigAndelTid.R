@@ -143,7 +143,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   VarTxt <- PlotParams$VarTxt; ##
   if (!(inkl_konf %in% c(0,1))) {inkl_konf=PlotParams$inkl_konf}
 
-  FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett)
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett)
   farger <- FigTypUt$farger
   tittel <-  c(tittel, shtxt)
 

@@ -13,7 +13,8 @@ norgastIndikatorLinn(RegData, valgtVar, tittel = "", width = 800,
   maxald = 130, erMann = 99, outfile = "", preprosess = F,
   malign = 99, elektiv = 99, BMI = "", tilgang = "", minPRS = 0,
   maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
-  hentData = 0, op_gruppe = "", ncsp = "")
+  hentData = 0, op_gruppe = "", ncsp = "", maalretn = "hoy",
+  lavDG = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

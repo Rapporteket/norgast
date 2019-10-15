@@ -76,7 +76,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
   tittel <- paste0('Gjennomsnittlig ', vt)
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
-    FigTypUt <- figtype(outfile)
+    FigTypUt <- rapFigurer::figtype(outfile)
     farger <- FigTypUt$farger
     plot.new()
     if (dim(RegData)[1]>0) {
@@ -114,7 +114,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
   cexSoyletxt <- 0.75
 
   # x11()
-  FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
+  FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
   farger <- FigTypUt$farger
   #Tilpasse marger for å kunne skrive utvalgsteksten
   NutvTxt <- length(utvalgTxt)

@@ -81,7 +81,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' siste år')
   pst_txt <- c(pst_txt, NA)
 
-  FigTypUt <- rapbase::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
   soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]

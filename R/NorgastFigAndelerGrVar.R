@@ -78,7 +78,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
-    FigTypUt <- figtype(outfile)
+    FigTypUt <- rapFigurer::figtype(outfile)
     farger <- FigTypUt$farger
     plot.new()
     if (dim(RegData)[1]>0) {
@@ -99,7 +99,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
       tittel <- c(tittel, 'inkl. 95% konf. int.')
     }
 
-    FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)
+    FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)
     farger <- FigTypUt$farger
     #Tilpasse marger for å kunne skrive utvalgsteksten
     NutvTxt <- length(utvalgTxt)

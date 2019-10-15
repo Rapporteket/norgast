@@ -54,7 +54,7 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
-    FigTypUt <- figtype(outfile)
+    FigTypUt <- rapFigurer::figtype(outfile)
     farger <- FigTypUt$farger
     plot.new()
     if (dim(RegData)[1]>0) {
@@ -126,7 +126,7 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
       xmax <- max(rowSums(AndelerGr), na.rm = T)
       ymax <- length(grtxt)*1.2
 
-      FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
+      FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
       farger <- FigTypUt$farger
 
       landet <- AndelerGr

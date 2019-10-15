@@ -16,7 +16,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
                                    tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
-                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy')
+                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='')
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -70,6 +70,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
 
   # terskel <- 10
   andeler[N < terskel] <- NA
+  andeler[rownames(andeler) %in% lavDG, ] <- NA
 
   if (decreasing){
     rekkefolge <- order(andeler[, dim(andeler)[2]], decreasing = decreasing, na.last = F)
@@ -82,10 +83,12 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]], N[, dim(andeler)[2]])*100
   KI[, is.na(andeler[, dim(andeler)[2]])] <- NA
   pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
-  pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel)
+  # pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' eller dekningsgrad mindre en 60 pst.')
+  pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
+  pst_txt[rownames(andeler) %in% lavDG] <- 'Dekningsgrad < 60 %'
   pst_txt <- c(pst_txt, NA)
 
-  FigTypUt <- rapbase::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
   soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]

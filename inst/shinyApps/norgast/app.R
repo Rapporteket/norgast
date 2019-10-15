@@ -23,11 +23,11 @@ if (onServer) {
 } else {
   # rm(list = ls())
   # RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
-  #                       encoding = 'UFT-8', stringsAsFactors = F)
+  #                       encoding = 'UTF-8', stringsAsFactors = F)
   RegData <- read.table('I:/norgast/AlleVarNum2019-04-26 10-59-03.txt', header=TRUE, sep=";",
-                        encoding = 'UFT-8', stringsAsFactors = F)
+                        encoding = 'UTF-8', stringsAsFactors = F)
   ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";",
-                           encoding = 'UFT-8', stringsAsFactors = F)
+                           encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -37,10 +37,10 @@ if (onServer) {
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-04-26 10-59-23.txt', header=TRUE, sep=';', stringsAsFactors = F)
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-04-26 10-59-23.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
-skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
-skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
+# skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
+# skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 RegData <- NorgastPreprosess(RegData)
@@ -266,7 +266,7 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
 server <- function(input, output, session) {
 
   reshID <- reactive({
-    ifelse(onServer, as.numeric(rapbase::getShinyUserReshId(session, testCase = TRUE)), 601225)
+    ifelse(onServer, as.numeric(rapbase::getUserReshId(session, testCase = TRUE)), 601225)
     # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({

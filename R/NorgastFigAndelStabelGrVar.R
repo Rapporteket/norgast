@@ -13,7 +13,7 @@
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
                                        minald=0, maxald=130, erMann=99, outfile='',
-                                       preprosess=F, malign=99, Ngrense=30,
+                                       preprosess=F, malign=99, Ngrense=30, lavDG='',
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 
@@ -54,7 +54,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
-    FigTypUt <- figtype(outfile)
+    FigTypUt <- rapFigurer::figtype(outfile)
     farger <- FigTypUt$farger
     plot.new()
     if (dim(RegData)[1]>0) {
@@ -84,15 +84,11 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                            'ThoraxTilgang' <- NULL
     )
 
-    # Ngrtxt <- paste0('N=', as.character(Ngr))
-    # indGrUt <- as.numeric(which(Ngr < Ngrense))
-    # if (length(indGrUt)==0) { indGrUt <- 0}
-    # Ngrtxt[indGrUt] <- paste0(' (<', Ngrense,')')
-    #
 
     N_kat <- length(unique(RegData[,valgtVar]))
     AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
     AndelerGr[which(Ngr<Ngrense),] <- NA
+    AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 
     dataAlle <- table(RegData$Variabel)/N*100
 
@@ -107,6 +103,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     grtxt <- paste0(names(Ngr), ' (', Ngr, ')')
     Ngrtxt <- rep(NA, length(Ngr))    #paste0('N=', Ngr)
     Ngrtxt[Ngr<Ngrense] <- paste0('N<', Ngrense)
+    Ngrtxt[names(Ngr) %in% lavDG] <- 'Dekningsgrad < 60 %'
 
     if (N_kat==3){
       sortInd <- order(AndelerGr[,2], decreasing = F, na.last = F)
@@ -126,7 +123,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     xmax <- max(rowSums(AndelerGr), na.rm = T)
     ymax <- length(grtxt)*1.2
 
-    FigTypUt <- figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
+    FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
     farger <- FigTypUt$farger
 
     landet <- AndelerGr

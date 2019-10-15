@@ -7,10 +7,10 @@
 NorgastFigAndelStabelGrVarAarsrapp(RegData = 0,
   valgtVar = "ModGlasgowScore", datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  outfile = "", reshID, preprosess = F, malign = 99, Ngrense = 30,
-  elektiv = 99, BMI = "", tilgang = 99, valgtShus = c(""),
-  minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  forbehandling = 99, hentData = F, reseksjonsGr = "", ncsp = "")
+  outfile = "", preprosess = F, malign = 99, Ngrense = 30,
+  elektiv = 99, BMI = "", tilgang = "", valgtShus = c(""),
+  minPRS = 0, maxPRS = 2.2, ASA = "", whoEcog = "",
+  forbehandling = "", hentData = 0, op_gruppe = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -32,9 +32,6 @@ NorgastFigAndelStabelGrVarAarsrapp(RegData = 0,
 
 \item{outfile}{Navn på fil figuren skrives til. Default: '' (Figur skrives
 til systemets default output device (som regel skjerm))}
-
-\item{reshID}{Parameter følger fra innlogging helseregister.no og angir
-hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
 
 \item{preprosess}{Preprosesser data
 FALSE: Nei (Default)
@@ -99,6 +96,20 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 \item{hentData}{Gjør spørring mot database
 FALSE: Nei, RegData gis som input til funksjonen (Default)
 TRUE: Ja}
+
+\item{op_gruppe}{Reseksjonsgruppe
+1: Kolonreseksjoner
+2: Rektumreseksjoner
+3: Øsofagusreseksjoner
+4: Ventrikkelreseksjoner
+5: Leverreseksjoner
+6: Whipple's operasjon
+7: Andre pankreas
+8: Cholecystektomi
+9: Appendektomi
+10: Tynntarmsreseksjon
+11: Gastric bypass
+12: Gastric sleeve}
 
 \item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }

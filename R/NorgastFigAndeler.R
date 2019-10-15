@@ -185,7 +185,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
   stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
   incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
-  FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
 
   #Hvis for få observasjoner..
   if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)) {

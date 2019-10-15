@@ -63,7 +63,7 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
   }
   N <- N[rekkefolge, ]
 
-  FigTypUt <- rapbase::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(N[,dim(N)[2]]))
 

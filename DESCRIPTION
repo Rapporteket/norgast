@@ -16,7 +16,8 @@ Imports:
   DT,
   tidyverse,
   kableExtra,
-  shinyjs
+  shinyjs,
+  rapFigurer
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown

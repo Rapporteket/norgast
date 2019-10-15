@@ -11,9 +11,9 @@ norgastFigAntRegTid(RegData, tittel = "", width = 800, height = 700,
   graaUt = NA, inkl_konf = F, datoFra = "2014-01-01",
   datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
   outfile = "", preprosess = F, malign = 99, elektiv = 99,
-  BMI = "", tilgang = 99, minPRS = 0, maxPRS = 2, ASA = "",
-  whoEcog = "", forbehandling = 99, hentData = 0,
-  reseksjonsGr = "", ncsp = "")
+  BMI = "", tilgang = "", minPRS = 0, maxPRS = 2.2, ASA = "",
+  whoEcog = "", forbehandling = "", hentData = 0, op_gruppe = "",
+  ncsp = "")
 }
 \arguments{
 \item{graaUt}{En vektor med navn på enheter som skal ha grå søyler}
