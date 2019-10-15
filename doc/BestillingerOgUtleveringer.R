@@ -2,6 +2,59 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+############# Stig Norderval - Utlevering 27.08.2019 ###############################
+koblingsinfo <- read.table('I:/norgast/AlleNorgastPasienterAugsti2019.csv', header=TRUE, sep=",", colClasses = c('integer', 'character'))
+koblingsinfo <- koblingsinfo[match(unique(koblingsinfo$PID), koblingsinfo$PID), ]
+
+RegData <- read.table('I:/norgast/AlleVarNum2019-06-27 12-09-02.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-27 12-09-18.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- RegData[which(RegData$BasisRegStatus == 1), ]
+RegData <- RegData[which(substr(tolower(RegData$Hovedoperasjon),1,3)=="jgb"), ]
+RegData <- RegData[which(substr(RegData$Hoveddiagnose, 1, 1) == 'C'), ]
+
+RegDataNum <- merge(RegData, koblingsinfo, by.x = "PasientID", by.y = "PID", all.x = T)
+RegDataNum <- RegDataNum[which(as.Date(RegDataNum$HovedDato) <= "2018-12-31"), ]
+
+RegData <- read.table('I:/norgast/AlleVar2019-06-27 12-08-46.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegDataLabel <- merge(RegData, koblingsinfo, by.x = "PasientID", by.y = "PID", all.x = T)
+RegDataLabel <- RegDataLabel[which(RegDataLabel$ForlopsID %in% RegDataNum$ForlopsID), ]
+
+write.csv2(RegDataNum, 'norgastdata_num_27082019.csv', row.names = F)
+write.csv2(RegDataLabel, 'norgastdata_label_27082019.csv', row.names = F)
+
+############# Fagråd - Innhold av Annet under årsak til reoperasjon 16.06.2019 ###############################
+
+RegData <- read.table('I:/norgast/AlleVarNum2019-06-12 09-09-03.txt', header=TRUE, sep=";",
+                      encoding = 'UFT-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-12 09-09-17.txt', header=TRUE, sep=";",
+                         encoding = 'UFT-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', 'OppfAnnenOpIAnestsi', 'AnnenOpIAnestsi')]
+
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
+RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+
+RegData <- RegData[RegData$Aar %in% c(2017, 2018), ]
+RegData <- RegData[which(RegData$ViktigsteFunn==5), ]
+
+Utlevering <- RegData[, c("PasientID", "OperasjonsDato", "Sykehusnavn")]
+Utlevering <- Utlevering[order(Utlevering$Sykehusnavn), ]
+
+write.csv2(Utlevering, 'reopererte_funn_annet.csv', row.names = F)
+
 ####### Tall til dekningsgradsanalyse NPR 2018 ##########################################
 
 persondata <- read.csv('I:/norgast/AlleNorgastPasienterApril2019.csv', colClasses = "character")
