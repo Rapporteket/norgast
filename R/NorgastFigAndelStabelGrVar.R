@@ -87,6 +87,12 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     N_kat <- length(unique(RegData[,valgtVar]))
     AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
+    utdata_antall <- RegData[ ,c(grVar, valgtVar)] %>% table() %>%
+      addmargins(2) %>% as_tibble() %>% spread(key = valgtVar, value = n)
+    if (valgtVar != 'AccordionGrad') {names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
+    # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
+    utdata_andel <- utdata_antall
+    utdata_andel <- utdata_andel %>% mutate_at(2:(N_kat+1), funs(. / Sum * 100))
     AndelerGr[which(Ngr<Ngrense),] <- NA
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 
@@ -167,7 +173,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     par('fig'=c(0, 1, 0, 1))
     if ( outfile != '') {dev.off()}
 
-    # return(invisible(list(andeler = cbind(as.numeric(dataAlle), rep(0,N_kat), t(AndelerGr[sortInd,])), shus=GrNavnSort, N=NgrtxtSort)))
+    return(invisible(list(andeler = utdata_andel, antall = utdata_antall, utvalgTxt=utvalgTxt, tittel=tittel)))
   }
 }
 

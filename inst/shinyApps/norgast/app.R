@@ -196,7 +196,8 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                                      plotOutput("fig_andel_grvar_stabel", height="auto"),
                                      downloadButton("lastNedBilde_sykehus_andel_stabel", "Last ned figur")),
                             tabPanel("Tabell, andeler i stabel",
-                                     DTOutput("Tabell_sykehus_andel_stabel"), downloadButton("lastNedStabelTabell", "Last ned tabell")),
+                                     uiOutput("utvalg_sykehus_andel_stabel"),
+                                     tableOutput("Tabell_sykehus_andel_stabel"), downloadButton("lastNedStabelTabell", "Last ned tabell")),
                             tabPanel("Figur, gjennomsnitt per sykehus",
                                      plotOutput("fig_gjsn_grvar", height="auto"),
                                      downloadButton("lastNedBilde_sykehus_gjsn", "Last ned figur")),
@@ -270,7 +271,7 @@ server <- function(input, output, session) {
     # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({
-    ifelse(onServer, rapbase::getUserRole(session), 'SC')
+    ifelse(onServer, rapbase::getUserRole(session), 'LU')
     # rapbase::getUserRole(session)
   })
 
@@ -282,13 +283,16 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'valgtShus4')
       hideTab(inputId = "tabs_andeler", target = "Figur, sykehusvisning")
       hideTab(inputId = "tabs_andeler", target = "Tabell, sykehusvisning")
+      hideTab(inputId = "tabs_andeler", target = "Figur, andeler i stabel")
+      hideTab(inputId = "tabs_andeler", target = "Tabell, andeler i stabel")
+      hideTab(inputId = "tabs_andeler", target = "Figur, gjennomsnitt per sykehus")
+      hideTab(inputId = "tabs_andeler", target = "Tabell, gjennomsnitt per sykehus")
     }
   )
 
   observe(
     if (!is.null(input$tabs_andeler)) {
-      if (input$tabs_andeler %in%  c("Figur, sykehusvisning", "Tabell, sykehusvisning",
-                                     "Figur, andeler i stabel", "Tabell, andeler i stabel")) {
+      if (!(input$tabs_andeler %in%  c("Figur, tidsvisning", "Tabell, tidsvisning"))) {
         shinyjs::hide(id = 'enhetsUtvalg2')
         shinyjs::hide(id = 'tidsenhet')
         shinyjs::hide(id = 'valgtShus2')
@@ -299,13 +303,22 @@ server <- function(input, output, session) {
       }
       if (input$tabs_andeler %in%  c("Figur, andeler i stabel", "Tabell, andeler i stabel")){
         shinyjs::hide(id = 'valgtVar_andel')
+        shinyjs::hide(id = 'valgtVar_gjsn')
         shinyjs::show(id = 'valgtVar_andel_stabel')
         shinyjs::hide(id = 'inkl_konf')
-      } else {
+      }
+      if (input$tabs_andeler %in%  c("Figur, tidsvisning", "Tabell, tidsvisning", "Figur, sykehusvisning", "Tabell, sykehusvisning")) {
         shinyjs::hide(id = 'valgtVar_andel_stabel')
         shinyjs::show(id = 'valgtVar_andel')
         shinyjs::show(id = 'inkl_konf')
       }
+      if (input$tabs_andeler %in%  c("Figur, gjennomsnitt per sykehus", "Tabell, gjennomsnitt per sykehus")) {
+        shinyjs::hide(id = 'valgtVar_andel_stabel')
+        shinyjs::show(id = 'valgtVar_gjsn')
+        shinyjs::hide(id = 'valgtVar_andel')
+        shinyjs::show(id = 'inkl_konf')
+      }
+
       }
   )
 
@@ -779,57 +792,69 @@ server <- function(input, output, session) {
       h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
     )})
 
-  stabeltabell <- function() {
+  output$Tabell_sykehus_andel_stabel <- function() {
     TabellData <- tabellReagerSykehusAndelStabel()
-    aux <- as.data.frame.matrix(TabellData$Antall)
-    aux$N <- TabellData$Ngr
-    aux$Avdeling <- row.names(aux)
-    row.names(aux) <- 1:dim(aux)[1]
-    aux <- aux[, c(dim(aux)[2], dim(aux)[2]-1, 1:(dim(aux)[2]-2))]
-    aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
-    aux[,-1] <- apply(aux[,-1], 2, as.numeric)
-    aux2 <- aux[,-(1:2)]/aux$N*100
-    aux <- cbind(aux, aux2)
-    sketch <- paste0('<table>
-                      <thead>
-                     <tr>
-                     <th rowspan="2">Avdeling</th>
-                     <th rowspan="2">N</th>
-                     <th colspan="', length(TabellData$legendTxt), '">Antall</th>
-                     <th colspan="', length(TabellData$legendTxt), '">Prosent</th>
-                     </tr>
-                     <tr>',
-                     paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-                     paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-                     '</tr>
-                     </thead>',
-                     tableFooter(c('Totalt' , round(as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]),1))),
-                     '</table>')
-      # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-    # sketch <- htmltools::withTags(table(
-    #   tableHeader(aux[-dim(aux)[1], ]),
-    #   tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-    list(ant_skjema=aux, sketch=sketch)
+    Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)])
+    names(Tabell)[(dim(Tabell)[2]/2 + 2):dim(Tabell)[2]] <- names(Tabell)[2:(dim(Tabell)[2]/2)]
+    names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
+
+    Tabell %>% knitr::kable("html", digits = c(rep(0, dim(Tabell)[2]/2 + 1), rep(1, dim(Tabell)[2]/2 - 1))) %>%
+      kable_styling("hover", full_width = F) %>%
+      add_header_above(c(" ", "Antall" = dim(Tabell)[2]/2 - 1, " ", "Andel (%)" = dim(Tabell)[2]/2 - 1))
+
   }
 
-
-  output$Tabell_sykehus_andel_stabel = renderDT(
-    datatable(stabeltabell()$ant_skjema[-dim(stabeltabell()$ant_skjema)[1], ],
-              container = stabeltabell()$sketch,
-              rownames = F,
-              options = list(pageLength = 30)
-    ) %>% formatRound(columns=(dim(stabeltabell()$ant_skjema)[2]/2+2):dim(stabeltabell()$ant_skjema)[2], digits=1)
-  )
-
-  output$lastNedStabelTabell <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.csv')
-    },
-    content = function(file){
-      Tabell <- stabeltabell()$ant_skjema
-      write.csv2(Tabell, file, row.names = F, na = '')
-    }
-  )
+  # stabeltabell <- function() {
+  #   TabellData <- tabellReagerSykehusAndelStabel()
+  #   aux <- as.data.frame.matrix(TabellData$Antall)
+  #   aux$N <- TabellData$Ngr
+  #   aux$Avdeling <- row.names(aux)
+  #   row.names(aux) <- 1:dim(aux)[1]
+  #   aux <- aux[, c(dim(aux)[2], dim(aux)[2]-1, 1:(dim(aux)[2]-2))]
+  #   aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
+  #   aux[,-1] <- apply(aux[,-1], 2, as.numeric)
+  #   aux2 <- aux[,-(1:2)]/aux$N*100
+  #   aux <- cbind(aux, aux2)
+  #   sketch <- paste0('<table>
+  #                     <thead>
+  #                    <tr>
+  #                    <th rowspan="2">Avdeling</th>
+  #                    <th rowspan="2">N</th>
+  #                    <th colspan="', length(TabellData$legendTxt), '">Antall</th>
+  #                    <th colspan="', length(TabellData$legendTxt), '">Prosent</th>
+  #                    </tr>
+  #                    <tr>',
+  #                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+  #                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
+  #                    '</tr>
+  #                    </thead>',
+  #                    tableFooter(c('Totalt' , round(as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]),1))),
+  #                    '</table>')
+  #     # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
+  #   # sketch <- htmltools::withTags(table(
+  #   #   tableHeader(aux[-dim(aux)[1], ]),
+  #   #   tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
+  #   list(ant_skjema=aux, sketch=sketch)
+  # }
+  #
+  #
+  # output$Tabell_sykehus_andel_stabel = renderDT(
+  #   datatable(stabeltabell()$ant_skjema[-dim(stabeltabell()$ant_skjema)[1], ],
+  #             container = stabeltabell()$sketch,
+  #             rownames = F,
+  #             options = list(pageLength = 30)
+  #   ) %>% formatRound(columns=(dim(stabeltabell()$ant_skjema)[2]/2+2):dim(stabeltabell()$ant_skjema)[2], digits=1)
+  # )
+  #
+  # output$lastNedStabelTabell <- downloadHandler(
+  #   filename = function(){
+  #     paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.csv')
+  #   },
+  #   content = function(file){
+  #     Tabell <- stabeltabell()$ant_skjema
+  #     write.csv2(Tabell, file, row.names = F, na = '')
+  #   }
+  # )
 
   output$lastNedBilde_sykehus_andel_stabel <- downloadHandler(
     filename = function(){
