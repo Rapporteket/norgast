@@ -15,6 +15,17 @@ library(DT)
 library(shiny)
 library(shinyjs)
 
+addResourcePath('rap', system.file('www', package='rapbase'))
+regTitle = "NoRGast"
+logo <- includeHTML(system.file('www/logo.svg', package='rapbase'))
+logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
+                   "header.append('<div class=\"navbar-brand\" style=\"float:left;font-size:75%\">",
+                   logo,
+                   "</div>');\n",
+                   "console.log(header)")
+logoWidget <- tags$script(shiny::HTML(logoCode))
+
+
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
 onServer <- context == "TEST" | context == "QA" | context == "PRODUCTION" | context == "DEV"
 if (onServer) {
@@ -91,7 +102,34 @@ names(whoEcog_valg) <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid
 ######################################################################
 
 # Define UI for application
-ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
+ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
+
+                 title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
+                             regTitle),
+                 windowTitle = regTitle,
+                 theme = "rap/bootstrap.css",
+
+                 tabPanel("Testpanel",
+                          mainPanel(
+                            # return from rapbase functions
+                            h4("Test 'rapbase' functions using the session object:"),
+                            textOutput("callUser"),
+                            textOutput("callGroups"),
+                            textOutput("callReshId"),
+                            textOutput("callRole"),
+                            textOutput("callEmail"),
+                            textOutput("callFullName"),
+                            textOutput("callPhone"),
+                            h4("Environment var R_RAP_INSTANCE:"),
+                            textOutput("envInstance"),
+                            h4("Environmental var R_RAP_CONFIG_PATH:"),
+                            textOutput("envConfigPath"),
+                            h4("Locale settings:"),
+                            textOutput("locale")
+                          )
+                 ),
+
+
                  tabPanel("Fordelingsfigurer",
                           # sidebarLayout(
                           sidebarPanel(
@@ -140,6 +178,19 @@ ui <- navbarPage(title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                           )
                           )
                  ),
+
+                 tabPanel("testfluider",
+                          fluidRow(
+                            column(4,
+                                   sliderInput("obs", "Number of observations:",
+                                               min = 1, max = 1000, value = 500)
+                            ),
+                            column(8,
+                                   plotOutput("distPlot")
+                            )
+                          )
+                 ),
+
                  tabPanel("Andeler",
                           sidebarPanel(
                             selectInput(inputId = "valgtVar_andel", label = "Velg variabel",
@@ -271,7 +322,7 @@ server <- function(input, output, session) {
     # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({
-    ifelse(onServer, rapbase::getUserRole(session), 'LU')
+    ifelse(onServer, rapbase::getUserRole(session), 'SC')
     # rapbase::getUserRole(session)
   })
 
@@ -309,6 +360,7 @@ server <- function(input, output, session) {
       }
       if (input$tabs_andeler %in%  c("Figur, tidsvisning", "Tabell, tidsvisning", "Figur, sykehusvisning", "Tabell, sykehusvisning")) {
         shinyjs::hide(id = 'valgtVar_andel_stabel')
+        shinyjs::hide(id = 'valgtVar_gjsn')
         shinyjs::show(id = 'valgtVar_andel')
         shinyjs::show(id = 'inkl_konf')
       }
@@ -324,6 +376,11 @@ server <- function(input, output, session) {
 
   shinyjs::onclick("toggleAdvanced",
                    shinyjs::toggle(id = "avansert", anim = TRUE))
+
+  output$distPlot <- renderPlot({
+    hist(rnorm(input$obs))
+  })
+
 
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
