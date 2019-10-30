@@ -103,214 +103,217 @@ names(whoEcog_valg) <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid
 
 # Define UI for application
 ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
+  shinyjs::useShinyjs(),
 
-                 title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
-                             regTitle),
-                 windowTitle = regTitle,
-                 theme = "rap/bootstrap.css",
+  title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
+              regTitle),
+  windowTitle = regTitle,
+  theme = "rap/bootstrap.css",
 
-                 tabPanel("Testpanel",
-                          mainPanel(
-                            # return from rapbase functions
-                            h4("Test 'rapbase' functions using the session object:"),
-                            textOutput("callUser"),
-                            textOutput("callGroups"),
-                            textOutput("callReshId"),
-                            textOutput("callRole"),
-                            textOutput("callEmail"),
-                            textOutput("callFullName"),
-                            textOutput("callPhone"),
-                            h4("Environment var R_RAP_INSTANCE:"),
-                            textOutput("envInstance"),
-                            h4("Environmental var R_RAP_CONFIG_PATH:"),
-                            textOutput("envConfigPath"),
-                            h4("Locale settings:"),
-                            textOutput("locale")
-                          )
-                 ),
+  tabPanel("Testpanel",
+           mainPanel(
+             # return from rapbase functions
+             h4("Test 'rapbase' functions using the session object:"),
+             textOutput("callUser"),
+             textOutput("callGroups"),
+             textOutput("callReshId"),
+             textOutput("callRole"),
+             textOutput("callEmail"),
+             textOutput("callFullName"),
+             textOutput("callPhone"),
+             h4("Environment var R_RAP_INSTANCE:"),
+             textOutput("envInstance"),
+             h4("Environmental var R_RAP_CONFIG_PATH:"),
+             textOutput("envConfigPath"),
+             h4("Locale settings:"),
+             textOutput("locale")
+           )
+  ),
 
 
-                 tabPanel("Fordelingsfigurer",
-                          # sidebarLayout(
-                          sidebarPanel(
-                            shinyjs::useShinyjs(),
-                            selectInput(inputId = "valgtVar", label = "Velg variabel",
-                                        choices = varvalg),
-                            dateRangeInput(inputId="datovalg", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
-                            selectInput(inputId = "enhetsUtvalg", label = "Kjør rapport for",
-                                        choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
-                            selectInput(inputId = "valgtShus", label = "Velg sykehus",
-                                        choices = sykehus, multiple = TRUE),
-                            selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
-                            sliderInput(inputId="alder", label = "Alder", min = 0,
-                                        max = 120, value = c(0, 120)),
-                            selectInput(inputId = "erMann", label = "Kjønn",
-                                        choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-                            selectInput(inputId = "elektiv", label = "Tidspunkt for operasjon",
-                                        choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-                            selectInput(inputId = "hastegrad", label = "Hastegrad",
-                                        choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-                            shinyjs::hidden(
-                              div(id = "avansert",
-                                selectInput(inputId = "op_gruppe", label = "Velg reseksjonsgruppe(r)",
-                                            choices = reseksjonsgrupper, multiple = TRUE),
-                                uiOutput(outputId = 'ncsp'),
-                                selectInput(inputId = "BMI", label = "BMI", choices = bmi_valg, multiple = TRUE),
-                                sliderInput(inputId="PRS", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                                selectInput(inputId = "ASA", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
-                                selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
-                                selectInput(inputId = "forbehandling", label = "Onkologisk forbehandling", multiple = TRUE,
-                                            choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                                selectInput(inputId = "malign", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)))),
-                            selectInput(inputId = "bildeformat", label = "Velg bildeformat",
-                                        choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-                            a(id = "toggleAdvanced", "Skjul/vis flere valg", href = "#")
-                          ),
-                          mainPanel(tabsetPanel(
-                            tabPanel("Figur",
-                                     plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned figur")),
-                            tabPanel("Tabell",
-                                     uiOutput("utvalg"),
-                                     tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell"))
-                            # tabPanel("Tabell 2",
-                            #          tableOutput("Tabell2"))
-                          )
-                          )
-                 ),
+  tabPanel("Fordelingsfigurer",
+           # sidebarLayout(
+           sidebarPanel(
+             selectInput(inputId = "valgtVar", label = "Velg variabel",
+                         choices = varvalg),
+             dateRangeInput(inputId="datovalg", label = "Dato fra og til", min = '2014-01-01',
+                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+             selectInput(inputId = "enhetsUtvalg", label = "Kjør rapport for",
+                         choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
+             selectInput(inputId = "valgtShus", label = "Velg sykehus",
+                         choices = sykehus, multiple = TRUE),
+             selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
+             sliderInput(inputId="alder", label = "Alder", min = 0,
+                         max = 120, value = c(0, 120)),
+             selectInput(inputId = "erMann", label = "Kjønn",
+                         choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+             selectInput(inputId = "elektiv", label = "Tidspunkt for operasjon",
+                         choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+             selectInput(inputId = "hastegrad", label = "Hastegrad",
+                         choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+             shinyjs::hidden(
+               div(id = "avansert",
+                   selectInput(inputId = "op_gruppe", label = "Velg reseksjonsgruppe(r)",
+                               choices = reseksjonsgrupper, multiple = TRUE),
+                   uiOutput(outputId = 'ncsp'),
+                   selectInput(inputId = "BMI", label = "BMI", choices = bmi_valg, multiple = TRUE),
+                   sliderInput(inputId="PRS", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+                   selectInput(inputId = "ASA", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
+                   selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
+                   selectInput(inputId = "forbehandling", label = "Onkologisk forbehandling", multiple = TRUE,
+                               choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+                   selectInput(inputId = "malign", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)))),
+             selectInput(inputId = "bildeformat", label = "Velg bildeformat",
+                         choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+             a(id = "toggleAdvanced", "Skjul/vis flere valg", href = "#")
+           ),
+           mainPanel(tabsetPanel(
+             tabPanel("Figur",
+                      plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned figur")),
+             tabPanel("Tabell",
+                      uiOutput("utvalg"),
+                      tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell"))
+             # tabPanel("Tabell 2",
+             #          tableOutput("Tabell2"))
+           )
+           )
+  ),
 
-                 tabPanel("testfluider",
-                          fluidRow(
-                            column(4,
-                                   sliderInput("obs", "Number of observations:",
-                                               min = 1, max = 1000, value = 500)
-                            ),
-                            column(8,
-                                   plotOutput("distPlot")
-                            )
-                          )
-                 ),
+  tabPanel("testfluider",
+           fluidRow(
+             column(2,
+                    sliderInput("obs", "Number of observations:",
+                                min = 1, max = 1000, value = 500)
+             ),
+             column(8,
+                    plotOutput("distPlot")
+             ),
+             column(2,
+                    sliderInput("obs2", "andre siden:",
+                                min = 1, max = 1000, value = 500))
+           )
+  ),
 
-                 tabPanel("Andeler",
-                          sidebarPanel(
-                            selectInput(inputId = "valgtVar_andel", label = "Velg variabel",
-                                        choices = varvalg_andel),
-                            selectInput(inputId = "valgtVar_andel_stabel", label = "Velg variabel",
-                                        choices = varvalg_andel_stabel),
-                            selectInput(inputId = "valgtVar_gjsn", label = "Velg variabel",
-                                        choices = varvalg_gjsn),
-                            dateRangeInput(inputId="datovalg2", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-                            selectInput(inputId = "enhetsUtvalg2", label = "Kjør rapport for",
-                                        choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
-                            selectInput(inputId = "valgtShus2", label = "Velg sykehus",
-                                        choices = sykehus, multiple = TRUE),
-                            sliderInput(inputId="alder2", label = "Alder", min = 0,
-                                        max = 120, value = c(0, 120)),
-                            selectInput(inputId = "erMann2", label = "Kjønn",
-                                        choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-                            selectInput(inputId = "op_gruppe2", label = "Velg reseksjonsgruppe(r)",
-                                        choices = reseksjonsgrupper, multiple = TRUE),
-                            uiOutput(outputId = 'ncsp2'),
-                            selectInput(inputId = "inkl_konf", label = "Inkluder konfidensintervall",
-                                        choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-                            selectInput(inputId = "elektiv2", label = "Operasjonstid",
-                                        choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-                            selectInput(inputId = "hastegrad2", label = "Hastegrad",
-                                        choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
-                            selectInput(inputId = "BMI2", label = "BMI", choices = bmi_valg, multiple = TRUE),
-                            selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
-                            sliderInput(inputId="PRS2", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                            selectInput(inputId = "ASA2", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
-                            selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
-                            selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
-                                        choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                            selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-                            selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
-                            selectInput(inputId = "bildeformat2", label = "Velg bildeformat",
-                                        choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
-                          ),
-                          mainPanel(tabsetPanel(id = "tabs_andeler",
-                            tabPanel("Figur, tidssvisning",
-                                     plotOutput("fig_andel_tid", height="auto"),
-                                     downloadButton("lastNedBilde_tid", "Last ned figur")),
-                            tabPanel("Tabell, tidssvisning",
-                                     uiOutput("utvalg_tid"),
-                                     tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
-                            tabPanel("Figur, sykehusvisning",
-                                     plotOutput("fig_andel_grvar", height="auto"),
-                                     downloadButton("lastNedBilde_sykehus_andel", "Last ned figur")),
-                            tabPanel("Tabell, sykehusvisning",
-                                     uiOutput("utvalg_sykehus_andel"),
-                                     tableOutput("Tabell_sykehus_andel"), downloadButton("lastNed_sykehus_andel", "Last ned tabell")),
-                            tabPanel("Figur, andeler i stabel",
-                                     plotOutput("fig_andel_grvar_stabel", height="auto"),
-                                     downloadButton("lastNedBilde_sykehus_andel_stabel", "Last ned figur")),
-                            tabPanel("Tabell, andeler i stabel",
-                                     uiOutput("utvalg_sykehus_andel_stabel"),
-                                     tableOutput("Tabell_sykehus_andel_stabel"), downloadButton("lastNedStabelTabell", "Last ned tabell")),
-                            tabPanel("Figur, gjennomsnitt per sykehus",
-                                     plotOutput("fig_gjsn_grvar", height="auto"),
-                                     downloadButton("lastNedBilde_sykehus_gjsn", "Last ned figur")),
-                            tabPanel("Tabell, gjennomsnitt per sykehus",
-                                     uiOutput("utvalg_sykehus_gjsn"),
-                                     tableOutput("Tabell_sykehus_gjsn"), downloadButton("lastNed_sykehus_gjsn", "Last ned tabell"))
-                          )
-                          )
-                 ),
-                 tabPanel("Samledokumenter",
-                          h2("Samledokumenter", align='center'),
-                          p("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller",
-                             align='center'),
-                          br(),
-                          br(),
-                          sidebarPanel(
-                            dateRangeInput(inputId="datovalg_sml", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-                            selectInput(inputId = "valgtShus3", label = "Velg sykehus",
-                                        choices = sykehus, multiple = TRUE)
-                          ),
-                          mainPanel(tabsetPanel(
-                            tabPanel("Samledokument med egen avd. mot landet forøvrig",
-                                     downloadButton("lastNed_saml", "Last ned samledokument")),
-                            tabPanel("Samledokument med nasjonale tall",
-                                     downloadButton("lastNed_saml_land", "Last ned samledokument")),
-                            tabPanel("Kvartalsrapport for din avdeling",
-                                     downloadButton("lastNed_kvartal", "Last ned kvartalsrapport")))
-                          )
-                 ),
-                 tabPanel("Datadump",
-                          h2("Datadump", align='center'),
-                          p("Velg variablene du ønsker inkludert i datadump og for hvilken tidsperiode.", align='center'),
-                          br(),
-                          br(),
-                          sidebarPanel(
-                            selectInput(inputId = "valgtevar_dump", label = "Velg variabler å inkludere (ingen valgt er lik alle)",
-                                        choices = names(RegData), multiple = TRUE),
-                            dateRangeInput(inputId="datovalg_dump", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-                            selectInput(inputId = "op_gruppe_dump", label = "Velg reseksjonsgruppe(r)",
-                                        choices = reseksjonsgrupper, multiple = TRUE),
-                            selectInput(inputId = "valgtShus4", label = "Velg sykehus",
-                                        choices = sykehus, multiple = TRUE)
-                          ),
-                          downloadButton("lastNed_dump", "Last ned datadump")
-                 ),
-                 tabPanel("Administrative tabeller",
-                          sidebarPanel(
-                            dateRangeInput(inputId="datovalg_adm", label = "Dato fra og til", min = '2014-01-01',
-                                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-                            selectInput(inputId = "regstatus", label = "Skjemastatus",
-                                        choices = c('Ferdigstilt'=1, 'Kladd'=0))
-                          ),
-                          mainPanel(tabsetPanel(
-                            tabPanel("Antall skjema",
-                                     DTOutput("Tabell_adm1"), downloadButton("lastNed1", "Last ned tabell")),
-                            tabPanel("Annen admin rapport",
-                                     tableOutput("Tabell_adm2"), downloadButton("lastNed2", "Last ned tabell"))
-                          )
-                          )
-                 )
+  tabPanel("Andeler",
+           sidebarPanel(
+             selectInput(inputId = "valgtVar_andel", label = "Velg variabel",
+                         choices = varvalg_andel),
+             selectInput(inputId = "valgtVar_andel_stabel", label = "Velg variabel",
+                         choices = varvalg_andel_stabel),
+             selectInput(inputId = "valgtVar_gjsn", label = "Velg variabel",
+                         choices = varvalg_gjsn),
+             dateRangeInput(inputId="datovalg2", label = "Dato fra og til", min = '2014-01-01',
+                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+             selectInput(inputId = "enhetsUtvalg2", label = "Kjør rapport for",
+                         choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
+             selectInput(inputId = "valgtShus2", label = "Velg sykehus",
+                         choices = sykehus, multiple = TRUE),
+             sliderInput(inputId="alder2", label = "Alder", min = 0,
+                         max = 120, value = c(0, 120)),
+             selectInput(inputId = "erMann2", label = "Kjønn",
+                         choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+             selectInput(inputId = "op_gruppe2", label = "Velg reseksjonsgruppe(r)",
+                         choices = reseksjonsgrupper, multiple = TRUE),
+             uiOutput(outputId = 'ncsp2'),
+             selectInput(inputId = "inkl_konf", label = "Inkluder konfidensintervall",
+                         choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
+             selectInput(inputId = "elektiv2", label = "Operasjonstid",
+                         choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+             selectInput(inputId = "hastegrad2", label = "Hastegrad",
+                         choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
+             selectInput(inputId = "BMI2", label = "BMI", choices = bmi_valg, multiple = TRUE),
+             selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
+             sliderInput(inputId="PRS2", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+             selectInput(inputId = "ASA2", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
+             selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
+             selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
+                         choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+             selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+             selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
+             selectInput(inputId = "bildeformat2", label = "Velg bildeformat",
+                         choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+           ),
+           mainPanel(tabsetPanel(id = "tabs_andeler",
+                                 tabPanel("Figur, tidssvisning",
+                                          plotOutput("fig_andel_tid", height="auto"),
+                                          downloadButton("lastNedBilde_tid", "Last ned figur")),
+                                 tabPanel("Tabell, tidssvisning",
+                                          uiOutput("utvalg_tid"),
+                                          tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
+                                 tabPanel("Figur, sykehusvisning",
+                                          plotOutput("fig_andel_grvar", height="auto"),
+                                          downloadButton("lastNedBilde_sykehus_andel", "Last ned figur")),
+                                 tabPanel("Tabell, sykehusvisning",
+                                          uiOutput("utvalg_sykehus_andel"),
+                                          tableOutput("Tabell_sykehus_andel"), downloadButton("lastNed_sykehus_andel", "Last ned tabell")),
+                                 tabPanel("Figur, andeler i stabel",
+                                          plotOutput("fig_andel_grvar_stabel", height="auto"),
+                                          downloadButton("lastNedBilde_sykehus_andel_stabel", "Last ned figur")),
+                                 tabPanel("Tabell, andeler i stabel",
+                                          uiOutput("utvalg_sykehus_andel_stabel"),
+                                          tableOutput("Tabell_sykehus_andel_stabel"), downloadButton("lastNedStabelTabell", "Last ned tabell")),
+                                 tabPanel("Figur, gjennomsnitt per sykehus",
+                                          plotOutput("fig_gjsn_grvar", height="auto"),
+                                          downloadButton("lastNedBilde_sykehus_gjsn", "Last ned figur")),
+                                 tabPanel("Tabell, gjennomsnitt per sykehus",
+                                          uiOutput("utvalg_sykehus_gjsn"),
+                                          tableOutput("Tabell_sykehus_gjsn"), downloadButton("lastNed_sykehus_gjsn", "Last ned tabell"))
+           )
+           )
+  ),
+  tabPanel("Samledokumenter",
+           h2("Samledokumenter", align='center'),
+           p("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller",
+             align='center'),
+           br(),
+           br(),
+           sidebarPanel(
+             dateRangeInput(inputId="datovalg_sml", label = "Dato fra og til", min = '2014-01-01',
+                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+             selectInput(inputId = "valgtShus3", label = "Velg sykehus",
+                         choices = sykehus, multiple = TRUE)
+           ),
+           mainPanel(tabsetPanel(
+             tabPanel("Samledokument med egen avd. mot landet forøvrig",
+                      downloadButton("lastNed_saml", "Last ned samledokument")),
+             tabPanel("Samledokument med nasjonale tall",
+                      downloadButton("lastNed_saml_land", "Last ned samledokument")),
+             tabPanel("Kvartalsrapport for din avdeling",
+                      downloadButton("lastNed_kvartal", "Last ned kvartalsrapport")))
+           )
+  ),
+  tabPanel("Datadump",
+           h2("Datadump", align='center'),
+           p("Velg variablene du ønsker inkludert i datadump og for hvilken tidsperiode.", align='center'),
+           br(),
+           br(),
+           sidebarPanel(
+             selectInput(inputId = "valgtevar_dump", label = "Velg variabler å inkludere (ingen valgt er lik alle)",
+                         choices = names(RegData), multiple = TRUE),
+             dateRangeInput(inputId="datovalg_dump", label = "Dato fra og til", min = '2014-01-01',
+                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+             selectInput(inputId = "op_gruppe_dump", label = "Velg reseksjonsgruppe(r)",
+                         choices = reseksjonsgrupper, multiple = TRUE),
+             selectInput(inputId = "valgtShus4", label = "Velg sykehus",
+                         choices = sykehus, multiple = TRUE)
+           ),
+           downloadButton("lastNed_dump", "Last ned datadump")
+  ),
+  tabPanel("Administrative tabeller",
+           sidebarPanel(
+             dateRangeInput(inputId="datovalg_adm", label = "Dato fra og til", min = '2014-01-01',
+                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+             selectInput(inputId = "regstatus", label = "Skjemastatus",
+                         choices = c('Ferdigstilt'=1, 'Kladd'=0))
+           ),
+           mainPanel(tabsetPanel(
+             tabPanel("Antall skjema",
+                      DTOutput("Tabell_adm1"), downloadButton("lastNed1", "Last ned tabell")),
+             tabPanel("Annen admin rapport",
+                      tableOutput("Tabell_adm2"), downloadButton("lastNed2", "Last ned tabell"))
+           )
+           )
+  )
 )
 
 
@@ -371,7 +374,7 @@ server <- function(input, output, session) {
         shinyjs::show(id = 'inkl_konf')
       }
 
-      }
+    }
   )
 
   shinyjs::onclick("toggleAdvanced",
@@ -397,15 +400,15 @@ server <- function(input, output, session) {
                                        multiple = TRUE)})
 
   output$ncsp2 <- renderUI({selectInput(inputId = "ncsp_verdi2", label = "Velg NCSP kode(r)",
-                                       choices = if (is.null(input$op_gruppe2)){
-                                         ""
-                                       } else {
-                                         setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                              as.numeric(input$op_gruppe2)])), 1, 5),
-                                                  sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                       as.numeric(input$op_gruppe2)])))
-                                       },
-                                       multiple = TRUE)})
+                                        choices = if (is.null(input$op_gruppe2)){
+                                          ""
+                                        } else {
+                                          setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+                                                                                               as.numeric(input$op_gruppe2)])), 1, 5),
+                                                   sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+                                                                                        as.numeric(input$op_gruppe2)])))
+                                        },
+                                        multiple = TRUE)})
 
   observe(
     if (is.null(input$op_gruppe)) {
@@ -663,7 +666,7 @@ server <- function(input, output, session) {
                                     forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
                                     op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
                                     ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
-                                    # valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''})
+    # valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''})
   }, width = 700, height = 700)
 
   tabellReagerSykehusAndel <- reactive({
@@ -736,17 +739,17 @@ server <- function(input, output, session) {
 
   output$fig_gjsn_grvar <- renderPlot({
     norgast::NorgastFigGjsnGrVar(RegData, valgtVar=input$valgtVar_gjsn, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
-                                    minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
-                                    # inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99},
-                                    malign = as.numeric(input$malign2), Ngrense=10,
-                                    elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-                                    tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-                                    minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-                                    ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
-                                    whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-                                    forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                                    op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
-                                    ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
+                                 minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
+                                 # inkl_konf = if (!is.null(input$inkl_konf)) {input$inkl_konf} else {99},
+                                 malign = as.numeric(input$malign2), Ngrense=10,
+                                 elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                 tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                 minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                 ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                 whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                 forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                 op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                 ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
     # valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''})
   }, width = 700, height = 700)
 
@@ -816,16 +819,16 @@ server <- function(input, output, session) {
 
   output$fig_andel_grvar_stabel <- renderPlot({
     norgast::NorgastFigAndelStabelGrVar(RegData, valgtVar=input$valgtVar_andel_stabel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
-                                    minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
-                                    malign = as.numeric(input$malign2), Ngrense=10,
-                                    elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-                                    tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-                                    minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-                                    ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
-                                    whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-                                    forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                                    op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
-                                    ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
+                                        minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann=as.numeric(input$erMann2),
+                                        malign = as.numeric(input$malign2), Ngrense=10,
+                                        elektiv=as.numeric(input$elektiv2),BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                        tilgang=if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                        minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                        ASA=if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                        whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                        forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                        op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                        ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''})
   }, width = 700, height = 700)
 
   tabellReagerSykehusAndelStabel <- reactive({
@@ -938,10 +941,10 @@ server <- function(input, output, session) {
 
 
   # (RegData=0, valgtVar='', datoFra='2014-01-01', datoTil='2050-12-31',
-    # minald=0, maxald=130, erMann=99, outfile='',
-    # reshID, preprosess=F, inkl_konf=F, malign=99, Ngrense=10,
-    # elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
-    # maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
+  # minald=0, maxald=130, erMann=99, outfile='',
+  # reshID, preprosess=F, inkl_konf=F, malign=99, Ngrense=10,
+  # elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
+  # maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 
   # output$fig_andel_grvar_tid <- renderPlot({
   #   norgast::norgastFigAndelGrVarTid(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2])
