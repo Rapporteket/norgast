@@ -14,6 +14,7 @@ library(kableExtra)
 library(DT)
 library(shiny)
 library(shinyjs)
+library(shinyalert)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
@@ -50,60 +51,19 @@ if (onServer) {
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-04-26 10-59-23.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
-# skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
-# skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
+
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 RegData <- NorgastPreprosess(RegData)
-RegData$Sykehusnavn <- iconv(RegData$Sykehusnavn, from = 'UTF-8', to = '')  # Fiks lokale encoding issues
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 
-varvalg <- c('Alder', 'BMI_kodet', 'Vektendring', 'Op_gr', 'AccordionGrad', 'Forbehandling',
-             'WHOECOG', 'ASA', 'Hastegrad', 'erMann', 'MedDiabetes', 'PRSScore', 'Robotassistanse',
-             'Tilgang', 'NyAnastomose', 'ModGlasgowScore', 'ReLapNarkose', 'Anastomoselekkasje',
-             'Avdod', 'Saarruptur')
-names(varvalg) <- c('Alder', 'BMI', 'Vektendring', 'Operasjonsgrupper', 'Komplikasjoner', 'Forbehandling',
-                    'WHO-ECOG', 'ASA-grad', 'Elektiv kirurgi', 'Kjønn', 'Diabetes', 'mE-PASS', 'Robotassistanse',
-                    'Tilgang i abdomen', 'Ny anastomose', 'Glasgow score', 'Relaparotomi', 'Anastomoselekkasje',
-                    'Andel avdøde', 'Sårruptur')
-
-aux<-c('Robotassistanse', 'Robotassistanse', 'Tilgang i abdomen', 'LapTilgang', 'Operert i normalarbeidstid', 'Hastegrad_tid',
-       'Ny anastomose', 'NyAnastomose', 'Relaparotomi', 'ReLapNarkose', 'Anastomoselekkasje', 'Anastomoselekkasje',
-       'Andel avdøde', 'Avdod', 'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign', 'Sårruptur',
-       'Saarruptur')
-varvalg_andel <- aux[seq(2,length(aux), by = 2)]
-names(varvalg_andel) <- aux[seq(1,length(aux), by = 2)]
-
-varvalg_andel_stabel <- setNames(c('ModGlasgowScore', 'AccordionGrad', 'Tilgang'),
-                                 c('Modified Glasgow Score', 'Komplikasjoner', 'Tilgang i abdomen'))
-varvalg_gjsn <- setNames(c('BMI', 'VekttapProsent', 'ModGlasgowScore', 'Alder', 'PRSScore'),
-                         c('BMI', 'Vekttap i prosent', 'Modified Glasgow Score', 'Alder', 'mE-PASS'))
-
-
-reseksjonsgrupper <- sort(unique(RegData$Op_gr))
-names(reseksjonsgrupper) <- RegData$Operasjonsgrupper[match(reseksjonsgrupper, RegData$Op_gr)]
-
-sykehus <- RegData$AvdRESH[match(sort(unique(RegData$Sykehusnavn)), RegData$Sykehusnavn)]
-names(sykehus) <- sort(unique(RegData$Sykehusnavn))
-
-bmi_valg <- 1:8
-names(bmi_valg) <- levels(RegData$BMI_kategori)
-tilgang_valg <- c(1,2,3,5)
-names(tilgang_valg) <- c('Åpen', 'Laparoskopisk', 'Konvertert', 'Endoskopisk')
-ASA_valg <- 1:5
-names(ASA_valg) <- c('Grad I', 'Grad II', 'Grad III', 'Grad IV', 'Grad V')
-whoEcog_valg <- c(0:4, 9)
-names(whoEcog_valg) <- c('0: Fullt aktiv', '1: Lett husarbeid og sittende arbeid', '2: Oppe > 50% av dagen, selvstelt',
-                         '3: Oppe < 50% av dagen, delvis selvstelt', '4: Kun i stol/seng, hjelp til alt stell', 'Ukjent')
-
-
+BrValg <- BrValgNorgastShiny(RegData)
 
 ######################################################################
 
 # Define UI for application
-ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
-  shinyjs::useShinyjs(),
+ui <- navbarPage(
 
   title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
               regTitle),
@@ -111,6 +71,11 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
   theme = "rap/bootstrap.css",
 
   tabPanel("Testpanel",
+           shinyjs::useShinyjs(),
+           shinyalert::useShinyalert(),
+           rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
+                                        organization = uiOutput("appOrgName"),
+                                        addUserInfo = TRUE),
            mainPanel(
              # return from rapbase functions
              h4("Test 'rapbase' functions using the session object:"),
@@ -135,14 +100,14 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
            # sidebarLayout(
            sidebarPanel(
              selectInput(inputId = "valgtVar", label = "Velg variabel",
-                         choices = varvalg),
+                         choices = BrValg$varvalg),
              dateRangeInput(inputId="datovalg", label = "Dato fra og til", min = '2014-01-01',
                             max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
              selectInput(inputId = "enhetsUtvalg", label = "Kjør rapport for",
                          choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
              selectInput(inputId = "valgtShus", label = "Velg sykehus",
-                         choices = sykehus, multiple = TRUE),
-             selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
+                         choices = BrValg$sykehus, multiple = TRUE),
+             selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
              sliderInput(inputId="alder", label = "Alder", min = 0,
                          max = 120, value = c(0, 120)),
              selectInput(inputId = "erMann", label = "Kjønn",
@@ -154,12 +119,12 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
              shinyjs::hidden(
                div(id = "avansert",
                    selectInput(inputId = "op_gruppe", label = "Velg reseksjonsgruppe(r)",
-                               choices = reseksjonsgrupper, multiple = TRUE),
+                               choices = BrValg$reseksjonsgrupper, multiple = TRUE),
                    uiOutput(outputId = 'ncsp'),
-                   selectInput(inputId = "BMI", label = "BMI", choices = bmi_valg, multiple = TRUE),
+                   selectInput(inputId = "BMI", label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
                    sliderInput(inputId="PRS", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                   selectInput(inputId = "ASA", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
-                   selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
+                   selectInput(inputId = "ASA", label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+                   selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
                    selectInput(inputId = "forbehandling", label = "Onkologisk forbehandling", multiple = TRUE,
                                choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                    selectInput(inputId = "malign", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)))),
@@ -197,23 +162,23 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
   tabPanel("Andeler",
            sidebarPanel(
              selectInput(inputId = "valgtVar_andel", label = "Velg variabel",
-                         choices = varvalg_andel),
-             selectInput(inputId = "valgtVar_andel_stabel", label = "Velg variabel",
-                         choices = varvalg_andel_stabel),
-             selectInput(inputId = "valgtVar_gjsn", label = "Velg variabel",
-                         choices = varvalg_gjsn),
+                         choices = BrValg$varvalg_andel),
+             shinyjs::hidden(selectInput(inputId = "valgtVar_andel_stabel", label = "Velg variabel",
+                         choices = BrValg$varvalg_andel_stabel)),
+             shinyjs::hidden(selectInput(inputId = "valgtVar_gjsn", label = "Velg variabel",
+                         choices = BrValg$varvalg_gjsn)),
              dateRangeInput(inputId="datovalg2", label = "Dato fra og til", min = '2014-01-01',
                             max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
              selectInput(inputId = "enhetsUtvalg2", label = "Kjør rapport for",
                          choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
              selectInput(inputId = "valgtShus2", label = "Velg sykehus",
-                         choices = sykehus, multiple = TRUE),
+                         choices = BrValg$sykehus, multiple = TRUE),
              sliderInput(inputId="alder2", label = "Alder", min = 0,
                          max = 120, value = c(0, 120)),
              selectInput(inputId = "erMann2", label = "Kjønn",
                          choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
              selectInput(inputId = "op_gruppe2", label = "Velg reseksjonsgruppe(r)",
-                         choices = reseksjonsgrupper, multiple = TRUE),
+                         choices = BrValg$reseksjonsgrupper, multiple = TRUE),
              uiOutput(outputId = 'ncsp2'),
              selectInput(inputId = "inkl_konf", label = "Inkluder konfidensintervall",
                          choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
@@ -221,11 +186,11 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                          choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
              selectInput(inputId = "hastegrad2", label = "Hastegrad",
                          choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
-             selectInput(inputId = "BMI2", label = "BMI", choices = bmi_valg, multiple = TRUE),
-             selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = tilgang_valg, multiple = TRUE),
+             selectInput(inputId = "BMI2", label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+             selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
              sliderInput(inputId="PRS2", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-             selectInput(inputId = "ASA2", label = "ASA-grad", choices = ASA_valg, multiple = TRUE),
-             selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = whoEcog_valg, multiple = TRUE),
+             selectInput(inputId = "ASA2", label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+             selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
              selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
                          choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
              selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
@@ -234,10 +199,10 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
                          choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
            ),
            mainPanel(tabsetPanel(id = "tabs_andeler",
-                                 tabPanel("Figur, tidssvisning",
+                                 tabPanel("Figur, tidsvisning",
                                           plotOutput("fig_andel_tid", height="auto"),
                                           downloadButton("lastNedBilde_tid", "Last ned figur")),
-                                 tabPanel("Tabell, tidssvisning",
+                                 tabPanel("Tabell, tidsvisning",
                                           uiOutput("utvalg_tid"),
                                           tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
                                  tabPanel("Figur, sykehusvisning",
@@ -271,7 +236,7 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
              dateRangeInput(inputId="datovalg_sml", label = "Dato fra og til", min = '2014-01-01',
                             max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
              selectInput(inputId = "valgtShus3", label = "Velg sykehus",
-                         choices = sykehus, multiple = TRUE)
+                         choices = BrValg$sykehus, multiple = TRUE)
            ),
            mainPanel(tabsetPanel(
              tabPanel("Samledokument med egen avd. mot landet forøvrig",
@@ -293,9 +258,9 @@ ui <- navbarPage(# title = "RAPPORTEKET NORGAST", theme = "bootstrap.css",
              dateRangeInput(inputId="datovalg_dump", label = "Dato fra og til", min = '2014-01-01',
                             max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
              selectInput(inputId = "op_gruppe_dump", label = "Velg reseksjonsgruppe(r)",
-                         choices = reseksjonsgrupper, multiple = TRUE),
+                         choices = BrValg$reseksjonsgrupper, multiple = TRUE),
              selectInput(inputId = "valgtShus4", label = "Velg sykehus",
-                         choices = sykehus, multiple = TRUE)
+                         choices = BrValg$sykehus, multiple = TRUE)
            ),
            downloadButton("lastNed_dump", "Last ned datadump")
   ),
@@ -1062,6 +1027,24 @@ server <- function(input, output, session) {
               options = list(pageLength = 25)
     )
   )
+
+
+  #Navbarwidget
+  output$appUserName <- renderText(rapbase::getUserFullName(session))
+  output$appOrgName <- renderText(rapbase::getUserReshId(session))
+
+  # Brukerinformasjon
+  userInfo <- rapbase::howWeDealWithPersonalData(session)
+  observeEvent(input$userInfo, {
+    shinyalert("Dette vet Rapporteket om deg:", userInfo,
+               type = "", imageUrl = "rap/logo.svg",
+               closeOnEsc = TRUE, closeOnClickOutside = TRUE,
+               html = TRUE, confirmButtonText = "Den er grei!")
+  })
+
+
+
+
 }
 
 # Run the application
