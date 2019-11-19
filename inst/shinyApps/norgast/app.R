@@ -144,20 +144,20 @@ ui <- navbarPage(
            )
   ),
 
-  tabPanel("testfluider",
-           fluidRow(
-             column(2,
-                    sliderInput("obs", "Number of observations:",
-                                min = 1, max = 1000, value = 500)
-             ),
-             column(8,
-                    plotOutput("distPlot")
-             ),
-             column(2,
-                    sliderInput("obs2", "andre siden:",
-                                min = 1, max = 1000, value = 500))
-           )
-  ),
+  # tabPanel("testfluider",
+  #          fluidRow(
+  #            column(2,
+  #                   sliderInput("obs", "Number of observations:",
+  #                               min = 1, max = 1000, value = 500)
+  #            ),
+  #            column(8,
+  #                   plotOutput("distPlot")
+  #            ),
+  #            column(2,
+  #                   sliderInput("obs2", "andre siden:",
+  #                               min = 1, max = 1000, value = 500))
+  #          )
+  # ),
 
   tabPanel("Andeler",
            sidebarPanel(
@@ -345,9 +345,9 @@ server <- function(input, output, session) {
   shinyjs::onclick("toggleAdvanced",
                    shinyjs::toggle(id = "avansert", anim = TRUE))
 
-  output$distPlot <- renderPlot({
-    hist(rnorm(input$obs))
-  })
+  # output$distPlot <- renderPlot({
+  #   hist(rnorm(input$obs))
+  # })
 
 
   #################################################################################################################################
