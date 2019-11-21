@@ -2,6 +2,29 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+############# Kristiansand 2019 - Utlevering 19.11.2019 ###############################
+
+RegData <- read.table('I:/norgast/AlleVarNum2019-11-19 10-04-46.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- RegData[which(RegData$AvdRESH == 100353), ]
+RegData <- RegData[as.Date(RegData$HovedDato) >= "2019-01-01", ]
+RegData <- NorgastPreprosess(RegData)
+
+RegData <- RegData[RegData$Op_gr %in% 1:7, c("OpDato", "erMann", "Alder", "Hovedoperasjon")]
+
+write.csv2(RegData, 'I:/norgast/norgast_kristiansand2019.csv', row.names = F)
+
+
 ############# Stig Norderval - Utlevering 27.08.2019 ###############################
 koblingsinfo <- read.table('I:/norgast/AlleNorgastPasienterAugsti2019.csv', header=TRUE, sep=",", colClasses = c('integer', 'character'))
 koblingsinfo <- koblingsinfo[match(unique(koblingsinfo$PID), koblingsinfo$PID), ]
