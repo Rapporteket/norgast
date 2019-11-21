@@ -33,12 +33,9 @@ if (onServer) {
   RegData <- NorgastHentRegData()
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
-  # rm(list = ls())
-  # RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
-  #                       encoding = 'UTF-8', stringsAsFactors = F)
-  RegData <- read.table('I:/norgast/AlleVarNum2019-04-26 10-59-03.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2019-11-19 10-04-46.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";",
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -49,7 +46,7 @@ if (onServer) {
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-04-26 10-59-23.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-11-19 10-05-09.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
 
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
@@ -60,6 +57,13 @@ RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 
 BrValg <- BrValgNorgastShiny(RegData)
 
+source(system.file("shinyApps/norgast/R/modul_fordelingsfig_UI.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_sykehusvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_tidsvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
+
 ######################################################################
 
 # Define UI for application
@@ -69,6 +73,12 @@ ui <- navbarPage(
               regTitle),
   windowTitle = regTitle,
   theme = "rap/bootstrap.css",
+
+  tabPanel("Forside"#,
+           # mainPanel(
+           # )
+  ),
+
 
   tabPanel("Testpanel",
            shinyjs::useShinyjs(),
@@ -96,52 +106,16 @@ ui <- navbarPage(
   ),
 
 
-  tabPanel("Fordelingsfigurer",
-           # sidebarLayout(
-           sidebarPanel(
-             selectInput(inputId = "valgtVar", label = "Velg variabel",
-                         choices = BrValg$varvalg),
-             dateRangeInput(inputId="datovalg", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
-             selectInput(inputId = "enhetsUtvalg", label = "Kjør rapport for",
-                         choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
-             selectInput(inputId = "valgtShus", label = "Velg sykehus",
-                         choices = BrValg$sykehus, multiple = TRUE),
-             selectInput(inputId = "tilgang", label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
-             sliderInput(inputId="alder", label = "Alder", min = 0,
-                         max = 120, value = c(0, 120)),
-             selectInput(inputId = "erMann", label = "Kjønn",
-                         choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-             selectInput(inputId = "elektiv", label = "Tidspunkt for operasjon",
-                         choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-             selectInput(inputId = "hastegrad", label = "Hastegrad",
-                         choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-             shinyjs::hidden(
-               div(id = "avansert",
-                   selectInput(inputId = "op_gruppe", label = "Velg reseksjonsgruppe(r)",
-                               choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                   uiOutput(outputId = 'ncsp'),
-                   selectInput(inputId = "BMI", label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-                   sliderInput(inputId="PRS", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                   selectInput(inputId = "ASA", label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-                   selectInput(inputId = "whoEcog", label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-                   selectInput(inputId = "forbehandling", label = "Onkologisk forbehandling", multiple = TRUE,
-                               choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                   selectInput(inputId = "malign", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)))),
-             selectInput(inputId = "bildeformat", label = "Velg bildeformat",
-                         choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-             a(id = "toggleAdvanced", "Skjul/vis flere valg", href = "#")
-           ),
-           mainPanel(tabsetPanel(
-             tabPanel("Figur",
-                      plotOutput("Figur1", height="auto"), downloadButton("lastNedBilde", "Last ned figur")),
-             tabPanel("Tabell",
-                      uiOutput("utvalg"),
-                      tableOutput("Tabell1"), downloadButton("lastNed", "Last ned tabell"))
-             # tabPanel("Tabell 2",
-             #          tableOutput("Tabell2"))
-           )
-           )
+  tabPanel("Fordelinger",
+           fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Sykehusvisning",
+           sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Tidsvisning",
+           tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
   ),
 
   # tabPanel("testfluider",
@@ -159,73 +133,6 @@ ui <- navbarPage(
   #          )
   # ),
 
-  tabPanel("Andeler",
-           sidebarPanel(
-             selectInput(inputId = "valgtVar_andel", label = "Velg variabel",
-                         choices = BrValg$varvalg_andel),
-             shinyjs::hidden(selectInput(inputId = "valgtVar_andel_stabel", label = "Velg variabel",
-                         choices = BrValg$varvalg_andel_stabel)),
-             shinyjs::hidden(selectInput(inputId = "valgtVar_gjsn", label = "Velg variabel",
-                         choices = BrValg$varvalg_gjsn)),
-             dateRangeInput(inputId="datovalg2", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-             selectInput(inputId = "enhetsUtvalg2", label = "Kjør rapport for",
-                         choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
-             selectInput(inputId = "valgtShus2", label = "Velg sykehus",
-                         choices = BrValg$sykehus, multiple = TRUE),
-             sliderInput(inputId="alder2", label = "Alder", min = 0,
-                         max = 120, value = c(0, 120)),
-             selectInput(inputId = "erMann2", label = "Kjønn",
-                         choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-             selectInput(inputId = "op_gruppe2", label = "Velg reseksjonsgruppe(r)",
-                         choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-             uiOutput(outputId = 'ncsp2'),
-             selectInput(inputId = "inkl_konf", label = "Inkluder konfidensintervall",
-                         choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-             selectInput(inputId = "elektiv2", label = "Operasjonstid",
-                         choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-             selectInput(inputId = "hastegrad2", label = "Hastegrad",
-                         choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
-             selectInput(inputId = "BMI2", label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-             selectInput(inputId = "tilgang2", label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
-             sliderInput(inputId="PRS2", label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-             selectInput(inputId = "ASA2", label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-             selectInput(inputId = "whoEcog2", label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-             selectInput(inputId = "forbehandling2", label = "Onkologisk forbehandling", multiple = TRUE,
-                         choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-             selectInput(inputId = "malign2", label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-             selectInput(inputId = "tidsenhet", label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
-             selectInput(inputId = "bildeformat2", label = "Velg bildeformat",
-                         choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
-           ),
-           mainPanel(tabsetPanel(id = "tabs_andeler",
-                                 tabPanel("Figur, tidsvisning",
-                                          plotOutput("fig_andel_tid", height="auto"),
-                                          downloadButton("lastNedBilde_tid", "Last ned figur")),
-                                 tabPanel("Tabell, tidsvisning",
-                                          uiOutput("utvalg_tid"),
-                                          tableOutput("Tabell_tid"), downloadButton("lastNed_tid", "Last ned tabell")),
-                                 tabPanel("Figur, sykehusvisning",
-                                          plotOutput("fig_andel_grvar", height="auto"),
-                                          downloadButton("lastNedBilde_sykehus_andel", "Last ned figur")),
-                                 tabPanel("Tabell, sykehusvisning",
-                                          uiOutput("utvalg_sykehus_andel"),
-                                          tableOutput("Tabell_sykehus_andel"), downloadButton("lastNed_sykehus_andel", "Last ned tabell")),
-                                 tabPanel("Figur, andeler i stabel",
-                                          plotOutput("fig_andel_grvar_stabel", height="auto"),
-                                          downloadButton("lastNedBilde_sykehus_andel_stabel", "Last ned figur")),
-                                 tabPanel("Tabell, andeler i stabel",
-                                          uiOutput("utvalg_sykehus_andel_stabel"),
-                                          tableOutput("Tabell_sykehus_andel_stabel"), downloadButton("lastNedStabelTabell", "Last ned tabell")),
-                                 tabPanel("Figur, gjennomsnitt per sykehus",
-                                          plotOutput("fig_gjsn_grvar", height="auto"),
-                                          downloadButton("lastNedBilde_sykehus_gjsn", "Last ned figur")),
-                                 tabPanel("Tabell, gjennomsnitt per sykehus",
-                                          uiOutput("utvalg_sykehus_gjsn"),
-                                          tableOutput("Tabell_sykehus_gjsn"), downloadButton("lastNed_sykehus_gjsn", "Last ned tabell"))
-           )
-           )
-  ),
   tabPanel("Samledokumenter",
            h2("Samledokumenter", align='center'),
            p("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller",
@@ -287,11 +194,9 @@ server <- function(input, output, session) {
 
   reshID <- reactive({
     ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
-    # as.numeric(rapbase::getUserReshId(session))
   })
   userRole <- reactive({
     ifelse(onServer, rapbase::getUserRole(session), 'SC')
-    # rapbase::getUserRole(session)
   })
 
   observe(
@@ -309,60 +214,20 @@ server <- function(input, output, session) {
     }
   )
 
-  observe(
-    if (!is.null(input$tabs_andeler)) {
-      if (!(input$tabs_andeler %in%  c("Figur, tidsvisning", "Tabell, tidsvisning"))) {
-        shinyjs::hide(id = 'enhetsUtvalg2')
-        shinyjs::hide(id = 'tidsenhet')
-        shinyjs::hide(id = 'valgtShus2')
-      } else {
-        shinyjs::show(id = 'enhetsUtvalg2')
-        shinyjs::show(id = 'tidsenhet')
-        if (userRole() == 'SC') { shinyjs::show(id = 'valgtShus2')}
-      }
-      if (input$tabs_andeler %in%  c("Figur, andeler i stabel", "Tabell, andeler i stabel")){
-        shinyjs::hide(id = 'valgtVar_andel')
-        shinyjs::hide(id = 'valgtVar_gjsn')
-        shinyjs::show(id = 'valgtVar_andel_stabel')
-        shinyjs::hide(id = 'inkl_konf')
-      }
-      if (input$tabs_andeler %in%  c("Figur, tidsvisning", "Tabell, tidsvisning", "Figur, sykehusvisning", "Tabell, sykehusvisning")) {
-        shinyjs::hide(id = 'valgtVar_andel_stabel')
-        shinyjs::hide(id = 'valgtVar_gjsn')
-        shinyjs::show(id = 'valgtVar_andel')
-        shinyjs::show(id = 'inkl_konf')
-      }
-      if (input$tabs_andeler %in%  c("Figur, gjennomsnitt per sykehus", "Tabell, gjennomsnitt per sykehus")) {
-        shinyjs::hide(id = 'valgtVar_andel_stabel')
-        shinyjs::show(id = 'valgtVar_gjsn')
-        shinyjs::hide(id = 'valgtVar_andel')
-        shinyjs::show(id = 'inkl_konf')
-      }
-
-    }
-  )
-
-  shinyjs::onclick("toggleAdvanced",
-                   shinyjs::toggle(id = "avansert", anim = TRUE))
-
-  # output$distPlot <- renderPlot({
-  #   hist(rnorm(input$obs))
-  # })
-
 
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  output$ncsp <- renderUI({selectInput(inputId = "ncsp_verdi", label = "Velg NCSP kode(r)",
-                                       choices = if (is.null(input$op_gruppe)){
-                                         ""
-                                       } else {
-                                         setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                              as.numeric(input$op_gruppe)])), 1, 5),
-                                                  sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                       as.numeric(input$op_gruppe)])))
-                                       },
-                                       multiple = TRUE)})
+  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID(), RegData = RegData, userRole = userRole())
+
+
+  #################################################################################################################################
+  ################ Andeler ########################################################################################################
+
+  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID(), RegData = RegData)
+
+  callModule(tidsvisning, "tidsvisning_id", reshID = reshID(), RegData = RegData, userRole = userRole())
+
 
   output$ncsp2 <- renderUI({selectInput(inputId = "ncsp_verdi2", label = "Velg NCSP kode(r)",
                                         choices = if (is.null(input$op_gruppe2)){
@@ -374,134 +239,6 @@ server <- function(input, output, session) {
                                                                                         as.numeric(input$op_gruppe2)])))
                                         },
                                         multiple = TRUE)})
-
-  observe(
-    if (is.null(input$op_gruppe)) {
-      shinyjs::hide(id = 'ncsp')
-    } else {
-      shinyjs::show(id = 'ncsp')
-    }
-  )
-
-  output$Figur1 <- renderPlot({
-    norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-                        maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-                        op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                        ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                        BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                        tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                        minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                        ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                        whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                        forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                        malign = as.numeric(input$malign),
-                        reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                        elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
-  }, width = 700, height = 700)
-
-  tabellReager <- reactive({
-    TabellData <- norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-                                      maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                      valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-                                      op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                                      ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                                      BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                                      tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                                      minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                                      ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                                      whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                                      forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                                      malign = as.numeric(input$malign),
-                                      reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                                      elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
-  })
-
-  output$utvalg <- renderUI({
-    TabellData <- tabellReager()
-    tagList(
-      h3(TabellData$tittel),
-      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
-    )})
-
-
-
-  output$Tabell1 <- function() {
-
-    TabellData <- tabellReager()
-    if (input$enhetsUtvalg == 1) {
-      Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-        mutate(AndelRest= 100*AntRest/Nrest)
-      Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
-      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
-        kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
-    } else {
-      Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved)
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
-      Tabell1 %>%
-        knitr::kable("html", digits = c(0,0,0,1)) %>%
-        kable_styling("hover", full_width = F)
-    }
-
-  }
-
-  output$lastNed <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar, Sys.time(), '.csv')
-    },
-
-    content = function(file){
-      TabellData <- tabellReager()
-      if (input$enhetsUtvalg == 1) {
-        Tabell1 <- TabellData$Antall %>%
-          mutate(Kategori = rownames(.)) %>%
-          select(Kategori, everything()) %>%
-          mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-          mutate(AndelRest= 100*AntRest/Nrest)
-        Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-      } else {
-        Tabell1 <- TabellData$Antall %>%
-          mutate(Kategori = rownames(.)) %>%
-          select(Kategori, everything()) %>%
-          mutate(AndelHoved = 100*AntHoved/NHoved)
-      }
-      write.csv2(Tabell1, file, row.names = F)
-    }
-  )
-
-  output$lastNedBilde <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
-    },
-
-    content = function(file){
-      norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-                          maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                          valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-                          op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                          ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                          BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                          tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                          minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                          ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                          whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                          forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                          malign = as.numeric(input$malign),
-                          reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad), outfile = file)
-    }
-  )
-
-  #################################################################################################################################
-  ################ Andeler ########################################################################################################
 
   output$fig_andel_tid <- renderPlot({
     norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar_andel, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
@@ -542,7 +279,7 @@ server <- function(input, output, session) {
   output$utvalg_tid <- renderUI({
     TabellData <- tabellReagerTid()
     tagList(
-      h3(TabellData$tittel),
+      h3(HTML(paste0(TabellData$tittel, '<br />'))),
       h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
     )})
 
@@ -652,7 +389,7 @@ server <- function(input, output, session) {
   output$utvalg_sykehus_andel <- renderUI({
     TabellData <- tabellReagerSykehusAndel()
     tagList(
-      h3(TabellData$tittel),
+      h3(HTML(paste0(TabellData$tittel, '<br />'))),
       h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
     )})
 
@@ -736,7 +473,7 @@ server <- function(input, output, session) {
   output$utvalg_sykehus_gjsn <- renderUI({
     TabellData <- tabellReagerSykehusGjsn()
     tagList(
-      h3(TabellData$tittel),
+      h3(HTML(paste0(TabellData$tittel, '<br />'))),
       h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
     )})
 
@@ -813,7 +550,7 @@ server <- function(input, output, session) {
   output$utvalg_sykehus_andel_stabel <- renderUI({
     TabellData <- tabellReagerSykehusAndelStabel()
     tagList(
-      h3(TabellData$tittel),
+      h3(HTML(paste0(TabellData$tittel, '<br />'))),
       h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
     )})
 
@@ -829,57 +566,7 @@ server <- function(input, output, session) {
 
   }
 
-  # stabeltabell <- function() {
-  #   TabellData <- tabellReagerSykehusAndelStabel()
-  #   aux <- as.data.frame.matrix(TabellData$Antall)
-  #   aux$N <- TabellData$Ngr
-  #   aux$Avdeling <- row.names(aux)
-  #   row.names(aux) <- 1:dim(aux)[1]
-  #   aux <- aux[, c(dim(aux)[2], dim(aux)[2]-1, 1:(dim(aux)[2]-2))]
-  #   aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
-  #   aux[,-1] <- apply(aux[,-1], 2, as.numeric)
-  #   aux2 <- aux[,-(1:2)]/aux$N*100
-  #   aux <- cbind(aux, aux2)
-  #   sketch <- paste0('<table>
-  #                     <thead>
-  #                    <tr>
-  #                    <th rowspan="2">Avdeling</th>
-  #                    <th rowspan="2">N</th>
-  #                    <th colspan="', length(TabellData$legendTxt), '">Antall</th>
-  #                    <th colspan="', length(TabellData$legendTxt), '">Prosent</th>
-  #                    </tr>
-  #                    <tr>',
-  #                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-  #                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-  #                    '</tr>
-  #                    </thead>',
-  #                    tableFooter(c('Totalt' , round(as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]),1))),
-  #                    '</table>')
-  #     # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-  #   # sketch <- htmltools::withTags(table(
-  #   #   tableHeader(aux[-dim(aux)[1], ]),
-  #   #   tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-  #   list(ant_skjema=aux, sketch=sketch)
-  # }
-  #
-  #
-  # output$Tabell_sykehus_andel_stabel = renderDT(
-  #   datatable(stabeltabell()$ant_skjema[-dim(stabeltabell()$ant_skjema)[1], ],
-  #             container = stabeltabell()$sketch,
-  #             rownames = F,
-  #             options = list(pageLength = 30)
-  #   ) %>% formatRound(columns=(dim(stabeltabell()$ant_skjema)[2]/2+2):dim(stabeltabell()$ant_skjema)[2], digits=1)
-  # )
-  #
-  # output$lastNedStabelTabell <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.csv')
-  #   },
-  #   content = function(file){
-  #     Tabell <- stabeltabell()$ant_skjema
-  #     write.csv2(Tabell, file, row.names = F, na = '')
-  #   }
-  # )
+
 
   output$lastNedBilde_sykehus_andel_stabel <- downloadHandler(
     filename = function(){
