@@ -43,6 +43,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   Avdod,
                   AvdodDato,
                   Hoveddiagnose,
+                  Hastegrad,
                   ForlopsOversikt.ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.Sykehusnavn,
