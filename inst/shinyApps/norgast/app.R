@@ -15,6 +15,7 @@ library(DT)
 library(shiny)
 library(shinyjs)
 library(shinyalert)
+library(lubridate)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
@@ -54,6 +55,15 @@ skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 RegData <- NorgastPreprosess(RegData)
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+
+#alternative til dateInput med mulighet til  bare år, måned og år ..
+dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ...) {
+  d <- shiny::dateInput(inputId, label, ...)
+  d$children[[2L]]$attribs[["data-date-min-view-mode"]] <- minview
+  d$children[[2L]]$attribs[["data-date-max-view-mode"]] <- maxview
+  d
+}
+
 
 BrValg <- BrValgNorgastShiny(RegData)
 
@@ -100,7 +110,7 @@ ui <- navbarPage(
                 Man kan velge hvilken variabel man vil se på, og man kan gjøre ulike filtreringer.'),
              h4(tags$b('Sykehusvisning '), 'viser resultater per sykehus.
                 Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
-             h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for en andel for ditt sykehus'),
+             h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
              h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
              h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
                 variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
@@ -218,15 +228,25 @@ ui <- navbarPage(
   ),
   tabPanel("Administrative tabeller",
            sidebarPanel(
+             conditionalPanel(condition = "input.admtabeller == 'Antall skjema'",
              dateRangeInput(inputId="datovalg_adm", label = "Dato fra og til", min = '2014-01-01',
                             max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
              selectInput(inputId = "regstatus", label = "Skjemastatus",
                          choices = c('Ferdigstilt'=1, 'Kladd'=0))
            ),
-           mainPanel(tabsetPanel(
+           conditionalPanel(condition = "input.admtabeller == 'Tidsvisning'",
+                            dateInput2(inputId="datovalg_adm_tid", label = "Vis til og med måned: ", min = '2014-01-01',
+                                           max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
+                            # dateInput(inputId="datovalg_adm_tid", label = "Dato til", min = '2014-01-01',
+                            #           max = Sys.Date(), value = Sys.Date(), format = "mm/yyyy",startview = "year"),
+                            selectInput(inputId = "regstatus_tid", label = "Skjemastatus",
+                                        choices = c('Ferdigstilt'=1, 'Kladd'=0))
+           )
+           ),
+           mainPanel(tabsetPanel(id="admtabeller",
              tabPanel("Antall skjema",
                       DTOutput("Tabell_adm1"), downloadButton("lastNed1", "Last ned tabell")),
-             tabPanel("Annen admin rapport",
+             tabPanel("Tidsvisning",
                       h4("Her kommer det flere tabeller...", align='center')
                       # tableOutput("Tabell_adm2"), downloadButton("lastNed2", "Last ned tabell")
                       )
@@ -362,25 +382,77 @@ server <- function(input, output, session) {
   ################ Adm. tabeller ##################################################################################################
 
   antskjema <- function() {
-    aux <- as.data.frame.matrix(addmargins(table(skjemaoversikt[skjemaoversikt$SkjemaStatus == as.numeric(input$regstatus) &
-                                                                  skjemaoversikt$HovedDato >= input$datovalg_adm[1] &
-                                                                  skjemaoversikt$HovedDato <= input$datovalg_adm[2],
-                                                                c("Sykehusnavn", "Skjemanavn")], useNA = 'ifany')))
-    aux$Avdeling <- row.names(aux)
-    ant_skjema <- aux[, c(dim(aux)[2], 1:(dim(aux)[2]-1))]
+
+    tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+                 skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
+                 by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+
+    tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+    tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+    tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$OpprettetDato)]
+
+    aux <- tmp %>% filter(HovedDato >= input$datovalg_adm[1] & HovedDato <= input$datovalg_adm[2]) %>%
+      group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
+                                          'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
+                                          'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+                                          'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
+                                          'N' = n())
+    aux2 <- tmp %>% filter(HovedDato >= input$datovalg_adm[1] & HovedDato <= input$datovalg_adm[2]) %>%
+      summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
+                'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
+                'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+                'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
+                'N' = n())
+
+    ant_skjema <- bind_rows(aux, bind_cols(tibble(Sykehusnavn='Totalt'), aux2))
+
+
+    # aux <- as.data.frame.matrix(addmargins(table(skjemaoversikt[skjemaoversikt$SkjemaStatus == as.numeric(input$regstatus) &
+    #                                                               skjemaoversikt$HovedDato >= input$datovalg_adm[1] &
+    #                                                               skjemaoversikt$HovedDato <= input$datovalg_adm[2],
+    #                                                             c("Sykehusnavn", "Skjemanavn")], useNA = 'ifany')))
+    # aux$Avdeling <- row.names(aux)
+    # ant_skjema <- aux[, c(dim(aux)[2], 1:(dim(aux)[2]-1))]
+    # sketch <- htmltools::withTags(table(
+    #   tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
+    #   tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
+    # list(ant_skjema=ant_skjema, sketch=sketch)
+
     sketch <- htmltools::withTags(table(
       tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
       tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
     list(ant_skjema=ant_skjema, sketch=sketch)
+
+
   }
 
   output$Tabell_adm1 = renderDT(
     datatable(antskjema()$ant_skjema[-dim(antskjema()$ant_skjema)[1], ],
               container = antskjema()$sketch,
               rownames = F,
-              options = list(pageLength = 25)
+              options = list(pageLength = 40)
     )
   )
+
+
+  # andre_adm_tab <- function(tilDato = Sys.Date()) {
+  #
+  #   fraDato <- tilDato %m-% months(11) %>% floor_date(unit="months")
+  #
+  #   aux <- skjemaoversikt[skjemaoversikt$HovedDato >= fraDato & skjemaoversikt$HovedDato <= tilDato, ]
+  #
+  #   aux <- as.data.frame.matrix(addmargins(table(skjemaoversikt[skjemaoversikt$SkjemaStatus == as.numeric(input$regstatus) &
+  #                                                                 skjemaoversikt$HovedDato >= input$datovalg_adm[1] &
+  #                                                                 skjemaoversikt$HovedDato <= input$datovalg_adm[2],
+  #                                                               c("Sykehusnavn", "Skjemanavn")], useNA = 'ifany')))
+  #   aux$Avdeling <- row.names(aux)
+  #   ant_skjema <- aux[, c(dim(aux)[2], 1:(dim(aux)[2]-1))]
+  #   sketch <- htmltools::withTags(table(
+  #     tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
+  #     tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
+  #   list(ant_skjema=ant_skjema, sketch=sketch)
+  # }
+  #
 
 
   #Navbarwidget
