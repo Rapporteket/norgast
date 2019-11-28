@@ -4,9 +4,9 @@ library(survival)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('I:/norgast/AlleVariablerNum2019-06-06 08-42-01.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/AlleVarNum2019-11-19 10-04-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 # RegData2 <- read.table('C:/SVN/jasper/norgast/data/AlleVar2016-10-11 09-34-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast//ForlopsOversikt2019-06-06 08-42-14.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast//ForlopsOversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

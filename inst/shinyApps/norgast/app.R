@@ -230,16 +230,22 @@ ui <- navbarPage(
            sidebarPanel(
              conditionalPanel(condition = "input.admtabeller == 'Antall skjema'",
              dateRangeInput(inputId="datovalg_adm", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til "),
-             selectInput(inputId = "regstatus", label = "Skjemastatus",
-                         choices = c('Ferdigstilt'=1, 'Kladd'=0))
+                            max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")#,
+             # selectInput(inputId = "regstatus", label = "Skjemastatus",
+             #             choices = c('Ferdigstilt'=1, 'Kladd'=0))
            ),
+
            conditionalPanel(condition = "input.admtabeller == 'Registreringer over tid'",
-                            dateInput2(inputId="datovalg_adm_tid", label = "Vis til og med måned: ", min = '2014-01-01',
-                                           max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
-                            # dateInput(inputId="datovalg_adm_tid", label = "Dato til", min = '2014-01-01',
-                            #           max = Sys.Date(), value = Sys.Date(), format = "mm/yyyy",startview = "year"),
-                            sliderInput(inputId= "ant_mnd", label = "Antall måneder", min = 1, max = 24, value = 12, step = 1),
+                            selectInput(inputId = "adm_tidsenhet", label = "Velg tidsenhet",
+                                        choices = c('Måneder'=1, 'År'=2)),
+                            conditionalPanel(condition = "input.adm_tidsenhet == '1'",
+                                             dateInput2(inputId="datovalg_adm_tid_mnd", label = "Vis til og med måned: ", min = '2014-01-01',
+                                                        max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
+                                             sliderInput(inputId= "ant_mnd", label = "Antall måneder", min = 1, max = 24, value = 12, step = 1)),
+                            conditionalPanel(condition = "input.adm_tidsenhet == '2'",
+                                             dateInput2(inputId="datovalg_adm_tid_aar", label = "Vis til og med år: ", min = '2014-01-01',
+                                                        max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
+                                             sliderInput(inputId= "ant_aar", label = "Antall år", min = 1, max = 10, value = 5, step = 1)),
                             selectInput(inputId = "regstatus_tid", label = "Skjemastatus",
                                         choices = c('Ferdige forløp'=1, 'Oppfølging i kladd'=2, 'Ferdig basisreg. oppfølging mangler'=3,
                                                     'Basisreg. i kladd'=4))
@@ -247,6 +253,13 @@ ui <- navbarPage(
            ),
            mainPanel(tabsetPanel(id="admtabeller",
              tabPanel("Antall skjema",
+                      h4(tags$b(tags$u('Denne tabellen gir en avdelingsvis oversikt over innregistreringer i NoRGast, hvor de ulike kolonnene viser:'))),
+                      h4(tags$b('Ferdige forløp '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging.'),
+                      h4(tags$b('Oppfølging i kladd '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging i kladd.'),
+                      h4(tags$b('Ferdig basisreg. oppfølging mangler '), 'viser antall forløp med ferdigstilt basisregistrering og ikke påbegynt eller slettet oppfølging'),
+                      h4(tags$b('Basisreg. i kladd '), 'viser antallet basisregistreringer i kladd.'),
+                      br(),
+                      br(),
                       DTOutput("Tabell_adm1"), downloadButton("lastNed_adm1", "Last ned tabell")),
              tabPanel("Registreringer over tid",
                       # h4("Her kommer det flere tabeller...", align='center'),
@@ -441,38 +454,56 @@ server <- function(input, output, session) {
 
   andre_adm_tab <- function() {
 
-    fraDato <- as.Date(input$datovalg_adm_tid) %m-% months(input$ant_mnd) %>% floor_date(unit="months")
-    tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
-                 skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
-                 by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+    if (input$adm_tidsenhet == 1) {
 
-    tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
-    tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
-    tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
+      fraDato <- as.Date(input$datovalg_adm_tid_mnd) %m-% months(input$ant_mnd) %>% floor_date(unit="months")
+      tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+                   skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
+                   by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
-    aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid, ]
+      tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+      tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+      tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
 
-    # aux$mnd <- factor(format(aux$HovedDato, format='%Y-%m'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid), by="month"), "%Y-%m"))
-    aux$mnd <- factor(format(aux$HovedDato, format='%b-%y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid), by="month"), "%b-%y"))
+      aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_mnd, ]
 
+      aux$mnd <- factor(format(aux$HovedDato, format='%b-%y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_mnd), by="month"), "%b-%y"))
 
-    ant_skjema <- switch (input$regstatus_tid,
-      '1' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==1) , c('Sykehusnavn', 'mnd')]))),
-      '2' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) , c('Sykehusnavn', 'mnd')]))),
-      '3' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) , c('Sykehusnavn', 'mnd')]))),
-      '4' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
-    ) %>% as_tibble(rownames = 'Sykehusnavn')
+      ant_skjema <- switch (input$regstatus_tid,
+                            '1' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==1) , c('Sykehusnavn', 'mnd')]))),
+                            '2' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) , c('Sykehusnavn', 'mnd')]))),
+                            '3' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) , c('Sykehusnavn', 'mnd')]))),
+                            '4' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
+      ) %>% as_tibble(rownames = 'Sykehusnavn')
+    }
 
-    # names(ant_skjema)[2:(dim(ant_skjema)[2]-1)] <- format(as.Date(paste0(names(ant_skjema)[2:(dim(ant_skjema)[2]-1)], '-01')), format='%b-%y')
+    if (input$adm_tidsenhet == 2) {
+
+      fraDato <- as.Date(input$datovalg_adm_tid_aar) %m-% years(input$ant_aar) %>% floor_date(unit="years")
+      tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+                   skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
+                   by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+
+      tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+      tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+      tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
+
+      aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_aar, ]
+
+      aux$mnd <- factor(format(aux$HovedDato, format='%Y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_aar), by="year"), "%Y"))
+
+      ant_skjema <- switch (input$regstatus_tid,
+                            '1' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==1) , c('Sykehusnavn', 'mnd')]))),
+                            '2' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) , c('Sykehusnavn', 'mnd')]))),
+                            '3' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) , c('Sykehusnavn', 'mnd')]))),
+                            '4' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
+      ) %>% as_tibble(rownames = 'Sykehusnavn')
+    }
 
     sketch <- htmltools::withTags(table(
       tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
       tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
     list(ant_skjema=ant_skjema, sketch=sketch)
-
-      # as.data.frame.matrix(addmargins(table(aux$Sykehusnavn, aux$mnd)))
-
-    # format(as.Date(paste0(names(table(qa)), '-01')), format='%b-%y')
 
   }
 
@@ -482,8 +513,9 @@ server <- function(input, output, session) {
   # )
 
   # output$debug_tabell <- renderText({
-  #   paste("You have selected", input$datovalg_adm_tid)
+  #   paste("You have selected", input$datovalg_adm_tid_mnd)
   # })
+
   output$Tabell_adm2 = renderDT(
     datatable(andre_adm_tab()$ant_skjema[-dim(andre_adm_tab()$ant_skjema)[1], ],
               container = andre_adm_tab()$sketch,
