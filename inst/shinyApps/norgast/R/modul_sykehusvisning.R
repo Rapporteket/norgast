@@ -161,7 +161,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData){
 
   output$lastNedBilde_sykehus_andel_stabel <- downloadHandler(
     filename = function(){
-      paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.', input$bildeformat2)
+      paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.', input$bildeformat)
     },
     content = function(file){
       norgast::NorgastFigAndelStabelGrVar(RegData, valgtVar=input$valgtVar_andel_stabel, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
@@ -229,7 +229,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData){
 
   output$lastNedBilde_sykehus_gjsn <- downloadHandler(
     filename = function(){
-      paste0(input$valgtVar_gjsn, '_sykehus_gjsn_', Sys.time(), '.', input$bildeformat2)
+      paste0(input$valgtVar_gjsn, '_sykehus_gjsn_', Sys.time(), '.', input$bildeformat)
     },
     content = function(file){
       norgast::NorgastFigGjsnGrVar(RegData, valgtVar=input$valgtVar_gjsn, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
