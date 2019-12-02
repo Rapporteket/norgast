@@ -253,7 +253,7 @@ ui <- navbarPage(
            ),
            mainPanel(tabsetPanel(id="admtabeller",
              tabPanel("Antall skjema",
-                      h4(tags$b(tags$u('Denne tabellen gir en avdelingsvis oversikt over innregistreringer i NoRGast, hvor de ulike kolonnene viser:'))),
+                      h4(tags$b(tags$u('Denne tabellen gir en avdelingsvis oversikt over innregistreringer i NoRGast:'))),
                       h4(tags$b('Ferdige forløp '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging.'),
                       h4(tags$b('Oppfølging i kladd '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging i kladd.'),
                       h4(tags$b('Ferdig basisreg. oppfølging mangler '), 'viser antall forløp med ferdigstilt basisregistrering og ikke påbegynt eller slettet oppfølging'),
@@ -507,15 +507,6 @@ server <- function(input, output, session) {
 
   }
 
-  # output$debug_tabell <- renderUI({
-  #   as.character(input$tilDato)
-  # }
-  # )
-
-  # output$debug_tabell <- renderText({
-  #   paste("You have selected", input$datovalg_adm_tid_mnd)
-  # })
-
   output$Tabell_adm2 = renderDT(
     datatable(andre_adm_tab()$ant_skjema[-dim(andre_adm_tab()$ant_skjema)[1], ],
               container = andre_adm_tab()$sketch,
@@ -524,9 +515,17 @@ server <- function(input, output, session) {
     )
   )
 
-  # output$Tabell_adm2 = renderTable(
-  #   ut <- andre_adm_tab()
-  # )
+  output$lastNed_adm2 <- downloadHandler(
+    filename = function(){
+      paste0('Regoversikt_tid', Sys.time(), '.csv')
+    },
+
+    content = function(file){
+      TabellData <- andre_adm_tab()$ant_skjema
+      write.csv2(TabellData, file, row.names = F)
+    }
+  )
+
 
   #Navbarwidget
   output$appUserName <- renderText(rapbase::getUserFullName(session))
