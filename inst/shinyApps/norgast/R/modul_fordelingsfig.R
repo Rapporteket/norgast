@@ -8,8 +8,8 @@
 #'
 fordelingsfig <- function(input, output, session, reshID, RegData, userRole){
 
-  shinyjs::onclick("toggleAdvanced",
-                   shinyjs::toggle(id = "avansert", anim = TRUE))
+  # shinyjs::onclick("toggleAdvanced",
+  #                  shinyjs::toggle(id = "avansert", anim = TRUE))
 
   observe(
     if (userRole != 'SC') {
@@ -19,7 +19,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole){
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "Velg NCSP kode(r)",
+      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
                   choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
                                                                                  as.numeric(input$op_gruppe)])), 1, 5),
                                      sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
@@ -81,7 +81,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole){
         mutate(AndelHoved = 100*AntHoved/NHoved) %>%
         mutate(AndelRest= 100*AntRest/Nrest)
       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel', 'Antall', 'N', 'Andel')
+      names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel [%]', 'Antall i kategori', 'Antall totalt', 'Andel [%]')
       Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
         kable_styling("hover", full_width = F) %>%
         add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
@@ -90,7 +90,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole){
         mutate(Kategori = rownames(.)) %>%
         select(Kategori, everything()) %>%
         mutate(AndelHoved = 100*AntHoved/NHoved)
-      names(Tabell1) <- c('Kategori', 'Antall', 'N', 'Andel')
+      names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel [%]')
       Tabell1 %>%
         knitr::kable("html", digits = c(0,0,0,1)) %>%
         kable_styling("hover", full_width = F)

@@ -276,6 +276,10 @@ ui <- navbarPage(
 #
 server <- function(input, output, session) {
 
+  raplog::appLogger(session = session, msg = 'Starter NoRGast')
+
+
+
   reshID <- reactive({
     ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
   })

@@ -32,7 +32,7 @@ sykehusvisning_UI <- function(id, BrValg){
       uiOutput(outputId = ns('ncsp')),
       selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
                   choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-      selectInput(inputId = ns("elektiv"), label = "Operasjonstid",
+      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),

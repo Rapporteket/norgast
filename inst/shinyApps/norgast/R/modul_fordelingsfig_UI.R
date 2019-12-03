@@ -15,18 +15,18 @@ fordelingsfig_UI <- function(id, BrValg){
                   choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
       selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                   choices = BrValg$sykehus, multiple = TRUE),
-      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
+      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                   max = 120, value = c(0, 120)),
       selectInput(inputId = ns("erMann"), label = "Kjønn",
                   choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjon",
+      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-      shinyjs::hidden(
-        div(
-          id = ns("avansert"),
+      # shinyjs::hidden(
+      #   div(
+      #     id = ns("avansert"),
             selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
                         choices = BrValg$reseksjonsgrupper, multiple = TRUE),
             uiOutput(outputId = ns('ncsp')),
@@ -36,12 +36,12 @@ fordelingsfig_UI <- function(id, BrValg){
             selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
             selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                         choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-            selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0))
-            )
-        ),
+            selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+        #     )
+        # ),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-      a(id = ns("toggleAdvanced"), "Skjul/vis flere valg", href = "#")
+                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+      # a(id = ns("toggleAdvanced"), "Skjul/vis flere valg", href = "#")
     ),
     mainPanel(
       tabsetPanel(

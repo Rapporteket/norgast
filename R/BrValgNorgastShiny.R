@@ -36,8 +36,8 @@ BrValgNorgastShiny <- function(RegData) {
 
   bmi_valg <- 1:8
   names(bmi_valg) <- levels(RegData$BMI_kategori)
-  tilgang_valg <- c(1,2,3,5)
-  names(tilgang_valg) <- c('Åpen', 'Laparoskopisk', 'Konvertert', 'Endoskopisk')
+  tilgang_valg <- c(1,2,3)
+  names(tilgang_valg) <- c('Åpen', 'Laparoskopisk', 'Konvertert')
   ASA_valg <- 1:5
   names(ASA_valg) <- c('Grad I', 'Grad II', 'Grad III', 'Grad IV', 'Grad V')
   whoEcog_valg <- c(0:4, 9)
