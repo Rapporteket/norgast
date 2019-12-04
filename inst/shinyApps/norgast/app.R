@@ -304,18 +304,18 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshId, RegData = RegData, userRole = userRole)
+  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshId, RegData = RegData, userRole = userRole, hvd_session = session)
 
 
   #################################################################################################################################
   ################ Sykehusvisning ########################################################################################################
 
-  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData)
+  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
 
   #################################################################################################################################
   ################ Tidsvisning ########################################################################################################
 
-  callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole)
+  callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################

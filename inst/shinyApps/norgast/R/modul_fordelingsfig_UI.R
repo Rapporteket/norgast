@@ -44,10 +44,10 @@ fordelingsfig_UI <- function(id, BrValg){
       # a(id = ns("toggleAdvanced"), "Skjul/vis flere valg", href = "#")
     ),
     mainPanel(
-      tabsetPanel(
-        tabPanel("Figur",
+      tabsetPanel(id = "tab",
+        tabPanel("Figur", value = "fig",
                  plotOutput(ns("Figur1"), height="auto"), downloadButton(ns("lastNedBilde"), "Last ned figur")),
-        tabPanel("Tabell",
+        tabPanel("Tabell", value = "tab",
                  uiOutput(ns("utvalg")),
                  # textOutput(ns("utvalg")),
                  br(),

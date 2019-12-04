@@ -145,6 +145,49 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
     }
   )
 
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$tab) == "fig") {
+        mld_fordeling <- paste0(
+          "NoRGast: Figur - fordeling, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tab) == "tab") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - fordeling. variabel - ",
+          input$valgtVar)
+      }
+      raplog::repLogger(
+        session = hvd_session,
+        msg = mld_fordeling
+      )
+      mldLastNedFig <- paste(
+        "NoRGast: nedlasting figur - kummulative andeler. variabel -",
+        input$valgtVar
+      )
+      mldLastNedTab <- paste(
+        "NoRGast: nedlasting tabell - kummulative andeler. variabel -",
+        input$valgtVar
+      )
+      shinyjs::onclick(
+        "lastNedBilde",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedFig
+        )
+      )
+      shinyjs::onclick(
+        "lastNedTabell",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedTab
+        )
+      )
+    }
+  })
+
+
+
 
 
 
