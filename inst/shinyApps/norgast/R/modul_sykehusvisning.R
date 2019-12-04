@@ -6,7 +6,7 @@
 #'
 #' @return Serverdelen av sykehusvisning, andeler
 #'
-sykehusvisning <- function(input, output, session, reshID, RegData){
+sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session){
 
   fiksNULL <- function(x) {
     if (!is.null(x)) {x} else {''}
@@ -207,7 +207,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData){
 
   output$Tabell_sykehus_gjsn <- function() {
     utdata <- tabellReagerSykehusGjsn()
-    Tabell <- as_tibble(utdata$res, rownames='Sykehusnavn')
+    Tabell <- as_tibble(utdata$res, rownames='Avdeling')
     Tabell[Tabell$N < 10, 2:4] <- NA
     Tabell <- Tabell[order(Tabell$Gjsn, decreasing = T, na.last = T), ]
     Tabell %>% knitr::kable("html", digits = c(0,1,1,1,0)) %>%

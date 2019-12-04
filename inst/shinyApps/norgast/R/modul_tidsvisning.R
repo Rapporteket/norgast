@@ -6,7 +6,7 @@
 #'
 #' @return Serverdelen av sykehusvisning, andeler
 #'
-tidsvisning <- function(input, output, session, reshID, RegData, userRole){
+tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   observe(
     if (userRole != 'SC') {

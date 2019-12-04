@@ -6,7 +6,7 @@
 #'
 #' @return Serverdelen av fordelingsfigur
 #'
-fordelingsfig <- function(input, output, session, reshID, RegData, userRole){
+fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   # shinyjs::onclick("toggleAdvanced",
   #                  shinyjs::toggle(id = "avansert", anim = TRUE))

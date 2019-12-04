@@ -276,25 +276,25 @@ ui <- navbarPage(
 #
 server <- function(input, output, session) {
 
-  raplog::appLogger(session = session, msg = 'Starter NoRGast')
+  if (rapbase::isRapContext()) {raplog::appLogger(session = session, msg = 'Starter NoRGast')}
 
-
-
-  reshID <- reactive({
-    ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
-  })
-  userRole <- reactive({
-    ifelse(onServer, rapbase::getUserRole(session), 'SC')
-  })
+  # reshID <- reactive({
+  #   ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
+  # })
+  # userRole <- reactive({
+  #   ifelse(onServer, rapbase::getUserRole(session), 'SC')
+  # })
 
   if (rapbase::isRapContext()) {
-    reshId_2 <- rapbase::getUserReshId(session)
+    reshId <- rapbase::getUserReshId(session)
+    userRole <- rapbase::getUserRole(session)
     } else {
-      reshId_2 <- 601225
+      reshId <- 601225
+      userRole <- 'SC'
     }
 
   observe(
-    if (userRole() != 'SC') {
+    if (userRole != 'SC') {
       shinyjs::hide(id = 'valgtShus3')
       shinyjs::hide(id = 'valgtShus4')
     }
@@ -304,18 +304,18 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshId_2, RegData = RegData, userRole = userRole())
+  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshId, RegData = RegData, userRole = userRole)
 
 
   #################################################################################################################################
   ################ Sykehusvisning ########################################################################################################
 
-  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID(), RegData = RegData)
+  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData)
 
   #################################################################################################################################
   ################ Tidsvisning ########################################################################################################
 
-  callModule(tidsvisning, "tidsvisning_id", reshID = reshID(), RegData = RegData, userRole = userRole())
+  callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole)
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################
@@ -344,7 +344,7 @@ server <- function(input, output, session) {
 
     content = function(file){
       contentFile(file, "NorgastSamleDokShiny.Rnw", "tmpNorgastSamle.Rnw", input$datovalg_sml[1],
-                  input$datovalg_sml[2], reshID=reshID(),
+                  input$datovalg_sml[2], reshID=reshID,
                   valgtShus=if (!is.null(input$valgtShus3)) {input$valgtShus3} else {''})
     }
   )
@@ -356,18 +356,18 @@ server <- function(input, output, session) {
 
     content = function(file){
       contentFile(file, "NorgastSamleDokLandetShiny.Rnw", "tmpNorgastSamleLandet.Rnw", input$datovalg_sml[1],
-                  input$datovalg_sml[2], reshID=reshID())
+                  input$datovalg_sml[2], reshID=reshID)
     }
   )
 
   output$lastNed_kvartal <- downloadHandler(
     filename = function(){
-      paste0('Kvartalsrapp', RegData$Sykehusnavn[match(reshID(), RegData$AvdRESH)], Sys.time(), '.pdf')
+      paste0('Kvartalsrapp', RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)], Sys.time(), '.pdf')
     },
 
     content = function(file){
       contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", datoFra=input$datovalg_sml[1],
-                  datoTil=input$datovalg_sml[2], reshID=reshID(),
+                  datoTil=input$datovalg_sml[2], reshID=reshID,
                   valgtShus=if (!is.null(input$valgtShus3)) {input$valgtShus3} else {''})
     }
   )
@@ -385,8 +385,8 @@ server <- function(input, output, session) {
     content = function(file){
       dumpdata <- RegData[RegData$HovedDato >= input$datovalg_dump[1] &
                             RegData$HovedDato <= input$datovalg_dump[2], ]
-      if (userRole() != 'SC') {
-        dumpdata <- dumpdata[dumpdata$AvdRESH == reshID(), ]
+      if (userRole != 'SC') {
+        dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
       } else {
         if (!is.null(input$valgtShus4)) {dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus4), ]}
       }

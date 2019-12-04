@@ -91,7 +91,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
     dummy0 <- -0.001
     Gjsn <- tapply(RegData$Variabel, RegData[ ,grVar], mean, na.rm=T)
     SE <- tapply(RegData$Variabel, RegData[ ,grVar], sd, na.rm=T)/sqrt(Ngr)
-    utresultat <- cbind(Gjsn=Gjsn, KIned=Gjsn-1.96*SE, KIopp=Gjsn+1.96*SE, N=Ngr)
+    utresultat <- cbind(Gjsn=Gjsn, KI_nedre=Gjsn-1.96*SE, KI_ovre=Gjsn+1.96*SE, N=Ngr)
     Gjsn[indGrUt] <- dummy0
     SE[indGrUt] <- 0
     sortInd <- order(Gjsn, decreasing=TRUE)
