@@ -45,9 +45,9 @@ fordelingsfig_UI <- function(id, BrValg){
     ),
     mainPanel(
       tabsetPanel(id = ns("tab"),
-        tabPanel("Figur", value = ns("fig"),
+        tabPanel("Figur", value = "fig",
                  plotOutput(ns("Figur1"), height="auto"), downloadButton(ns("lastNedBilde"), "Last ned figur")),
-        tabPanel("Tabell", value = ns("tab"),
+        tabPanel("Tabell", value = "tab",
                  uiOutput(ns("utvalg")),
                  # textOutput(ns("utvalg")),
                  br(),
