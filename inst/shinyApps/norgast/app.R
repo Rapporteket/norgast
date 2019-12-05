@@ -286,10 +286,10 @@ server <- function(input, output, session) {
   # })
 
   if (rapbase::isRapContext()) {
-    reshId <- rapbase::getUserReshId(session)
+    reshID <- rapbase::getUserReshId(session)
     userRole <- rapbase::getUserRole(session)
     } else {
-      reshId <- 601225
+      reshID <- 601225
       userRole <- 'SC'
     }
 
@@ -304,7 +304,7 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshId, RegData = RegData, userRole = userRole, hvd_session = session)
+  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
 
   #################################################################################################################################
