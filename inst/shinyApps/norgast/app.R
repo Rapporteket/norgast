@@ -73,6 +73,8 @@ source(system.file("shinyApps/norgast/R/modul_sykehusvisning_UI.R", package = "n
 source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -130,33 +132,6 @@ ui <- navbarPage(
 
   ),
 
-
-  # tabPanel("Testpanel",
-  #          shinyjs::useShinyjs(),
-  #          shinyalert::useShinyalert(),
-  #          rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
-  #                                       organization = uiOutput("appOrgName"),
-  #                                       addUserInfo = TRUE),
-  #          mainPanel(
-  #            # return from rapbase functions
-  #            h4("Test 'rapbase' functions using the session object:"),
-  #            textOutput("callUser"),
-  #            textOutput("callGroups"),
-  #            textOutput("callReshId"),
-  #            textOutput("callRole"),
-  #            textOutput("callEmail"),
-  #            textOutput("callFullName"),
-  #            textOutput("callPhone"),
-  #            h4("Environment var R_RAP_INSTANCE:"),
-  #            textOutput("envInstance"),
-  #            h4("Environmental var R_RAP_CONFIG_PATH:"),
-  #            textOutput("envConfigPath"),
-  #            h4("Locale settings:"),
-  #            textOutput("locale")
-  #          )
-  # ),
-
-
   tabPanel("Fordelinger",
            fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
   ),
@@ -187,52 +162,26 @@ ui <- navbarPage(
   tabPanel("Samledokumenter",
            h2("Samledokumenter", align='center'),
            h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
-              h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
+           h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
            br(),
            br(),
-           sidebarPanel(
-             dateRangeInput(inputId="datovalg_sml", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-             selectInput(inputId = "valgtShus3", label = "Velg sykehus",
-                         choices = BrValg$sykehus, multiple = TRUE)
-           ),
-           mainPanel(tabsetPanel(
-             tabPanel("Samledokument med egen avd. mot landet forøvrig",
-                      h4("Kristoffer og Linn lager en tekst som skal inn her."),
-                      downloadButton("lastNed_saml", "Last ned samledokument")),
-             tabPanel("Samledokument med nasjonale tall",
-                      h4("Kristoffer og Linn lager en tekst som skal inn her."),
-                      downloadButton("lastNed_saml_land", "Last ned samledokument")),
-             tabPanel("Kvartalsrapport for din avdeling",
-                      h4("Kristoffer og Linn lager en tekst som skal inn her."),
-                      downloadButton("lastNed_kvartal", "Last ned kvartalsrapport")))
-           )
+           samledok_UI(id = "samledok_id", BrValg = BrValg)
   ),
+
   tabPanel("Datadump",
            h2("Datadump", align='center'),
            h4("Velg variablene du ønsker inkludert i datadump og for hvilken tidsperiode.", align='center'),
            h4("Linn og Kristoffer lager mer tekst hvis ønskelig.", align='center'),
            br(),
            br(),
-           sidebarPanel(
-             selectInput(inputId = "valgtevar_dump", label = "Velg variabler å inkludere (ingen valgt er lik alle)",
-                         choices = names(RegData), multiple = TRUE),
-             dateRangeInput(inputId="datovalg_dump", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-             selectInput(inputId = "op_gruppe_dump", label = "Velg reseksjonsgruppe(r)",
-                         choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-             selectInput(inputId = "valgtShus4", label = "Velg sykehus",
-                         choices = BrValg$sykehus, multiple = TRUE)
-           ),
-           downloadButton("lastNed_dump", "Last ned datadump")
+           datadump_UI(id = "datadump_id", BrValg = BrValg)
   ),
+
   tabPanel("Administrative tabeller",
            sidebarPanel(
              conditionalPanel(condition = "input.admtabeller == 'Antall skjema'",
              dateRangeInput(inputId="datovalg_adm", label = "Dato fra og til", min = '2014-01-01',
-                            max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")#,
-             # selectInput(inputId = "regstatus", label = "Skjemastatus",
-             #             choices = c('Ferdigstilt'=1, 'Kladd'=0))
+                            max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
            ),
 
            conditionalPanel(condition = "input.admtabeller == 'Registreringer over tid'",
@@ -273,19 +222,10 @@ ui <- navbarPage(
 )
 
 
-#
 server <- function(input, output, session) {
 
-  if (rapbase::isRapContext()) {raplog::appLogger(session = session, msg = 'Starter NoRGast')}
-
-  # reshID <- reactive({
-  #   ifelse(onServer, as.numeric(rapbase::getUserReshId(session)), 601225)
-  # })
-  # userRole <- reactive({
-  #   ifelse(onServer, rapbase::getUserRole(session), 'SC')
-  # })
-
   if (rapbase::isRapContext()) {
+    raplog::appLogger(session = session, msg = 'Starter NoRGast')
     reshID <- rapbase::getUserReshId(session)
     userRole <- rapbase::getUserRole(session)
     } else {
@@ -293,19 +233,10 @@ server <- function(input, output, session) {
       userRole <- 'SC'
     }
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus3')
-      shinyjs::hide(id = 'valgtShus4')
-    }
-  )
-
-
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
   callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-
 
   #################################################################################################################################
   ################ Sykehusvisning ########################################################################################################
@@ -319,85 +250,13 @@ server <- function(input, output, session) {
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################
-  # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0, valgtShus='') {
-    src <- normalizePath(system.file(srcFile, package="norgast"))
 
-    # temporarily switch to the temp dir, in case we do not have write
-    # permission to the current working directory
-    owd <- setwd(tempdir())
-    on.exit(setwd(owd))
-    file.copy(src, tmpFile, overwrite = TRUE)
-
-    texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
-    tools::texi2pdf(texfil, clean = TRUE)
-
-    gc()
-    file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
-    # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
-  }
-
-  output$lastNed_saml <- downloadHandler(
-    filename = function(){
-      paste0('samleDok', Sys.time(), '.pdf')
-    },
-
-    content = function(file){
-      contentFile(file, "NorgastSamleDokShiny.Rnw", "tmpNorgastSamle.Rnw", input$datovalg_sml[1],
-                  input$datovalg_sml[2], reshID=reshID,
-                  valgtShus=if (!is.null(input$valgtShus3)) {input$valgtShus3} else {''})
-    }
-  )
-
-  output$lastNed_saml_land <- downloadHandler(
-    filename = function(){
-      paste0('samleDokLandet', Sys.time(), '.pdf')
-    },
-
-    content = function(file){
-      contentFile(file, "NorgastSamleDokLandetShiny.Rnw", "tmpNorgastSamleLandet.Rnw", input$datovalg_sml[1],
-                  input$datovalg_sml[2], reshID=reshID)
-    }
-  )
-
-  output$lastNed_kvartal <- downloadHandler(
-    filename = function(){
-      paste0('Kvartalsrapp', RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)], Sys.time(), '.pdf')
-    },
-
-    content = function(file){
-      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", datoFra=input$datovalg_sml[1],
-                  datoTil=input$datovalg_sml[2], reshID=reshID,
-                  valgtShus=if (!is.null(input$valgtShus3)) {input$valgtShus3} else {''})
-    }
-  )
-
-
-
+  callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Datadump   ##################################################################################################
 
-  output$lastNed_dump <- downloadHandler(
-    filename = function(){
-      paste0('Datadump_NoRGast', Sys.time(), '.csv')
-    },
-    content = function(file){
-      dumpdata <- RegData[RegData$HovedDato >= input$datovalg_dump[1] &
-                            RegData$HovedDato <= input$datovalg_dump[2], ]
-      if (userRole != 'SC') {
-        dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
-      } else {
-        if (!is.null(input$valgtShus4)) {dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus4), ]}
-      }
-
-      if (!is.null(input$op_gruppe_dump)) {dumpdata <- dumpdata[which(dumpdata$Op_gr %in% as.numeric(input$op_gruppe_dump)), ]}
-      if (!is.null(input$valgtevar_dump)) {dumpdata <- dumpdata[, input$valgtevar_dump]}
-
-      write.csv2(dumpdata, file, row.names = F, na = '')
-    }
-  )
-
+  callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Adm. tabeller ##################################################################################################
