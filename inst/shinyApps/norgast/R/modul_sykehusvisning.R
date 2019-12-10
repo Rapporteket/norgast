@@ -88,19 +88,19 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
 
   observe(
     if (!is.null(input$tabs_sykehusvisning)) {
-      if (input$tabs_sykehusvisning %in%  c("Figur, andeler i stabel", "Tabell, andeler i stabel")){
+      if (input$tabs_sykehusvisning %in%  c("fig_andel_stabel", "tab_andel_stabel")){
         shinyjs::hide(id = 'valgtVar')
         shinyjs::hide(id = 'valgtVar_gjsn')
         shinyjs::show(id = 'valgtVar_andel_stabel')
         shinyjs::hide(id = 'inkl_konf')
       }
-      if (input$tabs_sykehusvisning %in%  c("Figur, andeler", "Tabell, andeler")) {
+      if (input$tabs_sykehusvisning %in%  c("fig_andel", "tab_andel")) {
         shinyjs::hide(id = 'valgtVar_andel_stabel')
         shinyjs::hide(id = 'valgtVar_gjsn')
         shinyjs::show(id = 'valgtVar')
         shinyjs::show(id = 'inkl_konf')
       }
-      if (input$tabs_sykehusvisning %in%  c("Figur, gjennomsnitt", "Tabell, gjennomsnitt")) {
+      if (input$tabs_sykehusvisning %in%  c("fig_gjsn", "tab_gjsn")) {
         shinyjs::hide(id = 'valgtVar_andel_stabel')
         shinyjs::show(id = 'valgtVar_gjsn')
         shinyjs::hide(id = 'valgtVar')
