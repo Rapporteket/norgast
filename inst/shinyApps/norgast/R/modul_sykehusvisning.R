@@ -1,11 +1,85 @@
-#' Server-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
-#'
-#' Kun til bruk i Shiny
-#'
-#' @inheritParams norgastFigAndeler
-#'
-#' @return Serverdelen av sykehusvisning, andeler
-#'
+# Modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+#
+# Kun til bruk i Shiny
+#
+# @return Modul sykehusvisning, andeler
+#
+sykehusvisning_UI <- function(id, BrValg){
+  ns <- shiny::NS(id)
+
+  shiny::sidebarLayout(
+    sidebarPanel(
+      selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                  choices = BrValg$varvalg_andel),
+      selectInput(inputId = ns("valgtVar_gjsn"), label = "Velg variabel",
+                  choices = BrValg$varvalg_gjsn),
+      selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
+                  choices = BrValg$varvalg_andel_stabel),
+      # shinyjs::hidden(selectInput(inputId = ns("valgtVar_gjsn"), label = "Velg variabel",
+      #                             choices = BrValg$varvalg_gjsn)),
+      # shinyjs::hidden(selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
+      #                             choices = BrValg$varvalg_andel_stabel)),
+      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
+                     max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+      # selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
+      #             choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
+      # selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+      #             choices = BrValg$sykehus, multiple = TRUE),
+      sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
+                  max = 120, value = c(0, 120)),
+      selectInput(inputId = ns("erMann"), label = "Kjønn",
+                  choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+      selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                  choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+      uiOutput(outputId = ns('ncsp')),
+      selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
+                  choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
+      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+                  choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+      selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
+                  choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
+      selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
+      sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+      selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
+      selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
+                  choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+      selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+      # selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
+      selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+    ),
+    mainPanel(tabsetPanel(id = ns("tabs_sykehusvisning"),
+                          tabPanel("Figur, andeler", value = "fig_andel",
+                                   plotOutput(ns("fig_andel_grvar"), height="auto"),
+                                   downloadButton(ns("lastNedBilde_sykehus_andel"), "Last ned figur")),
+                          tabPanel("Tabell, andeler", value = "tab_andel",
+                                   uiOutput(ns("utvalg_sykehus_andel")),
+                                   tableOutput(ns("Tabell_sykehus_andel")),
+                                   downloadButton(ns("lastNed_sykehus_andel"), "Last ned tabell")),
+                          tabPanel("Figur, gjennomsnitt",  value = "fig_gjsn",
+                                   plotOutput(ns("fig_gjsn_grvar"), height="auto"),
+                                   downloadButton(ns("lastNedBilde_sykehus_gjsn"), "Last ned figur")),
+                          tabPanel("Tabell, gjennomsnitt",  value = "tab_gjsn",
+                                   uiOutput(ns("utvalg_sykehus_gjsn")),
+                                   tableOutput(ns("Tabell_sykehus_gjsn")),
+                                   downloadButton(ns("lastNed_sykehus_gjsn"), "Last ned tabell")),
+                          tabPanel("Figur, andeler i stabel",  value = "fig_andel_stabel",
+                                   plotOutput(ns("fig_andel_grvar_stabel"), height="auto"),
+                                   downloadButton(ns("lastNedBilde_sykehus_andel_stabel"), "Last ned figur")),
+                          tabPanel("Tabell, andeler i stabel",  value = "tab_andel_stabel",
+                                   uiOutput(ns("utvalg_sykehus_andel_stabel")),
+                                   tableOutput(ns("Tabell_sykehus_andel_stabel")),
+                                   downloadButton(ns("lastNedStabelTabell"), "Last ned tabell"))
+    )
+    )
+
+  )
+}
+
+
+
 sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session){
 
   fiksNULL <- function(x) {
@@ -242,65 +316,116 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file)
     }
   )
+
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$tabs_sykehusvisning) == "fig_andel") {
+        mld_fordeling <- paste0(
+          "NoRGast: Figur - sykehusvisning andeler, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tabs_sykehusvisning) == "tab_andel") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - sykehusvisning andeler. variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tabs_sykehusvisning) == "fig_andel_stabel") {
+        mld_fordeling <- paste0(
+          "NoRGast: Figur - sykehusvisning stablede andeler, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tabs_sykehusvisning) == "tab_andel_stabel") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - sykehusvisning stablede andeler. variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tabs_sykehusvisning) == "fig_gjsn") {
+        mld_fordeling <- paste0(
+          "NoRGast: Figur - sykehusvisning gj.snitt, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tabs_sykehusvisning) == "tab_gjsn") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
+          input$valgtVar)
+      }
+      raplog::repLogger(
+        session = hvd_session,
+        msg = mld_fordeling
+      )
+      mldLastNedFigAndel <- paste(
+        "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+        input$valgtVar
+      )
+      mldLastNedTabAndel <- paste(
+        "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
+        input$valgtVar
+      )
+      mldLastNedFigGjsn <- paste(
+        "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
+        input$valgtVar
+      )
+      mldLastNedTabGjsn <- paste(
+        "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
+        input$valgtVar
+      )
+      mldLastNedFigAndelStabel <- paste(
+        "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
+        input$valgtVar
+      )
+      mldLastNedTabAndelStabel <- paste(
+        "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
+        input$valgtVar
+      )
+      shinyjs::onclick(
+        "lastNedBilde_sykehus_andel",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedFigAndel
+        )
+      )
+      shinyjs::onclick(
+        "lastNed_sykehus_andel",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedTabAndel
+        )
+      )
+      shinyjs::onclick(
+        "lastNedBilde_sykehus_gjsn",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedFigGjsn
+        )
+      )
+      shinyjs::onclick(
+        "lastNed_sykehus_gjsn",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedTabGjsn
+        )
+      )
+      shinyjs::onclick(
+        "lastNedBilde_sykehus_andel_stabel",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedFigAndelStabel
+        )
+      )
+      shinyjs::onclick(
+        "lastNedStabelTabell",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = mldLastNedTabAndelStabel
+        )
+      )
+
+
+    }
+
+
+  })
+
+
+
 }
-
-
-
-
-
-
-
-
-
-
-# stabeltabell <- function() {
-#   TabellData <- tabellReagerSykehusAndelStabel()
-#   aux <- as.data.frame.matrix(TabellData$Antall)
-#   aux$N <- TabellData$Ngr
-#   aux$Avdeling <- row.names(aux)
-#   row.names(aux) <- 1:dim(aux)[1]
-#   aux <- aux[, c(dim(aux)[2], dim(aux)[2]-1, 1:(dim(aux)[2]-2))]
-#   aux <- rbind(aux, c(Avdeling='Norge', colSums(aux[,-1])))
-#   aux[,-1] <- apply(aux[,-1], 2, as.numeric)
-#   aux2 <- aux[,-(1:2)]/aux$N*100
-#   aux <- cbind(aux, aux2)
-#   sketch <- paste0('<table>
-#                     <thead>
-#                    <tr>
-#                    <th rowspan="2">Avdeling</th>
-#                    <th rowspan="2">N</th>
-#                    <th colspan="', length(TabellData$legendTxt), '">Antall</th>
-#                    <th colspan="', length(TabellData$legendTxt), '">Prosent</th>
-#                    </tr>
-#                    <tr>',
-#                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-#                    paste(sapply(TabellData$legendTxt,function(i) as.character(tags$th(i))),collapse="\n"),
-#                    '</tr>
-#                    </thead>',
-#                    tableFooter(c('Totalt' , round(as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]]),1))),
-#                    '</table>')
-#     # tableFooter(c('Sum' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-#   # sketch <- htmltools::withTags(table(
-#   #   tableHeader(aux[-dim(aux)[1], ]),
-#   #   tableFooter(c('Totalt' , as.numeric(aux[dim(aux)[1], 2:dim(aux)[2]])))))
-#   list(ant_skjema=aux, sketch=sketch)
-# }
-#
-#
-# output$Tabell_sykehus_andel_stabel = renderDT(
-#   datatable(stabeltabell()$ant_skjema[-dim(stabeltabell()$ant_skjema)[1], ],
-#             container = stabeltabell()$sketch,
-#             rownames = F,
-#             options = list(pageLength = 30)
-#   ) %>% formatRound(columns=(dim(stabeltabell()$ant_skjema)[2]/2+2):dim(stabeltabell()$ant_skjema)[2], digits=1)
-# )
-#
-# output$lastNedStabelTabell <- downloadHandler(
-#   filename = function(){
-#     paste0(input$valgtVar_andel_stabel, '_stabel', Sys.time(), '.csv')
-#   },
-#   content = function(file){
-#     Tabell <- stabeltabell()$ant_skjema
-#     write.csv2(Tabell, file, row.names = F, na = '')
-#   }
-# )

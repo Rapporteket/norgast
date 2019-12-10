@@ -67,11 +67,11 @@ dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ..
 
 BrValg <- BrValgNorgastShiny(RegData)
 
-source(system.file("shinyApps/norgast/R/modul_fordelingsfig_UI.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_fordelingsfig_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_sykehusvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_sykehusvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_tidsvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_tidsvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')

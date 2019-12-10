@@ -46,8 +46,8 @@ admtab_UI <- function(id){
                                    br(),
                                    DTOutput(ns("Tabell_adm1")), downloadButton(ns("lastNed_adm1"), "Last ned tabell")),
                           tabPanel("Registreringer over tid",
-                                   # h4("Her kommer det flere tabeller...", align='center'),
-                                   # textOutput("debug_tabell")
+                                   # textOutput(ns("debug_greier1")),
+                                   # textOutput(ns("debug_greier2")),
                                    DTOutput(ns("Tabell_adm2")), downloadButton(ns("lastNed_adm2"), "Last ned tabell")
                           )
     )
@@ -58,6 +58,9 @@ admtab_UI <- function(id){
 
 
 admtab <- function(input, output, session, reshID, RegData, userRole, hvd_session, skjemaoversikt){
+
+  output$debug_greier1 <- renderText(paste0(input$datovalg_adm_tid_mnd))
+  output$debug_greier2 <- renderText(paste0(input$datovalg_adm_tid_aar))
 
   output$tid_kontroller <- renderUI({
     ns <- session$ns
@@ -150,7 +153,8 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
       tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
       tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
 
-      aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_mnd, ]
+      # aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_mnd, ]
+      aux <- tmp
 
       aux$mnd <- factor(format(aux$HovedDato, format='%b-%y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_mnd), by="month"), "%b-%y"))
 
@@ -173,7 +177,8 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
       tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
       tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
 
-      aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_aar, ]
+      # aux <- tmp[tmp$HovedDato >= fraDato & tmp$HovedDato <= input$datovalg_adm_tid_aar, ]
+      aux <- tmp
 
       aux$mnd <- factor(format(aux$HovedDato, format='%Y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_aar), by="year"), "%Y"))
 
