@@ -56,13 +56,13 @@ RegData <- NorgastPreprosess(RegData)
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 
-#alternative til dateInput med mulighet til  bare år, måned og år ..
-dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ...) {
-  d <- shiny::dateInput(inputId, label, ...)
-  d$children[[2L]]$attribs[["data-date-min-view-mode"]] <- minview
-  d$children[[2L]]$attribs[["data-date-max-view-mode"]] <- maxview
-  d
-}
+# #alternative til dateInput med mulighet til  bare år, måned og år ..
+# dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ...) {
+#   d <- shiny::dateInput(inputId, label, ...)
+#   d$children[[2L]]$attribs[["data-date-min-view-mode"]] <- minview
+#   d$children[[2L]]$attribs[["data-date-max-view-mode"]] <- maxview
+#   d
+# }
 
 
 BrValg <- BrValgNorgastShiny(RegData)

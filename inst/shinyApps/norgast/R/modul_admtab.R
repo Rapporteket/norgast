@@ -65,11 +65,11 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
   output$tid_kontroller <- renderUI({
     ns <- session$ns
     if (input$adm_tidsenhet == '1') {
-      dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
+      norgast::dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
                  max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no")
       # sliderInput(inputId=ns("ant_mnd"), label = "Antall måneder", min = 1, max = 24, value = 12, step = 1)
     } else {
-      dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
+      norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
                  max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no")
       # sliderInput(inputId= ns("ant_aar"), label = "Antall år", min = 1, max = 10, value = 5, step = 1)
     }
