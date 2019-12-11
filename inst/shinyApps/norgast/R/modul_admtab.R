@@ -201,9 +201,9 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
       if (req(input$admtabeller) == "id_ant_tid") {
         mld_adm1 <- paste0(
           "NoRGast: Admin. tabell: Antall skjema pr ",
-          c('Måned', 'År')[input$adm_tidsenhet], ", ",
+          c('Måned', 'År')[as.numeric(input$adm_tidsenhet)], ", ",
           c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
-                                                         'Basisreg. i kladd')[input$regstatus_tid])
+                                                         'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
       }
       raplog::repLogger(
         session = hvd_session,
@@ -223,9 +223,9 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
         raplog::repLogger(
           session = hvd_session,
           msg = paste0("NoRGast: nedlasting tabell: Antall skjema pr ",
-                       c('Måned', 'År')[input$adm_tidsenhet], ", ",
+                       c('Måned', 'År')[as.numeric(input$adm_tidsenhet)], ", ",
                        c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
-                         'Basisreg. i kladd')[input$regstatus_tid])
+                         'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
         )
       )
     }
