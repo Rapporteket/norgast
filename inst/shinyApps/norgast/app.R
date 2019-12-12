@@ -1,11 +1,3 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 ######## Last data ########################################
 library(norgast)
@@ -49,29 +41,16 @@ if (onServer) {
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-11-19 10-05-09.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
-
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 RegData <- NorgastPreprosess(RegData)
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 
-# #alternative til dateInput med mulighet til  bare år, måned og år ..
-# dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ...) {
-#   d <- shiny::dateInput(inputId, label, ...)
-#   d$children[[2L]]$attribs[["data-date-min-view-mode"]] <- minview
-#   d$children[[2L]]$attribs[["data-date-max-view-mode"]] <- maxview
-#   d
-# }
-
-
 BrValg <- BrValgNorgastShiny(RegData)
 
-# source(system.file("shinyApps/norgast/R/modul_fordelingsfig_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
-# source(system.file("shinyApps/norgast/R/modul_sykehusvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
-# source(system.file("shinyApps/norgast/R/modul_tidsvisning_UI.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
