@@ -46,25 +46,34 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
+
 # library(norgast)
 # rm(list=ls())
 
 # hentData <- T  ##### OBS: Må settes til TRUE før opplasting til server
-datoTil <- as.character(Sys.Date())
-datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
-if (substr(datoTil, 6,10) %in% c('03-31', '06-30', '09-30', '12-31')) {
-  Kvartal <- floor(datoTil$mon/3)+1
-  datoTil <- as.character(datoTil)
-} else {
-  Kvartal <- floor(datoTil$mon/3)
-  konv <- data.frame(kvartal = 0:3, datotil = c(paste0(datoTil$year+1900-1, '-12-31'), paste0(datoTil$year+1900, '-03-31'),
-                                                paste0(datoTil$year+1900, '-06-30'), paste0(datoTil$year+1900, '-09-30')))
-  datoTil <- as.character(konv$datotil[match(Kvartal, konv$kvartal)])
-}
-datoFra <- as.POSIXlt(datoTil)
-datoFra$year <- datoFra$year - 1
-datoFra$mday <- datoFra$mday + 1
+# datoTil <- as.character(Sys.Date())
+# datoTil <- as.POSIXlt(as.character(as.Date(paste0(substr(datoTil, 1,8), '01')) - 1))
+# if (substr(datoTil, 6,10) %in% c('03-31', '06-30', '09-30', '12-31')) {
+#   Kvartal <- floor(datoTil$mon/3)+1
+#   datoTil <- as.character(datoTil)
+# } else {
+#   Kvartal <- floor(datoTil$mon/3)
+#   konv <- data.frame(kvartal = 0:3, datotil = c(paste0(datoTil$year+1900-1, '-12-31'), paste0(datoTil$year+1900, '-03-31'),
+#                                                 paste0(datoTil$year+1900, '-06-30'), paste0(datoTil$year+1900, '-09-30')))
+#   datoTil <- as.character(konv$datotil[match(Kvartal, konv$kvartal)])
+# }
+
+datoTil <- datoTil %>% as.Date() %>% lubridate::floor_date(unit = 'quarter') - lubridate::days(1)
+datoFra <- (datoTil + lubridate::days(1)) %m-% lubridate::years(1)
+
+datoTil <- as.character(datoTil)
 datoFra <- as.character(datoFra)
+
+# datoFra <- as.POSIXlt(datoTil)
+# datoFra$year <- datoFra$year - 1
+# datoFra$mday <- datoFra$mday + 1
+# datoFra <- as.character(datoFra)
+
 ## Hvis spørring skjer fra R på server. ######################
 # if(hentData){
 #   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
@@ -165,7 +174,7 @@ Norsk Register for Gastrokirurgi
 \noindent
 \begin{minipage}[t]{6cm}
 \flushleft
-\textsc{Data registrert:}
+\textsc{Operasjonsdato:}
 
 \Sexpr{format(as.POSIXlt(datoFra), "%d. %B %Y")} til \Sexpr{format(as.POSIXlt(datoTil), "%d. %B %Y")}\\
 \end{minipage}

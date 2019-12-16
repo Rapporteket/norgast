@@ -67,7 +67,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   } else {
     tittel <- switch (valgtVar,
                       'ModGlasgowScore' = 'Modified Glasgow score',
-                      'AccordionGrad' = 'Komplikasjoner',
+                      'AccordionGrad' = 'Komplikasjoner (Accordion score)',
                       'Tilgang' = 'Tilgang i abdomen',
                       'ThoraxTilgang' <- 'Tilgang i thorax'
     )

@@ -9,6 +9,8 @@ fordelingsfig_UI <- function(id, BrValg){
 
   shiny::sidebarLayout(
     sidebarPanel(
+      # shinyjs::useShinyjs(),
+      id = ns("id_fordeling_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
@@ -42,7 +44,9 @@ fordelingsfig_UI <- function(id, BrValg){
       #     )
       # ),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
       # a(id = ns("toggleAdvanced"), "Skjul/vis flere valg", href = "#")
     ),
     mainPanel(
@@ -68,6 +72,10 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
 
   # shinyjs::onclick("toggleAdvanced",
   #                  shinyjs::toggle(id = "avansert", anim = TRUE))
+
+  observeEvent(input$reset_input, {
+    shinyjs::reset("id_fordeling_panel")
+  })
 
   observe(
     if (userRole != 'SC') {

@@ -23,6 +23,7 @@ NorgastPreprosess <- function(RegData)
   RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y')) # RegData$OperasjonsDato$year + 1900
   RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
+  RegData <- RegData[RegData$Tilgang %in% 1:3, ] # Fjerner endoskopiske og "notes" inngrep.
 
   RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
   lowercase <- which(substr(RegData$Hovedoperasjon, 1, 5)!=toupper(substr(RegData$Hovedoperasjon, 1, 5))) # index til der NCSP-kode er i lowercase
@@ -153,7 +154,7 @@ NorgastPreprosess <- function(RegData)
   # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
   # Definer Hastegrad_tid med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
 
-  Helligdager <- as.Date(sort(Helligdager2008til2022$Dato))
+  Helligdager <- as.Date(sort(rapbase::Helligdager2008til2022$Dato))
 
   RegData$Hastegrad_tid <- NA
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1

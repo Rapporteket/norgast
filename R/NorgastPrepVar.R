@@ -266,7 +266,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='AccordionGrad') {
-    tittel <- 'Komplikasjoner'
+    tittel <- 'Komplikasjoner (Accordion score)'
     grtxt <- c('<3', '3', '4', '5', '6')
     subtxt <- 'Accordion score'
     RegData <- RegData[which(RegData$Variabel %in% c(1, 3:6)), ]

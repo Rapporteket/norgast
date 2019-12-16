@@ -20,9 +20,7 @@ logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
 logoWidget <- tags$script(shiny::HTML(logoCode))
 
 
-context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
-onServer <- context == "TEST" | context == "QA" | context == "PRODUCTION" | context == "DEV"
-if (onServer) {
+if (rapbase::isRapContext()) {
   RegData <- NorgastHentRegData()
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
@@ -59,7 +57,7 @@ source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), e
 ######################################################################
 
 # Define UI for application
-ui <- navbarPage(
+ui <- navbarPage(id = "norgast_app_id",
 
   title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
               regTitle),
@@ -76,8 +74,8 @@ ui <- navbarPage(
 
              h2('Velkommen til Rapporteket - NoRGast', align='center'),
              br(),
-             h4(tags$b('Her skal Linn og Kristoffer formulere kloke og reflekterte meldinger til Rapportekets brukere. En foreløpig variant er gitt under:')),
-             br(),
+             # h4(tags$b('Her skal Linn og Kristoffer formulere kloke og reflekterte meldinger til Rapportekets brukere. En foreløpig variant er gitt under:')),
+             # br(),
              h4('Du er nå inne på Rapporteket for NoRGast, registerets resultattjeneste.
                 Disse sidene inneholder en samling av figurer og tabeller som viser resultater fra registeret.
                 På hver av sidene kan man gjøre utvalg i menyene til venstre. Alle resultater er basert
@@ -96,11 +94,11 @@ ui <- navbarPage(
              h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
              h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
                 variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
-             h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer og annet snacks for den registerinteresserte.'),
+             h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
              br(),
-             br(),
-             h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
-             br(),
+             # br(),
+             # h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
+             # br(),
              br(),
              h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
                 a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
@@ -127,7 +125,7 @@ ui <- navbarPage(
   tabPanel("Samledokumenter",
            h2("Samledokumenter", align='center'),
            h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
-           h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
+           # h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
            br(),
            br(),
            samledok_UI(id = "samledok_id", BrValg = BrValg)
@@ -136,7 +134,7 @@ ui <- navbarPage(
   tabPanel("Datadump",
            h2("Datadump", align='center'),
            h4("Velg variablene du ønsker inkludert i datadump og for hvilken tidsperiode.", align='center'),
-           h4("Linn og Kristoffer lager mer tekst hvis ønskelig.", align='center'),
+           # h4("Linn og Kristoffer lager mer tekst hvis ønskelig.", align='center'),
            br(),
            br(),
            datadump_UI(id = "datadump_id", BrValg = BrValg)
@@ -159,6 +157,13 @@ server <- function(input, output, session) {
       reshID <- 601225
       userRole <- 'SC'
     }
+
+  # observe(
+    if (userRole != 'SC') {
+      shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+    }
+  # )
+
 
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################

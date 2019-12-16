@@ -9,6 +9,7 @@ sykehusvisning_UI <- function(id, BrValg){
 
   shiny::sidebarLayout(
     sidebarPanel(
+      id = ns("id_shus_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg_andel),
       selectInput(inputId = ns("valgtVar_gjsn"), label = "Velg variabel",
@@ -19,7 +20,7 @@ sykehusvisning_UI <- function(id, BrValg){
       #                             choices = BrValg$varvalg_gjsn)),
       # shinyjs::hidden(selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
       #                             choices = BrValg$varvalg_andel_stabel)),
-      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
+      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
       # selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
       #             choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
@@ -39,7 +40,7 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
       selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen", choices = BrValg$tilgang_valg, multiple = TRUE),
+      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
       selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
       selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
@@ -48,7 +49,9 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
       # selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(tabsetPanel(id = ns("tabs_sykehusvisning"),
                           tabPanel("Figur, andeler", value = "fig_andel",
@@ -82,6 +85,10 @@ sykehusvisning_UI <- function(id, BrValg){
 
 sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session){
 
+  observeEvent(input$reset_input, {
+    shinyjs::reset("id_shus_panel")
+  })
+
   fiksNULL <- function(x) {
     if (!is.null(x)) {x} else {''}
   }
@@ -114,7 +121,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "Velg NCSP kode(r)",
+      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
                   choices = if (!is.null(input$op_gruppe)) {
                     setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
                              sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))

@@ -12,14 +12,17 @@ datadump_UI <- function(id, BrValg){
 
   shiny::sidebarLayout(
       sidebarPanel(
+        id = ns("id_dump_panel"),
         uiOutput(outputId = ns('valgtevar_dump')),
-        dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
+        dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                        max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
         selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
                     choices = BrValg$reseksjonsgrupper, multiple = TRUE),
         uiOutput(outputId = ns('ncsp')),
         selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                    choices = BrValg$sykehus, multiple = TRUE)
+                    choices = BrValg$sykehus, multiple = TRUE),
+        tags$hr(),
+        actionButton(ns("reset_input"), "Nullstill valg")
       ),
     mainPanel(
       downloadButton(ns("lastNed_dump"), "Last ned datadump")
@@ -29,6 +32,10 @@ datadump_UI <- function(id, BrValg){
 
 
 datadump <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+
+  observeEvent(input$reset_input, {
+    shinyjs::reset("id_dump_panel")
+  })
 
   observe(
     if (userRole != 'SC') {

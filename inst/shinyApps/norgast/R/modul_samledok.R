@@ -12,27 +12,42 @@ samledok_UI <- function(id, BrValg){
 
   shiny::sidebarLayout(
     sidebarPanel(
-      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
-                     max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+      id = ns("id_samledok_panel"),
+      conditionalPanel(condition = paste0("input['", ns('tabs'), "'] == 'samledok_egen' |
+                                          input['", ns('tabs'), "'] == 'samledok_landet'"),
+                       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
+                                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til ")),
+      conditionalPanel(condition = paste0("input['", ns('tabs'), "'] == 'kvartalsrapport'"),
+                       dateInput(inputId=ns("datovalg_kv"), label = "Dato til", min = '2015-01-01',
+                                      max = Sys.Date(), value  = Sys.Date(), language = "nb"),
+                       helpText("Velg en dato etter avslutningen av det siste",
+                                "kvartalet som ønskes inkludert i rapporten")),
       selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                  choices = BrValg$sykehus, multiple = TRUE)
+                  choices = BrValg$sykehus, multiple = TRUE),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
     ),
-    mainPanel(tabsetPanel(id= ns("tabs"),
-      tabPanel("Samledokument med egen avd. mot landet forøvrig", value = "samledok_egen",
-               h4("Kristoffer og Linn lager en tekst som skal inn her."),
-               downloadButton(ns("lastNed_saml"), "Last ned samledokument")),
-      tabPanel("Samledokument med nasjonale tall", value = "samledok_landet",
-               h4("Kristoffer og Linn lager en tekst som skal inn her."),
-               downloadButton(ns("lastNed_saml_land"), "Last ned samledokument")),
-      tabPanel("Kvartalsrapport for din avdeling", value = "kvartalsrapport",
-               h4("Kristoffer og Linn lager en tekst som skal inn her."),
-               downloadButton(ns("lastNed_kvartal"), "Last ned kvartalsrapport")))
+    mainPanel(
+      tabsetPanel(id= ns("tabs"),
+                  tabPanel("Samledokument med egen avd. mot landet forøvrig", value = "samledok_egen",
+                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
+                           downloadButton(ns("lastNed_saml"), "Last ned samledokument")),
+                  tabPanel("Samledokument med nasjonale tall", value = "samledok_landet",
+                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
+                           downloadButton(ns("lastNed_saml_land"), "Last ned samledokument")),
+                  tabPanel("Kvartalsrapport for din avdeling", value = "kvartalsrapport",
+                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
+                           downloadButton(ns("lastNed_kvartal"), "Last ned kvartalsrapport")))
     )
   )
 }
 
 
 samledok <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+
+  observeEvent(input$reset_input, {
+    shinyjs::reset("id_samledok_panel")
+  })
 
   observe(
     if (userRole != 'SC') {
@@ -86,8 +101,8 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     },
 
     content = function(file){
-      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw", datoFra=input$datovalg[1],
-                  datoTil=input$datovalg[2], reshID=reshID,
+      contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw",
+                  datoTil=input$datovalg_kv, reshID=reshID,
                   valgtShus=if (!is.null(input$valgtShus)) {input$valgtShus} else {''})
     }
   )

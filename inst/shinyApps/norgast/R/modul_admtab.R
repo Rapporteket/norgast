@@ -12,8 +12,9 @@ admtab_UI <- function(id){
 
   shiny::sidebarLayout(
     sidebarPanel(
+      id = ns("id_adm_panel"),
       conditionalPanel(condition = paste0("input['", ns('admtabeller'), "'] == 'id_ant_skjema'"),
-                       dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01',
+                       dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                                       max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
       ),
 
@@ -31,7 +32,9 @@ admtab_UI <- function(id){
                        selectInput(inputId = ns("regstatus_tid"), label = "Skjemastatus",
                                    choices = c('Ferdige forløp'=1, 'Oppfølging i kladd'=2, 'Ferdig basisreg. oppfølging mangler'=3,
                                                'Basisreg. i kladd'=4))
-      )
+      ),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(tabsetPanel(id= ns("admtabeller"),
                           tabPanel("Antall skjema", value = "id_ant_skjema",
@@ -56,6 +59,10 @@ admtab_UI <- function(id){
 
 
 admtab <- function(input, output, session, reshID, RegData, userRole, hvd_session, skjemaoversikt){
+
+  observeEvent(input$reset_input, {
+    shinyjs::reset("id_adm_panel")
+  })
 
   antskjema <- function() {
 
