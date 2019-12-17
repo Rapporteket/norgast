@@ -30,13 +30,10 @@ samledok_UI <- function(id, BrValg){
     mainPanel(
       tabsetPanel(id= ns("tabs"),
                   tabPanel("Samledokument med egen avd. mot landet forøvrig", value = "samledok_egen",
-                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
                            downloadButton(ns("lastNed_saml"), "Last ned samledokument")),
                   tabPanel("Samledokument med nasjonale tall", value = "samledok_landet",
-                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
                            downloadButton(ns("lastNed_saml_land"), "Last ned samledokument")),
                   tabPanel("Kvartalsrapport for din avdeling", value = "kvartalsrapport",
-                           h4("Kristoffer og Linn lager en tekst som skal inn her."),
                            downloadButton(ns("lastNed_kvartal"), "Last ned kvartalsrapport")))
     )
   )

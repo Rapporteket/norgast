@@ -16,16 +16,8 @@ sykehusvisning_UI <- function(id, BrValg){
                   choices = BrValg$varvalg_gjsn),
       selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
                   choices = BrValg$varvalg_andel_stabel),
-      # shinyjs::hidden(selectInput(inputId = ns("valgtVar_gjsn"), label = "Velg variabel",
-      #                             choices = BrValg$varvalg_gjsn)),
-      # shinyjs::hidden(selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
-      #                             choices = BrValg$varvalg_andel_stabel)),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-      # selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
-      #             choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
-      # selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-      #             choices = BrValg$sykehus, multiple = TRUE),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                   max = 120, value = c(0, 120)),
       selectInput(inputId = ns("erMann"), label = "Kjønn",
@@ -47,7 +39,6 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-      # selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                   choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
       tags$hr(),
@@ -161,7 +152,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
 
   output$Tabell_sykehus_andel <- function() {
     utdata <- tabellReagerSykehusAndel()
-    Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, Andel = as.numeric(utdata$Nvar/utdata$Ngr*100),
+    Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, 'Antall totalt'=utdata$Ngr, 'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
                      KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
     Tabell[utdata$Andeler==-0.001, 2:6] <- NA
     Tabell <- Tabell[dim(Tabell)[1]:1, ]
@@ -175,7 +166,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
     },
     content = function(file){
       utdata <- tabellReagerSykehusAndel()
-      Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, N=utdata$Ngr, Andel = as.numeric(utdata$Nvar/utdata$Ngr*100),
+      Tabell <- tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar, 'Antall totalt'=utdata$Ngr, 'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
                        KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
       Tabell[utdata$Andeler==-0.001, 2:6] <- NA
       Tabell <- Tabell[dim(Tabell)[1]:1, ]
