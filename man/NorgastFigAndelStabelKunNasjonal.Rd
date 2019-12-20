@@ -4,12 +4,14 @@
 \alias{NorgastFigAndelStabelKunNasjonal}
 \title{Stablet andel av valgt variabel pr grupperingsvariabel}
 \usage{
-NorgastFigAndelStabelKunNasjonal(RegData = 0, valgtVar = "ModGlasgowScore",
-  datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
-  maxald = 130, erMann = 99, outfile = "", reshID, enhetsUtvalg = 1,
-  stabel = F, preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
-  valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "", whoEcog = "",
-  forbehandling = 99, hentData = F, reseksjonsGr = "", ncsp = "")
+NorgastFigAndelStabelKunNasjonal(RegData = 0,
+  valgtVar = "ModGlasgowScore", datoFra = "2014-01-01",
+  datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
+  outfile = "", reshID, enhetsUtvalg = 1, stabel = F,
+  preprosess = F, elektiv = 99, BMI = "", tilgang = 99,
+  valgtShus = c(""), minPRS = 0, maxPRS = 2, ASA = "",
+  whoEcog = "", forbehandling = 99, hentData = F,
+  reseksjonsGr = "", ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
@@ -102,20 +104,6 @@ kirurgiske lidelsen eller som ikke alltid bedres ved det planlagte kirurgiske in
 \item{hentData}{Gjør spørring mot database
 FALSE: Nei, RegData gis som input til funksjonen (Default)
 TRUE: Ja}
-
-\item{reseksjonsGr}{Reseksjonsgruppe (Erstatter op_gruppe)
-'(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
-'JGB': Rektumreseksjoner
-'JCC': Øsofagusreseksjoner
-'JDC|JDD': Ventrikkelreseksjoner
-'JJB': Leverreseksjoner
-'JLC30|JLC31': Whipple's operasjon
-'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
-'JKA21|JKA20': Cholecystektomi
-'JEA00|JEA01': Appendektomi
-'JFB00|JFB01': Tynntarmsreseksjon
-'JDF10|JDF11': Gastric bypass
-'JDF96|JDF97': Gastric sleeve}
 
 \item{ncsp}{NCSP-koder(r) som skal være inkludert i utvalget}
 }

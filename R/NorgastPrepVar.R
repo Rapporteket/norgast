@@ -18,7 +18,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   RegData$Variabel <- NA
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
+                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
                       'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
                       'Sykehusnavn', 'Malign', 'Saarruptur')) {
@@ -36,6 +36,34 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=1:length(aux), labels = grtxt)
     incl_N=T
     retn= 'H'
+  }
+
+  if (valgtVar=='mortalitet90') {
+    tittel <- 'Andel avdøde innen 90 dager etter operasjon'
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
+    RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+    RegData$Variabel <- 0
+    RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    retn <- 'V'
+    VarTxt <- 'avdøde innen 90 dager etter operasjon'
+    # incl_pst <- T
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='konv_rate') {
+    tittel <- 'Andel laparoskopiske inngrep konvertert til åpen kirurgi'
+    RegData <- RegData[which(RegData$Tilgang %in% 2:3), ]
+    RegData$Variabel <- RegData$Tilgang
+    RegData$Variabel[RegData$Variabel==2] <- 0
+    RegData$Variabel[RegData$Variabel==3] <- 1
+    grtxt <- c('Laparoskopisk', 'Konvertert')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    retn <- 'V'
+    VarTxt <- 'laparoskopiske inngrep konvertert til åpen kirurgi'
+    # incl_pst <- T
+    if (enhetsUtvalg==1) {stabel=T}
   }
 
   if (valgtVar=='Avdod') {
@@ -100,6 +128,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     subtxt <- 'Vektendring %'
   }
 
+  if (valgtVar=='Vekttap_registrert') {  # NA fikset
+    RegData$Variabel <- 0
+    RegData$Variabel[!is.na(RegData$VekttapProsent)] <- 1
+    tittel <- 'Premorbid vekttap registrert'
+    VarTxt <- 'med premorbid vekttap registrert'
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='Op_gr') {
     tittel <- 'Operasjonsgrupper'
     gr <- c(1:12,99)
@@ -119,6 +157,20 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
     grtxt <- c('<45','45-54','55-64','65-74','75-84','85+')
     subtxt <- 'Aldersgrupper'
+  }
+
+
+  if (valgtVar=='ViktigsteFunn') {
+    RegData$Variabel <- RegData$ViktigsteFunn
+    tittel <- c('Fordeling av årsaker til reoperasjon blant de',
+                'reopererte. Reoperasjonsrate totalt for ', paste0(length(RegData$ReLapNarkose), ' pasienter i utvalget: ',
+                                                                   round(sum(RegData$ReLapNarkose)/length(RegData$ReLapNarkose)*100,1), ' %'))
+    gr <- 1:6
+    grtxt <-  c('Anastomoselekkasje', 'Dyp infeksjon uten lekkasje', 'Blødning', 'Sårruptur', 'Annet', 'Ingen')
+    RegData <- RegData[which(RegData$Variabel %in% gr), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=gr, labels = grtxt)
+    retn <- 'H'
+    incl_pst <- T
   }
 
 
@@ -186,10 +238,10 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     incl_pst <- T
   }
 
-  if (valgtVar=='Hastegrad') {
-    tittel <- 'Elektiv kirurgi'
-    grtxt <- c('Ø-hjelp', 'Elektiv')
-    VarTxt <- 'med elektiv kirurgi'
+  if (valgtVar=='Hastegrad_tid') {
+    tittel <- 'Operert i normalarbeidstid'
+    grtxt <- c('Utenfor normalarbeidstid', 'Innenfor normalarbeidstid')
+    VarTxt <- 'operert i normalarbeidstid'
     RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
@@ -214,7 +266,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='AccordionGrad') {
-    tittel <- 'Komplikasjoner'
+    tittel <- 'Komplikasjoner (Accordion score)'
     grtxt <- c('<3', '3', '4', '5', '6')
     subtxt <- 'Accordion score'
     RegData <- RegData[which(RegData$Variabel %in% c(1, 3:6)), ]
@@ -270,7 +322,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='Anastomoselekkasje') {
     tittel <- 'Anastomoselekkasje, ny anastomose'
-    VarTxt <- 'anastomoselekkasjer'
+    VarTxt <- 'anastomoselekkasjer, ny anastomose'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)

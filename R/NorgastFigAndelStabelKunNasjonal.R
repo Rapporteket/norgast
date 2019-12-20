@@ -63,7 +63,7 @@ NorgastFigAndelStabelKunNasjonal <- function(RegData=0, valgtVar='ModGlasgowScor
   # if (fullSoyle == 1) {
   xkr <- 1
   cexGrNavn <- 1.2
-  FigTypUt <- figtype(outfile, height=1.75*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
+  FigTypUt <- rapFigurer::figtype(outfile, height=1.75*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
   farger <- FigTypUt$farger
   #Tilpasse marger for å kunne skrive utvalgsteksten
   NutvTxt <- length(utvalgTxt)

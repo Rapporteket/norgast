@@ -14,11 +14,11 @@
 #' @export
 #'
 norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
-                                   decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
-                                   minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
-                                   minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
-                                   tilgang=99, minPRS=0, maxPRS=2, ASA='', whoEcog= '', forbehandling=99,
-                                   hentData=0, reseksjonsGr='', ncsp='')
+                                decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
+                                minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
+                                minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
+                                tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
+                                hentData=0, op_gruppe='', ncsp='')
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -39,11 +39,11 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
   # PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
-                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                 BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
@@ -63,7 +63,7 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
   }
   N <- N[rekkefolge, ]
 
-  FigTypUt <- rapbase::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(N[,dim(N)[2]]))
 

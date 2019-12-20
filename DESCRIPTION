@@ -9,11 +9,22 @@ Description: Pakke for generering av resultatrapporter for NoRGast. Trenger skde
 License: GPL2
 LazyData: TRUE
 Encoding: UTF-8
-Depends: R (>= 3.0.2), rapbase
+Depends: R (>= 3.0.2)
 Imports:
   xtable,
-  plotrix
-RoxygenNote: 6.0.1
+  plotrix,
+  DT,
+  tidyverse,
+  kableExtra,
+  shinyjs,
+  rapFigurer,
+  rapbase,
+  raplog
+Remotes:
+  Rapporteket/rapbase,
+  Rapporteket/raplog,
+  Rapporteket/rapFigurer
+RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

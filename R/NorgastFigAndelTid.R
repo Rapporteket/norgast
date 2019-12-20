@@ -21,8 +21,9 @@
 NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014-01-01', datoTil='2050-12-31',
                                minald=0, maxald=130, erMann=99, outfile='',
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
-                               elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                               maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F, tidsenhet='Aar', reseksjonsGr='', ncsp='')
+                               elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
+                               maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
+                               tidsenhet='Aar', op_gruppe='', ncsp='')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -41,10 +42,11 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   PlotParams$RegData <- NA
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                    op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -141,7 +143,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
   VarTxt <- PlotParams$VarTxt; ##
   if (!(inkl_konf %in% c(0,1))) {inkl_konf=PlotParams$inkl_konf}
 
-  FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett)
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett)
   farger <- FigTypUt$farger
   tittel <-  c(tittel, shtxt)
 
@@ -296,6 +298,9 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
 
     }
 
+    utData <- list(tittel = tittel, utvalgTxt = utvalgTxt, Andeler = list(AndelHoved=AndelHoved, AndelRest=AndelRest), Tidtxt = Tidtxt,
+                   NTid=list(NTidHoved=NTidHoved, NTidRest=NTidRest), KonfInt=list(Konf=Konf, KonfRest=KonfRest))
+    return(invisible(utData))
   }
 }
 

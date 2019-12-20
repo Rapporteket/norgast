@@ -1,0 +1,1419 @@
+\documentclass[norsk,a4paper]{article} % ,twoside
+\usepackage[norsk]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{subfig}
+\usepackage{pdfpages}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage[a4paper]{geometry}
+
+% \newif\ifkolon
+% \newif\ifrektum
+% \newif\ifoesofagus
+% \newif\ifventrikkel
+% \newif\iflever
+% \newif\ifwhipple
+
+\title{Resultater fra NoRGast}
+\author{NoRGast}
+
+\renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
+\def\labelitemi{$\bullet$}
+\def\labelitemii{--}
+\def\labelitemiii{$\ast$}
+\def\labelitemiv{$\cdot$}
+
+%setter grå skrift fremfort sort
+\usepackage{xcolor}
+\usepackage{graphicx}
+\pagestyle{myheadings}
+% \definecolor{SKDE}{rgb}{0,0.32,0.61}
+\definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
+% \definecolor{moerkblaa}{rgb}{0.0,0.0,0.47}
+% \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
+% \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
+\definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
+\color{moerkgraa}
+% \color{lysblaa}
+
+<<'initOpts',include=FALSE>>=
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_knit$set(root.dir = './')
+@
+
+\begin{document}
+
+<<LastData, include=FALSE, cache=FALSE>>=
+# hentData <- T
+# ## Hvis spørring skjer fra R på server. ######################
+# if(hentData){
+#   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
+# } else
+# {
+
+# Kommenter inn for offline bruk
+
+# library(norgast)
+#   RegData <- read.table('I:/norgast/AlleVariablerNum2018-11-14 14-30-58.txt', header=TRUE, sep=";",
+#                         encoding = 'UFT-8', stringsAsFactors = F)
+#   ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-11-14 14-31-11.txt', header=TRUE, sep=";",
+#                            encoding = 'UFT-8', stringsAsFactors = F)
+#   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+#                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+#                         'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+#                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+#                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+#   # , "Hastegrad")]
+#   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+#   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+# datoFra <- '2016-01-01'
+# datoTil <- '2200-01-01'
+# reshID <- 0
+
+figstr <- 0.61
+tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
+@
+
+%%%%% Forside
+% \thispagestyle{empty}
+% \includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
+\newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+\begin{titlepage}
+\color{lysblaa}
+\begin{flushleft}
+\Huge
+\textbf{NoRGast}\\
+\vspace{0.3cm}
+\LARGE
+Norsk Register for Gastrokirurgi
+\end{flushleft}
+% \vspace{0.5cm}
+\vfill
+
+\begin{center}
+{\LARGE \textbf{RESULTATER}}
+\vspace{0.1cm}
+\vspace{1pt}\vspace{-\baselineskip}
+\rule{1.0\textwidth}{1pt}\par   % Horisontal linje
+\vspace{0.5cm}
+\includegraphics[width=1.0\textwidth]{\Sexpr{system.file(file='forsidebilde.png', package='norgast')}} % Inkluder bilde
+\vspace{1pt}\vspace{-\baselineskip}
+{\color{moerkgraa} \small Bernard Safran: "A surgeon working", 37" x 48", oil on masonite, 1982}
+\end{center}
+
+\vfill
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\textsc{Rapportdato:}
+
+\today\\
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+\flushright
+\textsc{For sykehus:}
+
+\textbf{Hele landet}\\
+\end{minipage}
+\\ \\
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\textsc{Data registrert:}
+
+\Sexpr{format(as.POSIXlt(datoFra), "%d. %B %Y")} til \Sexpr{format(as.POSIXlt(datoTil), "%d. %B %Y")}\\
+\end{minipage}
+
+\vfill
+
+\noindent
+\begin{minipage}[t]{6cm}
+\flushleft
+\includegraphics[width=0.7\textwidth]{\Sexpr{system.file(file='norgastlogo.png', package='norgast')}} % Inkluder logo
+\end{minipage}
+\hfill
+\begin{minipage}[t]{6cm}
+\flushright
+\normalsize
+Templatversjon II, 2016
+\end{minipage}
+\end{titlepage}
+
+%%%%%%%%%%%%
+
+% \addtolength{\hoffset}{1.5cm}
+% \addtolength{\textwidth}{-3cm}
+% \restoregeometry
+\color{moerkgraa}
+\thispagestyle{empty}
+% \cleardoublepage
+% \setcounter{page}{1}
+
+\maketitle
+
+\tableofcontents
+\newpage
+\thispagestyle{empty}
+\listoffigures
+\newpage
+\thispagestyle{empty}
+\listoftables
+
+\clearpage
+
+\section{Bakgrunn}
+Norsk Register for Gastrokirurgi (NoRGast) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NoRGast er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
+
+Registeret har nødvendig konsesjon og er samtykkebasert. Databehandlings-ansvaret ligger hos UNN-HF ved direktøren.
+
+En utvidet arbeidsgruppe er etter hvert strukturert i en Styringsgruppe (\mbox{Asgaut} Viste, Morten Tandberg Eriksen, Hans Wasmuth, Hartwig Kørner, Bjørn Atle Bjørnbeth og Stig Norderval).
+
+Kristoffer Lassen har vært registerets fagleder og daglige leder. Fra 2015 er funksjonen som daglig leder delt med Linn Såve Nymo.
+
+Registerløsningen er utviklet av Torkil Grindstein ved HN-IKT, analysene er gjort av Han Roger Moen ved HN-IKT og Kevin Thon (SKDE). Kevin Thon har laget den foreliggende rapporten. Valideringsverktøy er under utarbeidelse med hjelp av Frank Olsen og Bård Uleberg (begge SKDE). Anne Høie, Are Edvardsen, Lena Ringstad Olsen, Eva Stensland og Philip Skau (alle SKDE) har bidradd med viktige råd underveis.
+
+\newpage
+
+\section{Innledning}
+Dette er en samlerapport for NoRGast som gir nasjonale tall og dekker registrerte operasjoner i tidsrommet \Sexpr{datoFra} til \Sexpr{datoTil}. Gjennom hele rapporten er operasjonene delt inn i seks hovedoperasjonsgrupper. NCSP-kodene som utgjør de forskjellige operasjonsgruppene er som følger:
+\begin{itemize}
+\item \textbf{Kolonreseksjoner}: JFB20-64 + JFH**
+\item \textbf{Rektumreseksjoner}: JGB**
+\item \textbf{Øsofagusreseksjoner}: JCC**
+\item \textbf{Ventrikkelreseksjoner}: JDC** og JDD**
+\item \textbf{Leverreseksjoner}: JJB**
+\item \textbf{Whipples operasjon}: JLC30
+\end{itemize}
+Formalisert reseksjonskirurgi er \emph{obligatorisk} å registrere. Dette dekkes av de seks gruppene over, samt pancreasreseksjonene (utover Whipple) og gallegangsreseksjoner. Reseksjoner av tynntarm, appendix og galleblære er ikke obligatorisk og kan, sammen med all øvrig kirurgi, registreres på frivillig basis.\\
+
+\noindent I dette registeret er kun alvorlige komplikasjoner registrert, iht. Accordionsystemet (Strasberg 2009, revidert og utvidet av Porembka 2010).\\
+
+\noindent Grad I og II utelates (I: Komplikasjoner som endrer forløp uten intervensjon og II: Komplikasjoner som håndteres med medikamenter som antibiotika osv, transfusjon, blodprodukter, ernæring etc, innleggelse av CVK, åpning av sting/sår i avdelingen («bedside»).\\
+
+\begin{itemize}
+\item \textbf{Accordion grad III}: Komplikasjon som nødvendiggjør endoskopisk intervensjon eller perkutan drenasje/punksjon (med/uten narkose) eller annen intervensjon uten narkose
+\item \textbf{Accordion grad IV}: Singel organsvikt (se under) eller relaparotomi/-laparoskopi i narkose
+\item \textbf{Accordion grad V}:  Flerorgansvikt (se under)
+\item \textbf{Accordion grad VI}: Død
+\end{itemize}
+
+\noindent NB: Scoring av begge kriterier for grad IV (singelorgansvikt + reoperasjon) gir samlet Accordion grad V (den kalkuleringen gjøres automatisk hos de som har kryss på begge grad IV).\\
+
+\noindent \textbf{Organsvikt} skal følge av en komplikasjon og ikke reflektere forlenget organstøtte etter elektiv narkose.
+
+\begin{itemize}
+\item \textbf{Nyresvikt}: Behov for dialyse
+\item \textbf{Respirasjonssvikt}: Reintubasjon etter kirurgi eller respiratorbehandling $>$ 72 t for pasient som ikke ekstuberes operasjonsdagen.
+\item \textbf{Sirkulasjonssvikt}: Tilbakeføring til intensivenhet og pressorstøtte $>$ 24 t
+\item \textbf{Leversvikt}: Bilirubin $>$ 200 og INR enten over 2,5 eller som må korrigeres med plasma.
+\item \textbf{CNS}: Glasgow Coma Scale 6 eller lavere
+\end{itemize}
+
+\textbf{Ny anastomose} defineres strikt: blind lukning eller enterotomi som er suturert regnes ikke som anastomose
+
+\newpage
+
+\section{Registrerende avdelinger}
+
+<<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+RegData <- NorgastPreprosess(RegData=RegData)
+Tabell <- addmargins(table(RegData$Sykehusnavn, RegData$Aar))
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+                     caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
+                     label='tab:RegistrenrendeAvd'),
+      include.rownames=TRUE,
+      include.colnames=TRUE,
+      add.to.row = list(pos=list(nrow(Tabell)-1),
+                        command=c('\\midrule\n')))
+@
+
+\clearpage
+\section{Innregistrerte operasjoner}
+
+<<'Tabell:InnregistrerteOpNasjon', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+# RegData <- NorgastPreprosess(RegData=RegData)
+RegData$Sykehusnavn <- as.character(RegData$Sykehusnavn)
+# if (length(valgtShus) > 1) {
+#   RegData$AvdRESH[RegData$AvdRESH %in% as.numeric(valgtShus)] <- 99
+#   RegData$Sykehusnavn[RegData$AvdRESH == 99] <- 'Ditt utvalg'
+#   reshID <- 99
+#   shtxt <- 'ditt utvalg'
+# }
+
+# Op_grupper <- table(as.factor(RegData$Op_gr)[RegData$Op_gr %in% 1:6 & RegData$AvdRESH == reshID])[1:6] # Bare inkluder kapittel der avdelingen
+# Fjern_kapittel <- as.numeric(names(Op_grupper[Op_grupper<5]))                                          # har 5 eller flere operasjoner
+# Inkl_i_rapp <- c('\\kolontrue', '\\rektumtrue', '\\oesofagustrue', '\\ventrikkeltrue', '\\levertrue', '\\whippletrue')
+# aux <-c('\\kolonfalse', '\\rektumfalse', '\\oesofagusfalse', '\\ventrikkelfalse', '\\leverfalse', '\\whipplefalse')
+# Inkl_i_rapp[Fjern_kapittel] <- aux[Fjern_kapittel]
+
+Terskel<-20
+TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+                                     minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+Tabell <- TabellData_landet$Tabell
+colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
+print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+                     caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{hele landet}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_landet$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
+                     label='tab:OpgrLandet'), include.rownames=FALSE)
+# Terskel<-5
+# TabellData_egen <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+#                                    minald=0, maxald=130, erMann=99, enhetsUtvalg=2, Terskel=Terskel, reshID=reshID)
+# Tabell <- TabellData_egen$Tabell
+# colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
+# print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+#                      caption=paste0('Antall innregistrerte operasjoner etter operasjonsgruppe. Gjelder \\textbf{', shtxt, '}. Bare operasjonsgrupper/NCSP-koder med ', TabellData_egen$Terskel, ' eller flere operasjoner vises, resten faller under \\textit{Andre}'),
+#                      label='tab:OpgrSh'), include.rownames=FALSE)
+@
+
+% \Sexpr{Inkl_i_rapp[1]}
+% \Sexpr{Inkl_i_rapp[2]}
+% \Sexpr{Inkl_i_rapp[3]}
+% \Sexpr{Inkl_i_rapp[4]}
+% \Sexpr{Inkl_i_rapp[5]}
+% \Sexpr{Inkl_i_rapp[6]}
+
+\clearpage
+
+\section{Kolonreseksjoner}
+
+% \ifkolon
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe<-'kolon'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann=99, outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=1)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=1)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Kjønnsfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Aldersfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av ASA-score for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av vektendring for ', gruppe, 'reseksjoner. Negativ verdi illustrerer vekttap (\\%).')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('BMI-fordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_kolon', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose')
+gruppe<-'Kolon'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=1)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
+\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_kolon', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'kolon'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=1)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=1)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+
+\section{Rektumreseksjoner}
+
+% \ifrektum
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_rektum', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'rektum'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=2)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=2)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Kjønnsfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Aldersfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av ASA-score for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av vektendring for ', gruppe, 'reseksjoner. Negativ verdi illustrerer vekttap (\\%).')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('BMI-fordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter onkologisk forbehandling for ', gruppe, 'reseksjoner.')}}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_rektum', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang','Robotassistanse', 'NyAnastomose','AvlastendeStomiRektum')
+gruppe<-'Rektum'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=2)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Robotassistanse_\Sexpr{gruppe}.pdf}
+\caption{Andel robotassistanse ved laparoskopi for \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AvlastendeStomiRektum_\Sexpr{gruppe}.pdf}
+\caption{Andel med avlastende stomi ved \Sexpr{tolower(gruppe)}reseksjoner med ny anastomose. (Basert på kombinasjonen ''ny anastomose'' og deretter ''ny stomi'' fra registreringsskjemaet.)}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_rektum', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'rektum'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=2)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=2)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+
+\section{Ventrikkelreseksjoner}
+
+% \ifventrikkel
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'ventrikkel'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil, enhetsUtvalg=0,
+             outfile=outfile, reshID=reshID, preprosess=F, op_gruppe=4)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=4)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Kjønnsfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Aldersfordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av ASA-score for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling av vektendring for ', gruppe, 'reseksjoner. Negativ verdi illustrerer vekttap (\\%).')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('BMI-fordeling for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter WHO-ECOG funksjonsscore for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Andel som er medisinert mot diabetes for ', gruppe, 'reseksjoner.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter Modified Glasow Prognostic Score (mGPS) for ', gruppe, 'reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter mE-PASS for ', gruppe, 'reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.')}}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{paste0('Fordeling etter onkologisk forbehandling for ', gruppe, 'reseksjoner.')}}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Hastegrad','Tilgang', 'NyAnastomose')
+gruppe<-'Ventrikkel'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=4)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Type tilgang ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{NyAnastomose_\Sexpr{gruppe}.pdf}
+\caption{Andel med ny anastomose ved \Sexpr{tolower(gruppe)}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_ventrikkel', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'ventrikkel'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=4)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=4)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+
+\section{Øsofagusreseksjoner}
+
+% \ifoesofagus
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_osofagus', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'oesofagus'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=3)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=3)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{Kjønnsfordeling for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{Aldersfordeling for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av ASA-score for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av vektendring for øsofagusreseksjoner. Negativ verdi illustrerer vekttap (\%).}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{BMI-fordeling for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{Andel som er medisinert mot diabetes for øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for øsofagusreseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter mE-PASS for øsofagusreseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter onkologisk forbehandling for øsofagusreseksjoner.}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('ThoraxTilgang', 'Tilgang')
+gruppe<-'oesofagus'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=3)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ThoraxTilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i thorax ved øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved øsofagusreseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_oesofagus', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'oesofagus'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=3)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=3)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved øsofagusreseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved øsofagusreseksjoner.}
+\end{figure}
+
+\clearpage
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+
+\section{Leverreseksjoner}
+
+% \iflever
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_lever', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'lever'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=5)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=5)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{Kjønnsfordeling for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{Aldersfordeling for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av ASA-score for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av vektendring for \Sexpr{gruppe}reseksjoner. Negativ verdi illustrerer vekttap (\%).}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{BMI-fordeling for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe}reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter mE-PASS for \Sexpr{gruppe}reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter onkologisk forbehandling for \Sexpr{gruppe}reseksjoner.}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_lever', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Tilgang')
+gruppe<-'lever'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=5)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_lever', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'lever'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=5)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=5)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}reseksjoner.}
+\end{figure}
+
+\clearpage
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+
+\section{Whipples reseksjoner}
+
+% \ifwhipple
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_whipple', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'Whipples'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=6)}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=6)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gruppe}.pdf}
+\caption{Kjønnsfordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gruppe}.pdf}
+\caption{Aldersfordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av ASA-score for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gruppe}.pdf}
+\caption{Fordeling av vektendring for \Sexpr{gruppe} reseksjoner. Negativ verdi illustrerer vekttap (\%).}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gruppe}.pdf}
+\caption{BMI-fordeling for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gruppe}.pdf}
+\caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe} reseksjoner. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter mE-PASS for \Sexpr{gruppe} reseksjoner. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gruppe}.pdf}
+\caption{Fordeling etter onkologisk forbehandling for \Sexpr{gruppe} reseksjoner.}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_whipple', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Tilgang')
+gruppe<-'Whipples'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=6)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gruppe}.pdf}
+\caption{Tilgang i abdomen ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_whipple', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'Whipples'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, op_gruppe=6)}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, op_gruppe=6)}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gruppe}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gruppe}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe} reseksjoner.}
+\end{figure}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Distale pankreasreseksjoner}
+
+% \ifwhipple
+
+\subsection{Demografiske data og utvalgte risikovariabler}
+<<'Demografisk_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('erMann', 'MedDiabetes','ModGlasgowScore')
+gruppe <- 'distale pankreasreseksjoner'
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gsub(" ", "", gruppe), '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+
+varNavn <- c('Alder','ASA','BMI_kodet','Vektendring','WHOECOG', 'PRSScore', 'Forbehandling')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gsub(" ", "", gruppe), '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{erMann_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Kjønnsfordeling for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Alder_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Aldersfordeling for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ASA_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling av ASA-score for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Vektendring_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling av vektendring for \Sexpr{gruppe}. Negativ verdi illustrerer vekttap (\%).}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{BMI_kodet_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{BMI-fordeling for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{WHOECOG_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling etter WHO-ECOG funksjonsscore for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{MedDiabetes_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Andel som er medisinert mot diabetes for \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ModGlasgowScore_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling etter Modified Glasow Prognostic Score (mGPS) for \Sexpr{gruppe}. mGPS er basert på Serum-Albumin og CRP målt preoperativt. Høyere score (max 2) gir høyere risiko.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{PRSScore_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling etter mE-PASS for \Sexpr{gruppe}. mE-PASS (Modified Estimation of Physiological Ability and Surgical Stress) er en case-mix algoritme der PRS (Preoperative Risk Score) er basert på alder, ASA-klasse, WHO-ECOG-score, diabetes og alvorlig hjerte-/lungesykdom.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width= \Sexpr{figstr}\textwidth]{Forbehandling_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Fordeling etter onkologisk forbehandling for \Sexpr{gruppe}.}
+\label{fig:Forbehandling_\Sexpr{gruppe}}
+\end{figure}
+
+\clearpage
+
+\subsection{Operasjonstidspunkt, tilgang og operative \mbox{detaljer}}
+<<'OpTid_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+varNavn <- c('Tilgang')
+gruppe<-'distale pankreasreseksjoner'
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gsub(" ", "", gruppe), '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Tilgang i abdomen ved \Sexpr{gruppe}.}
+\end{figure}
+
+\clearpage
+
+\subsection{Komplikasjoner}
+<<'Komplikasjoner_Distpankreas', include=FALSE, echo=FALSE, eval=T>>=
+gruppe<-'distale pankreasreseksjoner'
+
+varNavn <- c('ReLapNarkose')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gsub(" ", "", gruppe), '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=T, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+
+varNavn <- c('AccordionGrad')
+
+for (p in 1:length(varNavn)){
+  outfile=paste0(varNavn[p], '_', gsub(" ", "", gruppe), '.pdf')
+  FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=0, stabel=F, preprosess=F, ncsp = c('JLC10', 'JLC11'))}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Accordion score ved \Sexpr{gruppe}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_\Sexpr{gsub(" ", "", gruppe)}.pdf}
+\caption{Andel relaparotomi/-laparoskopi ved \Sexpr{gruppe}.}
+\end{figure}
+
+\clearpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \else
+% Ditt sykehus har registrert færre enn 5 pasienter for denne operasjonsgruppen.
+% \clearpage
+% \fi
+% \newgeometry{left=2.5cm,bottom=0.1cm, top=2.1cm}
+% \addtolength{\hoffset}{-1.5cm}
+% \addtolength{\hoffset}{-0.5cm}
+% \addtolength{\textwidth}{1cm}
+% \addtolength{\voffset}{-2cm}
+% \addtolength{\textheight}{4cm}
+
+
+\section{Reoperasjoner og komplikasjoner}
+\subsection{Reoperasjoner}
+\addtolength{\hoffset}{-1.5cm}
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerLandet', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Tabell <- TabellData_landet$Tabell2
+print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1,1)),
+      floating=FALSE,
+      hline.after=NULL,
+      align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{5}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&& \\\\\n',
+                                'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen\\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+@
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\end{minipage}
+\end{table}
+
+\clearpage
+
+\restoregeometry
+% \addtolength{\hoffset}{1.5cm}
+\subsection{Anastomoselekkasje påvist v/ reoperasjon}
+<<'Tabell:Anastomose', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Tabeller <- NorgastAnastomoselekkasje(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+                                      minald=0, maxald=130, erMann=99, outfile='anastomose.pdf', reshID=reshID)
+addtorow <- list()
+addtorow$pos <- list()
+addtorow$pos[[1]] <- 0
+# addtorow$pos[[2]] <- 0 '& & Rate &  & Rate \\\\\n',
+addtorow$command <- c('Operasjonsgruppe & N & Rate (\\%) \\\\\n')
+print(xtable::xtable(Tabeller$Tabell1[, c(1,4,5)], digits=1, align=c('l', 'l', rep('r', ncol(Tabeller$Tabell1)-3)),
+                     caption='Rate av anastomoselekkasje for de ulike operasjonsgruppene',
+                     label='tab:Anastomose1'), include.rownames=FALSE, include.colnames=FALSE, add.to.row = addtorow)
+
+print(xtable::xtable(Tabeller$Tabell2[, c(1,4,5)], digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell2)-3)),
+                     caption='Rate av anastomoselekkasje med og uten avlastende stomi.',
+                     label='tab:Anastomose2'), include.rownames=FALSE, include.colnames=FALSE,
+      add.to.row = addtorow, sanitize.text.function = function(x){x})
+print(xtable::xtable(Tabeller$Tabell3[, c(1,4,5)], digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabeller$Tabell3)-3)),
+                     caption='Anastomoselekkasje og onkologisk forbehandling.',
+                     label='tab:Anastomose3'), include.rownames=FALSE, include.colnames=FALSE,
+      add.to.row = addtorow, sanitize.text.function = function(x){x})
+@
+
+
+
+
+\end{document}
