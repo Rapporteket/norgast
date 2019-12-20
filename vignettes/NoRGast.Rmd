@@ -21,10 +21,10 @@ Følgende variabler endres/defineres i pakken:
 
 * `erMann` - Navneendring fra `ErMann` for konsistens med andre register
 * `Alder` - Navneendring fra `PasientAlder`
-* `OperasjonsDato` - Operasjonsdato i R datoformat (POSIXlt) basert på `OPERATION_DATE`
+* `OperasjonsDato` - Operasjonsdato i R datoformat basert på `OPERATION_DATE`
 * `Mnd` - Måned for operasjon (1 til 12) fra `OperasjonsDato`
 * `Aar` - År for operasjon (2014-) fra `OperasjonsDato`
-* `DoedsDato` - Dødsdato i R datoformat (POSIXlt) basert på `DECEASED_DATE`
+* `DoedsDato` - Dødsdato i R datoformat basert på `DECEASED_DATE`
 * `OpDoedTid` - Tid fra operasjon til død i dager, differanse mellom `DoedsDato` og `OperasjonsDato`
 * `SykehusNavn` - Kopi av `Sykehusnavn` (Burde gjøres som navneendring eller fjernes helt)
 * `NCSP` - Renskes opp i ved at alle gjøres om til store bokstaver og gis forklaring der mulig

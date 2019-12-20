@@ -13,28 +13,19 @@
 #'                 1: menn
 #'                 0: kvinner
 #'                 99: begge (alt annet enn 0 og 1) (Default)
-#' @param op_gruppe Operasjonsgruppe
-#'                 0: Alle grupper (Default)
-#'                 1: Kolonreseksjoner
-#'                 2: Rektumreseksjoner
-#'                 3: Øsofagusreseksjoner
-#'                 4: Ventrikkelreseksjoner
-#'                 5: Leverreseksjoner
-#'                 6: Whipple's operasjon
-#'                 9: Annet
-#' @param reseksjonsGr Reseksjonsgruppe (Erstatter op_gruppe)
-#'                     '(JFB[2-5][0-9]|JFB6[0-4])|JFH': Kolonreseksjoner
-#'                     'JGB': Rektumreseksjoner
-#'                     'JCC': Øsofagusreseksjoner
-#'                     'JDC|JDD': Ventrikkelreseksjoner
-#'                     'JJB': Leverreseksjoner
-#'                     'JLC30|JLC31': Whipple's operasjon
-#'                     'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]': Andre pankreas
-#'                     'JKA21|JKA20': Cholecystektomi
-#'                     'JEA00|JEA01': Appendektomi
-#'                     'JFB00|JFB01': Tynntarmsreseksjon
-#'                     'JDF10|JDF11': Gastric bypass
-#'                     'JDF96|JDF97': Gastric sleeve
+#' @param op_gruppe Reseksjonsgruppe
+#'                     1: Kolonreseksjoner
+#'                     2: Rektumreseksjoner
+#'                     3: Øsofagusreseksjoner
+#'                     4: Ventrikkelreseksjoner
+#'                     5: Leverreseksjoner
+#'                     6: Whipple's operasjon
+#'                     7: Andre pankreas
+#'                     8: Cholecystektomi
+#'                     9: Appendektomi
+#'                     10: Tynntarmsreseksjon
+#'                     11: Gastric bypass
+#'                     12: Gastric sleeve
 #' @param ncsp NCSP-koder(r) som skal være inkludert i utvalget
 #' @param outfile Navn på fil figuren skrives til. Default: '' (Figur skrives
 #'    til systemets default output device (som regel skjerm))
@@ -106,11 +97,11 @@
 
 
 FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
-                        minald=0, maxald=130, erMann=99, outfile='',
+                        minald=0, maxald=120, erMann=99, outfile='', hastegrad = 99,
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
-                        elektiv=99, BMI='', tilgang=99, valgtShus=c(''), minPRS=0,
-                        maxPRS=2, ASA='', whoEcog= '', forbehandling=99, hentData=F,
-                        reseksjonsGr='', ncsp='')
+                        elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
+                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
+                        op_gruppe='', ncsp='')
 {
 
   print(datoFra)
@@ -127,11 +118,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
+  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    reseksjonsGr=reseksjonsGr, ncsp=ncsp)
+                                    op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -179,10 +170,15 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     AntRest <- table(RegData$VariabelGr[ind$Rest])
     Nrest <- sum(AntRest)	#length(indRest)- Kan inneholde NA
     Andeler$Rest <- 100*AntRest/Nrest
+    Antall <- cbind(AntHoved, AntRest)
+    N_ut <- cbind(NHoved=rep(NHoved, dim(Antall)[1]), Nrest=rep(Nrest, dim(Antall)[1]))
+    Antall <- as.data.frame(cbind(Antall, N_ut))
   } else {
     AntHoved <- table(RegData$VariabelGr)
     NHoved <- sum(AntHoved)
     Andeler$Hoved <- 100*AntHoved/NHoved
+    N_ut <- rep(NHoved, dim(AntHoved)[1])
+    Antall <- as.data.frame(cbind(AntHoved, NHoved=N_ut))
   }
 
 ####################
@@ -191,7 +187,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
   stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
   incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
-  FigTypUt <- figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, fargepalett=NorgastUtvalg$fargepalett, pointsizePDF=12)
 
   #Hvis for få observasjoner..
   if (NHoved < 5 | (Nrest<5 & enhetsUtvalg==1)) {
@@ -294,6 +290,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   if ( outfile != '') {dev.off()}
 
+  utData <- list(tittel = tittel, utvalgTxt = utvalgTxt, Andeler = Andeler, Antall = Antall)
+  return(invisible(utData))
 
 
 }

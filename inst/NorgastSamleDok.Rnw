@@ -46,7 +46,7 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-hentData <- T
+hentData <- F
 ## Hvis spørring skjer fra R på server. ######################
 if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)

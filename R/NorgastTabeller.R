@@ -19,7 +19,7 @@ NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050
 
 if (enhetsUtvalg==2){RegData <- RegData[which(RegData$AvdRESH==reshID),]}
 
-NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
+NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
                                   erMann=erMann, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
 RegData <- NorgastUtvalg$RegData
 
