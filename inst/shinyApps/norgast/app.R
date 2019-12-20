@@ -114,13 +114,6 @@ ui <- navbarPage(id = "norgast_app_id",
            fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
   ),
 
-  # shinyjs::hidden(
-  #   div(id='tmp_id_div',
-  #       tabPanel("Sykehusvisning",
-  #                sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
-  #       )
-  #   )
-  # ),
   tabPanel("Sykehusvisning",
            sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
   ),
@@ -168,11 +161,6 @@ server <- function(input, output, session) {
   if (userRole != 'SC') {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
   }
-  # observe(
-  #   if (userRole == 'SC') {
-  #     shinyjs::show(id = 'tmp_id_div')
-  #   }
-  # )
 
 
   #################################################################################################################################
