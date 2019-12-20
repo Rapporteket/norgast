@@ -114,6 +114,13 @@ ui <- navbarPage(id = "norgast_app_id",
            fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
   ),
 
+  # shinyjs::hidden(
+  #   div(id='tmp_id_div',
+  #       tabPanel("Sykehusvisning",
+  #                sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
+  #       )
+  #   )
+  # ),
   tabPanel("Sykehusvisning",
            sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
   ),
@@ -153,15 +160,18 @@ server <- function(input, output, session) {
     raplog::appLogger(session = session, msg = 'Starter NoRGast')
     reshID <- rapbase::getUserReshId(session)
     userRole <- rapbase::getUserRole(session)
-    } else {
-      reshID <- 601225
-      userRole <- 'SC'
-    }
+  } else {
+    reshID <- 601225
+    userRole <- 'SC'
+  }
 
+  if (userRole != 'SC') {
+    shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+  }
   # observe(
-    if (userRole != 'SC') {
-      shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
-    }
+  #   if (userRole == 'SC') {
+  #     shinyjs::show(id = 'tmp_id_div')
+  #   }
   # )
 
 
