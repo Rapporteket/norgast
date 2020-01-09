@@ -17,7 +17,7 @@ admtab_UI <- function(id){
                        dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                                       max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
       ),
-
+      checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner", value = F),
       conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
                        selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                    choices = c('Måneder'=1, 'År'=2)),
@@ -69,6 +69,10 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
                  skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
                  by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+
+    if (input$kun_oblig) {
+      tmp <- tmp[tmp$ForlopsID %in% RegData$ForlopsID[RegData$Op_gr %in% 1:7], ]
+    }
 
     tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
     tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
@@ -130,6 +134,10 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
                    skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
                    by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
+      if (input$kun_oblig) {
+        tmp <- tmp[tmp$ForlopsID %in% RegData$ForlopsID[RegData$Op_gr %in% 1:7], ]
+      }
+
       tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
       tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
       tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
@@ -154,6 +162,10 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
       tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
                    skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfølging', c("ForlopsID", "SkjemaStatus")],
                    by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+
+      if (input$kun_oblig) {
+        tmp <- tmp[tmp$ForlopsID %in% RegData$ForlopsID[RegData$Op_gr %in% 1:7], ]
+      }
 
       tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
       tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
