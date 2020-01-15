@@ -40,16 +40,16 @@ startsideUI <- function(id){
                           column(width = 4, offset = 1,
                                  h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
                                     a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
-                                    target="_blank", align='center'),
-                                 column(width = 4,offset = 2,
-                                        h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
-                                           a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
-                                 )
+                                    target="_blank", align='center')),
+                          column(width = 4,offset = 2,
+                                 h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
+                                    a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
                           )
                         )
                     )
                 )
-            )))
+            )
+        ))
   )
 }
 
