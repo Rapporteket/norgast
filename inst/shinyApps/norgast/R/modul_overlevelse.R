@@ -44,7 +44,7 @@ overlevelse_UI <- function(id, BrValg){
         # )
     ),
     column(8,
-           h2("Overlevelseskurver", align='center'),
+           h2("Kaplan-Meier overlevelseskurver", align='center'),
            h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Dersom du kun gjør utvalg på ventresiden så
               vil Utvalg 2 bestå av alle pasienter som ikke faller i Utvalg 1. Dersom det er overlapp mellom Utvalg 1 og Utvalg 2 så fjernes
               pasientene som finnes i begge utvalg fra Utvalg 2. Hvis en pasient opptrer flere ganger i et utvalg beregnes overlevelse med
@@ -58,7 +58,7 @@ overlevelse_UI <- function(id, BrValg){
            id = ns("id_overlevelse_panel2"),
            h4(tags$b('Utvalg 2')),
            br(),
-           dateRangeInput(inputId=ns("datovalg2"), label = "Dato fra og til", min = '2014-01-01',
+           dateRangeInput(inputId=ns("datovalg2"), label = "Operasjonsdato fra og til", min = '2014-01-01',
                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
            selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
@@ -135,6 +135,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
   output$Figur_surv <- renderPlot({
     RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
     RegData <- RegData[!(RegData$Avdod == 1 & is.na(RegData$OpDoedTid)), ] #manglende data: død men ingen dødsdato
+    RegData$OpDoedTid[RegData$OpDoedTid==0] <- 0.5 #Døde ved dag 0 settes til 0.5 for å inkluderes i analysen
+
     Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
                              minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
                              elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
@@ -155,6 +157,7 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Utvalg1data$Utvalg <- 1
     Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
     Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
+    # Utvalg1data$overlev <- difftime(as.Date(input$datovalg[2]), Utvalg1data$OperasjonsDato, units = 'days')
 
     Utvalg2 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
                              minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
@@ -179,6 +182,7 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
     fellespasienter <- intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)
     Utvalg2data <- Utvalg2data[!(Utvalg2data$PasientID %in% fellespasienter), ]   # Fjerner pasienter som er i utvalg 1 fra utvalg 2
+    # Utvalg2data$overlev <- difftime(as.Date(input$datovalg2[2]), Utvalg2data$OperasjonsDato, units = 'days')
 
     Samlet <- bind_rows(Utvalg1data, Utvalg2data)
 
