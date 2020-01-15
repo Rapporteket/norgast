@@ -8,6 +8,8 @@ library(shiny)
 library(shinyjs)
 library(shinyalert)
 library(lubridate)
+library(survival)
+library(survminer)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
@@ -24,9 +26,9 @@ if (rapbase::isRapContext()) {
   RegData <- NorgastHentRegData()
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
-  RegData <- read.table('I:/norgast/AlleVarNum2019-11-19 10-04-46.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2020-01-13 13-43-56.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";",
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -37,7 +39,7 @@ if (rapbase::isRapContext()) {
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-11-19 10-05-09.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2020-01-13 13-44-27.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
@@ -47,9 +49,11 @@ RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 
 BrValg <- BrValgNorgastShiny(RegData)
 
+source(system.file("shinyApps/norgast/R/modul_startside.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
@@ -64,51 +68,61 @@ ui <- navbarPage(id = "norgast_app_id",
   windowTitle = regTitle,
   theme = "rap/bootstrap.css",
 
-  tabPanel("Startside",
-           mainPanel(
-                      shinyjs::useShinyjs(),
-                      shinyalert::useShinyalert(),
-                      rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
-                                                   organization = uiOutput("appOrgName"),
-                                                   addUserInfo = TRUE),
-
-             h2('Velkommen til Rapporteket - NoRGast', align='center'),
-             br(),
-             # h4(tags$b('Her skal Linn og Kristoffer formulere kloke og reflekterte meldinger til Rapportekets brukere. En foreløpig variant er gitt under:')),
-             # br(),
-             h4('Du er nå inne på Rapporteket for NoRGast, registerets resultattjeneste.
-                Disse sidene inneholder en samling av figurer og tabeller som viser resultater fra registeret.
-                På hver av sidene kan man gjøre utvalg i menyene til venstre. Alle resultater er basert
-                på ferdigstilte registreringer. Merk at data er hentet direkte fra registerets database.
-                Dette medfører at nyere data ikke er kvalitetssikret ennå.'),
-             h4('Du kan se på resultater for eget sykehus, nasjonale data og eget sykehus sett opp mot landet for øvrig.
-                Hvis ikke annet oppgis så gjøres alle datovalg basert på operasjonsdato. Alle figurer og
-                tabeller kan lastes ned.'),
-             br(),
-             h4(tags$b(tags$u('Innhold i de ulike fanene:'))),
-             h4(tags$b('Fordelinger '), 'viser fordelinger (figur/tabell) av ulike variabler.
-                Man kan velge hvilken variabel man vil se på, og man kan gjøre ulike filtreringer.'),
-             h4(tags$b('Sykehusvisning '), 'viser resultater per sykehus.
-                Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
-             h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
-             h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
-             h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
-                variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
-             h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
-             br(),
-             # br(),
-             # h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
-             # br(),
-             br(),
-             h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
-                a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
-                target="_blank", align='center'),
-             br(),
-             h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
-                a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
-             )
-
+  shiny::tabPanel("Startside",
+                  shinyjs::useShinyjs(),
+                  shinyalert::useShinyalert(),
+                  rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
+                                               organization = uiOutput("appOrgName"),
+                                               addUserInfo = TRUE),
+                  tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+                  startsideUI("startside")
   ),
+
+  # tabPanel("Startside",
+  #          mainPanel(
+  #                     shinyjs::useShinyjs(),
+  #                     shinyalert::useShinyalert(),
+  #                     rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
+  #                                                  organization = uiOutput("appOrgName"),
+  #                                                  addUserInfo = TRUE),
+  #
+  #            h2('Velkommen til Rapporteket - NoRGast', align='center'),
+  #            br(),
+  #            # h4(tags$b('Her skal Linn og Kristoffer formulere kloke og reflekterte meldinger til Rapportekets brukere. En foreløpig variant er gitt under:')),
+  #            # br(),
+  #            h4('Du er nå inne på Rapporteket for NoRGast, registerets resultattjeneste.
+  #               Disse sidene inneholder en samling av figurer og tabeller som viser resultater fra registeret.
+  #               På hver av sidene kan man gjøre utvalg i menyene til venstre. Alle resultater er basert
+  #               på ferdigstilte registreringer. Merk at data er hentet direkte fra registerets database.
+  #               Dette medfører at nyere data ikke er kvalitetssikret ennå.'),
+  #            h4('Du kan se på resultater for eget sykehus, nasjonale data og eget sykehus sett opp mot landet for øvrig.
+  #               Hvis ikke annet oppgis så gjøres alle datovalg basert på operasjonsdato. Alle figurer og
+  #               tabeller kan lastes ned.'),
+  #            br(),
+  #            h4(tags$b(tags$u('Innhold i de ulike fanene:'))),
+  #            h4(tags$b('Fordelinger '), 'viser fordelinger (figur/tabell) av ulike variabler.
+  #               Man kan velge hvilken variabel man vil se på, og man kan gjøre ulike filtreringer.'),
+  #            h4(tags$b('Sykehusvisning '), 'viser resultater per sykehus.
+  #               Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
+  #            h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
+  #            h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
+  #            h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
+  #               variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
+  #            h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
+  #            br(),
+  #            # br(),
+  #            # h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
+  #            # br(),
+  #            br(),
+  #            h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
+  #               a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
+  #               target="_blank", align='center'),
+  #            br(),
+  #            h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
+  #               a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
+  #            )
+  #
+  # ),
 
   tabPanel("Fordelinger",
            fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
@@ -120,6 +134,10 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Tidsvisning",
            tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Overlevelse",
+           overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
   ),
 
   tabPanel("Samledokumenter",
@@ -162,6 +180,7 @@ server <- function(input, output, session) {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
   }
 
+  shiny::callModule(startside, "startside", usrRole=userRole)
 
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
@@ -177,6 +196,11 @@ server <- function(input, output, session) {
   ################ Tidsvisning ########################################################################################################
 
   callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+
+  #################################################################################################################################
+  ################ Overlevelseskurver ##################################################################################################
+
+  callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################

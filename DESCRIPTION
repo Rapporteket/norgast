@@ -19,7 +19,9 @@ Imports:
   shinyjs,
   rapFigurer,
   rapbase,
-  raplog
+  raplog,
+  survival,
+  survminer
 Remotes:
   Rapporteket/rapbase,
   Rapporteket/raplog,
