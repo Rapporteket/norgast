@@ -14,7 +14,7 @@ overlevelse_UI <- function(id, BrValg){
                id = ns("id_overlevelse_panel"),
                h4(tags$b('Utvalg 1')),
                br(),
-               dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
+               dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
                               max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
                selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                            choices = BrValg$sykehus, multiple = TRUE),
@@ -188,11 +188,12 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
-    fellespasienter <- intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)
-    Utvalg2data <- Utvalg2data[!(Utvalg2data$PasientID %in% fellespasienter), ]   # Fjerner pasienter som er i utvalg 1 fra utvalg 2
-    # Utvalg2data$overlev <- difftime(as.Date(input$datovalg2[2]), Utvalg2data$OperasjonsDato, units = 'days')
+    # fellespasienter <- intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)
+    # Utvalg2data <- Utvalg2data[!(Utvalg2data$PasientID %in% fellespasienter), ]   # Fjerner pasienter som er i utvalg 1 fra utvalg 2
 
     Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+    Samlet <- Samlet[order(Samlet$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
+    Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 
     Samlet$overlev <- difftime(as.Date(Sys.Date()), Samlet$OperasjonsDato, units = 'days')
     Samlet$overlev[Samlet$Avdod==1] <- Samlet$OpDoedTid[Samlet$Avdod==1]
@@ -230,34 +231,14 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
       br(),
       br(),
       h4('Merknad:'),
-      h5(paste0(length(fellespasienter), ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes i utvalg 1.'))
+      h5(paste0(length(setdiff(utvlgdata$Utvalg1$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==1])),
+                ' av ', dim(utvlgdata$Utvalg1)[1], ' pasienter er ekskludert fra utvalg 1 siden de finnes med eldre operasjonsdato i utvalg 2. ',
+                length(setdiff(utvlgdata$Utvalg2$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==2])),
+                ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes med eldre operasjonsdato i utvalg 1.'))
+      ### DENNE MÅ TENKES VIDERE PÅ !!!!!!!!!!!!!! HVA MED FORLØP I BEGGE UTVALG???
+      # h5(paste0(length(fellespasienter), ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes i utvalg 1.'))
     )})
 
-
-  # tabellReager <- reactive({
-  #   TabellData <- norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-  #                                     maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-  #                                     valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-  #                                     op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-  #                                     ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-  #                                     BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-  #                                     tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-  #                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-  #                                     ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-  #                                     whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-  #                                     forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-  #                                     malign = as.numeric(input$malign),
-  #                                     reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-  #                                     elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
-  # })
-  #
-  # output$utvalg <- renderUI({
-  #   TabellData <- tabellReager()
-  #   tagList(
-  #     h3(HTML(paste0(TabellData$tittel, '<br />'))),
-  #     h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
-  #   )})
-  #
   # output$Tabell1 <- function() {
   #
   #   TabellData <- tabellReager()
