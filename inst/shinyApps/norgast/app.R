@@ -75,54 +75,8 @@ ui <- navbarPage(id = "norgast_app_id",
                                                organization = uiOutput("appOrgName"),
                                                addUserInfo = TRUE),
                   tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
-                  startsideUI("startside")
+                  startside_UI("startside")
   ),
-
-  # tabPanel("Startside",
-  #          mainPanel(
-  #                     shinyjs::useShinyjs(),
-  #                     shinyalert::useShinyalert(),
-  #                     rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
-  #                                                  organization = uiOutput("appOrgName"),
-  #                                                  addUserInfo = TRUE),
-  #
-  #            h2('Velkommen til Rapporteket - NoRGast', align='center'),
-  #            br(),
-  #            # h4(tags$b('Her skal Linn og Kristoffer formulere kloke og reflekterte meldinger til Rapportekets brukere. En foreløpig variant er gitt under:')),
-  #            # br(),
-  #            h4('Du er nå inne på Rapporteket for NoRGast, registerets resultattjeneste.
-  #               Disse sidene inneholder en samling av figurer og tabeller som viser resultater fra registeret.
-  #               På hver av sidene kan man gjøre utvalg i menyene til venstre. Alle resultater er basert
-  #               på ferdigstilte registreringer. Merk at data er hentet direkte fra registerets database.
-  #               Dette medfører at nyere data ikke er kvalitetssikret ennå.'),
-  #            h4('Du kan se på resultater for eget sykehus, nasjonale data og eget sykehus sett opp mot landet for øvrig.
-  #               Hvis ikke annet oppgis så gjøres alle datovalg basert på operasjonsdato. Alle figurer og
-  #               tabeller kan lastes ned.'),
-  #            br(),
-  #            h4(tags$b(tags$u('Innhold i de ulike fanene:'))),
-  #            h4(tags$b('Fordelinger '), 'viser fordelinger (figur/tabell) av ulike variabler.
-  #               Man kan velge hvilken variabel man vil se på, og man kan gjøre ulike filtreringer.'),
-  #            h4(tags$b('Sykehusvisning '), 'viser resultater per sykehus.
-  #               Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
-  #            h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
-  #            h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
-  #            h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
-  #               variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
-  #            h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
-  #            br(),
-  #            # br(),
-  #            # h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
-  #            # br(),
-  #            br(),
-  #            h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
-  #               a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
-  #               target="_blank", align='center'),
-  #            br(),
-  #            h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
-  #               a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
-  #            )
-  #
-  # ),
 
   tabPanel("Fordelinger",
            fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)

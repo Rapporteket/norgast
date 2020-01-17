@@ -51,7 +51,12 @@ overlevelse_UI <- function(id, BrValg){
               utgangspunkt i første operasjon."),
            br(),
            br(),
-           plotOutput(ns("Figur_surv"))
+           fluidRow(
+             column(7,
+                    plotOutput(ns("Figur_surv"))),
+             column(4, offset = 1,
+                    uiOutput(ns("utvalg")))
+           )
     ),
     column(2,
            style = "background-color:#ecf0f1",
@@ -132,7 +137,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     }
   })
 
-  output$Figur_surv <- renderPlot({
+
+  calc_overlevelse <- function() {
     RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
     RegData <- RegData[!(RegData$Avdod == 1 & is.na(RegData$OpDoedTid)), ] #manglende data: død men ingen dødsdato
     RegData$OpDoedTid[RegData$OpDoedTid==0] <- 0.5 #Døde ved dag 0 settes til 0.5 for å inkluderes i analysen
@@ -180,6 +186,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
 
+    utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
+
     fellespasienter <- intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)
     Utvalg2data <- Utvalg2data[!(Utvalg2data$PasientID %in% fellespasienter), ]   # Fjerner pasienter som er i utvalg 1 fra utvalg 2
     # Utvalg2data$overlev <- difftime(as.Date(input$datovalg2[2]), Utvalg2data$OperasjonsDato, units = 'days')
@@ -190,10 +198,40 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Samlet$overlev[Samlet$Avdod==1] <- Samlet$OpDoedTid[Samlet$Avdod==1]
     Samlet$overlev <- as.numeric(Samlet$overlev)
     Samlet$SurvObj <- with(Samlet, Surv(overlev, Avdod == 1))
-    fit1 <- survfit(SurvObj ~ Utvalg, data = Samlet)
-    ggsurvplot(fit1, data = Samlet, pval = TRUE, conf.int = T, fun = "pct",
-               risk.table = TRUE, legend = "bottom")
-  }, width = 800, height = 800)
+
+    # utdata <- list(Samlet = Samlet, Utvalg1 = Utvalg1, Utvalg2 = Utvalg2)
+    utdata$Samlet <- Samlet
+    return(utdata)
+  }
+
+
+  output$Figur_surv <- renderPlot({
+    overlevdata <- calc_overlevelse()
+
+    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = overlevdata$Samlet)
+    survminer::ggsurvplot(fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = T, fun = "pct",
+                          risk.table = TRUE, legend = "bottom")
+  }, width = 800, height = 800) #
+
+
+  output$utvalg <- renderUI({
+    utvlgdata <- calc_overlevelse()
+    # utvalg1 <- utvlgdata$Utvalg1
+    # utvalg2 <- utvlgdata$Utvalg2
+    fellespasienter <- intersect(utvlgdata$Utvalg1$PasientID, utvlgdata$Utvalg2$PasientID)
+
+    tagList(
+      h4('Utvalg 1:'),
+      h5(HTML(paste0(utvlgdata$utvalgTxt1, '<br />'))),
+      br(),
+      br(),
+      h4('Utvalg 2:'),
+      h5(HTML(paste0(utvlgdata$utvalgTxt2, '<br />'))),
+      br(),
+      br(),
+      h4('Merknad:'),
+      h5(paste0(length(fellespasienter), ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes i utvalg 1.'))
+    )})
 
 
   # tabellReager <- reactive({
