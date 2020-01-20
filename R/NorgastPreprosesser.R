@@ -209,6 +209,12 @@ NorgastPreprosess <- function(RegData)
   RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) != 'C')] <- 0
   RegData$Malign[which(substr(RegData$Hoveddiagnose, 1, 1) == '')] <- 9
 
+  RegData$Hoveddiagnose2 <- sub("(\\w+).*", "\\1", RegData$Hoveddiagnose)
+  RegData$Hoveddiagnose2 <- RegData$Hoveddiagnose[match(RegData$Hoveddiagnose2, sub("(\\w+).*", "\\1", RegData$Hoveddiagnose))]
+  # tmp1 <- table(RegData$Hoveddiagnose)
+  # tmp2 <- table(RegData$Hoveddiagnos2)
+  # table(RegData$Hoveddiagnose[sub("(\\w+).*", "\\1", RegData$Hoveddiagnose) %in% sub("(\\w+).*", "\\1", setdiff(names(tmp1), names(tmp2)))])
+
   return(invisible(RegData))
 
 }

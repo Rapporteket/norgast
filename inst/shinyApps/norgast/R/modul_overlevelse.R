@@ -45,17 +45,25 @@ overlevelse_UI <- function(id, BrValg){
     ),
     column(8,
            h2("Kaplan-Meier overlevelseskurver", align='center'),
-           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Dersom du kun gjør utvalg på ventresiden så
-              vil Utvalg 2 bestå av alle pasienter som ikke faller i Utvalg 1. Dersom det er overlapp mellom Utvalg 1 og Utvalg 2 så fjernes
-              pasientene som finnes i begge utvalg fra Utvalg 2. Hvis en pasient opptrer flere ganger i et utvalg beregnes overlevelse med
-              utgangspunkt i første operasjon."),
+           # h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Dersom du kun gjør utvalg på ventresiden så
+           #    vil Utvalg 2 bestå av alle pasienter som ikke faller i Utvalg 1. Dersom det er overlapp mellom Utvalg 1 og Utvalg 2 så fjernes
+           #    pasientene som finnes i begge utvalg fra Utvalg 2. Hvis en pasient opptrer flere ganger i et utvalg beregnes overlevelse med
+           #    utgangspunkt i første operasjon."),
+           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Hvis en pasient har flere forløp i et utvalg benyttes forløpet
+              for den eldste operasjonen. Dersom det er overlapp mellom 'Utvalg 1' og 'Utvalg 2' så velges det eldste forløpet. Hvis det eldste
+              forløpet finnes i både 'Utvalg 1' og 'Utvalg 2' eller hvis 'Utvalg 1' og 'Utvalg 2 'sitt eldste forløp faller på samme dato, så knyttes
+              pasienten til 'Utvalg 1'. Dette innebærer at man potensielt kan få litt forskjellige resultater hvis du f.eks. ser på 'Åpen' i 'Utvalg 1'
+              mot 'Laparoskopisk' i 'Utvalg 2' kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.Hvis dette ikke er ønskelig så kan du krysse
+              av for 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'"),
            br(),
            br(),
            fluidRow(
              column(7,
                     plotOutput(ns("Figur_surv"))),
              column(4, offset = 1,
-                    uiOutput(ns("utvalg")))
+                    uiOutput(ns("utvalg")),
+                    br(),
+                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'))
            )
     ),
     column(2,
@@ -195,6 +203,11 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Samlet <- Samlet[order(Samlet$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 
+    if (input$ekskluder_felles) {
+      # Samlet <- Samlet[!(Samlet$ForlopsID %in% intersect(Utvalg1data$ForlopsID, Utvalg2data$ForlopsID)), ]
+      Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)), ]
+    }
+
     Samlet$overlev <- difftime(as.Date(Sys.Date()), Samlet$OperasjonsDato, units = 'days')
     Samlet$overlev[Samlet$Avdod==1] <- Samlet$OpDoedTid[Samlet$Avdod==1]
     Samlet$overlev <- as.numeric(Samlet$overlev)
@@ -231,10 +244,18 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
       br(),
       br(),
       h4('Merknad:'),
-      h5(paste0(length(setdiff(utvlgdata$Utvalg1$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==1])),
-                ' av ', dim(utvlgdata$Utvalg1)[1], ' pasienter er ekskludert fra utvalg 1 siden de finnes med eldre operasjonsdato i utvalg 2. ',
-                length(setdiff(utvlgdata$Utvalg2$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==2])),
-                ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes med eldre operasjonsdato i utvalg 1.'))
+      if (input$ekskluder_felles) {
+        h5(paste0(length(setdiff(utvlgdata$Utvalg1$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==1])),
+                  ' pasienter er ekskludert siden de har forløp som tilfredstiller begge utvalg.'))
+      } else {
+        h5(paste0(length(setdiff(utvlgdata$Utvalg1$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==1])),
+                  ' av ', dim(utvlgdata$Utvalg1)[1], ' pasienter er ekskludert fra utvalg 1 siden et forløp med eldre
+                operasjonsdato på samme pasient finnes i utvalg 2. ',
+                  length(setdiff(utvlgdata$Utvalg2$PasientID, utvlgdata$Samlet$PasientID[utvlgdata$Samlet$Utvalg==2])),
+                  ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden samme forløp eller et forløp med eldre eller samme
+                operasjonsdato på samme pasient finnes i utvalg 1.'))
+      }
+
       ### DENNE MÅ TENKES VIDERE PÅ !!!!!!!!!!!!!! HVA MED FORLØP I BEGGE UTVALG???
       # h5(paste0(length(fellespasienter), ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes i utvalg 1.'))
     )})

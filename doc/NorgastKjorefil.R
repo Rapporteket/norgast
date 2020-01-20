@@ -556,5 +556,26 @@ ACC6 <- RegData$PasientID[which(RegData$AccordionGrad==6 & RegData$OperasjonsDat
 
 ACC6 <- RegData$PasientID[which(RegData$OppfAccordionGrad==6 & RegData$OperasjonsDato >= '2017-01-01' & RegData$AvdRESH == 601225)]
 
+###############
+
+Utvalg1data <- RegData[RegData$Tilgang == 1, ]
+Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
+Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
+Utvalg2data <- RegData[RegData$Tilgang == 2, ]
+Utvalg1data$Utvalg <- 1
+Utvalg2data$Utvalg <- 2
+Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
+Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]
+utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = 'text1', utvalgTxt2 = 'text2')
+
+Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+
+aux <- Samlet[Samlet$PasientID %in% as.numeric(names(sort(table(Samlet$PasientID), decreasing = T)[sort(table(Samlet$PasientID), decreasing = T) > 1])), ]
+
+aux <- aux[order(aux$PasientID), ]
+
+tmp <-aux[,c("PasientID", "HovedDato")] %>% group_by(PasientID) %>% summarise(samme_dato = HovedDato[1]==HovedDato[2])
+
+flere_sammedato <- aux[aux$PasientID %in% tmp$PasientID[tmp$samme_dato], c("PasientID", "ForlopsID", "HovedDato", "AnestesiStartKl", "Hovedoperasjon", "Tilgang", "Hoveddiagnose")]
 
 
