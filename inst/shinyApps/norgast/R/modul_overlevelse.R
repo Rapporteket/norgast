@@ -37,6 +37,7 @@ overlevelse_UI <- function(id, BrValg){
                selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                            choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+               uiOutput(outputId = ns('icd')),
                # selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                tags$hr(),
@@ -94,6 +95,7 @@ overlevelse_UI <- function(id, BrValg){
            selectInput(inputId = ns("forbehandling2"), label = "Onkologisk forbehandling", multiple = TRUE,
                        choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
            selectInput(inputId = ns("malign2"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+           uiOutput(outputId = ns('icd2')),
            # selectInput(inputId = ns("bildeformat2"), label = "Velg bildeformat",
            #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
            tags$hr(),
@@ -145,6 +147,51 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     }
   })
 
+  output$icd <- renderUI({
+    ns <- session$ns
+    Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                             minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
+                             elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                             BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
+                             valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+                             op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+                             ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+                             tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
+                             minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
+                             ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                             whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
+                             forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
+                             malign = as.numeric(input$malign))
+    Utvalg1 <- Utvalg1$RegData
+    diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
+    if (!is.null(diagnoser)) {
+      selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
+                  choices = diagnoser, multiple = TRUE)
+    }
+  })
+
+  output$icd2 <- renderUI({
+    ns <- session$ns
+    Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                             minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
+                             elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
+                             BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                             valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+                             op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                             ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+                             tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                             minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                             ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                             whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                             forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                             malign = as.numeric(input$malign2))
+    Utvalg1 <- Utvalg1$RegData
+    diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
+    if (!is.null(diagnoser)) {
+      selectInput(inputId = ns("icd_verdi2"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
+                  choices = diagnoser, multiple = TRUE)
+    }
+  })
 
   calc_overlevelse <- function() {
     RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
@@ -163,7 +210,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
                              whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                              forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                             malign = as.numeric(input$malign))
+                             malign = as.numeric(input$malign),
+                             icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''})
     Utvalg1data <- Utvalg1$RegData
     if (!is.null(input$valgtShus)) {
       Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
@@ -185,7 +233,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
                              whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
                              forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                             malign = as.numeric(input$malign2))
+                             malign = as.numeric(input$malign2),
+                             icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''})
     Utvalg2data <- Utvalg2$RegData
     if (!is.null(input$valgtShus2)) {
       Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]

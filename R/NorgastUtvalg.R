@@ -9,7 +9,7 @@
 
 NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, elektiv, BMI, hastegrad=99,
                              valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog='',
-                             forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='', ncsp='')
+                             forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='', ncsp='', icd='')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -30,9 +30,10 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
   indNCSP <- if (ncsp[1] != '') {which(substr(RegData$Hovedoperasjon, 1, 5) %in% ncsp)} else {indNCSP <- 1:Ninn}
   indForb <- if (forbehandling[1] != '') {which(RegData$Forbehandling %in% as.numeric(forbehandling))} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
+  indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i% indICD
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -58,7 +59,8 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
                  if (forbehandling[1] != '') {paste0('Onkologisk forbehandling: ',
                                                      paste(c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[as.numeric(forbehandling)], collapse = ', '))},
-                 if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])}
+                 if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])},
+                 if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))}
   )
 
 
