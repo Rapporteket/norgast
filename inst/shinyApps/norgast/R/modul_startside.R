@@ -25,7 +25,7 @@ startside_UI <- function(id){
                         h4(id = ns("SC1"), tags$b('Sykehusvisning '), 'viser resultater per sykehus.
                            Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
                         h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
-                        h4(id = ns("SC2"), tags$b('Overlevelse '), 'viser Kaplan-Meier overlevelseskurver for to distinkte utvalg.'),
+                        # h4(id = ns("SC2"), tags$b('Overlevelse '), 'viser Kaplan-Meier overlevelseskurver for to distinkte utvalg.'),
                         h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
                         h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
                            variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
@@ -58,7 +58,7 @@ startside <- function(input, output,session, usrRole){
   observe(
     if (usrRole != "SC") {
       shinyjs::hide("SC1")
-      shinyjs::hide("SC2")
+      # shinyjs::hide("SC2")
     }
   )
 }
