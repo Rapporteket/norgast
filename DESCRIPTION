@@ -17,6 +17,7 @@ Imports:
   tidyverse,
   kableExtra,
   shinyjs,
+  shinyBS,
   rapFigurer,
   rapbase,
   raplog,
