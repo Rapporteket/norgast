@@ -13,6 +13,7 @@ fordelingsfig_UI <- function(id, BrValg){
       id = ns("id_fordeling_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg),
+      bsTooltip(id = ns("valgtVar"), title= 'Velg hvilken variabel du vil generere fordelingsfigur for.'),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
       selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",

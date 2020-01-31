@@ -38,8 +38,6 @@ overlevelse_UI <- function(id, BrValg){
                            choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
                uiOutput(outputId = ns('icd')),
-               # selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-               #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                tags$hr(),
                actionButton(ns("reset_input"), "Nullstill valg")
         # )
@@ -57,6 +55,7 @@ overlevelse_UI <- function(id, BrValg){
               mot 'Laparoskopisk' i 'Utvalg 2' kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.Hvis dette ikke er ønskelig så kan du krysse
               av for 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'"),
            br(),
+           checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
            br(),
            fluidRow(
              column(7,
@@ -64,7 +63,13 @@ overlevelse_UI <- function(id, BrValg){
              column(4, offset = 1,
                     uiOutput(ns("utvalg")),
                     br(),
-                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'))
+                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'),
+                    br(),
+                    br(),
+                    selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                                choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+                    textInput(ns("tittel"), "Angi tittel for lagret plot", ""),
+                    downloadButton(ns("lastNedBilde"), "Last ned figur"))
            )
     ),
     column(2,
@@ -96,8 +101,6 @@ overlevelse_UI <- function(id, BrValg){
                        choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
            selectInput(inputId = ns("malign2"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
            uiOutput(outputId = ns('icd2')),
-           # selectInput(inputId = ns("bildeformat2"), label = "Velg bildeformat",
-           #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
            tags$hr(),
            actionButton(ns("reset_input2"), "Nullstill valg"))
   )
@@ -262,8 +265,11 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Samlet$overlev <- as.numeric(Samlet$overlev)
     Samlet$SurvObj <- with(Samlet, Surv(overlev, Avdod == 1))
 
-    # utdata <- list(Samlet = Samlet, Utvalg1 = Utvalg1, Utvalg2 = Utvalg2)
+    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = Samlet)
+
     utdata$Samlet <- Samlet
+    utdata$fit1 <- fit1
+
     return(utdata)
   }
 
@@ -271,8 +277,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
   output$Figur_surv <- renderPlot({
     overlevdata <- calc_overlevelse()
 
-    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = overlevdata$Samlet)
-    survminer::ggsurvplot(fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = T, fun = "pct",
+    # fit1 <- survival::survfit(SurvObj ~ Utvalg, data = overlevdata$Samlet)
+
+    survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = input$inkl_konf, fun = "pct",
                           risk.table = TRUE, legend = "bottom")
   }, width = 800, height = 800) #
 
@@ -281,7 +288,7 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     utvlgdata <- calc_overlevelse()
     # utvalg1 <- utvlgdata$Utvalg1
     # utvalg2 <- utvlgdata$Utvalg2
-    fellespasienter <- intersect(utvlgdata$Utvalg1$PasientID, utvlgdata$Utvalg2$PasientID)
+    # fellespasienter <- intersect(utvlgdata$Utvalg1$PasientID, utvlgdata$Utvalg2$PasientID)
 
     tagList(
       h4('Utvalg 1:'),
@@ -360,29 +367,25 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
   #   }
   # )
   #
-  # output$lastNedBilde <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
-  #   },
-  #
-  #   content = function(file){
-  #     norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-  #                         maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-  #                         valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-  #                         op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-  #                         ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-  #                         BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-  #                         tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-  #                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-  #                         ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-  #                         whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-  #                         forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-  #                         malign = as.numeric(input$malign),
-  #                         reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-  #                         elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad), outfile = file)
-  #   }
-  # )
-  #
+  output$lastNedBilde <- downloadHandler(
+    filename = function(){
+      paste0('KM_kurve', Sys.time(), '.', input$bildeformat)
+    },
+
+    content = function(file){
+      overlevdata <- calc_overlevelse()
+
+      # fit1 <- survival::survfit(SurvObj ~ Utvalg, data = overlevdata$Samlet)
+      survp <- survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, title = input$tittel, pval = TRUE, conf.int = input$inkl_konf, fun = "pct",
+                            risk.table = TRUE, legend = "bottom")
+      # pdf(file)
+      rapFigurer::figtype(outfile=file, pointsizePDF=11)
+      print(survp, newpage = FALSE)
+      dev.off()
+      # ggsave(file = file, print(survp))
+    }
+  )
+
   # shiny::observe({
   #   if (rapbase::isRapContext()) {
   #     if (req(input$tab) == "fig") {

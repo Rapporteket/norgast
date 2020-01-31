@@ -6,6 +6,7 @@ library(kableExtra)
 library(DT)
 library(shiny)
 library(shinyjs)
+library(shinyBS)
 library(shinyalert)
 library(lubridate)
 library(survival)
@@ -53,7 +54,7 @@ source(system.file("shinyApps/norgast/R/modul_startside.R", package = "norgast")
 source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
-# source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
@@ -90,9 +91,9 @@ ui <- navbarPage(id = "norgast_app_id",
            tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
   ),
 
-  # tabPanel("Overlevelse",
-  #          overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
-  # ),
+  tabPanel("Overlevelse",
+           overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
+  ),
 
   tabPanel("Samledokumenter",
            h2("Samledokumenter", align='center'),
@@ -154,7 +155,7 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Overlevelseskurver ##################################################################################################
 
-  # callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################
