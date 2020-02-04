@@ -162,7 +162,7 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
                                Konf.int.ovre = utdata$KonfInt$Konf[2,])
         }
-        write.csv2(Tabell_tid, file, row.names = F)
+        write.csv3(Tabell_tid, file, row.names = F)
       }
     )
 

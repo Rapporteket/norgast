@@ -15,3 +15,10 @@ dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ..
   d$children[[2L]]$attribs[["data-date-max-view-mode"]] <- maxview
   d
 }
+
+#' Skriv til csv i nordisk format med Latin1 som default tegnsetting
+#'
+#' @export
+write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
+  write.csv2(x, file = file, fileEncoding = tegnsetting, ...)
+}

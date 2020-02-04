@@ -80,7 +80,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
       if (!is.null(input$ncsp_verdi)) {dumpdata <- dumpdata[which(substr(dumpdata$Hovedoperasjon, 1, 5) %in% ncsp_verdi), ]}
       if (!is.null(input$valgtevar_dump_verdi)) {dumpdata <- dumpdata[, input$valgtevar_dump_verdi]}
 
-      write.csv2(dumpdata, file, row.names = F, na = '')
+      write.csv3(dumpdata, file, row.names = F, na = '')
     }
   )
 

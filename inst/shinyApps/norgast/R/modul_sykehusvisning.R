@@ -170,7 +170,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                        KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
       Tabell[utdata$Andeler==-0.001, 2:6] <- NA
       Tabell <- Tabell[dim(Tabell)[1]:1, ]
-      write.csv2(Tabell, file, row.names = F, na = '')
+      write.csv3(Tabell, file, row.names = F, na = '')
     }
   )
 
@@ -295,7 +295,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
       Tabell <- as_tibble(utdata$res, rownames='Sykehusnavn')
       Tabell[Tabell$N < 10, 2:4] <- NA
       Tabell <- Tabell[order(Tabell$Gjsn, decreasing = T, na.last = T), ]
-      write.csv2(Tabell, file, row.names = F, na = '')
+      write.csv3(Tabell, file, row.names = F, na = '')
     }
   )
 

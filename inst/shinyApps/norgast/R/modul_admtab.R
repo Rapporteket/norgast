@@ -117,7 +117,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
     content = function(file){
       TabellData <- antskjema()$ant_skjema
-      write.csv2(TabellData, file, row.names = F)
+      write.csv3(TabellData, file, row.names = F)
     }
   )
 
@@ -206,7 +206,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
     content = function(file){
       TabellData <- andre_adm_tab()$ant_skjema
-      write.csv2(TabellData, file, row.names = F)
+      write.csv3(TabellData, file, row.names = F)
     }
   )
 

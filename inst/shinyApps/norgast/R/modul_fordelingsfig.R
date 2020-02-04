@@ -185,7 +185,8 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
           select(Kategori, everything()) %>%
           mutate(AndelHoved = 100*AntHoved/NHoved)
       }
-      write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
+      # write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
+      write.csv3(Tabell1, file, row.names = F)
     }
   )
 
