@@ -84,6 +84,17 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     }
   )
 
+  shiny::observe({
+    if (rapbase::isRapContext()) {
 
+      shinyjs::onclick(
+        "lastNed_dump",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: nedlasting datadump")
+        )
+      )
+    }
+  })
 
 }
