@@ -4,7 +4,7 @@
 \alias{write.csv3}
 \title{Skriv til csv i nordisk format med Latin1 som default tegnsetting}
 \usage{
-write.csv3(x, tegnsetting = "latin1", ...)
+write.csv3(x, file = "", tegnsetting = "latin1", ...)
 }
 \description{
 Skriv til csv i nordisk format med Latin1 som default tegnsetting

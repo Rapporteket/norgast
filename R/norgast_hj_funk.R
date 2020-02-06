@@ -22,3 +22,20 @@ dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ..
 write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
   write.csv2(x, file = file, fileEncoding = tegnsetting, ...)
 }
+
+#' Generer kvartalsrapport og returner filnavn og sti til fil.
+#'
+#' @export
+abonnement_kvartal_norgast <- function(baseName, datoTil=Sys.Date(), reshID=0, valgtShus='') {
+  src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
+  tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
+
+  owd <- setwd(tempdir())
+  on.exit(setwd(owd))
+  file.copy(src, tmpFile, overwrite = TRUE)
+
+  texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
+  tools::texi2pdf(texfil, clean = TRUE)
+
+  utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
+}

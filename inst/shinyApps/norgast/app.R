@@ -58,6 +58,7 @@ source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_abonnement.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -115,6 +116,10 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Administrative tabeller",
            admtab_UI(id = "admtab_id")
+  ),
+
+  tabPanel("Abonnement",
+           abonnement_UI(id = "abonnement_id")
   )
 
 )
@@ -171,6 +176,12 @@ server <- function(input, output, session) {
   ################ Adm. tabeller ##################################################################################################
 
   callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
+
+  #################################################################################################################################
+  ################ Adm. tabeller ##################################################################################################
+
+  callModule(abonnement, "abonnement_id", reshID = reshID, userRole = userRole, hvd_session = session)
+
 
   #Navbarwidget
   output$appUserName <- renderText(rapbase::getUserFullName(session))
