@@ -78,7 +78,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
     organization <- rapbase::getUserReshId(hvd_session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
     email <- rapbase::getUserEmail(hvd_session)
-    if (input$subscriptionRep == "Månedsrapport") {
+    if (input$subscriptionRep == "Kvartalsrapport") {
       synopsis <- "norgast/Rapporteket: kvartalsrapport"
       baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
       #print(rnwFil)
