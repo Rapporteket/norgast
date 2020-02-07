@@ -80,7 +80,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
     email <- rapbase::getUserEmail(hvd_session)
     if (input$subscriptionRep == "Månedsrapport") {
       synopsis <- "norgast/Rapporteket: kvartalsrapport"
-      baseName <- "NorgastKvartalsrapportShiny" #Navn på fila
+      baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
       #print(rnwFil)
     }
 

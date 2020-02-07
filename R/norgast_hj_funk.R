@@ -26,7 +26,7 @@ write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
 #' Generer kvartalsrapport og returner filnavn og sti til fil.
 #'
 #' @export
-abonnement_kvartal_norgast <- function(baseName, datoTil=Sys.Date(), reshID=0, valgtShus='') {
+abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='') {
   src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
   tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
 
