@@ -59,6 +59,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
+    ns <- session$ns
     fullName <- rapbase::getUserFullName(hvd_session)
     if (length(rv$subscriptionTab) == 0) {
       p(paste("Ingen aktive abonnement for", fullName))
