@@ -89,8 +89,6 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
     paramNames <- c('baseName', "reshID")
     paramValues <- c(baseName, reshID) #input$subscriptionFileFormat)
 
-    #abonnementNakke(rnwFil = 'NakkeMndRapp.Rnw', brukernavn='hei', reshID=601161, datoTil=Sys.Date())
-
     rapbase::createAutoReport(synopsis = synopsis, package = 'norgast',
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,

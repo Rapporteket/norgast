@@ -26,7 +26,11 @@ write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
 #' Generer kvartalsrapport og returner filnavn og sti til fil.
 #'
 #' @export
-abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='') {
+abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukernavn='Pjotr') {
+
+  raplog::subLogger(author = brukernavn, registryName = 'NoRGast',
+                    reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
+
   src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
   tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
 
@@ -38,4 +42,8 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='') {
   tools::texi2pdf(texfil, clean = TRUE)
 
   utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
+  raplog::subLogger(author = brukernavn, registryName = 'NoRGast',
+                    reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
+
+  return(utfil)
 }

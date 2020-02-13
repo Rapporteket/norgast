@@ -79,7 +79,7 @@ names(indikator)[1:3] <- c('Resh', 'Aar', 'Teller')
 write.csv2(indikator, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind2_andelavdøde_spiserør_NorGast.csv', row.names = F)
 
 
-op_gruppe <- 3
+op_gruppe <- 4
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                maxald=maxald, erMann=erMann, elektiv=elektiv,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
