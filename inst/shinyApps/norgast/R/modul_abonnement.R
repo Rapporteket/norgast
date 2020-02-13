@@ -66,7 +66,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
       tagList(
         p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
                 rapbase::getUserEmail(hvd_session), ":")),
-        DT::dataTableOutput("activeSubscriptions")
+        DT::dataTableOutput(ns("activeSubscriptions"))
       )
     }
   })
