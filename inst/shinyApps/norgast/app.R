@@ -118,8 +118,31 @@ ui <- navbarPage(id = "norgast_app_id",
            admtab_UI(id = "admtab_id")
   ),
 
-  tabPanel("Abonnement",
-           abonnement_UI(id = "abonnement_id")
+  # tabPanel("Abonnement",
+  #          abonnement_UI(id = "abonnement_id")
+  # )
+
+  tabPanel(p("Abonnement",
+             title='Bestill automatisk utsending av rapporter på e-post'),
+           sidebarLayout(
+             sidebarPanel(width = 3,
+                          selectInput("subscriptionRep", "Rapport:",
+                                      c("Kvartalsrapport")), #, "Samlerapport", "Influensaresultater")),
+                          selectInput("subscriptionFreq", "Frekvens:",
+                                      list(Årlig="Årlig-year",
+                                            Kvartalsvis="Kvartalsvis-quarter",
+                                            Månedlig="Månedlig-month",
+                                            Ukentlig="Ukentlig-week",
+                                            Daglig="Daglig-DSTday"),
+                                      selected = "Månedlig-month"),
+                          #selectInput("subscriptionFileFormat", "Format:",
+                          #            c("html", "pdf")),
+                          actionButton("subscribe", "Bestill!")
+             ),
+             mainPanel(
+               uiOutput("subscriptionContent")
+             )
+           )
   )
 
 )
@@ -178,10 +201,77 @@ server <- function(input, output, session) {
   callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
-  ################ Adm. tabeller ##################################################################################################
+  ################ Abonnement ##################################################################################################
 
-  callModule(abonnement, "abonnement_id", reshID = reshID, userRole = userRole, hvd_session = session)
+  # callModule(abonnement, "abonnement_id", reshID = reshID, userRole = userRole, hvd_session = session)
 
+  #####################################################################################
+  #####################################################################################
+  #####################################################################################
+
+  ## reaktive verdier for å holde rede på endringer som skjer mens
+  ## applikasjonen kjører
+  rv <- reactiveValues(
+    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+
+
+  ## lag tabell over gjeldende status for abonnement
+  output$activeSubscriptions <- DT::renderDataTable(
+    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+    rownames = FALSE, options = list(dom = 't')
+  )
+
+  ## lag side som viser status for abonnement, også når det ikke finnes noen
+  output$subscriptionContent <- renderUI({
+    fullName <- rapbase::getUserFullName(session)
+    if (length(rv$subscriptionTab) == 0) {
+      p(paste("Ingen aktive abonnement for", fullName))
+    } else {
+      tagList(
+        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+                rapbase::getUserEmail(session), ":")),
+        DT::dataTableOutput("activeSubscriptions")
+      )
+    }
+  })
+  ## nye abonnement
+  observeEvent (input$subscribe, { #MÅ HA
+    owner <- rapbase::getUserName(session)
+    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
+    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
+    organization <- rapbase::getUserReshId(session)
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
+    email <- rapbase::getUserEmail(session)
+    if (input$subscriptionRep == "Kvartalsrapport") {
+      synopsis <- "norgast/Rapporteket: kvartalsrapport"
+      baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
+      #print(rnwFil)
+    }
+
+    fun <- "abonnement_kvartal_norgast"  #"henteSamlerapporter"
+
+    paramNames <- c('baseName', "reshID")
+    paramValues <- c(baseName, reshID)
+
+    rapbase::createAutoReport(synopsis = synopsis, package = 'norgast',
+                              fun = fun, paramNames = paramNames,
+                              paramValues = paramValues, owner = owner,
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear, interval = interval,
+                              intervalName = intervalName)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+  })
+
+  ## slett eksisterende abonnement
+  observeEvent(input$del_button, {
+    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
+    rapbase::deleteAutoReport(selectedRepId)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+  })
+
+  #####################################################################################
+  #####################################################################################
+  #####################################################################################
 
   #Navbarwidget
   output$appUserName <- renderText(rapbase::getUserFullName(session))

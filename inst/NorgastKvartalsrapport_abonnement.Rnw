@@ -46,6 +46,10 @@ knitr::opts_knit$set(root.dir = './')
 \begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
+library(norgast)
+library(tidyverse)
+library(lubridate)
+
 datoTil <- Sys.Date()
 datoTil <- datoTil %>% as.Date() %>% lubridate::floor_date(unit = 'quarter') - lubridate::days(1)
 datoFra <- (datoTil + lubridate::days(1)) %m-% lubridate::years(1)
