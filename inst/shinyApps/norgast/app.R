@@ -134,9 +134,17 @@ ui <- navbarPage(id = "norgast_app_id",
                                             Månedlig="Månedlig-month",
                                             Ukentlig="Ukentlig-week",
                                             Daglig="Daglig-DSTday"),
-                                      selected = "Månedlig-month"),
-                          #selectInput("subscriptionFileFormat", "Format:",
-                          #            c("html", "pdf")),
+                                      selected = "Kvartalsvis-quarter"),
+                          dateInput("dato_forste_rap", label="Velg dato for første utsending", value = Sys.Date()+1,
+                                    min = Sys.Date()+1, language = "nb"),
+                          fileInput("file1", "Last opp CSV-fil med e-post og RESH for potensielle rapportmottakere",
+                                    multiple = FALSE,
+                                    accept = c("text/csv",
+                                               "text/comma-separated-values,text/plain",
+                                               ".csv")),
+                          uiOutput("norgast_brukere"),
+                          selectInput(inputId = "valgtShus", label = "Velg sykehus rapport skal lages for",
+                                      choices = BrValg$sykehus, multiple = FALSE),
                           actionButton("subscribe", "Bestill!")
              ),
              mainPanel(
@@ -209,6 +217,21 @@ server <- function(input, output, session) {
   #####################################################################################
   #####################################################################################
 
+  output$norgast_brukere <- renderUI({
+  # req(input$file1)
+    if (!is.null(input$file1)) {
+      df <- read.csv2(input$file1$datapath, header = T)
+      df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
+      df$shus[is.na(df$shus)] <- 'Ukjent'
+      testliste <- tapply(df$epost, df$shus, unique)
+      selectInput(inputId = "brukere_epost", label = "Velg brukere som skal motta rapport",
+                  choices = testliste, multiple = TRUE)
+    }
+
+
+  })
+
+
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
@@ -240,8 +263,14 @@ server <- function(input, output, session) {
     interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
     intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
     organization <- rapbase::getUserReshId(session)
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
-    email <- rapbase::getUserEmail(session)
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(startDay = as.Date(input$dato_forste_rap), interval = interval)
+    if (!is.null(input$file1)) {
+      email <- input$brukere_epost
+    } else {
+      email <- rapbase::getUserEmail(session)
+    }
+
+    # email <- c('kevin.thon@gmail.com', 'kevin.thon@skde.no')
     if (input$subscriptionRep == "Kvartalsrapport") {
       synopsis <- "norgast/Rapporteket: kvartalsrapport"
       baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
@@ -251,7 +280,7 @@ server <- function(input, output, session) {
     fun <- "abonnement_kvartal_norgast"  #"henteSamlerapporter"
 
     paramNames <- c('baseName', "reshID")
-    paramValues <- c(baseName, reshID)
+    paramValues <- c(baseName, input$valgtShus)
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'norgast',
                               fun = fun, paramNames = paramNames,
