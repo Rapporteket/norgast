@@ -221,6 +221,7 @@ server <- function(input, output, session) {
   # req(input$file1)
     if (!is.null(input$file1)) {
       df <- read.csv2(input$file1$datapath, header = T)
+      names(df) <- names(df) %>% trimws() %>% tolower()
       df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
       df$shus[is.na(df$shus)] <- 'Ukjent'
       testliste <- tapply(df$epost, df$shus, unique)
@@ -235,7 +236,7 @@ server <- function(input, output, session) {
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session))
 
 
   ## lag tabell over gjeldende status for abonnement
@@ -272,7 +273,7 @@ server <- function(input, output, session) {
 
     # email <- c('kevin.thon@gmail.com', 'kevin.thon@skde.no')
     if (input$subscriptionRep == "Kvartalsrapport") {
-      synopsis <- "norgast/Rapporteket: kvartalsrapport"
+      synopsis <- "NoRGast: Kvartalsrapport"
       baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
       #print(rnwFil)
     }
@@ -288,14 +289,14 @@ server <- function(input, output, session) {
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
                               intervalName = intervalName)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session)
   })
 
   #####################################################################################
