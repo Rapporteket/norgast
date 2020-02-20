@@ -24,7 +24,7 @@ Imports:
   survival,
   survminer
 Remotes:
-  Rapporteket/rapbase,
+  Rapporteket/rapbase@rel,
   Rapporteket/raplog,
   Rapporteket/rapFigurer
 RoxygenNote: 6.1.1

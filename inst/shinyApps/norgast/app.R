@@ -220,7 +220,7 @@ server <- function(input, output, session) {
   output$norgast_brukere <- renderUI({
   # req(input$file1)
     if (!is.null(input$file1)) {
-      df <- read.csv2(input$file1$datapath, header = T)
+      df <- read.csv2(input$file1$datapath, header = T, stringsAsFactors = F)
       names(df) <- names(df) %>% trimws() %>% tolower()
       df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
       df$shus[is.na(df$shus)] <- 'Ukjent'
@@ -228,8 +228,6 @@ server <- function(input, output, session) {
       selectInput(inputId = "brukere_epost", label = "Velg brukere som skal motta rapport",
                   choices = testliste, multiple = TRUE)
     }
-
-
   })
 
 
