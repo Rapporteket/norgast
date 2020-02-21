@@ -217,16 +217,39 @@ server <- function(input, output, session) {
   #####################################################################################
   #####################################################################################
 
-  output$norgast_brukere <- renderUI({
-  # req(input$file1)
+  make_named_vector <- function(x) {setNames(x$lnr, x$epost)}
+
+  les_brukerliste <- reactive(
     if (!is.null(input$file1)) {
       df <- read.csv2(input$file1$datapath, header = T, stringsAsFactors = F)
       names(df) <- names(df) %>% trimws() %>% tolower()
       df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
       df$shus[is.na(df$shus)] <- 'Ukjent'
-      testliste <- tapply(df$epost, df$shus, unique)
+      df$lnr <- 1:dim(df)[1]
+      # testliste <- tapply(df$epost, df$shus, unique)
+      nestliste <- df[, c("shus", "epost", "lnr")] %>% group_by(shus) %>% nest()
+      gulp <- map(nestliste$data, make_named_vector)
+      nestliste$data <- gulp
+      testliste <- tapply(nestliste$data, nestliste$shus, function(x) {x[1]})
+      list(df=df, testliste=testliste)
+    }
+  )
+
+  output$norgast_brukere <- renderUI({
+  # req(input$file1)
+    if (!is.null(input$file1)) {
+      # df <- read.csv2(input$file1$datapath, header = T, stringsAsFactors = F)
+      # names(df) <- names(df) %>% trimws() %>% tolower()
+      # df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
+      # df$shus[is.na(df$shus)] <- 'Ukjent'
+      # df$lnr <- 1:dim(df)[1]
+      # # testliste <- tapply(df$epost, df$shus, unique)
+      # nestliste <- df[, c("shus", "epost", "lnr")] %>% group_by(shus) %>% nest()
+      # gulp <- map(nestliste$data, make_named_vector)
+      # nestliste$data <- gulp
+      # testliste <- tapply(nestliste$data, nestliste$shus, function(x) {x[1]})
       selectInput(inputId = "brukere_epost", label = "Velg brukere som skal motta rapport",
-                  choices = testliste, multiple = TRUE)
+                  choices = les_brukerliste()$testliste, multiple = TRUE)
     }
   })
 
@@ -234,7 +257,8 @@ server <- function(input, output, session) {
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session))
+    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session) %>%
+      mutate(Avdeling = RegData$Sykehusnavn[match(Avdeling, RegData$AvdRESH)]))
 
 
   ## lag tabell over gjeldende status for abonnement
@@ -264,7 +288,7 @@ server <- function(input, output, session) {
     organization <- rapbase::getUserReshId(session)
     runDayOfYear <- rapbase::makeRunDayOfYearSequence(startDay = as.Date(input$dato_forste_rap), interval = interval)
     if (!is.null(input$file1)) {
-      email <- input$brukere_epost
+      email <- les_brukerliste()$df$epost[match(input$brukere_epost, les_brukerliste()$df$lnr)]
     } else {
       email <- rapbase::getUserEmail(session)
     }
