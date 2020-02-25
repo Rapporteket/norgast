@@ -27,6 +27,7 @@ if (rapbase::isRapContext()) {
   RegData <- NorgastHentRegData()
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
+  Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
   RegData <- read.table('I:/norgast/AlleVarNum2020-01-13 13-43-56.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
   ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";",
@@ -58,7 +59,7 @@ source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_abonnement.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_abonnement.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -137,11 +138,16 @@ ui <- navbarPage(id = "norgast_app_id",
                                       selected = "Kvartalsvis-quarter"),
                           dateInput("dato_forste_rap", label="Velg dato for første utsending", value = Sys.Date()+1,
                                     min = Sys.Date()+1, language = "nb"),
+                          dateInput("dato_siste_rap", label="Velg dato for avslutning av abonnement", value = Sys.Date()+years(3),
+                                    min = Sys.Date()+1, language = "nb"),
                           fileInput("file1", "Last opp CSV-fil med e-post og RESH for potensielle rapportmottakere",
                                     multiple = FALSE,
                                     accept = c("text/csv",
                                                "text/comma-separated-values,text/plain",
                                                ".csv")),
+                          # bsTooltip(id = "file1", title= 'Forutsetter en semikolonseparert csv-fil med en kolonne med tittel
+                          #           epost og en kolonne med tittel resh som angir henholdsvis e-postadresse og avdelingstilhørighet.'
+                          #           , options = list(container = "body")),
                           uiOutput("norgast_brukere"),
                           selectInput(inputId = "valgtShus", label = "Velg sykehus rapport skal lages for",
                                       choices = BrValg$sykehus, multiple = FALSE),
@@ -226,7 +232,6 @@ server <- function(input, output, session) {
       df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
       df$shus[is.na(df$shus)] <- 'Ukjent'
       df$lnr <- 1:dim(df)[1]
-      # testliste <- tapply(df$epost, df$shus, unique)
       nestliste <- df[, c("shus", "epost", "lnr")] %>% group_by(shus) %>% nest()
       gulp <- map(nestliste$data, make_named_vector)
       nestliste$data <- gulp
@@ -236,18 +241,7 @@ server <- function(input, output, session) {
   )
 
   output$norgast_brukere <- renderUI({
-  # req(input$file1)
     if (!is.null(input$file1)) {
-      # df <- read.csv2(input$file1$datapath, header = T, stringsAsFactors = F)
-      # names(df) <- names(df) %>% trimws() %>% tolower()
-      # df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
-      # df$shus[is.na(df$shus)] <- 'Ukjent'
-      # df$lnr <- 1:dim(df)[1]
-      # # testliste <- tapply(df$epost, df$shus, unique)
-      # nestliste <- df[, c("shus", "epost", "lnr")] %>% group_by(shus) %>% nest()
-      # gulp <- map(nestliste$data, make_named_vector)
-      # nestliste$data <- gulp
-      # testliste <- tapply(nestliste$data, nestliste$shus, function(x) {x[1]})
       selectInput(inputId = "brukere_epost", label = "Velg brukere som skal motta rapport",
                   choices = les_brukerliste()$testliste, multiple = TRUE)
     }
@@ -256,10 +250,11 @@ server <- function(input, output, session) {
 
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
+  # rv <- reactiveValues(
+  #   subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session) %>%
+  #     mutate(Avdeling2 = RegData$Sykehusnavn[match(Avdeling, RegData$AvdRESH)]))
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session) %>%
-      mutate(Avdeling = RegData$Sykehusnavn[match(Avdeling, RegData$AvdRESH)]))
-
+    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
@@ -274,8 +269,7 @@ server <- function(input, output, session) {
       p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
-        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-                rapbase::getUserEmail(session), ":")),
+        p("Aktive abonnement som sendes per epost:"),
         DT::dataTableOutput("activeSubscriptions")
       )
     }
@@ -310,7 +304,7 @@ server <- function(input, output, session) {
                               paramValues = paramValues, owner = owner,
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
-                              intervalName = intervalName)
+                              intervalName = intervalName, terminateDate = input$dato_siste_rap)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session)
   })
 

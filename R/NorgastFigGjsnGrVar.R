@@ -13,7 +13,7 @@
 #'
 NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
                                      minald=0, maxald=130, erMann=99, outfile='',
-                                     preprosess=F, malign=99, Ngrense=30,
+                                     preprosess=F, malign=99, Ngrense=30, hastegrad = 99,
                                      elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                      maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 
@@ -40,7 +40,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                 maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                  op_gruppe=op_gruppe, ncsp=ncsp)

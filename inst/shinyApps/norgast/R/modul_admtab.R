@@ -18,6 +18,8 @@ admtab_UI <- function(id){
                                       max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
       ),
       checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner", value = F),
+      bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
+                siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
       conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
                        selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                    choices = c('Måneder'=1, 'År'=2)),

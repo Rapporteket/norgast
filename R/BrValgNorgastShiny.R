@@ -7,16 +7,16 @@
 BrValgNorgastShiny <- function(RegData) {
 
   varvalg <- c('Alder', 'BMI_kodet', 'Vektendring', 'Op_gr', 'AccordionGrad', 'Forbehandling',
-               'WHOECOG', 'ASA', 'Hastegrad', 'erMann', 'MedDiabetes', 'PRSScore', 'Robotassistanse',
+               'WHOECOG', 'ASA', 'Hastegrad_tid', 'Hastegrad', 'erMann', 'MedDiabetes', 'PRSScore', 'Robotassistanse',
                'Tilgang', 'NyAnastomose', 'ModGlasgowScore', 'ReLapNarkose', 'Anastomoselekkasje',
                'Avdod', 'Saarruptur')
   names(varvalg) <- c('Alder', 'BMI', 'Vektendring', 'Operasjonsgrupper', 'Komplikasjoner', 'Forbehandling',
-                      'WHO-ECOG', 'ASA-grad', 'Elektiv kirurgi', 'Kjønn', 'Diabetes', 'mE-PASS', 'Robotassistanse',
+                      'WHO-ECOG', 'ASA-grad', 'Tidspunkt for operasjonsstart', 'Hastegrad',  'Kjønn', 'Diabetes', 'mE-PASS', 'Robotassistanse',
                       'Tilgang i abdomen', 'Ny anastomose', 'Glasgow score', 'Relaparotomi', 'Anastomoselekkasje',
                       'Andel avdøde', 'Sårruptur')
 
-  aux<-c('Robotassistanse', 'Robotassistanse', 'Tilgang i abdomen', 'LapTilgang', 'Operert i normalarbeidstid', 'Hastegrad_tid',
-         'Ny anastomose', 'NyAnastomose', 'Relaparotomi', 'ReLapNarkose', 'Anastomoselekkasje', 'Anastomoselekkasje',
+  aux<-c('Robotassistanse', 'Robotassistanse', 'Tilgang i abdomen', 'LapTilgang', 'Tidspunkt for operasjonsstart', 'Hastegrad_tid',
+         'Hastegrad', 'Hastegrad', 'Ny anastomose', 'NyAnastomose', 'Relaparotomi', 'ReLapNarkose', 'Anastomoselekkasje', 'Anastomoselekkasje',
          'Andel avdøde', 'Avdod', 'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign', 'Sårruptur',
          'Saarruptur')
   varvalg_andel <- aux[seq(2,length(aux), by = 2)]

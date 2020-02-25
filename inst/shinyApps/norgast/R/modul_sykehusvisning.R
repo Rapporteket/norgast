@@ -30,7 +30,7 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                  choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
       selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
       selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
@@ -130,7 +130,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                     elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                     whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
   tabellReagerSykehusAndel <- reactive({
@@ -140,7 +140,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                   elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                                  op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                                  op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
   output$utvalg_sykehus_andel <- renderUI({
@@ -185,7 +185,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                       elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                       whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file)
+                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
     }
   )
 
@@ -198,7 +198,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                         elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                         whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                        op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                        op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
 
@@ -209,7 +209,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                       elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                       whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
   output$utvalg_sykehus_andel_stabel <- renderUI({
@@ -242,7 +242,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                           elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                           minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                           whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                          op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file)
+                                          op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
     }
   )
 
@@ -256,7 +256,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                  elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                  minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                 op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                 op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
   tabellReagerSykehusGjsn <- reactive({
@@ -267,7 +267,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                               op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi))
+                                               op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
   output$utvalg_sykehus_gjsn <- renderUI({
@@ -307,7 +307,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
       norgast::NorgastFigGjsnGrVar(RegData, valgtVar=input$valgtVar_gjsn, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
                                    minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
                                    # inkl_konf = fiksNULL(input$inkl_konf),
-                                   malign = as.numeric(input$malign), Ngrense=10,
+                                   malign = as.numeric(input$malign), Ngrense=10, hastegrad = as.numeric(input$hastegrad),
                                    elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                    minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
