@@ -48,6 +48,7 @@ skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 RegData <- NorgastPreprosess(RegData)
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
 BrValg <- BrValgNorgastShiny(RegData)
 
@@ -254,7 +255,7 @@ server <- function(input, output, session) {
   #   subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session) %>%
   #     mutate(Avdeling2 = RegData$Sykehusnavn[match(Avdeling, RegData$AvdRESH)]))
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session))
+    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
@@ -305,14 +306,14 @@ server <- function(input, output, session) {
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
                               intervalName = intervalName, terminateDate = input$dato_siste_rap)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
   })
 
   #####################################################################################
