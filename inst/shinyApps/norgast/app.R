@@ -252,8 +252,8 @@ server <- function(input, output, session) {
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
-    # subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session)
+    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
+    # subscriptionTab = rapbase::makeUserSubscriptionTab(session)
     )
 
   ## lag tabell over gjeldende status for abonnement
@@ -305,16 +305,16 @@ server <- function(input, output, session) {
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
                               intervalName = intervalName, terminateDate = input$dato_siste_rap)
-    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
+    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
+    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
   #####################################################################################
