@@ -126,6 +126,7 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel(p("Abonnement",
              title='Bestill automatisk utsending av rapporter på e-post'),
+           value = 'adm_abonnement',
            sidebarLayout(
              sidebarPanel(width = 3,
                           selectInput("subscriptionRep", "Rapport:",
@@ -171,11 +172,13 @@ server <- function(input, output, session) {
     userRole <- rapbase::getUserRole(session)
   } else {
     reshID <- 601225
-    userRole <- 'SC'
+    userRole <- 'LU'
   }
 
   if (userRole != 'SC') {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+    shinyjs::hide(id = 'valgtShus')
+    shinyjs::hide(id = 'file1')
   }
 
   shiny::callModule(startside, "startside", usrRole=userRole)
@@ -297,7 +300,7 @@ server <- function(input, output, session) {
     fun <- "abonnement_kvartal_norgast"  #"henteSamlerapporter"
 
     paramNames <- c('baseName', "reshID")
-    paramValues <- c(baseName, input$valgtShus)
+    paramValues <- c(baseName, if (userRole == 'SC') {input$valgtShus} else {reshID})
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'norgast',
                               fun = fun, paramNames = paramNames,

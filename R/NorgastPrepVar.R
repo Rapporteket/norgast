@@ -39,8 +39,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='mortalitet90') {
-    tittel <- 'Andel avdøde innen 90 dager etter operasjon'
-    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
+    tittel <- 'Avdød innen 90 dager etter operasjon'
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$Variabel <- 0
     RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1

@@ -15,6 +15,7 @@ overlevelse_UI <- function(id, BrValg){
            br(),
            dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+           selectInput(inputId = ns("enhetsUtvalg"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
            selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
            selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
@@ -42,12 +43,25 @@ overlevelse_UI <- function(id, BrValg){
     ),
     column(8,
            h2("Kaplan-Meier overlevelseskurver", align='center'),
-           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Hvis en pasient har flere forløp i et utvalg benyttes forløpet
-              for den eldste operasjonen. Dersom det er overlapp mellom 'Utvalg 1' og 'Utvalg 2' så velges det eldste forløpet. Hvis det eldste
-              forløpet finnes i både 'Utvalg 1' og 'Utvalg 2' eller hvis 'Utvalg 1' og 'Utvalg 2 'sitt eldste forløp faller på samme dato, så knyttes
-              pasienten til 'Utvalg 1'. Dette innebærer at man potensielt kan få litt forskjellige resultater hvis du f.eks. ser på 'Åpen' i 'Utvalg 1'
-              mot 'Laparoskopisk' i 'Utvalg 2' kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.Hvis dette ikke er ønskelig så kan du krysse
-              av for 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'"),
+           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Det er ikke helt rett frem å bruke verktøyet, og
+              brukeren bør være oppmerksom på måten utvalgene gjøres: "),
+
+           div(class = "container", style ="margin-right:(@gutter / 10)" ,
+               tags$ul(
+                 tags$li(h4("Hvis en pasient har flere forløp i ett enkelt utvalg ('Utvalg 1' eller 'Utvalg 2') benyttes forløpet med den
+                            tidligst forekommende operasjonen")),
+                 tags$li(h4("Dersom en pasient har forløp i både 'Utvalg 1' og 'Utvalg 2' så velges det eldste forløpet.")),
+                 tags$li(h4("Hvis det eldste forløpet finnes i både 'Utvalg 1' og 'Utvalg 2' eller hvis 'Utvalg 1' og 'Utvalg 2 'sitt
+                            eldste forløp faller på samme dato, så knyttes pasienten til 'Utvalg 1'. Dette innebærer at man potensielt
+                            kan få litt forskjellige resultater hvis du f.eks. ser på 'Åpen' i 'Utvalg 1' mot 'Laparoskopisk' i 'Utvalg 2'
+                            kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.")),
+                 tags$li(h4("Hvis man vil unngå noen av problemene tilknyttet pasienter som finnes i begge utvalg så kan det krysses av for
+                            'Fjern pasienter med forløp som tilfredsstiller begge utvalg'")),
+                 tags$li(h4("Å ikke gjøre utvalg impliserer at alle pasienter velges. Dette innebærer at hvis man kun gjør utvalg på ventresiden
+                            ('Utvalg 1'), så vil 'Utvalg 2' bestå av alle pasienter som ikke er i 'Utvalg 1'. Gjør du imidlertid kun utvalg på
+                            høyresiden ('Utvalg 2'), så vil 'Utvalg 2' forbli tom siden alle valgte forløp også finnes i 'Utvalg 1'."))
+               )
+           ),
            br(),
            checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
            br(),
@@ -73,6 +87,7 @@ overlevelse_UI <- function(id, BrValg){
            br(),
            dateRangeInput(inputId=ns("datovalg2"), label = "Operasjonsdato fra og til", min = '2014-01-01',
                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+           selectInput(inputId = ns("enhetsUtvalg2"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
            selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
            selectInput(inputId = ns("tilgang2"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
@@ -119,6 +134,12 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
       shinyjs::hide(id = 'valgtShus2')
     })
 
+  observe(
+    if (userRole == 'SC') {
+      shinyjs::hide(id = 'enhetsUtvalg')
+      shinyjs::hide(id = 'enhetsUtvalg2')
+    })
+
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
@@ -157,6 +178,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                              malign = as.numeric(input$malign))
     Utvalg1 <- Utvalg1$RegData
+    if (!is.null(input$valgtShus)) {
+      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus)), ]
+    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -180,6 +204,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
                              malign = as.numeric(input$malign2))
     Utvalg1 <- Utvalg1$RegData
+    if (!is.null(input$valgtShus2)) {
+      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi2"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -210,6 +237,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (!is.null(input$valgtShus)) {
       Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
     }
+    if (!is.null(input$enhetsUtvalg)) {
+      if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
+    }
     Utvalg1data$Utvalg <- 1
     Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
     Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
@@ -231,6 +261,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Utvalg2data <- Utvalg2$RegData
     if (!is.null(input$valgtShus2)) {
       Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+    }
+    if (!is.null(input$enhetsUtvalg2)) {
+      if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
     }
     Utvalg2data$Utvalg <- 2
     Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
@@ -272,10 +305,22 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     tagList(
       h4('Utvalg 1:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt1, '<br />'))),
+      h5(if (!is.null(input$valgtShus)) {
+        HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))
+      }),
+      h5(if (!is.null(input$enhetsUtvalg)) {
+        if (input$enhetsUtvalg == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))}
+      }),
       br(),
       br(),
       h4('Utvalg 2:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt2, '<br />'))),
+      h5(if (!is.null(input$valgtShus2)) {
+        HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))
+      }),
+      h5(if (!is.null(input$enhetsUtvalg2)) {
+        if (input$enhetsUtvalg2 == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))}
+      }),
       br(),
       br(),
       h4('Merknad:'),
