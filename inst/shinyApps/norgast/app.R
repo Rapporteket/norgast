@@ -142,7 +142,10 @@ ui <- navbarPage(id = "norgast_app_id",
                                     min = Sys.Date()+1, language = "nb"),
                           dateInput("dato_siste_rap", label="Velg dato for avslutning av abonnement", value = Sys.Date()+years(3),
                                     min = Sys.Date()+1, language = "nb"),
-                          fileInput("file1", "Last opp CSV-fil med e-post og RESH for potensielle rapportmottakere",
+                          fileInput("file1", "Last opp CSV-fil med e-post og RESH for potensielle rapportmottakere. Filen må ha en
+                                    kolonne med overskrift 'epost' som inneholder e-postadressene til potensielle mottakere av rapporten,
+                                    og en kolonne med overskrift 'resh' som angir hvilken avdeling de tilhørende e-postadressene skal
+                                    motta rapport for.",
                                     multiple = FALSE,
                                     accept = c("text/csv",
                                                "text/comma-separated-values,text/plain",
