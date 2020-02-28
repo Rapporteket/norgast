@@ -35,6 +35,7 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
       selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
       selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
@@ -80,9 +81,9 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
     shinyjs::reset("id_shus_panel")
   })
 
-  fiksNULL <- function(x) {
-    if (!is.null(x)) {x} else {''}
-  }
+  # fiksNULL <- function(x) {
+  #   if (!is.null(x)) {x} else {''}
+  # }
 
   observe(
     if (!is.null(input$tabs_sykehusvisning)) {
@@ -129,7 +130,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                     inkl_konf = fiksNULL(input$inkl_konf), malign = as.numeric(input$malign), Ngrense=10,
                                     elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                     op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
@@ -139,7 +140,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                   inkl_konf = fiksNULL(input$inkl_konf), malign = as.numeric(input$malign), Ngrense=10,
                                                   elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                                   op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
@@ -184,7 +185,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                       inkl_konf = fiksNULL(input$inkl_konf), malign = as.numeric(input$malign), Ngrense=10,
                                       elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                      whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                      whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                       op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
     }
   )
@@ -197,7 +198,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                         malign = as.numeric(input$malign), Ngrense=10,
                                         elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                        whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                        whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                         op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
@@ -208,7 +209,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                       malign = as.numeric(input$malign), Ngrense=10,
                                                       elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                                      whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                                      whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                                       op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
@@ -241,7 +242,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                           malign = as.numeric(input$malign), Ngrense=10,
                                           elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                           minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                          whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                          whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                           op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
     }
   )
@@ -255,7 +256,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                  malign = as.numeric(input$malign), Ngrense=10,
                                  elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                  minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                 whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                 whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                  op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
@@ -266,7 +267,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                malign = as.numeric(input$malign), Ngrense=10,
                                                elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                               whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                               whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                                op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
   })
 
@@ -310,7 +311,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                    malign = as.numeric(input$malign), Ngrense=10, hastegrad = as.numeric(input$hastegrad),
                                    elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                    minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file)
     }
   )

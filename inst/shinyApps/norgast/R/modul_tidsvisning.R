@@ -35,8 +35,8 @@ tidsvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
       selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
       selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-      selectInput(inputId = ns("modGlasgow"), label = "Modifisert Glasgow score", choices = 1:3, multiple = TRUE),
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
@@ -72,9 +72,9 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
       shinyjs::hide(id = 'valgtShus')
     })
 
-  fiksNULL <- function(x, erstatt='') {
-    if (!is.null(x)) {x} else {erstatt}
-  }
+  # fiksNULL <- function(x, erstatt='') {
+  #   if (!is.null(x)) {x} else {erstatt}
+  # }
 
   output$ncsp <- renderUI({
     ns <- session$ns

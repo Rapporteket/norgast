@@ -47,3 +47,11 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
 
   return(utfil)
 }
+
+#' Hvis NULL erstatt med valgt verdi, default ''
+#'
+#' @export
+fiksNULL <- function(x, erstatt='') {
+  if (!is.null(x)) {x} else {erstatt}
+}
+

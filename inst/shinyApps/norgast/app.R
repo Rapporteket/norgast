@@ -172,7 +172,7 @@ server <- function(input, output, session) {
     userRole <- rapbase::getUserRole(session)
   } else {
     reshID <- 601225
-    userRole <- 'LU'
+    userRole <- 'SC'
   }
 
   if (userRole != 'SC') {
