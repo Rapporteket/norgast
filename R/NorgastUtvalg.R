@@ -8,7 +8,7 @@
 #' @export
 
 NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, elektiv, BMI, hastegrad=99,
-                             valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog='',
+                             valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog='', modGlasgow = '',
                              forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='', ncsp='', icd='')
 {
   # Definerer intersect-operator
@@ -27,13 +27,14 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
   indPRS <- if ((minPRS>0) | (maxPRS<2.2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
   indASA <- if (ASA[1] != '') {which(RegData$ASA %in% as.numeric(ASA))} else {indASA <- 1:Ninn}
   indWHO <- if (whoEcog[1] != '') {which(RegData$WHOECOG %in% as.numeric(whoEcog))} else {indWHO <- 1:Ninn}
+  indGlasgow <- if (modGlasgow[1] != '') {which(RegData$ModGlasgowScore %in% as.numeric(modGlasgow))} else {indGlasgow <- 1:Ninn}
   indNCSP <- if (ncsp[1] != '') {which(substr(RegData$Hovedoperasjon, 1, 5) %in% ncsp)} else {indNCSP <- 1:Ninn}
   indForb <- if (forbehandling[1] != '') {which(RegData$Forbehandling %in% as.numeric(forbehandling))} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
   indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i% indICD
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i% indICD %i% indGlasgow
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -57,6 +58,7 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
                           sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
+                 if (modGlasgow[1] != '') {paste0('Modifisert Glasgow score: ', paste(modGlasgow, collapse=','))},
                  if (forbehandling[1] != '') {paste0('Onkologisk forbehandling: ',
                                                      paste(c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[as.numeric(forbehandling)], collapse = ', '))},
                  if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])},

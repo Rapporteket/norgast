@@ -19,11 +19,11 @@
 #' @export
 #'
 NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014-01-01', datoTil='2050-12-31',
-                               minald=0, maxald=130, erMann=99, outfile='',
+                               minald=0, maxald=130, erMann=99, outfile='', modGlasgow = '',
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                               tidsenhet='Aar', op_gruppe='', ncsp='')
+                               tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -43,10 +43,10 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                    maxald=maxald, erMann=erMann, elektiv=elektiv, modGlasgow = modGlasgow,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp)
+                                    op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

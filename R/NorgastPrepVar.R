@@ -18,7 +18,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   RegData$Variabel <- NA
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
+                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
                       'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
                       'Sykehusnavn', 'Malign', 'Saarruptur')) {
@@ -39,8 +39,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='mortalitet90') {
-    tittel <- 'Andel avdøde innen 90 dager etter operasjon'
-    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = T), ]   # Sorter slik at man velger nyeste operasjon når flere
+    tittel <- 'Avdød innen 90 dager etter operasjon'
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$Variabel <- 0
     RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
@@ -242,6 +242,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     tittel <- 'Operert i normalarbeidstid'
     grtxt <- c('Utenfor normalarbeidstid', 'Innenfor normalarbeidstid')
     VarTxt <- 'operert i normalarbeidstid'
+    RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='Hastegrad') {
+    tittel <- 'Andel akuttkirurgi'
+    grtxt <- c('Elektiv', 'Akutt')
+    VarTxt <- 'akuttkirurgi'
+    RegData$Variabel <- RegData$Variabel - 1
     RegData <- RegData[which(RegData$Variabel %in% 0:1), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}

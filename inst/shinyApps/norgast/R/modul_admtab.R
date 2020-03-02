@@ -17,7 +17,10 @@ admtab_UI <- function(id){
                        dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                                       max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
       ),
-      checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner", value = F),
+      checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner. Merk: Hvis du krysser av for denne så
+                    inkluderes kun forløp med ferdigstilt basisregistrering.", value = F),
+      bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
+                siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
       conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
                        selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                    choices = c('Måneder'=1, 'År'=2)),
@@ -117,7 +120,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
     content = function(file){
       TabellData <- antskjema()$ant_skjema
-      write.csv2(TabellData, file, row.names = F)
+      write.csv3(TabellData, file, row.names = F)
     }
   )
 
@@ -206,7 +209,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
     content = function(file){
       TabellData <- andre_adm_tab()$ant_skjema
-      write.csv2(TabellData, file, row.names = F)
+      write.csv3(TabellData, file, row.names = F)
     }
   )
 

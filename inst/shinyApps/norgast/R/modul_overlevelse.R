@@ -8,55 +8,63 @@ overlevelse_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   fluidRow(
-    # div(class = "container", style = "background-color:#F0F0F0",
-        column(2,
-               style = "background-color:#ecf0f1",
-               id = ns("id_overlevelse_panel"),
-               h4(tags$b('Utvalg 1')),
-               br(),
-               dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
-                              max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
-               selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                           choices = BrValg$sykehus, multiple = TRUE),
-               selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
-               sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
-                           max = 120, value = c(0, 120)),
-               selectInput(inputId = ns("erMann"), label = "Kjønn",
-                           choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-               selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
-                           choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-               selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                           choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-               selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                           choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-               uiOutput(outputId = ns('ncsp')),
-               selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-               sliderInput(inputId=ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-               selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-               selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-               selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
-                           choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-               selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-               uiOutput(outputId = ns('icd')),
-               # selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-               #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-               tags$hr(),
-               actionButton(ns("reset_input"), "Nullstill valg")
-        # )
+    column(2,
+           style = "background-color:#ecf0f1",
+           id = ns("id_overlevelse_panel"),
+           h4(tags$b('Utvalg 1')),
+           br(),
+           dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
+                          max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+           selectInput(inputId = ns("enhetsUtvalg"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+           selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                       choices = BrValg$sykehus, multiple = TRUE),
+           selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
+           sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
+                       max = 120, value = c(0, 120)),
+           selectInput(inputId = ns("erMann"), label = "Kjønn",
+                       choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+           selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+                       choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+           selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
+                       choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+           selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                       choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+           uiOutput(outputId = ns('ncsp')),
+           selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+           sliderInput(inputId=ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+           selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+           selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
+           selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
+           selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
+                       choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+           selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+           uiOutput(outputId = ns('icd')),
+           tags$hr(),
+           actionButton(ns("reset_input"), "Nullstill valg")
     ),
     column(8,
            h2("Kaplan-Meier overlevelseskurver", align='center'),
-           # h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Dersom du kun gjør utvalg på ventresiden så
-           #    vil Utvalg 2 bestå av alle pasienter som ikke faller i Utvalg 1. Dersom det er overlapp mellom Utvalg 1 og Utvalg 2 så fjernes
-           #    pasientene som finnes i begge utvalg fra Utvalg 2. Hvis en pasient opptrer flere ganger i et utvalg beregnes overlevelse med
-           #    utgangspunkt i første operasjon."),
-           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Hvis en pasient har flere forløp i et utvalg benyttes forløpet
-              for den eldste operasjonen. Dersom det er overlapp mellom 'Utvalg 1' og 'Utvalg 2' så velges det eldste forløpet. Hvis det eldste
-              forløpet finnes i både 'Utvalg 1' og 'Utvalg 2' eller hvis 'Utvalg 1' og 'Utvalg 2 'sitt eldste forløp faller på samme dato, så knyttes
-              pasienten til 'Utvalg 1'. Dette innebærer at man potensielt kan få litt forskjellige resultater hvis du f.eks. ser på 'Åpen' i 'Utvalg 1'
-              mot 'Laparoskopisk' i 'Utvalg 2' kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.Hvis dette ikke er ønskelig så kan du krysse
-              av for 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'"),
+           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Det er ikke helt rett frem å bruke verktøyet, og
+              brukeren bør være oppmerksom på måten utvalgene gjøres: "),
+
+           div(class = "container", style ="margin-right:(@gutter / 10)" ,
+               tags$ul(
+                 tags$li(h4("Hvis en pasient har flere forløp i ett enkelt utvalg ('Utvalg 1' eller 'Utvalg 2') benyttes forløpet med den
+                            tidligst forekommende operasjonen")),
+                 tags$li(h4("Dersom en pasient har forløp i både 'Utvalg 1' og 'Utvalg 2' så velges det eldste forløpet.")),
+                 tags$li(h4("Hvis det eldste forløpet finnes i både 'Utvalg 1' og 'Utvalg 2' eller hvis 'Utvalg 1' og 'Utvalg 2 'sitt
+                            eldste forløp faller på samme dato, så knyttes pasienten til 'Utvalg 1'. Dette innebærer at man potensielt
+                            kan få litt forskjellige resultater hvis du f.eks. ser på 'Åpen' i 'Utvalg 1' mot 'Laparoskopisk' i 'Utvalg 2'
+                            kontra 'Laparoskopisk' i 'Utvalg 1' mot 'Åpen' i 'Utvalg 2'.")),
+                 tags$li(h4("Hvis man vil unngå noen av problemene tilknyttet pasienter som finnes i begge utvalg så kan det krysses av for
+                            'Fjern pasienter med forløp som tilfredsstiller begge utvalg'")),
+                 tags$li(h4("Å ikke gjøre utvalg impliserer at alle pasienter velges. Dette innebærer at hvis man kun gjør utvalg på ventresiden
+                            ('Utvalg 1'), så vil 'Utvalg 2' bestå av alle pasienter som ikke er i 'Utvalg 1'. Gjør du imidlertid kun utvalg på
+                            høyresiden ('Utvalg 2'), så vil 'Utvalg 2' forbli tom siden alle valgte forløp også finnes i 'Utvalg 1'."))
+               )
+           ),
            br(),
+           checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
            br(),
            fluidRow(
              column(7,
@@ -64,7 +72,13 @@ overlevelse_UI <- function(id, BrValg){
              column(4, offset = 1,
                     uiOutput(ns("utvalg")),
                     br(),
-                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'))
+                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'),
+                    br(),
+                    br(),
+                    selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                                choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+                    textInput(ns("tittel"), "Angi tittel for lagret plot", ""),
+                    downloadButton(ns("lastNedBilde"), "Last ned figur"))
            )
     ),
     column(2,
@@ -74,6 +88,7 @@ overlevelse_UI <- function(id, BrValg){
            br(),
            dateRangeInput(inputId=ns("datovalg2"), label = "Operasjonsdato fra og til", min = '2014-01-01',
                           max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+           selectInput(inputId = ns("enhetsUtvalg2"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
            selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
            selectInput(inputId = ns("tilgang2"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
@@ -91,13 +106,12 @@ overlevelse_UI <- function(id, BrValg){
            selectInput(inputId = ns("BMI2"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
            sliderInput(inputId=ns("PRS2"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
            selectInput(inputId = ns("ASA2"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+           selectInput(inputId = ns("modGlasgow2"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
            selectInput(inputId = ns("whoEcog2"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
            selectInput(inputId = ns("forbehandling2"), label = "Onkologisk forbehandling", multiple = TRUE,
                        choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
            selectInput(inputId = ns("malign2"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
            uiOutput(outputId = ns('icd2')),
-           # selectInput(inputId = ns("bildeformat2"), label = "Velg bildeformat",
-           #             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
            tags$hr(),
            actionButton(ns("reset_input2"), "Nullstill valg"))
   )
@@ -108,9 +122,6 @@ overlevelse_UI <- function(id, BrValg){
 
 
 overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_session){
-
-  # shinyjs::onclick("toggleAdvanced",
-  #                  shinyjs::toggle(id = "avansert", anim = TRUE))
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_overlevelse_panel")
@@ -123,6 +134,12 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (userRole != 'SC') {
       shinyjs::hide(id = 'valgtShus')
       shinyjs::hide(id = 'valgtShus2')
+    })
+
+  observe(
+    if (userRole == 'SC') {
+      shinyjs::hide(id = 'enhetsUtvalg')
+      shinyjs::hide(id = 'enhetsUtvalg2')
     })
 
   output$ncsp <- renderUI({
@@ -141,8 +158,8 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (!is.null(input$op_gruppe2)) {
       selectInput(inputId = ns("ncsp_verdi2"), label = "NCSP koder (velg en eller flere)",
                   choices = if (!is.null(input$op_gruppe2)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                                                 as.numeric(input$op_gruppe2)])), 1, 5),
-                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe2)])))
+                                                                                                                  as.numeric(input$op_gruppe2)])), 1, 5),
+                                                                      sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe2)])))
                   }, multiple = TRUE)
     }
   })
@@ -159,10 +176,14 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
                              minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
                              ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                             modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
                              whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                              forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                              malign = as.numeric(input$malign))
     Utvalg1 <- Utvalg1$RegData
+    if (!is.null(input$valgtShus)) {
+      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus)), ]
+    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -182,10 +203,14 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
                              minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
                              ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                             modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
                              whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
                              forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
                              malign = as.numeric(input$malign2))
     Utvalg1 <- Utvalg1$RegData
+    if (!is.null(input$valgtShus2)) {
+      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi2"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -208,6 +233,7 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
                              minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
                              ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                             modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
                              whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                              forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                              malign = as.numeric(input$malign),
@@ -216,10 +242,12 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (!is.null(input$valgtShus)) {
       Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
     }
+    if (!is.null(input$enhetsUtvalg)) {
+      if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
+    }
     Utvalg1data$Utvalg <- 1
     Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
     Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
-    # Utvalg1data$overlev <- difftime(as.Date(input$datovalg[2]), Utvalg1data$OperasjonsDato, units = 'days')
 
     Utvalg2 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
                              minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
@@ -231,6 +259,7 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
                              minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
                              ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                             modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
                              whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
                              forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
                              malign = as.numeric(input$malign2),
@@ -239,21 +268,20 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (!is.null(input$valgtShus2)) {
       Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
     }
+    if (!is.null(input$enhetsUtvalg2)) {
+      if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
+    }
     Utvalg2data$Utvalg <- 2
     Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
 
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
-    # fellespasienter <- intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)
-    # Utvalg2data <- Utvalg2data[!(Utvalg2data$PasientID %in% fellespasienter), ]   # Fjerner pasienter som er i utvalg 1 fra utvalg 2
-
     Samlet <- bind_rows(Utvalg1data, Utvalg2data)
     Samlet <- Samlet[order(Samlet$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 
     if (input$ekskluder_felles) {
-      # Samlet <- Samlet[!(Samlet$ForlopsID %in% intersect(Utvalg1data$ForlopsID, Utvalg2data$ForlopsID)), ]
       Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)), ]
     }
 
@@ -262,34 +290,43 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     Samlet$overlev <- as.numeric(Samlet$overlev)
     Samlet$SurvObj <- with(Samlet, Surv(overlev, Avdod == 1))
 
-    # utdata <- list(Samlet = Samlet, Utvalg1 = Utvalg1, Utvalg2 = Utvalg2)
+    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = Samlet)
+
     utdata$Samlet <- Samlet
+    utdata$fit1 <- fit1
+
     return(utdata)
   }
 
 
   output$Figur_surv <- renderPlot({
     overlevdata <- calc_overlevelse()
-
-    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = overlevdata$Samlet)
-    survminer::ggsurvplot(fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = T, fun = "pct",
+    survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = input$inkl_konf, fun = "pct",
                           risk.table = TRUE, legend = "bottom")
   }, width = 800, height = 800) #
 
 
   output$utvalg <- renderUI({
     utvlgdata <- calc_overlevelse()
-    # utvalg1 <- utvlgdata$Utvalg1
-    # utvalg2 <- utvlgdata$Utvalg2
-    fellespasienter <- intersect(utvlgdata$Utvalg1$PasientID, utvlgdata$Utvalg2$PasientID)
-
     tagList(
       h4('Utvalg 1:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt1, '<br />'))),
+      h5(if (!is.null(input$valgtShus)) {
+        HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))
+      }),
+      h5(if (!is.null(input$enhetsUtvalg)) {
+        if (input$enhetsUtvalg == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))}
+      }),
       br(),
       br(),
       h4('Utvalg 2:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt2, '<br />'))),
+      h5(if (!is.null(input$valgtShus2)) {
+        HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))
+      }),
+      h5(if (!is.null(input$enhetsUtvalg2)) {
+        if (input$enhetsUtvalg2 == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))}
+      }),
       br(),
       br(),
       h4('Merknad:'),
@@ -304,126 +341,40 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
                   ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden samme forløp eller et forløp med eldre eller samme
                 operasjonsdato på samme pasient finnes i utvalg 1.'))
       }
-
-      ### DENNE MÅ TENKES VIDERE PÅ !!!!!!!!!!!!!! HVA MED FORLØP I BEGGE UTVALG???
-      # h5(paste0(length(fellespasienter), ' av ', dim(utvlgdata$Utvalg2)[1], ' pasienter er ekskludert fra utvalg 2 siden de finnes i utvalg 1.'))
     )})
 
-  # output$Tabell1 <- function() {
-  #
-  #   TabellData <- tabellReager()
-  #   if (input$enhetsUtvalg == 1) {
-  #     Tabell1 <- TabellData$Antall %>%
-  #       mutate(Kategori = rownames(.)) %>%
-  #       select(Kategori, everything()) %>%
-  #       mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-  #       mutate(AndelRest= 100*AntRest/Nrest)
-  #     Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-  #     names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
-  #     Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
-  #       kable_styling("hover", full_width = F) %>%
-  #       add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
-  #   } else {
-  #     Tabell1 <- TabellData$Antall %>%
-  #       mutate(Kategori = rownames(.)) %>%
-  #       select(Kategori, everything()) %>%
-  #       mutate(AndelHoved = 100*AntHoved/NHoved)
-  #     names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
-  #     Tabell1 %>%
-  #       knitr::kable("html", digits = c(0,0,0,1)) %>%
-  #       kable_styling("hover", full_width = F)
-  #   }
-  #
-  # }
-  #
-  # output$lastNed <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar, Sys.time(), '.csv')
-  #   },
-  #
-  #   content = function(file){
-  #     TabellData <- tabellReager()
-  #     if (input$enhetsUtvalg == 1) {
-  #       Tabell1 <- TabellData$Antall %>%
-  #         mutate(Kategori = rownames(.)) %>%
-  #         select(Kategori, everything()) %>%
-  #         mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-  #         mutate(AndelRest= 100*AntRest/Nrest)
-  #       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-  #     } else {
-  #       Tabell1 <- TabellData$Antall %>%
-  #         mutate(Kategori = rownames(.)) %>%
-  #         select(Kategori, everything()) %>%
-  #         mutate(AndelHoved = 100*AntHoved/NHoved)
-  #     }
-  #     write.csv2(Tabell1, file, row.names = F)
-  #   }
-  # )
-  #
-  # output$lastNedBilde <- downloadHandler(
-  #   filename = function(){
-  #     paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
-  #   },
-  #
-  #   content = function(file){
-  #     norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
-  #                         maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-  #                         valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-  #                         op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-  #                         ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-  #                         BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-  #                         tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-  #                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-  #                         ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-  #                         whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-  #                         forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-  #                         malign = as.numeric(input$malign),
-  #                         reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-  #                         elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad), outfile = file)
-  #   }
-  # )
-  #
-  # shiny::observe({
-  #   if (rapbase::isRapContext()) {
-  #     if (req(input$tab) == "fig") {
-  #       mld_fordeling <- paste0(
-  #         "NoRGast: Figur - fordeling, variabel - ",
-  #         input$valgtVar)
-  #     }
-  #     if (req(input$tab) == "tab") {
-  #       mld_fordeling <- paste(
-  #         "NoRGast: tabell - fordeling. variabel - ",
-  #         input$valgtVar)
-  #     }
-  #     raplog::repLogger(
-  #       session = hvd_session,
-  #       msg = mld_fordeling
-  #     )
-  #     mldLastNedFig <- paste(
-  #       "NoRGast: nedlasting figur - fordeling. variabel -",
-  #       input$valgtVar
-  #     )
-  #     mldLastNedTab <- paste(
-  #       "NoRGast: nedlasting tabell - fordeling. variabel -",
-  #       input$valgtVar
-  #     )
-  #     shinyjs::onclick(
-  #       "lastNedBilde",
-  #       raplog::repLogger(
-  #         session = hvd_session,
-  #         msg = mldLastNedFig
-  #       )
-  #     )
-  #     shinyjs::onclick(
-  #       "lastNedTabell",
-  #       raplog::repLogger(
-  #         session = hvd_session,
-  #         msg = mldLastNedTab
-  #       )
-  #     )
-  #   }
-  # })
-  #
+  output$lastNedBilde <- downloadHandler(
+    filename = function(){
+      paste0('KM_kurve', Sys.time(), '.', input$bildeformat)
+    },
+
+    content = function(file){
+      overlevdata <- calc_overlevelse()
+      survp <- survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, title = input$tittel, pval = TRUE,
+                                     conf.int = input$inkl_konf, fun = "pct", risk.table = TRUE, legend = "bottom")
+      rapFigurer::figtype(outfile=file, pointsizePDF=11)
+      print(survp, newpage = FALSE)
+      dev.off()
+    }
+  )
+
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      raplog::repLogger(
+        session = hvd_session,
+        msg = "NoRGast: KM-overlevelseskurve."
+      )
+
+      shinyjs::onclick(
+        "lastNedBilde",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: Laster ned KM-overlevelseskurve."
+        )
+      )
+    }
+  })
+
 
 
 

@@ -36,21 +36,8 @@ dummyData$SurvObj <- with(dummyData, Surv(overlev, Avdod == 1))
 km.as.one <- survfit(SurvObj ~ 1, data = dummyData, conf.type = "log-log")
 
 
-x11()
-plot(km.as.one)
-
-x11()
-plot(km.as.one$time[1:200], km.as.one$surv[1:200])
-
-
-
-# Load required packages
-library(survival)
-library(survminer)
-library(dplyr)
-
-
 fit1 <- survfit(SurvObj ~ erMann, data = dummyData)
-# ggsurvplot(fit1, data = ovarian, pval = TRUE, conf.int = T)
+x11()
+ggsurvplot(fit1, data = dummyData, title='test', pval = TRUE, conf.int = F)
 
 

@@ -101,7 +101,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
                         maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                        op_gruppe='', ncsp='')
+                        op_gruppe='', ncsp='', modGlasgow = '')
 {
 
   print(datoFra)
@@ -122,7 +122,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                                     maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
                                     BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp)
+                                    op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

@@ -30,11 +30,12 @@ tidsvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                  choices = c('Ikke valgt'=99, 'Elektiv'=0, 'Akutt'=1)),
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
       selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
       selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
       selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
       selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
@@ -71,9 +72,9 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
       shinyjs::hide(id = 'valgtShus')
     })
 
-  fiksNULL <- function(x, erstatt='') {
-    if (!is.null(x)) {x} else {erstatt}
-  }
+  # fiksNULL <- function(x, erstatt='') {
+  #   if (!is.null(x)) {x} else {erstatt}
+  # }
 
   output$ncsp <- renderUI({
     ns <- session$ns
@@ -94,33 +95,61 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                 maxald=as.numeric(input$alder[2]), valgtShus = fiksNULL(input$valgtShus), op_gruppe = fiksNULL(input$op_gruppe),
                                 ncsp = fiksNULL(input$ncsp_verdi), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                 minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
-                                whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                 malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99))
+                                tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), hastegrad=as.numeric(input$hastegrad))
   }, width = 700, height = 700)
 
-    tabellReagerTid <- reactive({
-      TabellData_Tid <- norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                    reshID = reshID, enhetsUtvalg=as.numeric(input$enhetsUtvalg), minald=as.numeric(input$alder[1]),
-                                                    maxald=as.numeric(input$alder[2]), valgtShus = fiksNULL(input$valgtShus), op_gruppe = fiksNULL(input$op_gruppe),
-                                                    ncsp = fiksNULL(input$ncsp_verdi), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
-                                                    minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
-                                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                                    malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                                    tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99))
-    })
+  tabellReagerTid <- reactive({
+    TabellData_Tid <- norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                                                  reshID = reshID, enhetsUtvalg=as.numeric(input$enhetsUtvalg), minald=as.numeric(input$alder[1]),
+                                                  maxald=as.numeric(input$alder[2]), valgtShus = fiksNULL(input$valgtShus), op_gruppe = fiksNULL(input$op_gruppe),
+                                                  ncsp = fiksNULL(input$ncsp_verdi), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
+                                                  minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
+                                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
+                                                  malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
+                                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), hastegrad=as.numeric(input$hastegrad))
+  })
 
-    output$utvalg_tid <- renderUI({
-      TabellData <- tabellReagerTid()
-      tagList(
-        h3(HTML(paste0(TabellData$tittel, '<br />'))),
-        h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
-      )})
+  output$utvalg_tid <- renderUI({
+    TabellData <- tabellReagerTid()
+    tagList(
+      h3(HTML(paste0(TabellData$tittel, '<br />'))),
+      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+    )})
 
 
 
-    output$Tabell_tid <- function() {
+  output$Tabell_tid <- function() {
 
+    utdata <- tabellReagerTid()
+    if (input$enhetsUtvalg == 1) {
+      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                           N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                           Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                           N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
+                           Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
+      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
+                             'KI_nedre', 'KI_ovre')
+      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
+        kable_styling("hover", full_width = F) %>%
+        add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
+    } else {
+      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+                           Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                           N = utdata$NTid$NTidHoved, 'Andel (%)'= utdata$Andeler$AndelHoved, KI_nedre = utdata$KonfInt$Konf[1,],
+                           KI_ovre = utdata$KonfInt$Konf[2,])
+      Tabell_tid %>%
+        knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
+        kable_styling("hover", full_width = F)
+    }
+  }
+
+  output$lastNed_tid <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
+    },
+    content = function(file){
       utdata <- tabellReagerTid()
       if (input$enhetsUtvalg == 1) {
         Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
@@ -128,59 +157,31 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                              Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
                              N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
                              Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
-        names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
-                               'KI_nedre', 'KI_ovre')
-        Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
-          kable_styling("hover", full_width = F) %>%
-          add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
       } else {
         Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
                              Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                             N = utdata$NTid$NTidHoved, 'Andel (%)'= utdata$Andeler$AndelHoved, KI_nedre = utdata$KonfInt$Konf[1,],
-                             KI_ovre = utdata$KonfInt$Konf[2,])
-        Tabell_tid %>%
-          knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
-          kable_styling("hover", full_width = F)
+                             N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                             Konf.int.ovre = utdata$KonfInt$Konf[2,])
       }
+      write.csv3(Tabell_tid, file, row.names = F)
     }
+  )
 
-    output$lastNed_tid <- downloadHandler(
-      filename = function(){
-        paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
-      },
-      content = function(file){
-        utdata <- tabellReagerTid()
-        if (input$enhetsUtvalg == 1) {
-          Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
-                               Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-                               N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
-                               Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
-        } else {
-          Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
-                               Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                               N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
-                               Konf.int.ovre = utdata$KonfInt$Konf[2,])
-        }
-        write.csv2(Tabell_tid, file, row.names = F)
-      }
-    )
-
-    output$lastNedBilde_tid <- downloadHandler(
-      filename = function(){
-        paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat)
-      },
-      content = function(file){
-        norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                    reshID = reshID, enhetsUtvalg=as.numeric(input$enhetsUtvalg), minald=as.numeric(input$alder[1]),
-                                    maxald=as.numeric(input$alder[2]), valgtShus = fiksNULL(input$valgtShus), op_gruppe = fiksNULL(input$op_gruppe),
-                                    ncsp = fiksNULL(input$ncsp_verdi), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
-                                    minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
-                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                    malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                    tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), outfile = file)
-      }
-    )
+  output$lastNedBilde_tid <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat)
+    },
+    content = function(file){
+      norgast::NorgastFigAndelTid(RegData, valgtVar=input$valgtVar, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                                  reshID = reshID, enhetsUtvalg=as.numeric(input$enhetsUtvalg), minald=as.numeric(input$alder[1]),
+                                  maxald=as.numeric(input$alder[2]), valgtShus = fiksNULL(input$valgtShus), op_gruppe = fiksNULL(input$op_gruppe),
+                                  ncsp = fiksNULL(input$ncsp_verdi), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
+                                  minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA), hastegrad=as.numeric(input$hastegrad),
+                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
+                                  malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
+                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), outfile = file)
+    }
+  )
 
 
 }

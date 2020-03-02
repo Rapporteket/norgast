@@ -13,6 +13,7 @@ fordelingsfig_UI <- function(id, BrValg){
       id = ns("id_fordeling_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg),
+      bsTooltip(id = ns("valgtVar"), title= 'Velg hvilken variabel du vil generere fordelingsfigur for.'),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
       selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
@@ -37,6 +38,7 @@ fordelingsfig_UI <- function(id, BrValg){
       selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
       sliderInput(inputId=ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
       selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
       selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
@@ -105,6 +107,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                         tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
                         ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                        modGlasgow = fiksNULL(input$modGlasgow),
                         whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                         forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                         malign = as.numeric(input$malign),
@@ -122,7 +125,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                                       BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
                                       tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                                      ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                                      ASA = if (!is.null(input$ASA)) {input$ASA} else {''}, modGlasgow = fiksNULL(input$modGlasgow),
                                       whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                                       forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                                       malign = as.numeric(input$malign),
@@ -184,7 +187,8 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
           select(Kategori, everything()) %>%
           mutate(AndelHoved = 100*AntHoved/NHoved)
       }
-      write.csv2(Tabell1, file, row.names = F)
+      # write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
+      write.csv3(Tabell1, file, row.names = F)
     }
   )
 
@@ -202,7 +206,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                           BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
                           tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
                           minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                          ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                          ASA = if (!is.null(input$ASA)) {input$ASA} else {''}, modGlasgow = fiksNULL(input$modGlasgow),
                           whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                           forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                           malign = as.numeric(input$malign),
