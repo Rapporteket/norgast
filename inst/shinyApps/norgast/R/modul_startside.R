@@ -25,16 +25,15 @@ startside_UI <- function(id){
                         h4(id = ns("SC1"), tags$b('Sykehusvisning '), 'viser resultater per sykehus.
                            Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
                         h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
-                        h4(id = ns("SC2"), tags$b('Overlevelse '), 'viser Kaplan-Meier overlevelseskurver for to distinkte utvalg.'),
+                        h4(tags$b('Overlevelse '), 'viser Kaplan-Meier overlevelseskurver for to distinkte utvalg.'),
                         h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
                         h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
                            variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
-                        h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.')
+                        h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
+                        h4(tags$b('Abonnement '), 'lar brukeren bestille rapporter til sin registrerte e-post. SC-bruker kan også bestille
+                           rapporter på vegne av andre avdelinger og kan velge hvilke e-postadresser som skal motta rapport.')
                     ),
                     br(),
-                    # br(),
-                    #h3('HER KAN MAN F.EKS. VISE ANTALL REGISTRERINGER SISTE X MND.'),
-                    # br(),
                     br(),
                     div(class="container",
                         fixedRow(
@@ -58,7 +57,6 @@ startside <- function(input, output,session, usrRole){
   observe(
     if (usrRole != "SC") {
       shinyjs::hide("SC1")
-      # shinyjs::hide("SC2")
     }
   )
 }
