@@ -9,8 +9,9 @@ NorgastFigAndelStabelGrVar(RegData = 0, valgtVar = "ModGlasgowScore",
   maxald = 130, erMann = 99, outfile = "", preprosess = F,
   malign = 99, Ngrense = 30, lavDG = "", hastegrad = 99,
   elektiv = 99, BMI = "", tilgang = "", valgtShus = c(""),
-  minPRS = 0, maxPRS = 2.2, ASA = "", whoEcog = "",
-  forbehandling = "", hentData = 0, op_gruppe = "", ncsp = "")
+  minPRS = 0, modGlasgow = "", maxPRS = 2.2, ASA = "",
+  whoEcog = "", forbehandling = "", hentData = 0, op_gruppe = "",
+  ncsp = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

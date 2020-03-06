@@ -10,7 +10,7 @@ FigAndeler(RegData = 0, valgtVar = "Alder", datoFra = "2014-01-01",
   stabel = F, preprosess = F, malign = 99, elektiv = 99,
   BMI = "", tilgang = "", valgtShus = "", minPRS = 0,
   maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
-  hentData = F, op_gruppe = "", ncsp = "")
+  hentData = F, op_gruppe = "", ncsp = "", modGlasgow = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

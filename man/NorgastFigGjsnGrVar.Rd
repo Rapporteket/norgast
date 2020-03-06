@@ -10,7 +10,7 @@ NorgastFigGjsnGrVar(RegData = 0, valgtVar = "Alder",
   malign = 99, Ngrense = 30, hastegrad = 99, elektiv = 99,
   BMI = "", tilgang = "", valgtShus = c(""), minPRS = 0,
   maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
-  hentData = 0, op_gruppe = "", ncsp = "")
+  hentData = 0, op_gruppe = "", ncsp = "", modGlasgow = "")
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
