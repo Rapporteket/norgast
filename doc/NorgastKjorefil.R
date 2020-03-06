@@ -3,10 +3,9 @@ library(norgast)
 rm(list=ls())
 
 # Les inn data
+
 RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-04 15-53-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-
-
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
