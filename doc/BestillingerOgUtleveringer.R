@@ -2,6 +2,27 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+###### Undersøk Haugesund robotassistert lap 25.03.2020 ###########################
+RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+
+aux <- RegData[which(RegData$Sykehusnavn == 'Haugesund' & RegData$Aar == 2019 & RegData$Op_gr == 2 & RegData$Robotassistanse == 1), ]
+aux[,c("PasientID", "ForlopsID")]
+
+
 ###### Data til dekningsgradsanalyse NPR, 17.03.2020 St. Paddy's #########################################################################
 
 RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
