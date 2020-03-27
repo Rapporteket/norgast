@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2018}
+\title{Figurer og tabeller for årsrapport NoRGast 2019}
 \author{NoRGast}
 
 % LEGG TIL ELEKTIV ALLE STEDER HVOR DET I DAG ER "INNENFOR NORMALARBEIDSTID"
@@ -44,8 +44,8 @@ knitr::opts_knit$set(root.dir = './')
 library(norgast)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-04-26 10-59-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -64,7 +64,7 @@ RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==7]<- 6
 RegData$Op_grAarsrapp[RegData$Op_grAarsrapp %in% c(8,99)]<- NA
 # RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==99]<-NA
 
-rap_aar <- 2018 # Året rapporten skal kjøres for
+rap_aar <- 2019 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
 
 RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
@@ -131,6 +131,7 @@ ncsp=''
 forbehandling=''
 valgtShus=c('')
 reseksjonsGr <- ''
+op_gruppe <- ''
 malign <- 99
 annet_format_ut <- F
 ut_format <- 'png'
@@ -141,20 +142,20 @@ outfile <- 'RegAvd.pdf'
 norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=1.1,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=1.1,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
-# FigAndeler(RegData, valgtVar='Sykehusnavn', reseksjonsGr='', outfile=outfile, reshID=reshID, enhetsUtvalg=0)
+# FigAndeler(RegData, valgtVar='Sykehusnavn', op_gruppe='', outfile=outfile, reshID=reshID, enhetsUtvalg=0)
 outfile <- 'RegAvd_alt.pdf'
 FigAndeler(RegDataAll, valgtVar='Sykehusnavn', outfile=outfile, datoFra='2014-01-01', datoTil=datoTil, reshID=reshID, enhetsUtvalg=0)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  FigAndeler(RegDataAll, valgtVar='Sykehusnavn', reseksjonsGr='', outfile=outfile, datoFra='2014-01-01', datoTil=datoTil, reshID=reshID, enhetsUtvalg=0)
+  FigAndeler(RegDataAll, valgtVar='Sykehusnavn', op_gruppe='', outfile=outfile, datoFra='2014-01-01', datoTil=datoTil, reshID=reshID, enhetsUtvalg=0)
 }
 
 
@@ -257,10 +258,10 @@ elektiv <- 1
 tittel <- ''
 outfile <- 'Tilgang_elektiv_benign.pdf'
 malign <- 0
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, Ngrense=10, malign = malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
 }
 
 
@@ -275,16 +276,16 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 
 outfile <- 'Tilgang_elektiv_malign.pdf'
 malign <- 1
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign = malign)
 }
 
 outfile <- 'Tilgang_elektiv_malign_aar.pdf'
@@ -297,24 +298,24 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 
 outfile <- 'Tilgang_ohjelp.pdf'
-# NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, elektiv=0, outfile=outfile, reshID=reshID)
+# NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 FigAndeler(RegData, valgtVar='Tilgang', enhetsUtvalg=0, op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  FigAndeler(RegData, valgtVar='Tilgang', enhetsUtvalg=0, reseksjonsGr=reseksjonsGr, elektiv=0, outfile=outfile, reshID=reshID)
+  FigAndeler(RegData, valgtVar='Tilgang', enhetsUtvalg=0, op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 }
 
 malign <- 0
 outfile <- 'AccordionGrad_elektiv_benign.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 }
 
 outfile <- 'KumAcc_elektiv_benign_aar.pdf'
@@ -329,15 +330,15 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 malign <- 1
 outfile <- 'AccordionGrad_elektiv_malign.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, elektiv=1, outfile=outfile, reshID=reshID, Ngrense=10, malign=malign)
 }
 
 outfile <- 'KumAcc_elektiv_malign_aar.pdf'
@@ -351,15 +352,15 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'AccordionGrad_ohjelp.pdf'
-# NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, elektiv=0, outfile=outfile, reshID=reshID)
+# NorgastFigAndelStabelKunNasjonal(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, reseksjonsGr=reseksjonsGr, elektiv=0, outfile=outfile, reshID=reshID)
+  FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe, elektiv=0, outfile=outfile, reshID=reshID)
 }
 
 
@@ -375,7 +376,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 malign <- 1
@@ -389,7 +390,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 
@@ -404,7 +405,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Anastomoselekkasje_benign_aar.pdf'
@@ -418,7 +419,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -546,10 +547,10 @@ elektiv <- 99
 terskel <- 10
 
 outfile <- 'AccordionGrad_rekt.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 
@@ -564,14 +565,14 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Tilgang_rekt.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'Tilgang_rekt_aar.pdf'
@@ -585,7 +586,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_rekt_aar.pdf'
@@ -599,7 +600,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Anastomoselekkasje_rekt_aar.pdf'
@@ -613,7 +614,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -692,10 +693,10 @@ op_gruppe <- 3
 OpGr <- 'Øsof.'
 
 outfile <- 'AccordionGrad_osofagus.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'AccordionGrad_osofagus_aar.pdf'
@@ -709,21 +710,21 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Tilgang_osofagus.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'TilgangThorax_osofagus.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='ThoraxTilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='ThoraxTilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='ThoraxTilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='ThoraxTilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'Tilgang_osofagus_aar.pdf'
@@ -737,7 +738,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_osofagus_aar.pdf'
@@ -751,7 +752,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -832,10 +833,10 @@ op_gruppe <- 4
 OpGr <- 'Ventr.'
 
 outfile <- 'AccordionGrad_ventrikkel.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'AccordionGrad_ventrikkel_aar.pdf'
@@ -849,14 +850,14 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Tilgang_ventrikkel.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=terskel, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, reshID=reshID)
 }
 
 outfile <- 'Tilgang_ventrikkel_aar.pdf'
@@ -870,7 +871,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_ventrikkel_aar.pdf'
@@ -884,7 +885,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Anastomoselekkasje_ventrikkel_aar.pdf'
@@ -898,7 +899,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -980,10 +981,10 @@ reseksjonsGr <- 'JJB'
 op_gruppe <- 5
 
 outfile <- 'AccordionGrad_lever.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 }
 
 outfile <- 'AccordionGrad_lever_aar.pdf'
@@ -997,14 +998,14 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Tilgang_lever.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 }
 
 outfile <- 'Tilgang_lever_aar.pdf'
@@ -1018,11 +1019,11 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_lever_aar.pdf'
-# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr='JJB', outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
+# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', op_gruppe='JJB', outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
 valgtVar <- 'ReLapNarkose'
 norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
@@ -1033,7 +1034,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -1101,10 +1102,10 @@ reseksjonsGr <- 'JLC30|JLC31'
 op_gruppe <- 6
 
 outfile <- 'AccordionGrad_whipple.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 }
 
 outfile <- 'AccordionGrad_whipple_aar.pdf'
@@ -1118,11 +1119,11 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_whipple.pdf'
-# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr=reseksjonsGr, outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
+# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
 
 valgtVar <- 'ReLapNarkose'
 norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
@@ -1135,7 +1136,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil,
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                         elektiv=elektiv, malign=malign)
 }
 @
@@ -1196,10 +1197,10 @@ reseksjonsGr <- 'JLC[0-2][0-9]|JLC[4-9][0-9]|JLC[3][2-9]'
 op_gruppe <- 7
 
 outfile <- 'AccordionGrad_ovrigpankreas.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='AccordionGrad', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 }
 
 outfile <- 'AccordionGrad_ovrigpankreas_aar.pdf'
@@ -1213,14 +1214,14 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Tilgang_ovrigpankreas.pdf'
-NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', reseksjonsGr=reseksjonsGr, outfile=outfile, Ngrense=5, reshID=reshID)
+  NorgastFigAndelStabelGrVarAarsrapp(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=5, reshID=reshID)
 }
 
 outfile <- 'Tilgang_ovrigpankreas_aar.pdf'
@@ -1234,11 +1235,11 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'ReLapNarkose_ovrigpankreas_aar.pdf'
-# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', reseksjonsGr=reseksjonsGr, outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
+# NorgastFigAndelerGrVar(RegData=RegData, valgtVar='ReLapNarkose', op_gruppe=op_gruppe, outfile=outfile, reshID=reshID, Ngrense=5, inkl_konf=T)
 valgtVar <- 'ReLapNarkose'
 norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
@@ -1249,7 +1250,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 
@@ -1301,7 +1302,7 @@ if (annet_format_ut) {
   norgastFigAndelGrVarTid(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 
 outfile <- 'Saarruptur_utvalg.pdf'
@@ -1317,7 +1318,7 @@ if (annet_format_ut) {
                         tittel=tittel, width=width, height=height,
                         decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                         pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                        inkl_konf=inkl_konf, reseksjonsGr=reseksjonsGr, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
+                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv, malign=malign)
 }
 @
 

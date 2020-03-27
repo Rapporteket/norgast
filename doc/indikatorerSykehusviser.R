@@ -32,7 +32,8 @@ map_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 97463
                                       4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
                                       101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917))
 
-# tmp <- xlsx::read.xlsx('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.xlsx', sheetIndex = 1)
+# # tmp <- xlsx::read.xlsx('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.xlsx', sheetIndex = 1)
+# tmp <- read.csv2('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.csv', fileEncoding = 'UTF-8')
 # mapping_npr <- merge(enhetsliste, map_resh_orgnr, by.x = 'AvdRESH', by.y = 'resh')
 # mapping_npr <- merge(mapping_npr, tmp[,c("OrgNrShus", "OrgNavnEnhetsreg")], by.x = 'orgnr_sh', by.y = 'OrgNrShus')
 # write.csv2(mapping_npr, 'C:/GIT/norgast/doc/map_orgnr_resh_norgast.csv', row.names = F)
