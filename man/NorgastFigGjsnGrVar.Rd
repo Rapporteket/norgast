@@ -4,13 +4,33 @@
 \alias{NorgastFigGjsnGrVar}
 \title{Gjennomsnitt av valgt variabel pr grupperingsvariabel}
 \usage{
-NorgastFigGjsnGrVar(RegData = 0, valgtVar = "Alder",
-  datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
-  maxald = 130, erMann = 99, outfile = "", preprosess = F,
-  malign = 99, Ngrense = 30, hastegrad = 99, elektiv = 99,
-  BMI = "", tilgang = "", valgtShus = c(""), minPRS = 0,
-  maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
-  hentData = 0, op_gruppe = "", ncsp = "", modGlasgow = "")
+NorgastFigGjsnGrVar(
+  RegData = 0,
+  valgtVar = "Alder",
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31",
+  minald = 0,
+  maxald = 130,
+  erMann = 99,
+  outfile = "",
+  preprosess = F,
+  malign = 99,
+  Ngrense = 30,
+  hastegrad = 99,
+  elektiv = 99,
+  BMI = "",
+  tilgang = "",
+  valgtShus = c(""),
+  minPRS = 0,
+  maxPRS = 2.2,
+  ASA = "",
+  whoEcog = "",
+  forbehandling = "",
+  hentData = 0,
+  op_gruppe = "",
+  ncsp = "",
+  modGlasgow = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
