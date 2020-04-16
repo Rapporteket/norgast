@@ -31,6 +31,7 @@ norgastIndikatorLinn(
   preprosess = F,
   malign = 99,
   elektiv = 99,
+  hastegrad = 99,
   BMI = "",
   tilgang = "",
   minPRS = 0,

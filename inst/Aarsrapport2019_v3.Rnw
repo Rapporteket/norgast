@@ -316,7 +316,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Elektive operasjoner. Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Elektive operasjoner. Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -713,7 +713,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -974,7 +974,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1157,7 +1157,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1335,7 +1335,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1487,7 +1487,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1608,7 +1608,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1739,26 +1739,81 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       include.rownames=TRUE,
       include.colnames=TRUE)
 
-tmp <- RegDataAll
-tmp <- tmp[tmp$Op_gr %in% 1:2 & !is.na(tmp$Hastegrad), ]
+tmp <- RegDataAll[RegDataAll$OperasjonsDato >= '2018-06-01',]
+tmp$Sykehusnavn <- as.character(tmp$Sykehusnavn)
+tmp_kolon <- tmp[tmp$Op_gr == 1 & !is.na(tmp$Hastegrad), ]
 
-aux <- tmp %>% group_by(Sykehusnavn) %>% summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
-                                                   'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
-                                                   'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
-                                                   'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
-                                                   N=n())
+# aux <- tmp_kolon %>% group_by(Sykehusnavn) %>% summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0)/n()*100,
+            # 'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1)/n()*100,
+            # 'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1)/n()*100,
+            # 'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0)/n()*100,
+            # N=n())
 
- # aux <- tmp %>% group_by(Sykehusnavn) %>% summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0)/n()*100,
- #                                                   'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1)/n()*100,
- #                                                   'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1)/n()*100,
- #                                                   'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0)/n()*100,
- #                                                   N=n())
-# tmp %>% summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0)/n()*100,
-#                                                    'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1)/n()*100,
-#                                                    'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1)/n()*100,
-#                                                    'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0)/n()*100,
-#                                                    N=n())
-print(xtable::xtable(aux, caption='Sykehusvis tabell med grad av overensstemmelse mellom øhjelpsdefinisjoner'), include.rownames = F)
+aux <- tmp_kolon[tmp_kolon$Malign==0, ] %>% group_by(Sykehusnavn) %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux2 <- tmp_kolon[tmp_kolon$Malign==0, ] %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux <- bind_rows(aux, bind_cols(Sykehusnavn='Totalt', aux2))
+
+print(xtable::xtable(aux, caption='Sykehusvis tabell med grad av overensstemmelse mellom øhjelpsdefinisjoner, benign kolon fra medio 2018 til ut 2019.', digits=c(0,0,1,1,1,1,0)), include.rownames = F)
+
+aux <- tmp_kolon[tmp_kolon$Malign==1, ] %>% group_by(Sykehusnavn) %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux2 <- tmp_kolon[tmp_kolon$Malign==1, ] %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux <- bind_rows(aux, bind_cols(Sykehusnavn='Totalt', aux2))
+
+print(xtable::xtable(aux, caption='Sykehusvis tabell med grad av overensstemmelse mellom øhjelpsdefinisjoner, malign kolon fra medio 2018 til ut 2019.', digits=c(0,0,1,1,1,1,0)), include.rownames = F)
+
+tmp_rektum <- tmp[tmp$Op_gr == 2 & !is.na(tmp$Hastegrad), ]
+
+aux <- tmp_rektum[tmp_rektum$Malign==0, ] %>% group_by(Sykehusnavn) %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux2 <- tmp_rektum[tmp_rektum$Malign==0, ] %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux <- bind_rows(aux, bind_cols(Sykehusnavn='Totalt', aux2))
+
+print(xtable::xtable(aux, caption='Sykehusvis tabell med grad av overensstemmelse mellom øhjelpsdefinisjoner, benign rektum fra medio 2018 til ut 2019.', digits=c(0,0,1,1,1,1,0)), include.rownames = F)
+
+aux <- tmp_rektum[tmp_rektum$Malign==1, ] %>% group_by(Sykehusnavn) %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux2 <- tmp_rektum[tmp_rektum$Malign==1, ] %>%
+  summarise('øhjelp/øhjelp_tid' = sum(Hastegrad==2 & Hastegrad_tid==0),
+            'elektiv/elektiv_tid' = sum(Hastegrad==1 & Hastegrad_tid==1),
+            'øhjelp/elektiv_tid' = sum(Hastegrad==2 & Hastegrad_tid==1),
+            'elektiv/øhjelp_tid' = sum(Hastegrad==1 & Hastegrad_tid==0),
+            N=n())
+aux <- bind_rows(aux, bind_cols(Sykehusnavn='Totalt', aux2))
+
+print(xtable::xtable(aux, caption='Sykehusvis tabell med grad av overensstemmelse mellom øhjelpsdefinisjoner, malign rektum fra medio 2018 til ut 2019.', digits=c(0,0,1,1,1,1,0)), include.rownames = F)
 @
 
 
