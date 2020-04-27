@@ -6,13 +6,13 @@
 \usage{
 NorgastUtvalg(
   RegData,
-  datoFra,
-  datoTil,
-  minald,
-  maxald,
-  erMann,
-  elektiv,
-  BMI,
+  datoFra = "2014-01-01",
+  datoTil = "2100-01-01",
+  minald = 0,
+  maxald = 120,
+  erMann = 99,
+  elektiv = 99,
+  BMI = "",
   hastegrad = 99,
   valgtShus = "",
   tilgang = "",
@@ -26,7 +26,8 @@ NorgastUtvalg(
   fargepalett = "BlaaRapp",
   op_gruppe = "",
   ncsp = "",
-  icd = ""
+  icd = "",
+  hastegrad_hybrid = 99
 )
 }
 \arguments{
