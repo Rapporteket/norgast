@@ -12,7 +12,7 @@
 #'
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
-                                       minald=0, maxald=130, erMann=99, outfile='',
+                                       minald=0, maxald=130, erMann=99, outfile='', hastegrad_hybrid=99,
                                        preprosess=F, malign=99, Ngrense=30, lavDG='', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
@@ -33,17 +33,17 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
   grVar <- 'Sykehusnavn'
 
+  if (valgtVar == 'AccordionGrad_drenasje') {
+    RegData$AccordionGrad_drenasje <- RegData$AccordionGrad
+    RegData$AccordionGrad_drenasje[which(RegData$AccordionGrad_drenasje==3 & RegData$KunDrenasje ==1)] <- 2
+  }
+
   RegData$Variabel <- RegData[, valgtVar]
   RegData <- RegData[!is.na(RegData$Variabel), ]
   if (valgtVar == 'Tilgang') {RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
 
-  ## Gjør utvalg basert på brukervalg (LibUtvalg)
-  # NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-  #                                   maxald=maxald, erMann=erMann, elektiv=elektiv,
-  #                                   BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-  #                                   ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, reseksjonsGr=reseksjonsGr, ncsp=ncsp)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad, hastegrad_hybrid=hastegrad_hybrid,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, modGlasgow=modGlasgow,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
   RegData <- NorgastUtvalg$RegData
@@ -54,7 +54,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   if(N > 0) {Ngr <- table(RegData[ ,grVar])}	else {Ngr <- 0}
 
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
-    FigTypUt <- rapFigurer::figtype(outfile)
+    FigTypUt <- rapFigurer::figtype(outfile, fargepalett = 'BlaaOffAlle')
     farger <- FigTypUt$farger
     plot.new()
     if (dim(RegData)[1]>0) {
@@ -68,20 +68,26 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     tittel <- switch (valgtVar,
                       'ModGlasgowScore' = 'Modified Glasgow score',
                       'AccordionGrad' = 'Komplikasjoner (Accordion score)',
+                      'AccordionGrad_drenasje' = 'Komplikasjoner (Accordion score)',
                       'Tilgang' = 'Tilgang i abdomen',
-                      'ThoraxTilgang' <- 'Tilgang i thorax'
+                      'ThoraxTilgang' = 'Tilgang i thorax',
+                      'AvstandAnalVerge_kat' = 'Avstand anal verge'
     )
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
+                         'AccordionGrad_drenasje' = c('3 (kun drenasje)', '3 (resten)','4', '5', '6'),
                          'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
-                         'ThoraxTilgang' <- c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)')
+                         'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)'),
+                         'AvstandAnalVerge_kat' = levels(RegData$AvstandAnalVerge_kat)
     )
     legendTitle <- switch (valgtVar,
                            'ModGlasgowScore' = NULL,
                            'AccordionGrad' = 'Accordiongrad',
+                           'AccordionGrad_drenasje' = 'Accordiongrad',
                            'Tilgang' = NULL,
-                           'ThoraxTilgang' <- NULL
+                           'ThoraxTilgang' = NULL,
+                           'AvstandAnalVerge_kat' = NULL
     )
 
 
@@ -89,7 +95,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
     utdata_antall <- RegData[ ,c(grVar, valgtVar)] %>% table() %>%
       addmargins(2) %>% as_tibble() %>% spread(key = valgtVar, value = n)
-    if (valgtVar != 'AccordionGrad') {names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
+    if (!(valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje'))) {
+      names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
     utdata_andel <- utdata_antall
     utdata_andel <- utdata_andel %>% mutate_at(2:(N_kat+1), funs(. / Sum * 100))
@@ -98,7 +105,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     dataAlle <- table(RegData$Variabel)/N*100
 
-    if (valgtVar == 'AccordionGrad') {
+    if (valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje')) {
       AndelerGr <- AndelerGr[, -1]
       N_kat <- N_kat -1
       dataAlle <- table(RegData$Variabel)[-1]/N*100
@@ -117,7 +124,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
       sortInd <- order(AndelerGr[,1], decreasing = F, na.last = F)
     }
 
-    if (valgtVar == 'AccordionGrad') {
+    if (valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje')) {
       sortInd <- order(rowSums(AndelerGr), decreasing = F, na.last = F)
     }
 
@@ -131,6 +138,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
     farger <- FigTypUt$farger
+    if (N_kat==5) {farger <- c('#4D4D4D' ,farger)}
 
     landet <- AndelerGr
     landet[-which(substr(grtxt, 1, 5) =='Norge'), ] <- NA

@@ -31,7 +31,8 @@ FigAndeler(
   hentData = F,
   op_gruppe = "",
   ncsp = "",
-  modGlasgow = ""
+  modGlasgow = "",
+  hastegrad_hybrid = 99
 )
 }
 \arguments{

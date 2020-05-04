@@ -13,6 +13,7 @@ NorgastFigAndelStabelGrVar(
   maxald = 130,
   erMann = 99,
   outfile = "",
+  hastegrad_hybrid = 99,
   preprosess = F,
   malign = 99,
   Ngrense = 30,

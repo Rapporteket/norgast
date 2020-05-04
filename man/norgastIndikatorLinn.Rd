@@ -43,7 +43,8 @@ norgastIndikatorLinn(
   op_gruppe = "",
   ncsp = "",
   maalretn = "hoy",
-  lavDG = ""
+  lavDG = "",
+  hastegrad_hybrid = 99
 )
 }
 \arguments{
