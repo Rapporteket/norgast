@@ -302,11 +302,12 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='ohjelp_kveld') {
-    tittel <- 'Andel akuttkirurgi med anestesistart kl. 16:00-07:00'
-    grtxt <- c('Elektiv', 'Akutt')
-    VarTxt <- 'akuttkirurgi med anestesistart kl. 16:00-07:00'
+    tittel <- 'Kirurgi registrert som ø-hjelp og med anestesistart kl. 16:00-07:00'
+    grtxt <- c('Nei', 'Ja')
+    VarTxt <- 'kirurgi registrert som ø-hjelp og med anestesistart kl. 16:00-07:00'
+    RegData <- RegData[!is.na(RegData$Hastegrad), ]
     RegData$Variabel <- 0
-    RegData$Variabel[as.numeric(RegData$AnestesiStartKl) %in% c(1:6, 16:24)] <- 1
+    RegData$Variabel[RegData$Dagtid==0 & RegData$Hastegrad==2] <- 1
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
@@ -341,14 +342,14 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='Anastomoselekk_osofagus') {
-    RegData <- RegData[which(RegData$Op_gr==3), ]
-    tittel <- c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje v/ øsofaguskirurgi')
+    # RegData <- RegData[which(RegData$Op_gr==3), ]
+    tittel <- c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje')
     RegData$Variabel <- 0
     RegData$Variabel[RegData$ViktigsteFunn %in% 1:2 | RegData$EndoInterLekkasje %in% 1] <- 1
     grtxt <- c('Nei', 'Ja')
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
-    VarTxt <- c('anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje v/ øsofaguskirurgi')
+    VarTxt <- c('anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje')
   }
 
   if (valgtVar=='AccordionGrad') {

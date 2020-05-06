@@ -148,6 +148,10 @@ NorgastPreprosess <- function(RegData)
 
   Helligdager <- as.Date(sort(rapbase::Helligdager2008til2022$Dato))
 
+  RegData$Dagtid <- NA
+  RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% 7:15] <- 1
+  RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% c(1:6, 16:24)] <- 0
+
   RegData$Hastegrad_tid <- NA
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
@@ -211,8 +215,8 @@ NorgastPreprosess <- function(RegData)
   # tmp2 <- table(RegData$Hoveddiagnos2)
   # table(RegData$Hoveddiagnose[sub("(\\w+).*", "\\1", RegData$Hoveddiagnose) %in% sub("(\\w+).*", "\\1", setdiff(names(tmp1), names(tmp2)))])
 
-  RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,20),
-                                      labels = c('0.0–5.9', '6.0-10.9', '11.0-20.0'), include.lowest = T)
+  RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
+                                      labels = c('0.0–5.9', '6.0-10.9', '11.0-15.9'), include.lowest = T)
 
   return(invisible(RegData))
 

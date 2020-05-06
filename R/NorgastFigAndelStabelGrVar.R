@@ -76,7 +76,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
-                         'AccordionGrad_drenasje' = c('3 (kun drenasje)', '3 (resten)','4', '5', '6'),
+                         'AccordionGrad_drenasje' = c('3 (kun drenasje av \n pleuravæsken/ascites)', '3 (resten)','4', '5', '6'),
                          'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
                          'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)'),
                          'AvstandAnalVerge_kat' = levels(RegData$AvstandAnalVerge_kat)
@@ -160,8 +160,14 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
             xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
     # barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=rgb(col2rgb(farger[1:N_kat])*0.8, maxColorValue = 255), main='', font.main=1,
     #         xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
-    legend('top', legendTxt, ncol=3, fill=farger[1:N_kat], border=farger[1:N_kat],
-           bty='n', cex=0.7, xpd = T, title = legendTitle)
+    if (valgtVar == 'AccordionGrad_drenasje') {
+      legend('bottomright', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
+             bty='n', cex=0.7, xpd = T, title = legendTitle)
+    } else {
+      legend('top', legendTxt, ncol=3, fill=farger[1:N_kat], border=farger[1:N_kat],
+             bty='n', cex=0.7, xpd = T, title = legendTitle)
+    }
+
 
     mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
     text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),

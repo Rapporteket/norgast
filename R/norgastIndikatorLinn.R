@@ -15,7 +15,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                                    decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, hastegrad=99, BMI='',
-                                   tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
+                                   tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', dagtid =99,
                                    hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='', hastegrad_hybrid=99)
 {
   ## Hvis spørring skjer fra R på server. ######################
@@ -33,7 +33,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                     maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
-                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, dagtid = dagtid,
                                     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                     op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid)
   RegData <- NorgastUtvalg$RegData

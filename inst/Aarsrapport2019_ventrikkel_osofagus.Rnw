@@ -31,14 +31,14 @@
 % \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
-  knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
 @
 
-  \begin{document}
+\begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-  library(norgast)
+library(norgast)
 library(tidyverse)
 rm(list = ls())
 
@@ -101,7 +101,7 @@ figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
 
-  \maketitle
+\maketitle
 
 % \tableofcontents
 % \newpage
@@ -114,8 +114,8 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-             'Lever',"Pankreas")
+grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           'Lever',"Pankreas")
 width=600
 height=700
 sideTxt='Sykehus'
@@ -161,7 +161,7 @@ ut_format <- 'png'
 \begin{minipage}{\textwidth}
 \centering
 <<'Tabell:ReoperasjonerOsofagus', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-  Terskel<-20
+Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
@@ -177,15 +177,15 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-  \captionof{table}{Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
 
 <<'fig_osofagus', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  # Ngrense <- 5
-  terskel <- 5
-hastegrad_hybrid <- 99
+# Ngrense <- 5
+terskel <- 5
+# hastegrad_hybrid <- 99
 op_gruppe <- 3
 OpGr <- 'Øsof.'
 
@@ -275,14 +275,22 @@ valgtVar <- 'Anastomoselekk_osofagus'
 norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = 20, skriftStr=skriftStr, lavDG = graaUt_osofagus,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn='lav',
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid,
                      malign=malign, tittel=c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje v/ øsofaguskirurgi'))
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = 20, skriftStr=skriftStr, lavDG = graaUt_osofagus,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn='lav',
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid,
+                     malign=malign, tittel=c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje v/ øsofaguskirurgi'))
+}
 
 
 
 @
 
-  \begin{figure}[ht]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ViktigsteFunn_osofagus_elektiv.pdf}
 \caption{}
@@ -349,7 +357,7 @@ norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, width=wid
 \begin{minipage}{\textwidth}
 \centering
 <<'Tabell:ReoperasjonerVentrikkel', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-  Terskel<-20
+Terskel<-20
 TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
@@ -365,14 +373,14 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-  \captionof{table}{Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
 
 <<'fig_ventrikkel', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  # Ngrense <- 5
-  terskel <- 5
+# Ngrense <- 5
+terskel <- 5
 # reseksjonsGr <- 'JDC|JDD'
 op_gruppe <- 4
 OpGr <- 'Ventr.'
@@ -438,17 +446,19 @@ if (annet_format_ut) {
 }
 
 outfile <- 'Anastomoselekkasje_ventrikkel_aar.pdf'
-valgtVar <- 'Anastomoselekkasje'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+valgtVar <- 'Anastomoselekk_osofagus'
+norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_ventrikkel,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+                     tittel=c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje'))
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_ventrikkel,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+                       tittel=c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje'))
 }
 
 outfile <- 'mortalitet90_ventrikkel_aar.pdf'
@@ -466,7 +476,7 @@ if (annet_format_ut) {
 }
 @
 
-  \begin{figure}[ht]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{ViktigsteFunn_ventrikkel.pdf}
 \caption{}
