@@ -114,8 +114,8 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-           'Lever',"Pankreas")
+# grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           # 'Lever',"Pankreas")
 width=600
 height=700
 sideTxt='Sykehus'
@@ -182,7 +182,7 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 
 
 <<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-OpGr <- c('Kol.')
+# OpGr <- c('Kol.')
 # reseksjonsGr <- '(JFB[2-5][0-9]|JFB6[0-4])|JFH'
 op_gruppe <- 1
 elektiv <- 1
@@ -443,19 +443,19 @@ if (annet_format_ut) {
 }
 
 
-outfile <- 'mortalitet90_kolon_aar_refpas2.pdf'
-valgtVar <- 'mortalitet90'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, dagtid = 1, whoEcog = c(0,1),
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, dagtid = 1, whoEcog = c(0,1),
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
-}
+# outfile <- 'mortalitet90_kolon_aar_refpas2.pdf'
+# valgtVar <- 'mortalitet90'
+# norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+#                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, dagtid = 1, whoEcog = c(0,1),
+#                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+#                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+# if (annet_format_ut) {
+#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+#   norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+#                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, dagtid = 1, whoEcog = c(0,1),
+#                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+#                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+# }
 
 
 outfile <- 'hastegrad_ny_kolon_aar.pdf'
@@ -477,13 +477,13 @@ valgtVar <- 'ohjelp_kveld'
 norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
 }
 
 @
@@ -613,12 +613,12 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_kolon_aar_refpas.pdf}
 \caption{}
 \end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_kolon_aar_refpas2.pdf}
-\caption{}
-\end{figure}
+%
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_kolon_aar_refpas2.pdf}
+% \caption{}
+% \end{figure}
 
 \begin{figure}[ht]
 \centering

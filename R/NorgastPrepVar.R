@@ -302,12 +302,12 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='ohjelp_kveld') {
-    tittel <- 'Kirurgi registrert som ø-hjelp og med anestesistart kl. 16:00-07:00'
+    tittel <- 'Kirurgi med anestesistart kl. 16:00-07:00'
     grtxt <- c('Nei', 'Ja')
-    VarTxt <- 'kirurgi registrert som ø-hjelp og med anestesistart kl. 16:00-07:00'
-    RegData <- RegData[!is.na(RegData$Hastegrad), ]
+    VarTxt <- 'kirurgi med anestesistart kl. 16:00-07:00'
+    # RegData <- RegData[!is.na(RegData$Hastegrad), ]
     RegData$Variabel <- 0
-    RegData$Variabel[RegData$Dagtid==0 & RegData$Hastegrad==2] <- 1
+    RegData$Variabel[RegData$Dagtid==0] <- 1
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }

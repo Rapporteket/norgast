@@ -71,12 +71,12 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                       'AccordionGrad_drenasje' = 'Komplikasjoner (Accordion score)',
                       'Tilgang' = 'Tilgang i abdomen',
                       'ThoraxTilgang' = 'Tilgang i thorax',
-                      'AvstandAnalVerge_kat' = 'Avstand anal verge'
+                      'AvstandAnalVerge_kat' = 'Avstand tumors nedre kant til anal verge'
     )
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
-                         'AccordionGrad_drenasje' = c('3 (kun drenasje av \n pleuravæsken/ascites)', '3 (resten)','4', '5', '6'),
+                         'AccordionGrad_drenasje' = c('3 (kun drenasje av \n pleuravæske/ascites)', '3 (resten)','4', '5', '6'),
                          'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
                          'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)'),
                          'AvstandAnalVerge_kat' = levels(RegData$AvstandAnalVerge_kat)
@@ -118,7 +118,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     Ngrtxt[Ngr<Ngrense] <- paste0('N<', Ngrense)
     Ngrtxt[names(Ngr) %in% lavDG] <- 'Dekningsgrad < 60 %'
 
-    if (N_kat==3){
+    if (N_kat==3 & valgtVar != 'AvstandAnalVerge_kat'){
       sortInd <- order(AndelerGr[,2], decreasing = F, na.last = F)
     } else {
       sortInd <- order(AndelerGr[,1], decreasing = F, na.last = F)
@@ -134,7 +134,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     Ngrtxt <- c(Ngrtxt[sortInd], NA)
 
     xmax <- max(rowSums(AndelerGr), na.rm = T)
-    ymax <- length(grtxt)*1.2
+    ymax <- length(grtxt)*1.3
 
     FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
     farger <- FigTypUt$farger
@@ -160,13 +160,13 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
             xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
     # barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=rgb(col2rgb(farger[1:N_kat])*0.8, maxColorValue = 255), main='', font.main=1,
     #         xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
-    if (valgtVar == 'AccordionGrad_drenasje') {
-      legend('bottomright', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
+    # if (valgtVar == 'AccordionGrad_drenasje') {
+    #   legend('bottomright', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
+    #          bty='n', cex=0.7, xpd = T, title = legendTitle)
+    # } else {
+      legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
              bty='n', cex=0.7, xpd = T, title = legendTitle)
-    } else {
-      legend('top', legendTxt, ncol=3, fill=farger[1:N_kat], border=farger[1:N_kat],
-             bty='n', cex=0.7, xpd = T, title = legendTitle)
-    }
+    # }
 
 
     mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn

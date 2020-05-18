@@ -216,7 +216,7 @@ NorgastPreprosess <- function(RegData)
   # table(RegData$Hoveddiagnose[sub("(\\w+).*", "\\1", RegData$Hoveddiagnose) %in% sub("(\\w+).*", "\\1", setdiff(names(tmp1), names(tmp2)))])
 
   RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
-                                      labels = c('0.0–5.9', '6.0-10.9', '11.0-15.9'), include.lowest = T)
+                                      labels = c('0.0–5.9 cm', '6.0-10.9 cm', '11.0-15.9 cm'), include.lowest = T)
 
   return(invisible(RegData))
 

@@ -86,13 +86,14 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   # pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' eller dekningsgrad mindre en 60 pst.')
   pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
   pst_txt[rownames(andeler) %in% lavDG] <- 'Dekningsgrad < 60 %'
-  pst_txt <- c(pst_txt, NA)
+  pst_txt <- c(NA, pst_txt, NA, NA)
 
   FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
   soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]
   if (!is.na(graaUt[1])) {soyleFarger[which(rownames(andeler) %in% graaUt)] <- 'gray88'}
+  soyleFarger <- c(NA, soyleFarger)
 
   windows(width = width, height = height)
 
@@ -105,7 +106,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     rownames(andeler) <- paste0(rownames(andeler), ' (', N[, dim(N)[2]], ')')
     andeler <- rbind(andeler, c(NA,NA,NA))
     rownames(andeler)[dim(andeler)[1]] <- paste0('(N, ', names(andeler)[dim(andeler)[2]], ')')
-    KI <- cbind(KI, c(NA, NA))
+    KI <- cbind(c(NA, NA), KI, c(NA, NA))
   } else {
     andeler <- rbind(andeler, c(NA,NA,NA))
     rownames(andeler)[dim(andeler)[1]] <- ''
@@ -125,6 +126,12 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     xmax <- min(100, 1.15*max(andeler, na.rm = T))
   }
 
+  # if (dim(andeler)[1] < 15) {
+    andeler <- rbind(c(NA,NA), andeler, c(NA,NA))
+    rownames(andeler)[dim(andeler)[1]] <- ''
+    rownames(andeler)[1] <- ' '
+  # }
+
   ypos <- barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
                    #font.main=1, cex.main=1.3,
                    # xlim=c(0,max(andeler, na.rm = T)*1.1),
@@ -135,21 +142,19 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
 
   # fargerMaalNiva <-  c('#4fc63f', '#fbf850','#c6312a')
   fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
-  # rect(xleft=KImaalGrenser[1:antMaalNivaa], ybottom=0, xright=KImaalGrenser[2:(antMaalNivaa+1)],
-  #      ytop=max(ypos)+0.4, col = fargerMaalNiva[1:antMaalNivaa], border = NA)
 
   if (maal > minstekrav & !is.na(maal) & !is.na(minstekrav)) {
-    rect(xleft=minstekrav, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=maal, ybottom=0, xright=min(xmax, 100), ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=minstekrav, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
   if (maal < minstekrav & !is.na(maal) & !is.na(minstekrav)) {
-    rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=0, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=maal, ybottom=1, xright=minstekrav, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
   if (!is.na(maal) & is.na(minstekrav) & maalretn=='lav') {
     # rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=0, ybottom=0, xright=maal, ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
   if (!is.na(maal) & is.na(minstekrav) & maalretn=='hoy') {
     # rect(xleft=maal, ybottom=0, xright=minstekrav, ytop=max(ypos)+0.4, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=maal, ybottom=0, xright=min(xmax, 100), ytop=max(ypos)+0.4, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
 
   barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
           names.arg=rep('',dim(andeler)[1]),
@@ -159,17 +164,11 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   # title(main = tittel, outer=T)
   title(main = tittel)
   ypos <- as.numeric(ypos) #as.vector(ypos)
-  yposOver <- max(ypos) + 0.5*diff(ypos)[1]
+  yposOver <- max(ypos)-2 + 0.5*diff(ypos)[1]
   if (!is.na(minstekrav)) {
     lines(x=rep(minstekrav, 2), y=c(-1, yposOver), col=fargerMaalNiva[2], lwd=2)
-    # barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
-    #         names.arg=rep('',dim(andeler)[1]),
-    #          horiz=T, axes=F, space=c(0,0.3),
-    #          col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
     par(xpd=TRUE)
-    # text(x=minstekrav, y=yposOver, labels = minstekravTxt, #paste0(minstekravTxt, minstekrav,' %'),
-    #      pos = 3, cex=cexgr*0.65)
-    text(x=minstekrav, y=yposOver, labels = minstekravTxt, #paste0(minstekravTxt, minstekrav,' %'),
+    text(x=minstekrav, y=yposOver, labels = minstekravTxt,
          pos = 4, cex=cexgr*0.65, srt = 90)
     par(xpd=FALSE)
   }
