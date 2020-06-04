@@ -2,6 +2,64 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+##### St.Olavs 02.06.2020 - postopliggetid Per Even Storli ####################################################
+library(tidyverse)
+RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
+                      "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll", "PostopLiggedogn")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus',
+                            'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegDataAll <- NorgastPreprosess(RegData)
+RegData <- RegDataAll[RegDataAll$Sykehusnavn == 'St.Olavs' & RegDataAll$Aar < 2020, ]
+RegData <- RegData[(RegData$Op_gr == 3 & RegData$Malign==1) | (RegData$Op_gr == 4 & RegData$Malign==1) | RegData$Op_gr %in% c(5,6), ]
+
+tabell <- RegData %>% group_by(Aar, Operasjonsgrupper) %>% summarise(gj.sn.liggetid = sum(PostopLiggedogn, na.rm = T),
+                                        N = sum(!is.na(PostopLiggedogn)))
+
+tabell$gj.sn.liggetid <- paste0(round(tabell$gj.sn.liggetid, 1), ' (', tabell$N, ')')
+spread(tabell[,-4], key = Aar, value = gj.sn.liggetid)
+
+RegData <- RegDataAll[RegDataAll$Sykehusnavn != 'St.Olavs' & RegDataAll$Aar < 2020, ]
+RegData <- RegData[(RegData$Op_gr == 3 & RegData$Malign==1) | (RegData$Op_gr == 4 & RegData$Malign==1) | RegData$Op_gr %in% c(5,6), ]
+
+tabell <- RegData %>% group_by(Aar, Operasjonsgrupper) %>% summarise(gj.sn.liggetid = sum(PostopLiggedogn, na.rm = T),
+                                                                     N = sum(!is.na(PostopLiggedogn)))
+
+tabell$gj.sn.liggetid <- paste0(round(tabell$gj.sn.liggetid, 1), ' (', tabell$N, ')')
+spread(tabell[,-4], key = Aar, value = gj.sn.liggetid)
+
+##### Alta 20.05.2020 - saarruptur ####################################################
+
+RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
+                      "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+saarruptur <- RegData[RegData$Aar==2018 & RegData$Sykehusnavn=='Hammerfest' & RegData$Saarruptur==1, ]
+saarruptur2 <- RegData[RegData$Aar %in% 2016:2018 & RegData$Sykehusnavn=='Hammerfest' & RegData$Op_gr %in% 1:7 &
+                         RegData$Hastegrad_tid==1 & RegData$Tilgang %in% c(1,3), ]
+
+acc3pluss <- RegData[RegData$Aar==2018 & RegData$Sykehusnavn=='Hammerfest' & RegData$AccordionGrad>=3 &
+                       RegData$Malign==1, ]
+
+
 ###### Undersøk Haugesund robotassistert lap 25.03.2020 ###########################
 RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
