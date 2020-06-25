@@ -27,18 +27,18 @@
 % \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
 % \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
-\color{moerkgraa}
+% \color{moerkgraa}
 % \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
-  knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
 @
 
-  \begin{document}
+\begin{document}
 
 <<LastData, include=FALSE, cache=FALSE>>=
-  library(norgast)
+library(norgast)
 library(tidyverse)
 rm(list = ls())
 
@@ -55,7 +55,6 @@ RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
-# RegData <- RegData[RegData$Aar==2016, ]
 
 gr <- c(1:6)
 grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
@@ -101,7 +100,7 @@ figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
 
-  \maketitle
+\maketitle
 
 % \tableofcontents
 % \newpage
@@ -114,8 +113,8 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-             'Lever',"Pankreas")
+grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           'Lever',"Pankreas")
 width=600
 height=700
 sideTxt='Sykehus'
@@ -150,12 +149,12 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'png'
+annet_format_ut <- T
+ut_format <- 'wmf'
 @
 
-  <<'Sykehusfig', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  outfile <- 'RegAvd.pdf'
+<<'Sykehusfig', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+outfile <- 'RegAvd.pdf'
 norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width, height=height,
                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=1.1,
                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
@@ -174,9 +173,6 @@ if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   FigAndeler(RegDataAll, valgtVar='Sykehusnavn', outfile=outfile, datoFra='2014-01-01', datoTil=datoTil, reshID=reshID, enhetsUtvalg=0)
 }
-
-# RegData <- RegData[RegData$Op_gr %in% 1:7, ]
-# RegDataAll <- RegDataAll[RegDataAll$Op_gr %in% 1:7, ]
 
 valgtVar <- 'Vekttap_registrert'
 outfile <- 'Vekttap_registrert.pdf'
@@ -205,12 +201,9 @@ if (annet_format_ut) {
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle)
 }
-
-
-
 @
 
-  \begin{figure}[ht]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{RegAvd.pdf}
 \caption{}
@@ -236,7 +229,7 @@ if (annet_format_ut) {
 
 
 <<'fig_sårruptur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-  op_gruppe <- ''
+op_gruppe <- ''
 valgtVar <- 'Saarruptur'
 outfile <- 'Saarruptur_utvalg.pdf'
 norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
@@ -252,7 +245,7 @@ if (annet_format_ut) {
 }
 @
 
-  \begin{figure}[ht]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Saarruptur_utvalg.pdf}
 \caption{}
@@ -262,7 +255,7 @@ if (annet_format_ut) {
 \clearpage
 
 <<'Tabell:RegistrerendeAvd_alleår', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-  Tabell <- addmargins(table(RegDataAll$Sykehusnavn, RegDataAll$Aar))
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn, RegDataAll$Aar))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
 Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
@@ -273,6 +266,8 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       include.colnames=TRUE,
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
+
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/ant_reg_alle.csv', row.names = T, fileEncoding = 'Latin1')
 
 Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)], RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
@@ -286,13 +281,14 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
 
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/ant_reg_oblig.csv', row.names = T, fileEncoding = 'Latin1')
 
 @
 
 
 
-  <<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-  Tabell <- addmargins(table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp))
+<<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Tabell <- addmargins(table(as.character(RegData$Sykehusnavn), RegData$Op_grAarsrapp))
 # Tabell[Tabell < 10] <- '<10'
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
@@ -302,6 +298,8 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
       include.colnames=TRUE ,
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
+
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/RegistrenrendeAvd.csv', row.names = T, fileEncoding = 'Latin1')
 @
 
 

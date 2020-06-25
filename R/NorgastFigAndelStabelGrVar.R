@@ -40,6 +40,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
   RegData$Variabel <- RegData[, valgtVar]
   RegData <- RegData[!is.na(RegData$Variabel), ]
+  RegData$Variabel <- as.factor(RegData$Variabel)
+
   if (valgtVar == 'Tilgang') {RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
 
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
@@ -91,10 +93,12 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     )
 
 
-    N_kat <- length(unique(RegData[,valgtVar]))
-    AndelerGr <- ftable(RegData[ ,c(grVar, valgtVar)])/rep(Ngr, N_kat)*100
-    utdata_antall <- RegData[ ,c(grVar, valgtVar)] %>% table() %>%
-      addmargins(2) %>% as_tibble() %>% spread(key = valgtVar, value = n)
+    # N_kat <- length(unique(RegData[,valgtVar]))
+    # N_kat <- length(legendTxt)
+    N_kat <- nlevels(RegData$Variabel)
+    AndelerGr <- ftable(RegData[ ,c(grVar, 'Variabel')])/rep(Ngr, N_kat)*100
+    utdata_antall <- RegData[ ,c(grVar, 'Variabel')] %>% table() %>%
+      addmargins(2) %>% as_tibble() %>% spread(key = Variabel, value = n)
     if (!(valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje'))) {
       names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
@@ -138,7 +142,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
     farger <- FigTypUt$farger
-    if (N_kat==5) {farger <- c('#4D4D4D' ,farger)}
+    if (length(legendTxt)==5) {farger <- c('#4D4D4D' ,farger)}
 
     landet <- AndelerGr
     landet[-which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
@@ -158,16 +162,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                    xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax))#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
     barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=desat(farger[1:N_kat], 0.5), main='', font.main=1,
             xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
-    # barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=rgb(col2rgb(farger[1:N_kat])*0.8, maxColorValue = 255), main='', font.main=1,
-    #         xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
-    # if (valgtVar == 'AccordionGrad_drenasje') {
-    #   legend('bottomright', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
-    #          bty='n', cex=0.7, xpd = T, title = legendTitle)
-    # } else {
       legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
              bty='n', cex=0.7, xpd = T, title = legendTitle)
-    # }
-
 
     mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
     text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),

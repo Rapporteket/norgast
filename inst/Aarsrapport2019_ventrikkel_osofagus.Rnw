@@ -27,7 +27,7 @@
 % \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
 % \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
-\color{moerkgraa}
+% \color{moerkgraa}
 % \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
@@ -151,8 +151,8 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'png'
+annet_format_ut <- T
+ut_format <- 'wmf'
 @
 
 \section{Øsofagusreseksjoner}
@@ -166,6 +166,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(3), ]
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_osofagus.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -192,6 +193,11 @@ OpGr <- 'Øsof.'
 outfile <- 'ViktigsteFunn_osofagus_elektiv.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
 
 outfile <- 'AccordionGrad_osofagus.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus)
@@ -362,6 +368,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(4), ]
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_ventrikkel.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -388,6 +395,11 @@ OpGr <- 'Ventr.'
 outfile <- 'ViktigsteFunn_ventrikkel.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
 
 outfile <- 'AccordionGrad_ventrikkel.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_ventrikkel)
@@ -440,7 +452,7 @@ norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=ti
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr, lavDG = graaUt_ventrikkel,
+                       decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 15, skriftStr=skriftStr, lavDG = graaUt_ventrikkel,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn = 'lav',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign)
 }

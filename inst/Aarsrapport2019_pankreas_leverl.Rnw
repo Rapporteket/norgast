@@ -151,8 +151,8 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'png'
+annet_format_ut <- T
+ut_format <- 'wmf'
 @
 
 
@@ -167,6 +167,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(5), ]
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_lever.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -191,6 +192,11 @@ op_gruppe <- 5
 outfile <- 'ViktigsteFunn_lever.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
 
 outfile <- 'AccordionGrad_lever.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_lever)
@@ -319,6 +325,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(6), ]
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_whipple.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -342,6 +349,11 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 outfile <- 'ViktigsteFunn_whipple.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
 
 outfile <- 'AccordionGrad_whipple.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_pankreas)
@@ -480,6 +492,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(7), ]
+write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_pankreas.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -502,6 +515,11 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 outfile <- 'ViktigsteFunn_ovrigpankreas.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
 
 outfile <- 'AccordionGrad_ovrigpankreas.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_pankreas)
