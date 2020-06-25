@@ -21,7 +21,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
                       'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
                       'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
-                      'Sykehusnavn', 'Malign', 'Saarruptur')) {
+                      'Sykehusnavn', 'Malign', 'Saarruptur', 'Rekonstruksjon')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -70,6 +70,50 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     tittel <- c('Andel avdøde uansett årsak', '(Egenregistrerte og fra folkeregister)')
     VarTxt <- 'avdøde'
     grtxt <- c('I live', 'Avdød')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='Rekonstruksjon') {
+    tittel <- c('Andel med vene- eller arterierekonstruksjon')
+    VarTxt <- 'med vene- eller arterierekonstruksjon'
+    grtxt <- c('Nei', 'Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='CR_POPF') {
+    tittel <- c('Klinisk relevant postoperativ pankreasfistel')
+    VarTxt <- 'med klinisk relevant postoperativ pankreasfistel'
+    grtxt <- c('Nei', 'Ja')
+    RegData$Variabel <- 0
+    RegData$Variabel[which((RegData$ReLapNarkose==1 & RegData$ViktigsteFunn %in% 1:2) |
+                       (RegData$ReLapNarkose==1 & (RegData$EndoInterBlod | RegData$EndoInterLekkasje)) |
+                       (RegData$PerkDrenasje==1 & RegData$HoyAmylaseKons==1))] <- 1
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='straaling') {
+    tittel <- c('Andel bestrålte pasienter')
+    VarTxt <- 'bestrålte pasienter'
+    grtxt <- c('Nei', 'Ja')
+    RegData$Variabel <- 0
+    RegData$Variabel[which(RegData$KunStraaleterapi==1 | RegData$KjemoRadioKombo==1)] <- 1
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='AktivKontroll') {
+    tittel <- c('Aktiv kontroll')
+    VarTxt <- 'med aktiv kontroll'
+    grtxt <- c('Nei', 'Ja')
+    RegData$Variabel <- 0
+    RegData$Variabel[which(RegData$TelefonKontroll==1 | RegData$FysiskKontroll==1)] <- 1
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
@@ -257,6 +301,28 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='ohjelp_kveld') {
+    tittel <- 'Kirurgi med anestesistart kl. 16:00-07:00'
+    grtxt <- c('Nei', 'Ja')
+    VarTxt <- 'kirurgi med anestesistart kl. 16:00-07:00'
+    # RegData <- RegData[!is.na(RegData$Hastegrad), ]
+    RegData$Variabel <- 0
+    RegData$Variabel[RegData$Dagtid==0] <- 1
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='AvstandAnalVerge_kat') {
+    tittel <- 'Avstand til anal verge'
+    RegData <- RegData[which(RegData$Variabel %in% 1:3), ]
+    RegData$VariabelGr <- RegData$AvstandAnalVerge_kat
+    RegData<- RegData[!is.na(RegData$VariabelGr), ]
+    grtxt <- levels(RegData$VariabelGr)
+    retn <- 'H'
+    incl_pst <- T
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='Tilgang') {
     tittel <- 'Tilgang i abdomen'
     grtxt <- c('Åpen', 'Laparoskopisk', 'Konvertert')
@@ -273,6 +339,17 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData <- RegData[which(RegData$Variabel %in% 4:6), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=4:6, labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='Anastomoselekk_osofagus') {
+    # RegData <- RegData[which(RegData$Op_gr==3), ]
+    tittel <- c('Anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje')
+    RegData$Variabel <- 0
+    RegData$Variabel[RegData$ViktigsteFunn %in% 1:2 | RegData$EndoInterLekkasje %in% 1] <- 1
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+    VarTxt <- c('anastomoselekkasje eller dyp infeksjon, eller endoskopisk', ' intervensjon for lekkasje')
   }
 
   if (valgtVar=='AccordionGrad') {

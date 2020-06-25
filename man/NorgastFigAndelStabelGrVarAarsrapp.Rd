@@ -4,13 +4,31 @@
 \alias{NorgastFigAndelStabelGrVarAarsrapp}
 \title{Stablet andel av valgt variabel pr grupperingsvariabel}
 \usage{
-NorgastFigAndelStabelGrVarAarsrapp(RegData = 0,
-  valgtVar = "ModGlasgowScore", datoFra = "2014-01-01",
-  datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  outfile = "", preprosess = F, malign = 99, Ngrense = 30,
-  elektiv = 99, BMI = "", tilgang = "", valgtShus = c(""),
-  minPRS = 0, maxPRS = 2.2, ASA = "", whoEcog = "",
-  forbehandling = "", hentData = 0, op_gruppe = "", ncsp = "")
+NorgastFigAndelStabelGrVarAarsrapp(
+  RegData = 0,
+  valgtVar = "ModGlasgowScore",
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31",
+  minald = 0,
+  maxald = 130,
+  erMann = 99,
+  outfile = "",
+  preprosess = F,
+  malign = 99,
+  Ngrense = 30,
+  elektiv = 99,
+  BMI = "",
+  tilgang = "",
+  valgtShus = c(""),
+  minPRS = 0,
+  maxPRS = 2.2,
+  ASA = "",
+  whoEcog = "",
+  forbehandling = "",
+  hentData = 0,
+  op_gruppe = "",
+  ncsp = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

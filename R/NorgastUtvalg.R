@@ -7,9 +7,10 @@
 #'
 #' @export
 
-NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, elektiv, BMI, hastegrad=99,
-                             valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog='', modGlasgow = '',
-                             forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='', ncsp='', icd='')
+NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", minald=0, maxald=120, erMann=99,
+                          elektiv=99, BMI='', hastegrad=99, valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='',
+                          whoEcog='', modGlasgow = '', forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='',
+                          ncsp='', icd='', hastegrad_hybrid=99, dagtid=99)
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -22,6 +23,8 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
   indOp_gr <- if (op_gruppe[1] != ''){which(RegData$Op_gr %in% as.numeric(op_gruppe))} else {indOp_gr <- 1:Ninn}
   indElekt <- if (elektiv %in% c(0,1)){which(RegData$Hastegrad_tid == elektiv)} else {indElekt <- 1:Ninn}
   indHast <- if (hastegrad %in% c(1,2)){which(RegData$Hastegrad == hastegrad)} else {indHast <- 1:Ninn}
+  indHast2 <- if (hastegrad_hybrid %in% c(0,1)){which(RegData$Hastegrad_hybrid == hastegrad_hybrid)} else {indHast2 <- 1:Ninn}
+  indDag <- if (dagtid %in% c(0,1)){which(RegData$Dagtid == dagtid)} else {indDag <- 1:Ninn}
   indBMI <- if (BMI[1] != '') {which(RegData$BMI_kodet %in% as.numeric(BMI))} else {indBMI <- 1:Ninn}
   indTilgang <- if (tilgang[1] != '') {which(RegData$Tilgang %in% as.numeric(tilgang))} else {indTilgang <- 1:Ninn}
   indPRS <- if ((minPRS>0) | (maxPRS<2.2)) {which(RegData$PRSScore >= minPRS & RegData$PRSScore <= maxPRS)} else {indPRS <- 1:Ninn}
@@ -34,7 +37,8 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
   indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
-    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i% indICD %i% indGlasgow
+    indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i%
+    indICD %i% indGlasgow %i% indHast2 %i% indDag
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -50,6 +54,8 @@ NorgastUtvalg <- function(RegData, datoFra, datoTil, minald, maxald, erMann, ele
                  if (length(ncsp) > 20) {paste0('  ', paste(ncsp[which(!is.na(ncsp[21:31]))+20], collapse=', '))},
                  if (length(ncsp) > 31) {paste0('  ', paste(ncsp[which(!is.na(ncsp[32:42]))+31], collapse=', '))},
                  if (elektiv %in% c(0,1)) {paste0('Operasjonstid: ', c('Utenfor normalarbeidstid', 'Innenfor normalarbeidstid')[elektiv+1])},
+                 if (hastegrad_hybrid %in% c(0,1)) {paste0('Hastegrad (hybrid): ', c('Akutt', 'Elektiv')[hastegrad_hybrid+1])},
+                 if (dagtid %in% c(0,1)) {paste0('Operert dagtid: ', c('Nei', 'Ja')[dagtid+1])},
                  if (hastegrad %in% c(1,2)) {paste0('Hastegrad: ', c('Elektiv', 'Akutt')[hastegrad])},
                  if (BMI[1] != '') {paste0('BMI-kategori(er): ', paste(RegData$BMI_kategori[match(as.numeric(BMI), RegData$BMI_kodet)], collapse=', '))},
                  if (length(valgtShus)>1) {paste0('Valgte RESH: ', paste(as.character(valgtShus), collapse=', '))},

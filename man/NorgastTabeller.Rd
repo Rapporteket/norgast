@@ -5,10 +5,20 @@
 \title{Lag en tabell over de vanligste operasjonstypene samt en tabell med de komplikasjonsrater for de ulike
 komplikasjonstypene for de obligatoriske operasjonsgruppene.}
 \usage{
-NorgastTabeller(RegData = RegData, datoFra = "2014-01-01",
-  datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  enhetsUtvalg = 0, Terskel = 15, reshID = reshID, elektiv = 99,
-  BMI = "", valgtShus = "")
+NorgastTabeller(
+  RegData = RegData,
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31",
+  minald = 0,
+  maxald = 130,
+  erMann = 99,
+  enhetsUtvalg = 0,
+  Terskel = 15,
+  reshID = reshID,
+  elektiv = 99,
+  BMI = "",
+  valgtShus = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

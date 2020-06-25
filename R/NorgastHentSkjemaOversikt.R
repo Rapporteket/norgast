@@ -2,8 +2,6 @@
 #'
 #' Provides SkjemaOversikt for NoRGast data staging
 #'
-#' @inheritParams FigAndeler
-#'
 #' @return SkjemaOversikt data frame
 #' @export
 

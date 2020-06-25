@@ -4,10 +4,19 @@
 \alias{NorgastAnastomoselekkasje}
 \title{Lag tabell over anastomoselekkasjerate}
 \usage{
-NorgastAnastomoselekkasje(RegData = RegData, datoFra = "2014-01-01",
-  datoTil = "2050-12-31", minald = 0, maxald = 130, erMann = 99,
-  reshID = 601225, outfile = "", elektiv = 99, BMI = "",
-  valgtShus = "")
+NorgastAnastomoselekkasje(
+  RegData = RegData,
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31",
+  minald = 0,
+  maxald = 130,
+  erMann = 99,
+  reshID = 601225,
+  outfile = "",
+  elektiv = 99,
+  BMI = "",
+  valgtShus = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

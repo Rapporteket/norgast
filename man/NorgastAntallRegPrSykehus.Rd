@@ -4,8 +4,11 @@
 \alias{NorgastAntallRegPrSykehus}
 \title{Antall pasienter registrert per sykehus}
 \usage{
-NorgastAntallRegPrSykehus(RegData, datoFra = "2014-01-01",
-  datoTil = "2050-12-31")
+NorgastAntallRegPrSykehus(
+  RegData,
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31"
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

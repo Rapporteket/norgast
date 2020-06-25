@@ -2,8 +2,8 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-01-13 13-43-56.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -13,7 +13,7 @@ RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
-RegData <- RegData[RegData$Aar <= 2018, ]
+# RegData <- RegData[RegData$Aar <= 2018, ]
 
 RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
@@ -186,7 +186,7 @@ names(indikator)[1:3] <- c('Resh', 'Aar', 'Teller')
 write.csv2(indikator, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind10_kikkhullsteknikk_endetarm_NorGast.csv', row.names = F)
 
 
-op_gruppe <- 2
+op_gruppe <- 1
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                maxald=maxald, erMann=erMann, elektiv=elektiv,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
@@ -234,7 +234,7 @@ nokkeltall <- RegDataOblig %>% group_by(Aar) %>% summarise("Antall operasjoner" 
                                                sum(LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T)*100,
                                              "Andel reopererte" = sum(ReLapNarkose & Hastegrad_tid == 1)/sum(Hastegrad_tid)*100,
                                              "Overlevelse 90 dager" = sum((OpDoedTid>=90 | is.na(OpDoedTid)) & Hastegrad_tid == 1)/sum(Hastegrad_tid)*100)
-nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7)
+nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7, NA, NA)
 
 write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/nokkeltall.csv', row.names = F)
 

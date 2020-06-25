@@ -4,11 +4,27 @@
 \alias{NorgastLibUtvalg}
 \title{Funksjon som gjør utvalg av dataene, returnerer det reduserte datasettet og utvalgsteksten.}
 \usage{
-NorgastLibUtvalg(RegData, datoFra, datoTil, minald, maxald, erMann,
-  elektiv, BMI, valgtShus = "", tilgang = 99, minPRS = 0,
-  maxPRS = 2, ASA = "", whoEcog = "", forbehandling = 99,
-  malign = 99, fargepalett = "BlaaRapp", reseksjonsGr = "",
-  ncsp = "")
+NorgastLibUtvalg(
+  RegData,
+  datoFra,
+  datoTil,
+  minald,
+  maxald,
+  erMann,
+  elektiv,
+  BMI,
+  valgtShus = "",
+  tilgang = 99,
+  minPRS = 0,
+  maxPRS = 2,
+  ASA = "",
+  whoEcog = "",
+  forbehandling = 99,
+  malign = 99,
+  fargepalett = "BlaaRapp",
+  reseksjonsGr = "",
+  ncsp = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}

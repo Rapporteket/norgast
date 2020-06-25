@@ -40,15 +40,7 @@ NorgastPreprosess <- function(RegData)
   RegData$Forbehandling[intersect(intersect(which(as.numeric(RegData$KunCytostatika)==0),
                                             which(as.numeric(RegData$KunStraaleterapi)==0)),
                                   which(as.numeric(RegData$KjemoRadioKombo)==0))] <- 4
-  # RegData$BMI_kodet <- NA
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Alvorlig undervekt')] <- 1
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Undervekt')] <- 2
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Mild undervekt')] <- 3
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Normal')] <- 4
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Overvekt')] <- 5
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Moderat fedme, klasse I')] <- 6
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse II')] <- 7
-  # RegData$BMI_kodet[which(RegData$BMIKategori=='Fedme, klasse III')] <- 8
+
 
   # BMI-klassifisering basert på https://www.fhi.no/fp/overvekt/kroppsmasseindeks-kmi-og-helse/
   RegData$BMI_kategori <- cut(RegData$BMI, breaks = c(0, 16, 17, 18.5, 25, 30, 35, 40, 500), include.lowest = F, right = F,
@@ -156,12 +148,20 @@ NorgastPreprosess <- function(RegData)
 
   Helligdager <- as.Date(sort(rapbase::Helligdager2008til2022$Dato))
 
+  RegData$Dagtid <- NA
+  RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% 7:15] <- 1
+  RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% c(1:6, 16:24)] <- 0
+
   RegData$Hastegrad_tid <- NA
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
   # RegData$Hastegrad_tid[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0 # gammel
   RegData$Hastegrad_tid[as.numeric(format(RegData$OperasjonsDato, '%w')) %in% c(0, 6)] <- 0
   RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
+
+  RegData$Hastegrad_hybrid <- 2 - RegData$Hastegrad# Definerer en hybridhastegrad som bruker gammel tidsbasert definisjon før
+                                                # 2018-04-18 og den nye direkteregostrerte etter det.
+  RegData$Hastegrad_hybrid[RegData$HovedDato < '2018-04-18'] <- RegData$Hastegrad_tid[RegData$HovedDato < '2018-04-18']
 
   RegData$AvlastendeStomiRektum <- NA
   RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1), which(RegData$Op_gr==2)),
@@ -214,6 +214,9 @@ NorgastPreprosess <- function(RegData)
   # tmp1 <- table(RegData$Hoveddiagnose)
   # tmp2 <- table(RegData$Hoveddiagnos2)
   # table(RegData$Hoveddiagnose[sub("(\\w+).*", "\\1", RegData$Hoveddiagnose) %in% sub("(\\w+).*", "\\1", setdiff(names(tmp1), names(tmp2)))])
+
+  RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
+                                      labels = c('0.0–5.9 cm', '6.0-10.9 cm', '11.0-15.9 cm'), include.lowest = T)
 
   return(invisible(RegData))
 

@@ -4,16 +4,44 @@
 \alias{norgastFigAndelGrVarTid}
 \title{Plot andeler/andeler i angitt format}
 \usage{
-norgastFigAndelGrVarTid(RegData, valgtVar, tittel = "", width = 800,
-  height = 700, sideTxt = "Boområde/opptaksområde", decreasing = F,
-  terskel = 30, minstekrav = NA, maal = NA, skriftStr = 1.3,
-  pktStr = 1.4, legPlass = "top", minstekravTxt = "Min.",
-  maalTxt = "Mål", graaUt = NA, inkl_konf = F,
-  datoFra = "2014-01-01", datoTil = "2050-12-31", minald = 0,
-  maxald = 130, erMann = 99, outfile = "", preprosess = F,
-  malign = 99, elektiv = 99, BMI = "", tilgang = "", minPRS = 0,
-  maxPRS = 2.2, ASA = "", whoEcog = "", forbehandling = "",
-  hentData = 0, op_gruppe = "", ncsp = "")
+norgastFigAndelGrVarTid(
+  RegData,
+  valgtVar,
+  tittel = "",
+  width = 800,
+  height = 700,
+  sideTxt = "Boområde/opptaksområde",
+  decreasing = F,
+  terskel = 30,
+  minstekrav = NA,
+  maal = NA,
+  skriftStr = 1.3,
+  pktStr = 1.4,
+  legPlass = "top",
+  minstekravTxt = "Min.",
+  maalTxt = "Mål",
+  graaUt = NA,
+  inkl_konf = F,
+  datoFra = "2014-01-01",
+  datoTil = "2050-12-31",
+  minald = 0,
+  maxald = 130,
+  erMann = 99,
+  outfile = "",
+  preprosess = F,
+  malign = 99,
+  elektiv = 99,
+  BMI = "",
+  tilgang = "",
+  minPRS = 0,
+  maxPRS = 2.2,
+  ASA = "",
+  whoEcog = "",
+  forbehandling = "",
+  hentData = 0,
+  op_gruppe = "",
+  ncsp = ""
+)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
