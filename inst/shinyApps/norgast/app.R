@@ -267,7 +267,7 @@ server <- function(input, output, session) {
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
     rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    rownames = FALSE, options = list(dom = "tp", pageLength = 20, language = list(
+    rownames = FALSE, options = list(dom = "tp", pageLength = 15, language = list(
   paginate = list(previous = "Forrige",
                   `next` = "Neste")))
   )
