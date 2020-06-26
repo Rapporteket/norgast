@@ -2,6 +2,47 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+##### Linn 26.06.2020 - kvalitetssikring strålingstall ############################
+library(tidyverse)
+RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+
+RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
+                      "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll", "PostopLiggedogn")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus',
+                            'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegDataAll <- NorgastPreprosess(RegData)
+RegData <- RegDataAll[which(RegDataAll$Op_gr==2 & RegDataAll$Malign==1), ]
+
+aux <- RegData %>% group_by(Sykehusnavn, Aar) %>%
+  summarise(antall_kun_cytostatika = sum(KunCytostatika),
+            antall_kun_straaling = sum(KunStraaleterapi),
+            antall_kombo = sum(KjemoRadioKombo),
+            antall_ingen = sum(KunCytostatika==0  & KunStraaleterapi==0 & KjemoRadioKombo==0),
+            N=n())
+
+write.csv2(aux, 'forbehandling.csv', row.names = F, fileEncoding = 'Latin1')
+
+aux$straaling <- paste0(aux$antall_kun_straaling + aux$antall_kombo, ' (', aux$N, ')')
+aux$kun_cytostatika <- paste0(aux$antall_kun_cytostatika, ' (', aux$N, ')')
+aux$kun_straaling <- paste0(aux$antall_kun_straaling, ' (', aux$N, ')')
+aux$ingen <- paste0(aux$antall_ingen, ' (', aux$N, ')')
+straaling <- aux[,c(1,2,8)] %>% spread(key=Aar, value = straaling, fill = '')
+kun_straaling <- aux[,c(1,2,10)] %>% spread(key=Aar, value = kun_straaling, fill = '')
+kun_cytostatika <- aux[,c(1,2,9)] %>% spread(key=Aar, value = kun_cytostatika, fill = '')
+ingen <- aux[,c(1,2,11)] %>% spread(key=Aar, value = ingen, fill = '')
+
+write.csv2(straaling, 'straaling.csv', row.names = F, fileEncoding = 'Latin1')
+write.csv2(kun_straaling, 'kun_straaling.csv', row.names = F, fileEncoding = 'Latin1')
+write.csv2(kun_cytostatika, 'kun_cytostatika.csv', row.names = F, fileEncoding = 'Latin1')
+write.csv2(ingen, 'ingen_forbehandling.csv', row.names = F, fileEncoding = 'Latin1')
+
 ##### St.Olavs 02.06.2020 - postopliggetid Per Even Storli ####################################################
 library(tidyverse)
 RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
