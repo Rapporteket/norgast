@@ -2,20 +2,23 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-01-13 13-43-56.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/AlleVarNum2020-08-31 09-48-25.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-08-31 09-49-48.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad")]
-ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
+                      "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID',
+                            'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
 # RegData <- RegData[RegData$Aar <= 2018, ]
 
-RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+# RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:7, ]
 
@@ -254,6 +257,108 @@ write.csv2(indikator, "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = 
 # nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7)
 #
 # write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/nokkeltall.csv', row.names = F)
+
+
+### Tilpass det nye formatet til Resultatportalen
+
+aux <- indikator1[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind1", "ReshId")
+aux[, "Nevner Ind1"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind1"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind1_sårruptur_NorGast.csv', row.names = F)
+
+aux <- indikator2[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind2", "ReshId")
+aux[, "Nevner Ind2"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind2"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind2_andelavdøde_spiserør_NorGast.csv', row.names = F)
+
+aux <- indikator3[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind3", "ReshId")
+aux[, "Nevner Ind3"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind3"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind3_andelavdøde_magesekk_NorGast.csv', row.names = F)
+
+aux <- indikator4[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind4", "ReshId")
+aux[, "Nevner Ind4"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind4"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind4_andelavdøde_bykspytt_tolv_NorGast.csv', row.names = F)
+
+aux <- indikator5[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind5", "ReshId")
+aux[, "Nevner Ind5"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind5"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind5_andelavdøde_lever_NorGast.csv', row.names = F)
+
+aux <- indikator6[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind6", "ReshId")
+aux[, "Nevner Ind6"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind6"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind6_lekkasje_tykktarm_NorGast.csv', row.names = F)
+
+aux <- indikator7[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind7", "ReshId")
+aux[, "Nevner Ind7"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind7"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind7_lekkasje_endetarm_NorGast.csv', row.names = F)
+
+aux <- indikator8[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind8", "ReshId")
+aux[, "Nevner Ind8"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind8"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind8_kikkhullsteknikk_ lever_NorGast.csv', row.names = F)
+
+aux <- indikator9[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind9", "ReshId")
+aux[, "Nevner Ind9"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind9"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind9_kikkhullsteknikk_tykktarm_NorGast.csv', row.names = F)
+
+aux <- indikator10[, c(1,5,3)]
+names(aux) <- c("Aar", "Teller Ind10", "ReshId")
+aux[, "Nevner Ind10"] <- 1
+aux$AarID <- paste0(aux$Aar, aux$ReshId)
+aux$Indikator <- "Ind10"
+aux <- aux[, c(1,6,4,2,3,5)]
+write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind10_kikkhullsteknikk_endetarm_NorGast.csv', row.names = F)
+
+
+############## Nøkkeltall  ###########################
+
+nokkeltall <- RegDataOblig %>% group_by(Aar) %>% summarise("Antall operasjoner" = n(),
+                                                           "Antall avdelinger" = length(unique(AvdRESH)),
+                                                           "Gjennomsnittsalder" = mean(Alder),
+                                                           "Medianalder" = median(Alder),
+                                                           "Andel sårruptur" = sum(Saarruptur==1 & LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T)/
+                                                             sum(LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T),
+                                                           "Andel reopererte" = sum(ReLapNarkose & Hastegrad_tid == 1)/sum(Hastegrad_tid),
+                                                           "Overlevelse 90 dager" = sum((OpDoedTid>=90 | is.na(OpDoedTid)) & Hastegrad_tid == 1)/sum(Hastegrad_tid))
+nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7, NA, NA)/100
+
+write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/nokkeltall.csv', row.names = F)
+
+
+
+
 
 
 
