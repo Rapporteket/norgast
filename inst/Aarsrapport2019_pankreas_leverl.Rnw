@@ -27,7 +27,7 @@
 % \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
 % \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
-\color{moerkgraa}
+% \color{moerkgraa}
 % \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
