@@ -217,6 +217,7 @@ NorgastPreprosess <- function(RegData)
 
   RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
                                       labels = c('0.0–5.9 cm', '6.0-10.9 cm', '11.0-15.9 cm'), include.lowest = T)
+  RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- NA
 
   return(invisible(RegData))
 
