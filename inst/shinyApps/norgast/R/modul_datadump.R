@@ -77,7 +77,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
       }
 
       if (!is.null(input$op_gruppe)) {dumpdata <- dumpdata[which(dumpdata$Op_gr %in% as.numeric(input$op_gruppe)), ]}
-      if (!is.null(input$ncsp_verdi)) {dumpdata <- dumpdata[which(substr(dumpdata$Hovedoperasjon, 1, 5) %in% ncsp_verdi), ]}
+      if (!is.null(input$ncsp_verdi)) {dumpdata <- dumpdata[which(substr(dumpdata$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
       if (!is.null(input$valgtevar_dump_verdi)) {dumpdata <- dumpdata[, input$valgtevar_dump_verdi]}
 
       write.csv3(dumpdata, file, row.names = F, na = '')

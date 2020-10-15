@@ -205,7 +205,7 @@ indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_
 indikator10 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
 
 
-op_gruppe <- 2
+op_gruppe <- 1
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                maxald=maxald, erMann=erMann, elektiv=elektiv,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
