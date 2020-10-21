@@ -2,9 +2,10 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-08-31 09-48-25.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-08-31 09-49-48.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-Adresser <- read.table('I:/norgast/Adresser ved operasjonsdato.csv', header=TRUE, sep=",", encoding = 'UTF-8', colClasses = "character")
+RegData <- read.table('I:/norgast/AlleVarNum2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+# Adresser1 <- read.table('I:/norgast/Adresser ved operasjonsdato.csv', header=TRUE, sep=",", encoding = 'UTF-8', colClasses = "character")
+Adresser <- read.table('I:/norgast/Dagens_adresser_i_NoRGast_pr_15102020.csv', header=TRUE, sep=",", encoding = 'UTF-8', colClasses = "character")
 Adresser$bydel <- paste0(Adresser$MUNICIPALITY_NUMBER, substr(Adresser$DISTRICTCODE, 3, 4))
 kobling_bosted_hf <- read.table('I:/kommuner_bydel_2020.csv', header=TRUE, sep=";", encoding = 'Latin1', colClasses = "character")
 kobling_bosted_hf$bydel2 <- kobling_bosted_hf$bydel
@@ -153,6 +154,26 @@ RegData$aldersgruppe <- cut(RegData$Alder, breaks = aldersgr, include.lowest = T
 ind4 <- RegData[ , c("Aar", "opptaksomr", "erMann", "Variabel", "aldersgruppe")] %>%
   group_by(Aar, opptaksomr, erMann, aldersgruppe) %>% summarise(teller = sum(Variabel),
                                                                 nevner = n())
+
+kobling_bosted_hf_v2 <- kobling_bosted_hf[match(unique(kobling_bosted_hf$opptaksomr), kobling_bosted_hf$opptaksomr), ]
+
+ind1 <- merge(ind1, kobling_bosted_hf_v2[, c("opptaksomr", "opptaksomr_navn")], by = "opptaksomr", all.x = T)
+ind1 <- ind1[, c(2,7,1,3,4,5,6)]
+names(ind1) <- c("aar",	"bohf",	"bohfnr",	"ermann",	"aldersgruppe",	"teller",	"nevner")
+ind2 <- merge(ind2, kobling_bosted_hf_v2[, c("opptaksomr", "opptaksomr_navn")], by = "opptaksomr", all.x = T)
+ind2 <- ind2[, c(2,7,1,3,4,5,6)]
+names(ind2) <- c("aar",	"bohf",	"bohfnr",	"ermann",	"aldersgruppe",	"teller",	"nevner")
+ind3 <- merge(ind3, kobling_bosted_hf_v2[, c("opptaksomr", "opptaksomr_navn")], by = "opptaksomr", all.x = T)
+ind3 <- ind3[, c(2,7,1,3,4,5,6)]
+names(ind3) <- c("aar",	"bohf",	"bohfnr",	"ermann",	"aldersgruppe",	"teller",	"nevner")
+ind4 <- merge(ind4, kobling_bosted_hf_v2[, c("opptaksomr", "opptaksomr_navn")], by = "opptaksomr", all.x = T)
+ind4 <- ind4[, c(2,7,1,3,4,5,6)]
+names(ind4) <- c("aar",	"bohf",	"bohfnr",	"ermann",	"aldersgruppe",	"teller",	"nevner")
+
+write.csv2(ind1, "I:/norgast/kvalatlas_norgast_ind1.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(ind2, "I:/norgast/kvalatlas_norgast_ind2.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(ind3, "I:/norgast/kvalatlas_norgast_ind3.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(ind4, "I:/norgast/kvalatlas_norgast_ind4.csv", row.names = F, fileEncoding = "Latin1")
 
 
 

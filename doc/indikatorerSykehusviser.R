@@ -30,10 +30,10 @@ enhetsliste <- RegDataOblig[match(unique(RegDataOblig$AvdRESH), RegDataOblig$Avd
 map_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 974632535, 974795787, 974705788, 974633574, 974795639,
                                           974724960, 974795361, 874716782, 974631326, 974749025, 974706490, 974703300, 974633752,
                                           874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
-                                          974724774, 974631091, 974795477, 974329506, 974316285, 974753898),
+                                          974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558),
                              resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
                                       4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
-                                      101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917))
+                                      101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840))
 
 # # tmp <- xlsx::read.xlsx('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.xlsx', sheetIndex = 1)
 # tmp <- read.csv2('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.csv', fileEncoding = 'UTF-8')
@@ -242,21 +242,21 @@ indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_
 indikator8 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
 
 indikator <- bind_rows(indikator1, indikator2, indikator3, indikator4, indikator5, indikator6, indikator7, indikator8, indikator9, indikator10)
+indikator$denominator <- 1
+indikator <- indikator[, c(4,1,5,7,6)]
+names(indikator) <- c("orgnr",	"year",	"var",	"denominator",	"ind_id")
+indikator$ind_id[indikator$ind_id == "norgast1"] <- "norgast_saarruptur"
+indikator$ind_id[indikator$ind_id == "norgast2"] <- "norgast_avdoede_spiseroer"
+indikator$ind_id[indikator$ind_id == "norgast3"] <- "norgast_avdoede_magesekk"
+indikator$ind_id[indikator$ind_id == "norgast4"] <- "norgast_avdoede_bukspytt_tolv"
+indikator$ind_id[indikator$ind_id == "norgast5"] <- "norgast_avdoede_lever"
+indikator$ind_id[indikator$ind_id == "norgast6"] <- "norgast_lekkasje_tykktarm"
+indikator$ind_id[indikator$ind_id == "norgast7"] <- "norgast_lekkasje_endetarm"
+indikator$ind_id[indikator$ind_id == "norgast8"] <- "norgast_kikkhullsteknikk_lever"
+indikator$ind_id[indikator$ind_id == "norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
+indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
+
 write.csv2(indikator, "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
-
-############## Nøkkeltall  ###########################
-
-# nokkeltall <- RegDataOblig %>% group_by(Aar) %>% summarise("Antall operasjoner" = n(),
-#                                              "Antall avdelinger" = length(unique(AvdRESH)),
-#                                              "Gjennomsnittsalder" = mean(Alder),
-#                                              "Medianalder" = median(Alder),
-#                                              "Andel sårruptur" = sum(Saarruptur==1 & LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T)/
-#                                                sum(LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T)*100,
-#                                              "Andel reopererte" = sum(ReLapNarkose & Hastegrad_tid == 1)/sum(Hastegrad_tid)*100,
-#                                              "Overlevelse 90 dager" = sum((OpDoedTid>=90 | is.na(OpDoedTid)) & Hastegrad_tid == 1)/sum(Hastegrad_tid)*100)
-# nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7)
-#
-# write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/nokkeltall.csv', row.names = F)
 
 
 ### Tilpass det nye formatet til Resultatportalen
