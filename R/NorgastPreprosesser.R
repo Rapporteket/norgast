@@ -160,7 +160,7 @@ NorgastPreprosess <- function(RegData)
   RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$Hastegrad_hybrid <- 2 - RegData$Hastegrad# Definerer en hybridhastegrad som bruker gammel tidsbasert definisjon før
-                                                # 2018-04-18 og den nye direkteregostrerte etter det.
+                                                # 2018-04-18 og den nye direkteregistrerte etter det.
   RegData$Hastegrad_hybrid[RegData$HovedDato < '2018-04-18'] <- RegData$Hastegrad_tid[RegData$HovedDato < '2018-04-18']
 
   RegData$AvlastendeStomiRektum <- NA

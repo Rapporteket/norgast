@@ -2,8 +2,8 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-08-31 09-48-25.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-08-31 09-49-48.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/AlleVarNum2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -28,12 +28,14 @@ enhetsliste <- RegDataOblig[match(unique(RegDataOblig$AvdRESH), RegDataOblig$Avd
 # OBS, OUS er foreløpig registrert under en felles resh. Her benytter vi Rikshospitalet. AHUS mappes til AHUS NORDBYHAGEN SOMATIKK?
 
 map_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 974632535, 974795787, 974705788, 974633574, 974795639,
-                                          974724960, 974795361, 874716782, 974631326, 974749025, 974706490, 974703300, 974633752,
+                                          974724960, 974795361, 993467049, 974631326, 974749025, 974706490, 974703300, 974633752,
                                           874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
-                                          974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558),
+                                          974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558,
+                                          974795574, 874716782, 974707152),
                              resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
                                       4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
-                                      101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840))
+                                      101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840, 700841,
+                                      103312, 4205289))
 
 # # tmp <- xlsx::read.xlsx('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.xlsx', sheetIndex = 1)
 # tmp <- read.csv2('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.csv', fileEncoding = 'UTF-8')
@@ -256,7 +258,142 @@ indikator$ind_id[indikator$ind_id == "norgast8"] <- "norgast_kikkhullsteknikk_le
 indikator$ind_id[indikator$ind_id == "norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
 indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
 
-write.csv2(indikator, "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
+# write.csv2(indikator, "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
+
+### Tilbered dekningsgrad for sykehusviser
+
+dg_kobl_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 974632535, 974795787, 974705788, 974633574, 974795639,
+                                              974724960, 974795361, 993467049, 974631326, 974749025, 974706490, 974703300, 974633752,
+                                              874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
+                                              974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558,
+                                              974795574, 874716782, 974707152, 974631776, 974744570, 974747545, 974753898, 974795558,
+                                              974795574),
+                                 resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
+                                          4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
+                                          101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840, 700841,
+                                          103312,4205289, 974631776, 974744570, 974747545, 974753898, 974795558, 974795574))
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "Total DG per SH")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_total"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- dg
+
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG Tykktarm")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_tykktarm"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG_Lever")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_lever"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG_Pankreas")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_pankreas"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG_Endetarm")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_endetarm"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG_Magesekk")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_magesekk"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+                         sheet = "DG_Spiseroer")
+dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
+dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+dg <- dg[,c(10,6,2,3)]
+dg <- dg[!is.na(dg$orgnr), ]
+dg$ind_id <- "norgast_dg_spiseroer"
+names(dg)[2:4] <- c("year",	"var", "denominator")
+dg_samlet <- bind_rows(dg_samlet, dg)
+
+tmp <- RegDataOblig[substr(RegDataOblig$Sykehusnavn, 1, 3) %in% "OUS", ]
+
+data.frame(resh=unique(RegDataOblig$AvdRESH),
+           shus = RegDataOblig$Sykehusnavn[match(unique(RegDataOblig$AvdRESH),RegDataOblig$AvdRESH)])
+
+feilsok <- indikator
+feilsok$shus <- NA
+feilsok$shus[feilsok$orgnr %in% qmongrdata::SykehusNavnStruktur$OrgNrShus] <-
+  qmongrdata::SykehusNavnStruktur$SykehusNavn[match(feilsok$orgnr[feilsok$orgnr %in% qmongrdata::SykehusNavnStruktur$OrgNrShus],
+                                                    qmongrdata::SykehusNavnStruktur$OrgNrShus)]
+feilsok$shus[feilsok$orgnr %in% qmongrdata::SykehusNavnStruktur$OrgNrHF] <-
+  qmongrdata::SykehusNavnStruktur$HF[match(feilsok$orgnr[feilsok$orgnr %in% qmongrdata::SykehusNavnStruktur$OrgNrHF],
+                                                    qmongrdata::SykehusNavnStruktur$OrgNrHF)]
+
+# indikator <- bind_rows(indikator, dg_samlet)
+
+write.csv2(indikator[indikator$year < 2020, ], "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
+
+dg_samlet2 <-dg_samlet
+
+tmp <- merge(dg_samlet2[dg_samlet2$year == 2014, ], dg_samlet2[dg_samlet2$year == 2016, c("orgnr", "ind_id", "denominator")],
+             by = c("orgnr", "ind_id"), all.x = T, suffixes = c('', '_2016')) %>%
+  merge(dg_samlet2[dg_samlet2$year == 2018, c("orgnr", "ind_id", "denominator")],
+        by = c("orgnr", "ind_id"), all.x = T, suffixes = c('', '_2018')) %>%
+  merge(dg_samlet2[dg_samlet2$year == 2019, c("orgnr", "ind_id", "denominator")],
+        by = c("orgnr", "ind_id"), all.x = T, suffixes = c('', '_2019'))
+
+write.csv2(dg_samlet[dg_samlet$year < 2020, ], "C:/GIT/qmongrdata/data-raw/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
+
+# write.csv2(indikator[which(indikator$year < 2020 & indikator$ind_id == "norgast_avdoede_bukspytt_tolv"), ],
+#            "C:/GIT/qmongrdata/data-raw/norgastdata_pankread.csv", row.names = F, fileEncoding = 'UTF-8')
+
+# dg_tot <- xlsx::read.xlsx2("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
+#                  sheetName = "Total DG per SH", as.data.frame = T, header = T, colClasses = "character")
+# dg_tot[match(unique(dg_tot$ReshID), dg_tot$ReshID),]
+# dg_tot <- dg_tot[, c(1,2,5)]
+#
+# write.csv2(dg_tot, "C:/GIT/norgast/doc/dg.csv", row.names = F)
+# write.csv2(dg2, "C:/GIT/norgast/doc/dg2.csv", row.names = F)
+
+# # Hent orgnr fra koblingstabell
+# dg_tot$orgnr <- map_resh_orgnr$orgnr_sh[match(dg_tot$ReshID, map_resh_orgnr$resh)]
+#
+# i_regdata_mangler_i_dgtabell <- data.frame(resh= unique(RegDataOblig$AvdRESH[!(RegDataOblig$AvdRESH %in% dg_tot$ReshID)]),
+#                                   shus = RegDataOblig$Sykehusnavn[match(unique(RegDataOblig$AvdRESH[!(RegDataOblig$AvdRESH %in% dg_tot$ReshID)]),
+#                                                                         RegDataOblig$AvdRESH)])
+# i_regdata_mangler_i_dgtabell$orgnr <- map_resh_orgnr$orgnr_sh[match(i_regdata_mangler_i_dgtabell$resh, map_resh_orgnr$resh)]
+#
+# tmp <- dg_tot[is.na(dg_tot$orgnr), ]
+# i_dgtabell_mangler_i_regdata <- tmp[match(unique(tmp$ReshID), tmp$ReshID), c("Sykehus", "ReshID")]
 
 
 ### Tilpass det nye formatet til Resultatportalen
@@ -358,8 +495,66 @@ write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Result
 
 
 
+########## Legge til teller i data ################################
+
+RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
+
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+# RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
+# RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+RegData$op_gr_npr <- 'Annet'
+RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
+RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
+                            which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
+RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
+RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jlc"),
+                            which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% c(0:40, 96)))] <- "Pankreasreseksjoner"
+RegData <- RegData[which(RegData$op_gr_npr != 'Annet'), ]
+RegData$Aar <- format(as.Date(RegData$HovedDato), '%Y')
+RegData <- RegData[RegData$Aar %in% 2014:2019,  ]
+RegData <- RegData[RegData$BasisRegStatus == 1, ]
+
+library(tidyverse)
+tmp <- RegData %>% group_by(PasientID, HovedDato, Hovedoperasjon) %>% summarise(antall = n(),
+                                                                                ForlopsID = ForlopsID[1])
+tmp <- tmp[tmp$antall>1, ]
+RegData <- RegData[!(RegData$ForlopsID %in% tmp$ForlopsID), ] # fjern dobbelreg
+RegData <- RegData[, c("PasientID", "ForlopsID", "HovedDato", "Hovedoperasjon", "op_gr_npr", "AvdRESH", "Sykehusnavn")]
+
+RegData$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(RegData$AvdRESH, dg_kobl_resh_orgnr$resh)]
+RegData$year <- as.numeric(substr(RegData$HovedDato, 1,4))
+
+RegData$ind_id <- NA
+RegData$ind_id[RegData$op_gr_npr == "Kolonreseksjoner"] <- "norgast_dg_tykktarm"
+RegData$ind_id[RegData$op_gr_npr == "Rektumreseksjoner"] <- "norgast_dg_endetarm"
+RegData$ind_id[RegData$op_gr_npr == "Øsofagusreseksjoner"] <- "norgast_dg_spiseroer"
+RegData$ind_id[RegData$op_gr_npr == "Ventrikkelreseksjoner"] <- "norgast_dg_magesekk"
+RegData$ind_id[RegData$op_gr_npr == "Leverreseksjoner"] <- "norgast_dg_lever"
+RegData$ind_id[RegData$op_gr_npr == "Pankreasreseksjoner"] <- "norgast_dg_pankreas"
 
 
+sammenstill <- RegData %>% group_by(orgnr, year, ind_id) %>% summarise(teller = n())
+samlet <- RegData %>% group_by(orgnr, year) %>% summarise(teller = n())
+samlet$ind_id <- "norgast_dg_total"
 
+sammenstill <- bind_rows(sammenstill, samlet)
 
-
+tmp <- merge(dg_samlet, sammenstill, by = c("orgnr", "year", "ind_id"), all.x = T)
+tmp2 <- tmp[tmp$denominator==100, ]
+tmp2$nevner[tmp2$var!=0] <- round(tmp2$teller[tmp2$var!=0]*100/tmp2$var[tmp2$var!=0])
+# tmp2$nevner[tmp2$var==0] <- 0
