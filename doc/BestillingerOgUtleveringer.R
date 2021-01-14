@@ -2,6 +2,30 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+
+###### Testdata ifm. dataprodukter. Aksel 14.01.2021 ##############################
+library(tidyverse)
+AlleVarNum <- read.table('I:/norgast/AlleVarNum2021-01-14 13-59-17.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+AlleVar <- read.table('I:/norgast/AlleVar2021-01-14 13-59-17.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+ForlopOversikt <- read.table('I:/norgast/ForlopsOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+SkjemaOversikt <- read.table('I:/norgast/SkjemaOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=';',
+                             stringsAsFactors = F, encoding = 'UTF-8')
+
+AlleVarNum <- apply(AlleVarNum, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+AlleVar <- apply(AlleVar, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+ForlopOversikt <- apply(ForlopOversikt, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+SkjemaOversikt <- apply(SkjemaOversikt, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+
+write.csv2(AlleVar, "I:/norgast/AlleVar.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(AlleVarNum, "I:/norgast/AlleVarNum.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(ForlopOversikt, "I:/norgast/ForlopOversikt.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(SkjemaOversikt, "I:/norgast/SkjemaOversikt.csv", row.names = F, fileEncoding = "Latin1")
+
+
+
 ##### Linn 26.06.2020 - kvalitetssikring strålingstall ############################
 library(tidyverse)
 RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
