@@ -28,10 +28,14 @@ if (rapbase::isRapContext()) {
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
   Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
-  RegData <- read.table('I:/norgast/AlleVarNum2020-08-31 09-48-25.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2021-01-13 14-31-59.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-08-31 09-49-48.txt', header=TRUE, sep=";",
+  # RegData_old <- read.table('I:/norgast/AlleVarNum2020-10-16 10-02-12.txt', header=TRUE, sep=";",
+  #                       encoding = 'UTF-8', stringsAsFactors = F)
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-01-13 14-31-59.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
+  # ForlopData_old <- read.table('I:/norgast/ForlopsOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=";",
+  #                          encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -39,11 +43,14 @@ if (rapbase::isRapContext()) {
                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                         "AvstandAnalVerge")]
+  names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2020-08-31 09-49-48.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-01-13 14-31-59.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  # skjemaoversikt_old <- read.table('I:/norgast/SkjemaOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
+
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 

@@ -219,7 +219,10 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
   })
 
   calc_overlevelse <- function() {
-    RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
+    feilreg <- which(RegData$OpDoedTid<0)
+    if (length(feilreg) != 0) {
+      RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
+    }
     RegData <- RegData[!(RegData$Avdod == 1 & is.na(RegData$OpDoedTid)), ] #manglende data: død men ingen dødsdato
     RegData$OpDoedTid[RegData$OpDoedTid==0] <- 0.5 #Døde ved dag 0 settes til 0.5 for å inkluderes i analysen
 
