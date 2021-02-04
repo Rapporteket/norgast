@@ -15,10 +15,10 @@ admtab_UI <- function(id, BrValg){
       id = ns("id_adm_panel"),
       conditionalPanel(condition = paste0("input['", ns('admtabeller'), "'] == 'id_ant_skjema'"),
                        dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                      max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til "),
-                       selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                                   choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                       uiOutput(outputId = ns('ncsp'))
+                                      max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")#,
+                       # selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                       #             choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+                       # uiOutput(outputId = ns('ncsp'))
       ),
       checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner. Merk: Hvis du krysser av for denne så
                     inkluderes kun forløp med ferdigstilt basisregistrering.", value = F),
@@ -70,16 +70,16 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     shinyjs::reset("id_adm_panel")
   })
 
-  output$ncsp <- renderUI({
-    ns <- session$ns
-    if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
-                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
-                  }, multiple = TRUE)
-    }
-  })
+  # output$ncsp <- renderUI({
+  #   ns <- session$ns
+  #   if (!is.null(input$op_gruppe)) {
+  #     selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
+  #                 choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+  #                                                                                                                as.numeric(input$op_gruppe)])), 1, 5),
+  #                                                                    sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+  #                 }, multiple = TRUE)
+  #   }
+  # })
 
   antskjema <- function() {
 
@@ -94,9 +94,9 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
     tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
     tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
-    tmp <- merge(tmp, RegData[,c("ForlopsID", "Op_gr")], by = "ForlopsID", all.x = T)
-    if (!is.null(input$op_gruppe)) {tmp <- tmp[which(RegData$Op_gr %in% as.numeric(input$op_gruppe)), ]}
-    if (!is.null(input$ncsp_verdi)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
+    # tmp <- merge(tmp, RegData[,c("ForlopsID", "Op_gr")], by = "ForlopsID", all.x = T)
+    # if (!is.null(input$op_gruppe)) {tmp <- tmp[which(RegData$Op_gr %in% as.numeric(input$op_gruppe)), ]}
+    # if (!is.null(input$ncsp_verdi)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
 
     aux <- tmp %>% filter(HovedDato >= input$datovalg_adm[1] & HovedDato <= input$datovalg_adm[2]) %>%
       group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
