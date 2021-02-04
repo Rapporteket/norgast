@@ -30,12 +30,8 @@ if (rapbase::isRapContext()) {
   Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
   RegData <- read.table('I:/norgast/AlleVarNum2021-02-03 15-28-13.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  # RegData_old <- read.table('I:/norgast/AlleVarNum2020-10-16 10-02-12.txt', header=TRUE, sep=";",
-  #                       encoding = 'UTF-8', stringsAsFactors = F)
   ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
-  # ForlopData_old <- read.table('I:/norgast/ForlopsOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=";",
-  #                          encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -48,7 +44,6 @@ if (rapbase::isRapContext()) {
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
-  # skjemaoversikt_old <- read.table('I:/norgast/SkjemaOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
 }
 
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
@@ -68,7 +63,7 @@ source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
-# source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 # # source(system.file("shinyApps/norgast/R/modul_abonnement.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
@@ -125,9 +120,9 @@ ui <- navbarPage(id = "norgast_app_id",
            datadump_UI(id = "datadump_id", BrValg = BrValg)
   ),
 
-  # tabPanel("Administrative tabeller",
-  #          admtab_UI(id = "admtab_id", BrValg = BrValg)
-  # ),
+  tabPanel("Administrative tabeller",
+           admtab_UI(id = "admtab_id", BrValg = BrValg)
+  ),
 
   # tabPanel("Abonnement",
   #          abonnement_UI(id = "abonnement_id")
@@ -228,7 +223,7 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Adm. tabeller ##################################################################################################
 
-  # callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
+  callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
   ################ Abonnement ##################################################################################################
