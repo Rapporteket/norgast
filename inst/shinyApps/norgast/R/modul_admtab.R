@@ -72,11 +72,11 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
   output$ncsp_adm <- renderUI({
     ns <- session$ns
-    if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
-                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+    if (!is.null(input$op_gruppe_adm)) {
+      selectInput(inputId = ns("ncsp_verdi_adm"), label = "NCSP koder (velg en eller flere)",
+                  choices = if (!is.null(input$op_gruppe_adm)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
+                                                                                                                 as.numeric(input$op_gruppe_adm)])), 1, 5),
+                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe_adm)])))
                   }, multiple = TRUE)
     }
   })
@@ -95,8 +95,8 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
     tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
     tmp <- merge(tmp, RegData[,c("ForlopsID", "Op_gr")], by = "ForlopsID", all.x = T)
-    if (!is.null(input$op_gruppe)) {tmp <- tmp[which(RegData$Op_gr %in% as.numeric(input$op_gruppe)), ]}
-    if (!is.null(input$ncsp_adm)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
+    if (!is.null(input$op_gruppe_adm)) {tmp <- tmp[which(RegData$Op_gr %in% as.numeric(input$op_gruppe_adm)), ]}
+    if (!is.null(input$ncsp_verdi_adm)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi_adm), ]}
 
     aux <- tmp %>% filter(HovedDato >= input$datovalg_adm[1] & HovedDato <= input$datovalg_adm[2]) %>%
       group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
