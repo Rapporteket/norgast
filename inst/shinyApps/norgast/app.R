@@ -63,8 +63,7 @@ source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
-# # source(system.file("shinyApps/norgast/R/modul_abonnement.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -120,13 +119,10 @@ ui <- navbarPage(id = "norgast_app_id",
            datadump_UI(id = "datadump_id", BrValg = BrValg)
   ),
 
-  tabPanel("Administrative tabeller",
-           admtab_UI(id = "admtab_id", BrValg = BrValg)
-  ),
+  # tabPanel("Administrative tabeller",
+  #          admtab_UI(id = "admtab_id", BrValg = BrValg)
+  # ),
 
-  # tabPanel("Abonnement",
-  #          abonnement_UI(id = "abonnement_id")
-  # )
 
   tabPanel(p("Abonnement",
              title='Bestill automatisk utsending av rapporter på e-post'),
