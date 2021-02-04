@@ -13,33 +13,32 @@ admtab_UI <- function(id, BrValg){
   shiny::sidebarLayout(
     sidebarPanel(
       id = ns("id_adm_panel"),
-      # conditionalPanel(condition = paste0("input['", ns('admtabeller'), "'] == 'id_ant_skjema'"),
+      conditionalPanel(condition = paste0("input['", ns('admtabeller'), "'] == 'id_ant_skjema'"),
                        dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                                       max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til "),
-                       selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                       selectInput(inputId = ns("op_gruppe_adm"), label = "Velg reseksjonsgruppe(r)",
                                    choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                       uiOutput(outputId = ns('ncsp')),
-      # ),
+                       uiOutput(outputId = ns('ncsp_adm'))
+      ),
       checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner. Merk: Hvis du krysser av for denne så
                     inkluderes kun forløp med ferdigstilt basisregistrering.", value = F),
-      # bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
-      #           siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
-      # conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
+      bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
+                siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
+      conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
                        selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                    choices = c('Måneder'=1, 'År'=2)),
-                       # conditionalPanel(condition = paste0("input['", ns("adm_tidsenhet"), "'] == '1'"),
+                       conditionalPanel(condition = paste0("input['", ns("adm_tidsenhet"), "'] == '1'"),
                                         norgast::dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
                                                             max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
-                                        sliderInput(inputId=ns("ant_mnd"), label = "Antall måneder", min = 1, max = 24, value = 12, step = 1),
-                                        # ),
-                       # conditionalPanel(condition = paste0("input['", ns("adm_tidsenhet"), "'] == '2'"),
-                       #                  norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
-                       #                                      max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
-                       #                  sliderInput(inputId= ns("ant_aar"), label = "Antall år", min = 1, max = 10, value = 5, step = 1)),
+                                        sliderInput(inputId=ns("ant_mnd"), label = "Antall måneder", min = 1, max = 24, value = 12, step = 1)),
+                       conditionalPanel(condition = paste0("input['", ns("adm_tidsenhet"), "'] == '2'"),
+                                        norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
+                                                            max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
+                                        sliderInput(inputId= ns("ant_aar"), label = "Antall år", min = 1, max = 10, value = 5, step = 1)),
                        selectInput(inputId = ns("regstatus_tid"), label = "Skjemastatus",
                                    choices = c('Ferdige forløp'=1, 'Oppfølging i kladd'=2, 'Ferdig basisreg. oppfølging mangler'=3,
-                                               'Basisreg. i kladd'=4)),
-      # ),
+                                               'Basisreg. i kladd'=4))
+      ),
       tags$hr(),
       actionButton(ns("reset_input"), "Nullstill valg")
     ),
@@ -71,7 +70,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     shinyjs::reset("id_adm_panel")
   })
 
-  output$ncsp <- renderUI({
+  output$ncsp_adm <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
       selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
@@ -97,7 +96,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
     tmp <- merge(tmp, RegData[,c("ForlopsID", "Op_gr")], by = "ForlopsID", all.x = T)
     if (!is.null(input$op_gruppe)) {tmp <- tmp[which(RegData$Op_gr %in% as.numeric(input$op_gruppe)), ]}
-    if (!is.null(input$ncsp_verdi)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
+    if (!is.null(input$ncsp_adm)) {tmp <- tmp[which(substr(RegData$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
 
     aux <- tmp %>% filter(HovedDato >= input$datovalg_adm[1] & HovedDato <= input$datovalg_adm[2]) %>%
       group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
