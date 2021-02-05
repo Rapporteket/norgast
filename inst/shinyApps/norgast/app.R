@@ -63,7 +63,7 @@ source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
+# source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -219,7 +219,7 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Adm. tabeller ##################################################################################################
 
-  callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
+  # callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
   ################ Abonnement ##################################################################################################
