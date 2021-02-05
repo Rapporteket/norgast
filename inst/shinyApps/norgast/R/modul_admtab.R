@@ -121,13 +121,13 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
   }
 
-  output$Tabell_adm1 = renderDT(
-    datatable(antskjema()$ant_skjema[-dim(antskjema()$ant_skjema)[1], ],
-              container = antskjema()$sketch,
-              rownames = F,
-              options = list(pageLength = 40)
-    )
-  )
+  # output$Tabell_adm1 = renderDT(
+  #   datatable(antskjema()$ant_skjema[-dim(antskjema()$ant_skjema)[1], ],
+  #             container = antskjema()$sketch,
+  #             rownames = F,
+  #             options = list(pageLength = 40)
+  #   )
+  # )
 
 
   output$lastNed_adm1 <- downloadHandler(
@@ -211,13 +211,13 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
   }
 
-  output$Tabell_adm2 = renderDT(
-    datatable(andre_adm_tab()$ant_skjema[-dim(andre_adm_tab()$ant_skjema)[1], ],
-              container = andre_adm_tab()$sketch,
-              rownames = F,
-              options = list(pageLength = 40)
-    )
-  )
+  # output$Tabell_adm2 = renderDT(
+  #   datatable(andre_adm_tab()$ant_skjema[-dim(andre_adm_tab()$ant_skjema)[1], ],
+  #             container = andre_adm_tab()$sketch,
+  #             rownames = F,
+  #             options = list(pageLength = 40)
+  #   )
+  # )
 
   output$lastNed_adm2 <- downloadHandler(
     filename = function(){
