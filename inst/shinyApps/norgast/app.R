@@ -119,9 +119,9 @@ ui <- navbarPage(id = "norgast_app_id",
            datadump_UI(id = "datadump_id", BrValg = BrValg)
   ),
 
-  tabPanel("Administrative tabeller",
-           admtab_UI(id = "admtab_id")
-  ),
+  # tabPanel("Administrative tabeller",
+  #          admtab_UI(id = "admtab_id")
+  # ),
 
 
   tabPanel(p("Abonnement",
