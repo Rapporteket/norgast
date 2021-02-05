@@ -48,14 +48,14 @@ admtab_UI <- function(id, BrValg){
                                    h4(tags$b('Ferdige forløp '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging.'),
                                    h4(tags$b('Oppfølging i kladd '), 'viser antall forløp med ferdigstilt basisregistrering og oppfølging i kladd.'),
                                    h4(tags$b('Ferdig basisreg. oppfølging mangler '), 'viser antall forløp med ferdigstilt basisregistrering og ikke påbegynt eller slettet oppfølging'),
-                                   h4(tags$b('Basisreg. i kladd '), 'viser antallet basisregistreringer i kladd.'),
-                                   br(),
-                                   br(),
-                                   DTOutput(ns("Tabell_adm1")), downloadButton(ns("lastNed_adm1"), "Last ned tabell")),
+                                   h4(tags$b('Basisreg. i kladd '), 'viser antallet basisregistreringer i kladd.')),
+                                   # br(),
+                                   # br(),
+                                   # DTOutput(ns("Tabell_adm1")), downloadButton(ns("lastNed_adm1"), "Last ned tabell")),
                           tabPanel("Registreringer over tid", value = "id_ant_tid",
                                    # textOutput(ns("debug_greier1")),
                                    # textOutput(ns("debug_greier2")),
-                                   DTOutput(ns("Tabell_adm2")), downloadButton(ns("lastNed_adm2"), "Last ned tabell")
+                                   # DTOutput(ns("Tabell_adm2")), downloadButton(ns("lastNed_adm2"), "Last ned tabell")
                           )
     )
     )
