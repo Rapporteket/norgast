@@ -120,7 +120,7 @@ ui <- navbarPage(id = "norgast_app_id",
   ),
 
   tabPanel("Administrative tabeller",
-           admtab_UI(id = "admtab_id", BrValg = BrValg)
+           admtab_UI(id = "admtab_id")
   ),
 
 

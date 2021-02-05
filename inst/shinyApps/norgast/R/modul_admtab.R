@@ -2,23 +2,23 @@
 #
 # Kun til bruk i Shiny
 #
-# @inheritParams norgastFigAndeler
+# inheritParams norgastFigAndeler
 #
-# @return Modulfunksjoner til Administrative tabeller
+# return Modulfunksjoner til Administrative tabeller
 
 
-admtab_UI <- function(id, BrValg){
+admtab_UI <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
     sidebarPanel(
       id = ns("id_adm_panel"),
-      conditionalPanel(condition = paste0("input['", ns('admtabeller'), "'] == 'id_ant_skjema'"),
+      conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_skjema'"),
                        dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                      max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til "),
-                       selectInput(inputId = ns("op_gruppe_adm"), label = "Velg reseksjonsgruppe(r)",
-                                   choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                       uiOutput(outputId = ns('ncsp_adm'))
+                                      max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")#,
+      #                  selectInput(inputId = ns("op_gruppe_adm"), label = "Velg reseksjonsgruppe(r)",
+      #                              choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+      #                  uiOutput(outputId = ns('ncsp_adm'))
       ),
       checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner. Merk: Hvis du krysser av for denne så
                     inkluderes kun forløp med ferdigstilt basisregistrering.", value = F),

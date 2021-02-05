@@ -2,14 +2,13 @@
 #
 # Kun til bruk i Shiny
 #
-# @return Modul fordelingsfigur
+# return Modul fordelingsfigur
 #
 fordelingsfig_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
     sidebarPanel(
-      # shinyjs::useShinyjs(),
       id = ns("id_fordeling_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg),
