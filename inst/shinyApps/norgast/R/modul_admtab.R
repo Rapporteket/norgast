@@ -22,8 +22,8 @@ admtab_UI <- function(id, BrValg){
       ),
       checkboxInput(inputId = ns("kun_oblig"), label = "Inkluder kun obligatoriske reseksjoner. Merk: Hvis du krysser av for denne så
                     inkluderes kun forløp med ferdigstilt basisregistrering.", value = F),
-      bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
-                siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
+      # bsTooltip(id = ns("kun_oblig"), title= 'Dette valget filtrerer bort alle forløp som ikke har ferdigstilt basisregistrering
+                # siden prosedyrekode kun overføres til Rapporteket for ferdigstilte registreringer.'),
       conditionalPanel(condition = paste0("input['", ns("admtabeller"), "'] == 'id_ant_tid'"),
                        selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                    choices = c('Måneder'=1, 'År'=2)),
@@ -230,45 +230,45 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     }
   )
 
-  # shiny::observe({
-  #   if (rapbase::isRapContext()) {
-  #     if (req(input$admtabeller) == "id_ant_skjema") {
-  #       mld_adm1 <- paste0(
-  #         "NoRGast: Admin. tabell: Antall skjema, dato ",
-  #         input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
-  #     }
-  #     if (req(input$admtabeller) == "id_ant_tid") {
-  #       mld_adm1 <- paste0(
-  #         "NoRGast: Admin. tabell: Antall skjema pr ",
-  #         c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
-  #         c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
-  #                                                        'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
-  #     }
-  #     raplog::repLogger(
-  #       session = hvd_session,
-  #       msg = mld_adm1
-  #     )
-  #
-  #     shinyjs::onclick(
-  #       "lastNed_adm1",
-  #       raplog::repLogger(
-  #         session = hvd_session,
-  #         msg = paste0("NoRGast: nedlasting tabell: Antall skjema, dato ",
-  #                      input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
-  #       )
-  #     )
-  #     shinyjs::onclick(
-  #       "lastNed_adm2",
-  #       raplog::repLogger(
-  #         session = hvd_session,
-  #         msg = paste0("NoRGast: nedlasting tabell: Antall skjema pr ",
-  #                      c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
-  #                      c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
-  #                        'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
-  #       )
-  #     )
-  #   }
-  # })
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$admtabeller) == "id_ant_skjema") {
+        mld_adm1 <- paste0(
+          "NoRGast: Admin. tabell: Antall skjema, dato ",
+          input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
+      }
+      if (req(input$admtabeller) == "id_ant_tid") {
+        mld_adm1 <- paste0(
+          "NoRGast: Admin. tabell: Antall skjema pr ",
+          c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
+          c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
+                                                         'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
+      }
+      raplog::repLogger(
+        session = hvd_session,
+        msg = mld_adm1
+      )
+
+      shinyjs::onclick(
+        "lastNed_adm1",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: nedlasting tabell: Antall skjema, dato ",
+                       input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
+        )
+      )
+      shinyjs::onclick(
+        "lastNed_adm2",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: nedlasting tabell: Antall skjema pr ",
+                       c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
+                       c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
+                         'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
+        )
+      )
+    }
+  })
 
 
 
