@@ -1,7 +1,7 @@
 Package: norgast
 Type: Package
 Title: Resultatrapporter for NoRGast
-Version: 1.5.1
+Version: 1.5.4
 Date: 2015-12-17
 Author: Kevin Thon
 Maintainer: Kevin Thon <kevin.thon@skde.no>
@@ -17,12 +17,12 @@ Imports:
   tidyverse,
   kableExtra,
   shinyjs,
-  shinyBS,
   rapFigurer,
   rapbase,
   raplog,
   survival,
-  survminer
+  survminer,
+  shinyWidgets
 Remotes:
   Rapporteket/rapbase,
   Rapporteket/raplog,
