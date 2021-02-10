@@ -88,8 +88,11 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     ns <- session$ns
     req(input$adm_tidsenhet == '1')
     tagList(
-      norgast::dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
-                          max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
+      # norgast::dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
+      #                     max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
+      shinyWidgets::airDatepickerInput(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", minDate = '2014-01-01',
+                                       maxDate = Sys.Date(), value = Sys.Date(), view = "months", minView = 'months',
+                                       dateFormat = "MM yyyy", language="da"),
       sliderInput(inputId=ns("ant_mnd"), label = "Antall måneder", min = 1, max = 24, value = 12, step = 1)
     )
   })
@@ -98,8 +101,11 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     ns <- session$ns
     req(input$adm_tidsenhet == '2')
     tagList(
-      norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
-                          max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
+      # norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
+      #                     max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
+      shinyWidgets::airDatepickerInput(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", minDate = '2014-01-01',
+                                       maxDate = Sys.Date(), value = Sys.Date(), view = "years", minView = 'years',
+                                       dateFormat = "yyyy", language="da"),
       sliderInput(inputId= ns("ant_aar"), label = "Antall år", min = 1, max = 10, value = 5, step = 1)
     )
   })
@@ -170,6 +176,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
   andre_adm_tab <- function() {
     if (input$adm_tidsenhet == 1) {
       req(input$datovalg_adm_tid_mnd)
+      # print(input$datovalg_adm_tid_mnd)
       tilDato <- as.Date(paste0(input$datovalg_adm_tid_mnd))
       fraDato <- tilDato %m-% months(as.numeric(input$ant_mnd)) %>% floor_date(unit="months")
       tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
@@ -196,6 +203,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
 
     if (input$adm_tidsenhet == 2) {
       req(input$datovalg_adm_tid_aar)
+      # print(input$datovalg_adm_tid_aar)
       fraDato <- as.Date(input$datovalg_adm_tid_aar) %m-% years(input$ant_aar) %>% floor_date(unit="years")
       tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
                    skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus")],
