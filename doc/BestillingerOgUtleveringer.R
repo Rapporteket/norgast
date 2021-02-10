@@ -2,6 +2,41 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+### 05.02.2021 - Antall jfb koder i Sandefjord 2019 ##########################
+library(tidyverse)
+skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
+                             stringsAsFactors = F, encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/AlleVarNum2021-02-03 15-28-13.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+             skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus")],
+             by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+
+tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
+tmp <- merge(tmp, RegData[,c("ForlopsID", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+tmp2 <- tmp[which(tolower(substr(tmp$Hovedoperasjon, 1, 3)) == "jfb"), ]
+
+aux <- tmp %>% filter(HovedDato >= "2019-01-01" & HovedDato <= "2019-12-31") %>%
+  group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
+                                      'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
+                                      'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+                                      'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
+                                      'N' = n())
+aux2 <- tmp2 %>% filter(HovedDato >= "2019-01-01" & HovedDato <= "2019-12-31") %>%
+  group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
+            'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
+            'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+            'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
+            'N' = n())
+
+ant_skjema <- bind_rows(aux, aux2)
+
+ant_skjema[ant_skjema$Sykehusnavn == "HS-Sandnessjøen", ]
+
+
+
 
 ###### Testdata ifm. dataprodukter. Aksel 14.01.2021 ##############################
 library(tidyverse)

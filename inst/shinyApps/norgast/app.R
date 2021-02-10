@@ -120,7 +120,7 @@ ui <- navbarPage(id = "norgast_app_id",
   ),
 
   tabPanel("Administrative tabeller",
-           admtab_UI(id = "admtab_id")
+           admtab_UI(id = "admtab_id", BrValg = BrValg)
   ),
 
 
@@ -219,7 +219,8 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Adm. tabeller ##################################################################################################
 
-  # callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session, skjemaoversikt=skjemaoversikt)
+  callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
+             hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
   ################ Abonnement ##################################################################################################
