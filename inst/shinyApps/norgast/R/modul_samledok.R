@@ -11,7 +11,7 @@ samledok_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       id = ns("id_samledok_panel"),
       conditionalPanel(condition = paste0("input['", ns('tabs'), "'] == 'samledok_egen' |
                                           input['", ns('tabs'), "'] == 'samledok_landet'"),

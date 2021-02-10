@@ -11,7 +11,7 @@ datadump_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-      sidebarPanel(
+      sidebarPanel(width = 3,
         id = ns("id_dump_panel"),
         uiOutput(outputId = ns('valgtevar_dump')),
         dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",

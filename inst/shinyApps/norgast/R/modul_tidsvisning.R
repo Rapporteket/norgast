@@ -8,7 +8,7 @@ tidsvisning_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       id = ns("id_tid_panel"),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg_andel),
