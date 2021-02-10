@@ -11,7 +11,7 @@ admtab_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       id = ns("id_adm_panel"),
       div(id = ns("fane1"),
           dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
@@ -88,8 +88,6 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     ns <- session$ns
     req(input$adm_tidsenhet == '1')
     tagList(
-      # norgast::dateInput2(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", min = '2014-01-01',
-      #                     max = Sys.Date(), value = Sys.Date(), minview = 'months', format = "MM yyyy", language="no"),
       shinyWidgets::airDatepickerInput(inputId=ns("datovalg_adm_tid_mnd"), label = "Vis til og med måned: ", minDate = '2014-01-01',
                                        maxDate = Sys.Date(), value = Sys.Date(), view = "months", minView = 'months',
                                        dateFormat = "MM yyyy", language="da"),
@@ -101,8 +99,6 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
     ns <- session$ns
     req(input$adm_tidsenhet == '2')
     tagList(
-      # norgast::dateInput2(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", min = '2014-01-01',
-      #                     max = Sys.Date(), value = Sys.Date(), minview = 'years', format = "yyyy", language="no"),
       shinyWidgets::airDatepickerInput(inputId=ns("datovalg_adm_tid_aar"), label = "Vis til og med år: ", minDate = '2014-01-01',
                                        maxDate = Sys.Date(), value = Sys.Date(), view = "years", minView = 'years',
                                        dateFormat = "yyyy", language="da"),

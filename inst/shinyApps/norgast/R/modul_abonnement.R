@@ -8,7 +8,7 @@ abonnement_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       selectInput(ns("subscriptionRep"), "Rapport:",
                   c("Kvartalsrapport")),
       selectInput(ns("subscriptionFreq"), "Frekvens:",
