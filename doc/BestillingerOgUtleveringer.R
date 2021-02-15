@@ -2,6 +2,48 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################
+RegData <- read.table('I:/norgast/AlleVarNum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+
+skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+
+
+RegData <- NorgastPreprosess(RegData)
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+
+BrValg <- BrValgNorgastShiny(RegData)
+
+tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+             skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus", "Sykehusnavn")],
+             by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
+tmp <- merge(tmp, RegData[,c("ForlopsID", "Op_gr", "Sykehusnavn")], by = "ForlopsID", all.x = T)
+
+table(tmp$Sykehusnavn.x[tmp$SkjemaStatus==1], useNA = "ifany")
+table(tmp$Sykehusnavn_oppf[which(tmp$SkjemaStatus==1)], useNA = "ifany")
+table(tmp$Sykehusnavn.y[which(tmp$SkjemaStatus==1)], useNA = "ifany")
+
+tmp <- tmp[which(tmp$Op_gr %in% 6), ]
+table(tmp$Sykehusnavn.y[which(tmp$SkjemaStatus==1)], useNA = "ifany")
+
+
 ### 05.02.2021 - Antall jfb koder i Sandefjord 2019 ##########################
 library(tidyverse)
 skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
