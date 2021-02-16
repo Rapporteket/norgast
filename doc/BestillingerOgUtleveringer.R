@@ -2,6 +2,54 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################
+
+RegData <- read.table('I:/norgast/NoRGast_AlleVarNum_datadump_2021-02-16.csv', header=TRUE, sep=";",
+                      fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/NoRGast_ForlopsOversikt_datadump_2021-02-16.csv', header=TRUE, sep=";",
+                         fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+
+skjemaoversikt <- read.table('I:/norgast/NoRGast_SkjemaOversikt_datadump_2021-02-16.csv', header=TRUE, sep=';',
+                             stringsAsFactors = F, fileEncoding = 'UTF-8-BOM')
+skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+
+kobl_tab <- read.table('I:/norgast/NoRGast_koblingstabell_datadump_2021-02-16.csv', header=TRUE, sep=';',
+                       stringsAsFactors = F, fileEncoding = 'UTF-8-BOM', colClasses = "character")
+RegDataOUS <- RegData[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet"), ]
+RegDataOUS <- RegDataOUS[which(tolower(substr(RegDataOUS$Hovedoperasjon, 1, 3)) == "jjb"), ]
+RegDataOUS <- RegDataOUS[which(as.Date(RegDataOUS$HovedDato) >= "2020-01-01" &
+                                 as.Date(RegDataOUS$HovedDato) <= "2020-12-31" &
+                                 RegDataOUS$RegistreringStatus == 1), ]
+
+tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
+             skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus", "Sykehusnavn")],
+             by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
+tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
+tmp$SkjemaStatus_oppf[tmp$SkjemaStatus_oppf==-1] <- 0
+tmp$HovedDato[is.na(tmp$HovedDato)] <- tmp$OpprettetDato[is.na(tmp$HovedDato)]
+tmp <- merge(tmp, RegDataOUS[,c("ForlopsID", "Hovedoperasjon", "PasientID", "OpDato")], by = "ForlopsID", all.x = T)
+
+tmp <- tmp[!is.na(tmp$Hovedoperasjon), ]
+tmp <- tmp[which(tmp$HovedDato >= "2020-01-01" & tmp$HovedDato <= "2020-12-31"), ]
+table(tmp$Sykehusnavn)
+
+mpnr <- merge(tmp, kobl_tab, by.x = "PasientID", by.y = "PID", all.x = T)
+utlevering <- mpnr[, c("SSN", "OpDato", "Hovedoperasjon", "Sykehusnavn", "AvdRESH")]
+names(utlevering)[1] <- "Fnr"
+
+write.csv2(utlevering, "I:/norgast/NoRGast_lever_OUS_2020.csv", row.names = F, fileEncoding = "Latin1")
+
+
 ### 05.02.2021 - Antall jfb koder i Sandefjord 2019 ##########################
 library(tidyverse)
 skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
