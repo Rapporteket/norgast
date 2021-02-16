@@ -64,6 +64,7 @@ overlevelse_UI <- function(id, BrValg){
                )
            ),
            br(),
+           actionButton(ns("goButton"), "Beregn!"),
            checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
            br(),
            fluidRow(
@@ -166,24 +167,29 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   output$icd <- renderUI({
     ns <- session$ns
-    Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                             minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
-                             elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
-                             BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                             valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+    # Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+    #                          minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
+    #                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+    #                          BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
+    #                          valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+    #                          op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+    #                          ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+    #                          tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
+    #                          minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
+    #                          ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+    #                          modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
+    #                          whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
+    #                          forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
+    #                          malign = as.numeric(input$malign))
+    # Utvalg1 <- Utvalg1$RegData
+    # if (!is.null(input$valgtShus)) {
+    #   Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus)), ]
+    # }
+    Utvalg1 <- NorgastUtvalg(RegData = RegData,
                              op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
                              ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                             tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                             minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                             ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                             modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
-                             whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                             forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                              malign = as.numeric(input$malign))
     Utvalg1 <- Utvalg1$RegData
-    if (!is.null(input$valgtShus)) {
-      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus)), ]
-    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -193,24 +199,29 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   output$icd2 <- renderUI({
     ns <- session$ns
-    Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
-                             minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
-                             elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
-                             BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-                             valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+    # Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+    #                          minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
+    #                          elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
+    #                          BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+    #                          valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+    #                          op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+    #                          ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+    #                          tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+    #                          minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+    #                          ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+    #                          modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
+    #                          whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+    #                          forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+    #                          malign = as.numeric(input$malign2))
+    # Utvalg1 <- Utvalg1$RegData
+    # if (!is.null(input$valgtShus2)) {
+    #   Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+    # }
+    Utvalg1 <- NorgastUtvalg(RegData = RegData,
                              op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
                              ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
-                             tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-                             minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-                             ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
-                             modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
-                             whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-                             forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
                              malign = as.numeric(input$malign2))
     Utvalg1 <- Utvalg1$RegData
-    if (!is.null(input$valgtShus2)) {
-      Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus2)), ]
-    }
     diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
     if (!is.null(diagnoser)) {
       selectInput(inputId = ns("icd_verdi2"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
@@ -219,6 +230,9 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
   })
 
   calc_overlevelse <- function() {
+
+    input$goButton
+
     feilreg <- which(RegData$OpDoedTid<0)
     if (length(feilreg) != 0) {
       RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
@@ -226,54 +240,54 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     RegData <- RegData[!(RegData$Avdod == 1 & is.na(RegData$OpDoedTid)), ] #manglende data: død men ingen dødsdato
     RegData$OpDoedTid[RegData$OpDoedTid==0] <- 0.5 #Døde ved dag 0 settes til 0.5 for å inkluderes i analysen
 
-    Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                             minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
-                             elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
-                             BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                             valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-                             op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                             ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                             tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                             minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                             ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                             modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
-                             whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                             forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                             malign = as.numeric(input$malign),
-                             icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''})
+    Utvalg1 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                                            minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
+                                            elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                                            BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
+                                            valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+                                            op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+                                            ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+                                            tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
+                                            minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
+                                            ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+                                            modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
+                                            whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
+                                            forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
+                                            malign = as.numeric(input$malign),
+                                            icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''}))
     Utvalg1data <- Utvalg1$RegData
-    if (!is.null(input$valgtShus)) {
+    shiny::isolate(if (!is.null(input$valgtShus)) {
       Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
-    }
-    if (!is.null(input$enhetsUtvalg)) {
+    })
+    shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
       if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
-    }
+    })
     Utvalg1data$Utvalg <- 1
     Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
     Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
 
-    Utvalg2 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
-                             minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
-                             elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
-                             BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-                             valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
-                             op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
-                             ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
-                             tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-                             minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-                             ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
-                             modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
-                             whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-                             forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                             malign = as.numeric(input$malign2),
-                             icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''})
+    Utvalg2 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                            minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
+                                            elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
+                                            BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+                                            valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+                                            op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+                                            ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+                                            tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+                                            minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+                                            ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+                                            modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
+                                            whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+                                            forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+                                            malign = as.numeric(input$malign2),
+                                            icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''}))
     Utvalg2data <- Utvalg2$RegData
-    if (!is.null(input$valgtShus2)) {
+    shiny::isolate(if (!is.null(input$valgtShus2)) {
       Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
-    }
-    if (!is.null(input$enhetsUtvalg2)) {
+    })
+    shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
       if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
-    }
+    })
     Utvalg2data$Utvalg <- 2
     Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
@@ -314,22 +328,22 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
     tagList(
       h4('Utvalg 1:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt1, '<br />'))),
-      h5(if (!is.null(input$valgtShus)) {
+      shiny::isolate(h5(if (!is.null(input$valgtShus)) {
         HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))
-      }),
-      h5(if (!is.null(input$enhetsUtvalg)) {
+      })),
+      shiny::isolate(h5(if (!is.null(input$enhetsUtvalg)) {
         if (input$enhetsUtvalg == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg1$Sykehusnavn), collapse=', ')))}
-      }),
+      })),
       br(),
       br(),
       h4('Utvalg 2:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt2, '<br />'))),
-      h5(if (!is.null(input$valgtShus2)) {
+      shiny::isolate(h5(if (!is.null(input$valgtShus2)) {
         HTML(paste0("Avdeling(er): ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))
-      }),
-      h5(if (!is.null(input$enhetsUtvalg2)) {
+      })),
+      shiny::isolate(h5(if (!is.null(input$enhetsUtvalg2)) {
         if (input$enhetsUtvalg2 == 2) {HTML(paste0("Avdeling: ", paste(unique(utvlgdata$Utvalg2$Sykehusnavn), collapse=', ')))}
-      }),
+      })),
       br(),
       br(),
       h4('Merknad:'),
