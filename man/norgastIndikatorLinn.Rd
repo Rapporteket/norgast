@@ -39,6 +39,7 @@ norgastIndikatorLinn(
   ASA = "",
   whoEcog = "",
   forbehandling = "",
+  dagtid = 99,
   hentData = 0,
   op_gruppe = "",
   ncsp = "",

@@ -2,7 +2,11 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+##### Hvem registrerer hvor ######################################################
+
+
 ###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################
+mangler <- c(31533, 31750, 31865, 13526, 34068, 34348, 37090, 37223)
 
 RegData <- read.table('I:/norgast/NoRGast_AlleVarNum_datadump_2021-02-16.csv', header=TRUE, sep=";",
                       fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
@@ -27,10 +31,11 @@ kobl_tab <- read.table('I:/norgast/NoRGast_koblingstabell_datadump_2021-02-16.cs
                        stringsAsFactors = F, fileEncoding = 'UTF-8-BOM', colClasses = "character")
 RegDataOUS <- RegData[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet"), ]
 RegDataOUS <- RegDataOUS[which(tolower(substr(RegDataOUS$Hovedoperasjon, 1, 3)) == "jjb"), ]
+# RegDataOUS <- RegDataOUS[which(as.Date(RegDataOUS$HovedDato) >= "2020-01-01" &
+#                                  as.Date(RegDataOUS$HovedDato) <= "2020-12-31" &
+#                                  RegDataOUS$RegistreringStatus == 1), ]
 RegDataOUS <- RegDataOUS[which(as.Date(RegDataOUS$HovedDato) >= "2020-01-01" &
-                                 as.Date(RegDataOUS$HovedDato) <= "2020-12-31" &
-                                 RegDataOUS$RegistreringStatus == 1), ]
-
+                                 as.Date(RegDataOUS$HovedDato) <= "2020-12-31"), ]
 tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
              skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus", "Sykehusnavn")],
              by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))

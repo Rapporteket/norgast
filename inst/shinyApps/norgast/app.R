@@ -44,12 +44,14 @@ if (rapbase::isRapContext()) {
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
-}
+  }
+
 
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
-
-RegData <- NorgastPreprosess(RegData)
+RegData <- NorgastPreprosess_behold_kladd(RegData)
+skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+RegData <- RegData[which(RegData$RegistreringStatus==1),]
 # RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
@@ -64,6 +66,7 @@ source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast
 source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -99,6 +102,10 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Overlevelse",
            overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Sammenlign andeler",
+           saml_andeler_UI(id = "saml_andeler_id", BrValg = BrValg)
   ),
 
   tabPanel("Samledokumenter",
@@ -205,6 +212,12 @@ server <- function(input, output, session) {
   ################ Overlevelseskurver ##################################################################################################
 
   callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+
+  #################################################################################################################################
+  ################ Sammenlign utvalg ##################################################################################################
+
+  callModule(saml_andeler, "saml_andeler_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+
 
   #################################################################################################################################
   ################ Samledokumenter ##################################################################################################

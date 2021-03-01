@@ -137,9 +137,10 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
     KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
-  tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
-  stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
-  incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
+  tittel <- PlotParams$tittel; #grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
+  # stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
+  # incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
+  cexgr <- 1.0
   VarTxt <- PlotParams$VarTxt; ##
   if (!(inkl_konf %in% c(0,1))) {inkl_konf=PlotParams$inkl_konf}
 

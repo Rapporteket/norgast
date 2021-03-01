@@ -27,7 +27,8 @@ NorgastUtvalg(
   op_gruppe = "",
   ncsp = "",
   icd = "",
-  hastegrad_hybrid = 99
+  hastegrad_hybrid = 99,
+  dagtid = 99
 )
 }
 \arguments{
