@@ -47,9 +47,15 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='', tidsenhet
               N = n(),
               andel = antall/N*100)
 
+  ## debug
+  # print(oppsum)
+
   andeler <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = andel)
-  antall <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = antall)
-  N <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = N)
+  antall <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = antall, values_fill = 0)
+  N <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = N, values_fill = 0)
+
+  # print(antall)
+  # print(N)
 
   Konf <- list(Utvalg1=binomkonf(antall[["1"]], N[["1"]])*100,
                Utvalg2=if ("2" %in% names(antall)) {binomkonf(antall[["2"]], N[["2"]])*100} else NA)
@@ -92,10 +98,12 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='', tidsenhet
   }
 
   if (inkl_konf) {
-    polygon( c(xskala, xskala[Ant_tidpkt:1]), c(Konf$Utvalg1[1,], Konf$Utvalg1[2,Ant_tidpkt:1]),
+    xskala1 <- xskala[which(N[["1"]] != 0)]
+    polygon( c(xskala1, rev(xskala1)), c(Konf$Utvalg1[1, xskala1], Konf$Utvalg1[2,rev(xskala1)]),
              col=adjustcolor(farger[1], alpha.f = 0.1), border=NA)
     if ("2" %in% names(andeler)) {
-      polygon( c(xskala, xskala[Ant_tidpkt:1]), c(Konf$Utvalg2[1,], Konf$Utvalg2[2,Ant_tidpkt:1]),
+      xskala2 <- xskala[which(N[["2"]] != 0)]
+      polygon( c(xskala2, rev(xskala)), c(Konf$Utvalg2[1,xskala2], Konf$Utvalg2[2,rev(xskala2)]),
                col=adjustcolor("orangered", alpha.f = 0.1), border=NA)
     }
   }
