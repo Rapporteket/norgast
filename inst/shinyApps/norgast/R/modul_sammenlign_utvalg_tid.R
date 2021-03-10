@@ -84,11 +84,11 @@ saml_andeler_UI <- function(id, BrValg){
                       tabPanel("Figur",
                                downloadButton(ns("lastNedBilde"), "Last ned figur"),
                                plotOutput(ns("Figur_andeler"))
-                               ),
+                      ),
                       tabPanel("Tabell",
                                downloadButton(ns("lastNed_tabell"), "Last ned tabell"),
                                tableOutput(ns("Tabell_utvalg"))
-                               ))),
+                      ))),
              column(4, offset = 1,
                     uiOutput(ns("utvalg")),
                     br(),
@@ -97,7 +97,7 @@ saml_andeler_UI <- function(id, BrValg){
                     # br(),
                     #,
                     # textInput(ns("tittel"), "Angi tittel for lagret plot", ""),
-                    )
+             )
            )
     ),
     column(2,
@@ -233,16 +233,17 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
                                             malign = as.numeric(input$malign),
                                             icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''}))
     Utvalg1data <- Utvalg1$RegData
-    shiny::isolate(if (!is.null(input$valgtShus)) {
-      Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
-    })
-    shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
-      if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
-    })
-    Utvalg1data$Utvalg <- 1
-    Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
-    Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
-
+    if (dim(Utvalg1data)[1] > 0) {
+      shiny::isolate(if (!is.null(input$valgtShus)) {
+        Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
+      })
+      shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
+        if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
+      })
+      Utvalg1data$Utvalg <- 1
+      Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
+      Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
+    }
     Utvalg2 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
                                             minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]),
                                             erMann = as.numeric(input$erMann2),
@@ -260,16 +261,17 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
                                             malign = as.numeric(input$malign2),
                                             icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''}))
     Utvalg2data <- Utvalg2$RegData
-    shiny::isolate(if (!is.null(input$valgtShus2)) {
-      Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
-    })
-    shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
-      if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
-    })
-    Utvalg2data$Utvalg <- 2
-    Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
-    Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
-
+    if (dim(Utvalg2data)[1] > 0) {
+      shiny::isolate(if (!is.null(input$valgtShus2)) {
+        Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+      })
+      shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
+        if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
+      })
+      Utvalg2data$Utvalg <- 2
+      Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
+      Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
+    }
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
     Samlet <- bind_rows(Utvalg1data, Utvalg2data)
@@ -286,6 +288,7 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
     utdata$PlotParams <- PlotParams
 
     utdata$Samlet <- Samlet
+    # print(dim(utdata$Samlet[utdata$Samlet$Utvalg==1, ]))
 
     return(utdata)
   }
@@ -342,8 +345,8 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
     input$goButton
     utdata <- isolate(norgast::NorgastFigAndelTid_SammenligUtvalg(plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
                                                                   inkl_konf = input$inkl_konf,
-                                                        datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                        fra0 = input$fra0, inkl_tall=input$inkl_tall))
+                                                                  datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                                                                  fra0 = input$fra0, inkl_tall=input$inkl_tall))
     if (is.na(utdata$Konf$Utvalg2[1])){
       Tabell_tid <- tibble(Tidsperiode = utdata$andeler$TidsEnhet,
                            Antall = utdata$antall[["1"]],

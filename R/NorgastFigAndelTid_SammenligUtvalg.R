@@ -57,69 +57,78 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='', tidsenhet
   # print(antall)
   # print(N)
 
-  Konf <- list(Utvalg1=binomkonf(antall[["1"]], N[["1"]])*100,
+  Konf <- list(Utvalg1=if ("1" %in% names(antall)) {binomkonf(antall[["1"]], N[["1"]])*100} else NA,
                Utvalg2=if ("2" %in% names(antall)) {binomkonf(antall[["2"]], N[["2"]])*100} else NA)
 
-  Tidtxt <- andeler$TidsEnhet
-  Ant_tidpkt <- length(Tidtxt)
-  xmin <- 0.9
-  xmax <- Ant_tidpkt
+  if ("1" %in% names(antall)) {
 
-  cexgr <- 0.9
-  if (fra0) {
-    ymin <- 0
-    if (inkl_konf) {
-      ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+    Tidtxt <- andeler$TidsEnhet
+    Ant_tidpkt <- length(Tidtxt)
+    xmin <- 0.9
+    xmax <- Ant_tidpkt
+
+    cexgr <- 0.9
+    if (fra0) {
+      ymin <- 0
+      if (inkl_konf) {
+        ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+      } else {
+        ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
+      }
     } else {
-      ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
+      if (inkl_konf) {
+        ymin <- 0.9*min(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+        ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+      } else {
+        ymin <- 0.9*min(andeler[,-1], na.rm=TRUE)
+        ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
+      }
     }
+    xskala <- 1:Ant_tidpkt
+    FigTypUt <- rapFigurer::figtype(outfile=outfile)
+    farger <- FigTypUt$farger
+
+    plot(xskala, andeler[["1"]], xlim= c(xmin, xmax), ylim=c(ymin, ymax), type='l', frame.plot=FALSE,
+         ylab=c(paste0('Andel ', VarTxt),if (inkl_konf) {'inkl. 95% konfidensintervall'} else {NULL}),
+         xlab=switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned',
+                     Kvartal='Operasjonsår og -kvartal', Halvaar='Operasjonsår og -halvår'),
+         xaxt='n', col=farger[1], lwd=2,
+         sub='(Tall i boksene angir antall operasjoner)', cex.sub=cexgr)	#, axes=F)
+    axis(side=1, at = xskala, labels = Tidtxt)
+
+    if ("2" %in% names(andeler)) {
+      lines(xskala, andeler[["2"]], col="orangered", lwd=2)
+    }
+
+    if (inkl_konf) {
+      xskala1 <- xskala[which(N[["1"]] != 0)]
+      polygon( c(xskala1, rev(xskala1)), c(Konf$Utvalg1[1, xskala1], Konf$Utvalg1[2,rev(xskala1)]),
+               col=adjustcolor(farger[1], alpha.f = 0.1), border=NA)
+      if ("2" %in% names(andeler)) {
+        xskala2 <- xskala[which(N[["2"]] != 0)]
+        polygon( c(xskala2, rev(xskala)), c(Konf$Utvalg2[1,xskala2], Konf$Utvalg2[2,rev(xskala2)]),
+                 col=adjustcolor("orangered", alpha.f = 0.1), border=NA)
+      }
+    }
+
+    if (inkl_tall) {
+      text(xskala, andeler[["1"]], pos=3, N[["1"]], cex=0.9, col=farger[1])
+      if ("2" %in% names(andeler)) {
+        text(xskala, andeler[["2"]], pos=3, N[["2"]], cex=0.9, col="orangered")
+      }
+    }
+
+    title(main=plotdata$PlotParams$tittel, font.main=1.2, line=1)
+    legend('top', cex=0.9, bty='o', bg='white', box.col='white', lty = c(1,1),
+           lwd=c(2,2), pch=c(NA,NA), pt.cex=c(1,1), col=c(farger[1],"orangered"),
+           legend = c(paste0('Utvalg 1, N = ', sum(N[["1"]])),
+                      paste0('Utvalg 2, N = ', sum(N[["2"]]))) )
   } else {
-    if (inkl_konf) {
-      ymin <- 0.9*min(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
-      ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
-    } else {
-      ymin <- 0.9*min(andeler[,-1], na.rm=TRUE)
-      ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
-    }
+    plot.new()
+    tekst <- 'Ingen registrerte data i utvalg 1'
+    title(main=plotdata$PlotParams$tittel, cex=0.95)	#line=-8,
+    text(0.5, 0.6, tekst, cex=1.2)
   }
-  xskala <- 1:Ant_tidpkt
-  FigTypUt <- rapFigurer::figtype(outfile=outfile)
-  farger <- FigTypUt$farger
-  plot(xskala, andeler[["1"]], xlim= c(xmin, xmax), ylim=c(ymin, ymax), type='l', frame.plot=FALSE,
-       ylab=c(paste0('Andel ', VarTxt),if (inkl_konf) {'inkl. 95% konfidensintervall'} else {NULL}),
-       xlab=switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned',
-                   Kvartal='Operasjonsår og -kvartal', Halvaar='Operasjonsår og -halvår'),
-       xaxt='n', col=farger[1], lwd=2,
-       sub='(Tall i boksene angir antall operasjoner)', cex.sub=cexgr)	#, axes=F)
-  axis(side=1, at = xskala, labels = Tidtxt)
-
-  if ("2" %in% names(andeler)) {
-    lines(xskala, andeler[["2"]], col="orangered", lwd=2)
-  }
-
-  if (inkl_konf) {
-    xskala1 <- xskala[which(N[["1"]] != 0)]
-    polygon( c(xskala1, rev(xskala1)), c(Konf$Utvalg1[1, xskala1], Konf$Utvalg1[2,rev(xskala1)]),
-             col=adjustcolor(farger[1], alpha.f = 0.1), border=NA)
-    if ("2" %in% names(andeler)) {
-      xskala2 <- xskala[which(N[["2"]] != 0)]
-      polygon( c(xskala2, rev(xskala)), c(Konf$Utvalg2[1,xskala2], Konf$Utvalg2[2,rev(xskala2)]),
-               col=adjustcolor("orangered", alpha.f = 0.1), border=NA)
-    }
-  }
-
-  if (inkl_tall) {
-    text(xskala, andeler[["1"]], pos=3, N[["1"]], cex=0.9, col=farger[1])
-    if ("2" %in% names(andeler)) {
-      text(xskala, andeler[["2"]], pos=3, N[["2"]], cex=0.9, col="orangered")
-    }
-  }
-
-  title(main=plotdata$PlotParams$tittel, font.main=1.2, line=1)
-  legend('top', cex=0.9, bty='o', bg='white', box.col='white', lty = c(1,1),
-         lwd=c(2,2), pch=c(NA,NA), pt.cex=c(1,1), col=c(farger[1],"orangered"),
-         legend = c(paste0('Utvalg 1, N = ', sum(N[["1"]])),
-                    paste0('Utvalg 2, N = ', sum(N[["2"]]))) )
 
   if ( outfile != '') {dev.off()}
 
