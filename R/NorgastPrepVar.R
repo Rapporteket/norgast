@@ -20,7 +20,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
                       'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
                       'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
-                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc', 'MissingVekt',
+                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2', 'KumAcc', 'MissingVekt',
                       'Sykehusnavn', 'Malign', 'Saarruptur', 'Rekonstruksjon')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
@@ -36,6 +36,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=1:length(aux), labels = grtxt)
     incl_N=T
     retn= 'H'
+    cexgr<-0.8
   }
 
   if (valgtVar=='mortalitet90') {
@@ -133,6 +134,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     # tittel <- c('Accordion score \u2265 3')
     tittel <- c('Accordion score >= 3')
     VarTxt <- 'med accordion score >= 3'
+    grtxt <- c('Nei', 'Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='KumAcc2') {
+    # tittel <- c('Accordion score \u2265 3')
+    tittel <- c('Accordion score >= 4')
+    VarTxt <- 'med accordion score >= 4'
     grtxt <- c('Nei', 'Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
@@ -313,7 +324,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='AvstandAnalVerge_kat') {
-    tittel <- 'Avstand til anal verge'
+    tittel <- 'Avstand tumors nedre margin til analkanten'
     RegData <- RegData[which(RegData$Variabel %in% 1:3), ]
     RegData$VariabelGr <- RegData$AvstandAnalVerge_kat
     RegData<- RegData[!is.na(RegData$VariabelGr), ]

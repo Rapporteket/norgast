@@ -28,9 +28,9 @@ if (rapbase::isRapContext()) {
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
   Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
-  RegData <- read.table('I:/norgast/AlleVarNum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2021-03-12 13-59-58.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-12 13-59-58.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -43,13 +43,13 @@ if (rapbase::isRapContext()) {
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-03-12 13-59-58.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
   }
 
 
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
-RegData <- NorgastPreprosess_behold_kladd(RegData)
+RegData <- NorgastPreprosess(RegData, behold_kladd = TRUE)
 skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
 RegData <- RegData[which(RegData$RegistreringStatus==1),]
 # RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses

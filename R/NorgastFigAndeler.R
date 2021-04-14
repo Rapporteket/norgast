@@ -104,7 +104,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99)
 {
 
-  print(datoFra)
+  # print(datoFra)
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){

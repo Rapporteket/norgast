@@ -13,7 +13,8 @@
 
 NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
                                        minald=0, maxald=130, erMann=99, outfile='', hastegrad_hybrid=99,
-                                       preprosess=F, malign=99, Ngrense=30, lavDG='', hastegrad = 99,
+                                       preprosess=F, malign=99, Ngrense=30, lavDG='',
+                                       lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
 
@@ -40,6 +41,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
   RegData$Variabel <- RegData[, valgtVar]
   RegData <- RegData[!is.na(RegData$Variabel), ]
+  # if (valgtVar == 'ThoraxTilgang') {RegData <- RegData[RegData$ThoraxTilgang %in% 4:6, ]}  ## MIDLERTIDIG, MÅ FINNE LABEL FOR NY KATEGORI!!!!!!!
   RegData$Variabel <- as.factor(RegData$Variabel)
 
   if (valgtVar == 'Tilgang') {RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
@@ -73,14 +75,14 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                       'AccordionGrad_drenasje' = 'Komplikasjoner (Accordion score)',
                       'Tilgang' = 'Tilgang i abdomen',
                       'ThoraxTilgang' = 'Tilgang i thorax',
-                      'AvstandAnalVerge_kat' = 'Avstand tumors nedre kant til anal verge'
+                      'AvstandAnalVerge_kat' = 'Avstand tumors nedre margin til analkanten '
     )
     legendTxt <- switch (valgtVar,
                          'ModGlasgowScore' = c('0','1', '2'),
                          'AccordionGrad' = c('3','4', '5', '6'),
                          'AccordionGrad_drenasje' = c('3 (kun drenasje av \n pleuravæske/ascites)', '3 (resten)','4', '5', '6'),
                          'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
-                         'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)'),
+                         'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi', 'Ingen (transhiatal)', 'Konvertert til åpen'),
                          'AvstandAnalVerge_kat' = levels(RegData$AvstandAnalVerge_kat)
     )
     legendTitle <- switch (valgtVar,
@@ -120,7 +122,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     grtxt <- paste0(names(Ngr), ' (', Ngr, ')')
     Ngrtxt <- rep(NA, length(Ngr))    #paste0('N=', Ngr)
     Ngrtxt[Ngr<Ngrense] <- paste0('N<', Ngrense)
-    Ngrtxt[names(Ngr) %in% lavDG] <- 'Dekningsgrad < 60 %'
+    Ngrtxt[names(Ngr) %in% lavDG] <- lavDGtekst
 
     if (N_kat==3 & valgtVar != 'AvstandAnalVerge_kat'){
       sortInd <- order(AndelerGr[,2], decreasing = F, na.last = F)

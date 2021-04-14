@@ -9,12 +9,13 @@
 #'
 #' @export
 
-NorgastPreprosess <- function(RegData)
+NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
   names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
-  RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
+  if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
+  # RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
   RegData$OperasjonsDato <- as.Date(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
   RegData$HovedDato <- as.Date(RegData$HovedDato, format="%Y-%m-%d")
   RegData$Mnd <- as.numeric(format(RegData$OperasjonsDato, '%m')) # RegData$OperasjonsDato$mon +1
@@ -197,6 +198,10 @@ NorgastPreprosess <- function(RegData)
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0
   RegData$KumAcc[RegData$AccordionGrad >= 3] <- 1
+
+  RegData$KumAcc2 <- NA
+  RegData$KumAcc2[RegData$AccordionGrad < 4] <- 0
+  RegData$KumAcc2[RegData$AccordionGrad >= 4] <- 1
 
   RegData$MissingVekt <- 0
   RegData$MissingVekt[is.na(RegData$VekttapProsent)] <- 1

@@ -45,6 +45,7 @@ norgastIndikatorLinn(
   ncsp = "",
   maalretn = "hoy",
   lavDG = "",
+  lavDGtekst = "Dekningsgrad < 60 \%",
   hastegrad_hybrid = 99
 )
 }

@@ -2,7 +2,89 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
-##### Hvem registrerer hvor ######################################################
+##### Tall til Kristoffer 30.03.2021 ####################################################
+RegData <- read.table('I:/norgast/AlleVarNum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+utvalg <- NorgastUtvalg(RegData=RegData, datoFra = '2018-01-01', datoTil = '2020-12-31', whoEcog = c(0, 1),
+                        op_gruppe = 1)
+PlotParams <- NorgastPrepVar(RegData=utvalg$RegData, valgtVar="Anastomoselekkasje", enhetsUtvalg=0)
+RegData_lekk <- PlotParams$RegData
+PlotParams$RegData <- NA
+andel_lekk <- sum(RegData_lekk$Variabel)/length(RegData_lekk$Variabel)*100
+konf_lekk <- binomkonf(sum(RegData_lekk$Variabel), length(RegData_lekk$Variabel), konfnivaa = .9)*100
+
+PlotParams <- NorgastPrepVar(RegData=utvalg$RegData, valgtVar="KumAcc2", enhetsUtvalg=0)
+RegData_acc <- PlotParams$RegData
+RegData_acc <- RegData_acc[which(RegData_acc$NyAnastomose==1), ]
+PlotParams$RegData <- NA
+andel_acc <- sum(RegData_acc$Variabel)/length(RegData_acc$Variabel)*100
+konf_acc <- binomkonf(sum(RegData_acc$Variabel), length(RegData_acc$Variabel), konfnivaa = .9)*100
+
+##### Feilsøk etter flytting av tilhørighet OUS-pasienter 11.03.2021 ####################################################
+RegData <- read.table('I:/norgast/AlleVarNum2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess_behold_kladd(RegData)
+RegData <- RegData[which(RegData$RegistreringStatus==1),]
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+RegData_ny <-  RegData
+
+RegData <- read.table('I:/norgast/AlleVarNum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess_behold_kladd(RegData)
+RegData <- RegData[which(RegData$RegistreringStatus==1),]
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+
+RegData <- merge(RegData[, c("ForlopsID", "HovedDato", "Op_gr", "Operasjonsgrupper", "Hovedoperasjon", "AvdRESH",
+                             "Sykehusnavn")], RegData_ny[, c("ForlopsID", "Op_gr", "AvdRESH", "Sykehusnavn")], by = "ForlopsID",
+                 suffixes = c("", "_ny"))
+
+tmp <- as.data.frame.matrix(table(RegData$Sykehusnavn[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  RegData$Sykehusnavn_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  useNA = 'ifany'))
+tmp2 <- as.data.frame.matrix(table(RegData$AvdRESH[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  RegData$AvdRESH_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  useNA = 'ifany'))
+
+
+write.csv2(tmp, "I:/norgast/konvertering.csv")
 
 
 ###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################

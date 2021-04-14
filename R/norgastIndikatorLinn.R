@@ -16,7 +16,8 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, hastegrad=99, BMI='',
                                    tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', dagtid =99,
-                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='', hastegrad_hybrid=99)
+                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='',
+                                 lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99)
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -85,7 +86,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
   # pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' eller dekningsgrad mindre en 60 pst.')
   pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
-  pst_txt[rownames(andeler) %in% lavDG] <- 'Dekningsgrad < 60 %'
+  pst_txt[rownames(andeler) %in% lavDG] <- lavDGtekst
   pst_txt <- c(NA, pst_txt, NA, NA)
 
   FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')

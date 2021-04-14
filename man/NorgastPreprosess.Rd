@@ -5,7 +5,7 @@
 \title{Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
 og rensker opp i andre.}
 \usage{
-NorgastPreprosess(RegData)
+NorgastPreprosess(RegData, behold_kladd = FALSE)
 }
 \arguments{
 \item{RegData}{En dataramme med alle nødvendige variabler fra registeret}
