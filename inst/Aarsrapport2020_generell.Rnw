@@ -76,43 +76,22 @@ datoTil= paste0(rap_aar, '-12-31')
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
 
-# shus_dg_under_60 <- function(filnavn_dg, arknavn, mapping_npr) {
-#   DG_alle <- xlsx::read.xlsx(filnavn_dg, sheetName = arknavn, encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-#   DG <- DG_alle[(DG_alle$Begge + DG_alle$Kun.NoRGast != 0), ]
-#   DG <- DG[-dim(DG)[1], ]
-#   DG$Org..nr.[DG$Org..nr. %in% c(974588951, 974589095)] <- 874716782 # en felles resh for OUS
-#   DG$Org..nr.[DG$Org..nr. %in% c(974795574)] <- 974795361 # Stokmarknes registreres som Bodø?
-#   DG <- DG %>% group_by(Org..nr.) %>% summarise(DG.NoRGast = (sum(Begge)+ sum(Kun.NoRGast))/sum(Total)*100)
-#   DG <- merge(DG, mapping_npr[,c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by.x = "Org..nr.", by.y = "orgnr_sh", all.x = T)
-#
-#   shus <- DG$Sykehusnavn[which(DG$DG.NoRGast < 60)]
-# }
-#
 # mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
 #
-# graaUt_alle <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 17', mapping_npr = mapping_npr)
-# graaUt_kolon <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 11', mapping_npr = mapping_npr)
-# graaUt_lever <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 12', mapping_npr = mapping_npr)
-# graaUt_pankreas <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 13', mapping_npr = mapping_npr)
-# graaUt_rektum <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 14', mapping_npr = mapping_npr)
-# graaUt_ventrikkel <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 15', mapping_npr = mapping_npr)
-# graaUt_osofagus <- shus_dg_under_60(filnavn_dg="I:/norgast/vedleggstabeller2019data.xlsx", arknavn='Tabell 16', mapping_npr = mapping_npr)
-
-mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
-
-DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 17', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-  DG_alle$Total[DG_alle$Org..nr.==974589095]
-
-Ant_tot <- RegData[!is.na(RegData$Op_grAarsrapp), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-  merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-DG_alle <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-                 by.x = "Org..nr.", by.y = "orgnr_sh")
-DG_alle$dg <- DG_alle$NoRGast/DG_alle$Total*100
-graaUt_alle <- DG_alle$Sykehusnavn[DG_alle$dg <55]
+# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 17', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
+# DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
+#   DG_alle$Total[DG_alle$Org..nr.==974589095]
+#
+# Ant_tot <- RegData[!is.na(RegData$Op_grAarsrapp), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
+#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
+# DG_alle <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
+#                  by.x = "Org..nr.", by.y = "orgnr_sh")
+# DG_alle$dg <- DG_alle$NoRGast/DG_alle$Total*100
+# graaUt_alle <- DG_alle$Sykehusnavn[DG_alle$dg <55]
 # write.csv2(DG_alle[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020.csv",
 #            row.names = F, fileEncoding = "Latin1")
 
+graaUt_alle <- ""
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")

@@ -76,32 +76,34 @@ datoTil= paste0(rap_aar, '-12-31')
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
 
-mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
+# mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
+#
+# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 11', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
+# DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
+#   DG_alle$Total[DG_alle$Org..nr.==974589095]
+# Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Kol."), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
+#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
+# DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
+#                  by.x = "Org..nr.", by.y = "orgnr_sh")
+# DG$dg <- DG$NoRGast/DG$Total*100
+# graaUt_kolon <- DG$Sykehusnavn[DG$dg <55]
+# write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_kolon.csv",
+#            row.names = F, fileEncoding = "Latin1")
+#
+# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 14', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
+# DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
+#   DG_alle$Total[DG_alle$Org..nr.==974589095]
+# Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Rekt."), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
+#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
+# DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
+#                  by.x = "Org..nr.", by.y = "orgnr_sh")
+# DG$dg <- DG$NoRGast/DG$Total*100
+# graaUt_rektum <- DG$Sykehusnavn[DG$dg <55]
+# write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_rektum.csv",
+#            row.names = F, fileEncoding = "Latin1")
 
-DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 11', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-  DG_alle$Total[DG_alle$Org..nr.==974589095]
-Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Kol."), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-  merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-                 by.x = "Org..nr.", by.y = "orgnr_sh")
-DG$dg <- DG$NoRGast/DG$Total*100
-graaUt_kolon <- DG$Sykehusnavn[DG$dg <55]
-write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_kolon.csv",
-           row.names = F, fileEncoding = "Latin1")
-
-DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 14', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-  DG_alle$Total[DG_alle$Org..nr.==974589095]
-Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Rekt."), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-  merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-                 by.x = "Org..nr.", by.y = "orgnr_sh")
-DG$dg <- DG$NoRGast/DG$Total*100
-graaUt_rektum <- DG$Sykehusnavn[DG$dg <55]
-write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_rektum.csv",
-           row.names = F, fileEncoding = "Latin1")
-
+graaUt_kolon <- ""
+graaUt_rektum <- ""
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
