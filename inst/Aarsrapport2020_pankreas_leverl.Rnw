@@ -206,13 +206,13 @@ op_gruppe <- 5
 outfile <- 'Tilgang_lever_aar.pdf'
 valgtVar <- 'LapTilgang2'
 norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 35, skriftStr=skriftStr,
+                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 30, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 35, skriftStr=skriftStr,
+                       decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 30, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }

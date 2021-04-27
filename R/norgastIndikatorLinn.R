@@ -122,7 +122,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
 
   if (inkl_konf) {
     par('mar'=c(5.1, 4.1, 5.1, 2.1))
-    xmax <- min(max(KI, na.rm = T)*1.15,100)
+    xmax <- min(max(KI, max(andeler, na.rm = T), na.rm = T)*1.15,100)
   } else {
     xmax <- min(100, 1.15*max(andeler, na.rm = T))
   }
