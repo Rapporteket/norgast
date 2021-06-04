@@ -2,8 +2,10 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-10-16 10-02-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+rap_aar <- 2020
+
+RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -12,11 +14,12 @@ RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                       "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
                       "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID',
                             'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
-# RegData <- RegData[RegData$Aar <= 2018, ]
+RegData <- RegData[RegData$Aar <= rap_aar, ]
 
 # RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
@@ -31,16 +34,17 @@ map_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 97463
                                           974724960, 974795361, 993467049, 974631326, 974749025, 974706490, 974703300, 974633752,
                                           874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
                                           974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558,
-                                          974795574, 874716782, 974707152),
+                                          974795574, 874716782, 974707152, 974589095, 974754118),
                              resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
                                       4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
                                       101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840, 700841,
-                                      103312, 4205289))
-
+                                      103312, 4205289, 106168, 4207594))
+# map_resh_orgnr[map_resh_orgnr$resh%in% setdiff(map_resh_orgnr$resh, enhetsliste$AvdRESH), ]
+# enhetsliste[enhetsliste$AvdRESH %in% setdiff(enhetsliste$AvdRESH, map_resh_orgnr$resh), ]
 # # tmp <- xlsx::read.xlsx('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.xlsx', sheetIndex = 1)
-# tmp <- read.csv2('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.csv', fileEncoding = 'UTF-8')
-# mapping_npr <- merge(enhetsliste, map_resh_orgnr, by.x = 'AvdRESH', by.y = 'resh')
-# mapping_npr <- merge(mapping_npr, tmp[,c("OrgNrShus", "OrgNavnEnhetsreg")], by.x = 'orgnr_sh', by.y = 'OrgNrShus')
+tmp <- read.csv2('C:/GIT/qmongrdata/data-raw/SykehusNavnStruktur.csv', fileEncoding = 'UTF-8')
+mapping_npr <- merge(enhetsliste, map_resh_orgnr, by.x = 'AvdRESH', by.y = 'resh')
+mapping_npr <- merge(mapping_npr, tmp[,c("OrgNrShus", "OrgNavnEnhetsreg")], by.x = 'orgnr_sh', by.y = 'OrgNrShus')
 # write.csv2(mapping_npr, 'C:/GIT/norgast/doc/map_orgnr_resh_norgast.csv', row.names = F)
 
 minald=0
@@ -257,7 +261,9 @@ indikator$ind_id[indikator$ind_id == "norgast7"] <- "norgast_lekkasje_endetarm"
 indikator$ind_id[indikator$ind_id == "norgast8"] <- "norgast_kikkhullsteknikk_lever"
 indikator$ind_id[indikator$ind_id == "norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
 indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
+indikator$context <- "caregiver"
 
+write.csv2(indikator, "I:/norgast/norgast_indikator_2021_06_04.csv", row.names = F, fileEncoding = 'UTF-8')
 # write.csv2(indikator, "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
 
 ### Tilbered dekningsgrad for sykehusviser
@@ -265,18 +271,18 @@ indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_e
 dg_kobl_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 974632535, 974795787, 974705788, 974633574, 974795639,
                                               974724960, 974795361, 993467049, 974631326, 974749025, 974706490, 974703300, 974633752,
                                               874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
-                                              974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558,
+                                              974724774, 974631091, 974795477, 974329506, 974316285, 974631407, 974795558,
                                               974795574, 874716782, 974707152, 974631776, 974744570, 974747545, 974753898, 974795558,
-                                              974795574),
+                                              974795574, 974754118),
                                  resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
                                           4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
-                                          101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840, 700841,
-                                          103312,4205289, 974631776, 974744570, 974747545, 974753898, 974795558, 974795574))
+                                          101823, 102037, 701402, 100354, 102145,4211928, 100170, 4204084, 700840, 700841,
+                                          103312,4205289, 974631776, 974744570, 974747545, 974753898, 974795558, 974795574, 4212917))
 
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "Total DG per SH")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[which(dg$Sykehus=="Levanger")] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_total"
@@ -287,7 +293,7 @@ dg_samlet <- dg
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG Tykktarm")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_tykktarm"
@@ -297,7 +303,7 @@ dg_samlet <- bind_rows(dg_samlet, dg)
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG_Lever")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_lever"
@@ -307,7 +313,7 @@ dg_samlet <- bind_rows(dg_samlet, dg)
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG_Pankreas")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_pankreas"
@@ -317,7 +323,7 @@ dg_samlet <- bind_rows(dg_samlet, dg)
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG_Endetarm")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_endetarm"
@@ -327,7 +333,7 @@ dg_samlet <- bind_rows(dg_samlet, dg)
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG_Magesekk")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_magesekk"
@@ -337,14 +343,14 @@ dg_samlet <- bind_rows(dg_samlet, dg)
 dg <- readxl::read_excel("Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Sykehusviser/Dekningsgrader/DG_NorGast.xlsx",
                          sheet = "DG_Spiseroer")
 dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
+# dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
 dg <- dg[,c(10,6,2,3)]
 dg <- dg[!is.na(dg$orgnr), ]
 dg$ind_id <- "norgast_dg_spiseroer"
 names(dg)[2:4] <- c("year",	"var", "denominator")
 dg_samlet <- bind_rows(dg_samlet, dg)
 
-tmp <- RegDataOblig[substr(RegDataOblig$Sykehusnavn, 1, 3) %in% "OUS", ]
+# tmp <- RegDataOblig[substr(RegDataOblig$Sykehusnavn, 1, 3) %in% "OUS", ]
 
 data.frame(resh=unique(RegDataOblig$AvdRESH),
            shus = RegDataOblig$Sykehusnavn[match(unique(RegDataOblig$AvdRESH),RegDataOblig$AvdRESH)])
@@ -360,7 +366,7 @@ feilsok$shus[feilsok$orgnr %in% qmongrdata::SykehusNavnStruktur$OrgNrHF] <-
 
 # indikator <- bind_rows(indikator, dg_samlet)
 
-write.csv2(indikator[indikator$year < 2020, ], "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
+write.csv2(indikator[indikator$year <= rap_aar, ], "C:/GIT/qmongrdata/data-raw/norgastdata.csv", row.names = F, fileEncoding = 'UTF-8')
 
 dg_samlet2 <-dg_samlet
 
@@ -371,7 +377,7 @@ tmp <- merge(dg_samlet2[dg_samlet2$year == 2014, ], dg_samlet2[dg_samlet2$year =
   merge(dg_samlet2[dg_samlet2$year == 2019, c("orgnr", "ind_id", "denominator")],
         by = c("orgnr", "ind_id"), all.x = T, suffixes = c('', '_2019'))
 
-write.csv2(dg_samlet[dg_samlet$year < 2020, ], "C:/GIT/qmongrdata/data-raw/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
+write.csv2(dg_samlet[dg_samlet$year <= rap_aar, ], "C:/GIT/qmongrdata/data-raw/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
 
 # write.csv2(indikator[which(indikator$year < 2020 & indikator$ind_id == "norgast_avdoede_bukspytt_tolv"), ],
 #            "C:/GIT/qmongrdata/data-raw/norgastdata_pankread.csv", row.names = F, fileEncoding = 'UTF-8')
@@ -398,85 +404,85 @@ write.csv2(dg_samlet[dg_samlet$year < 2020, ], "C:/GIT/qmongrdata/data-raw/norga
 
 ### Tilpass det nye formatet til Resultatportalen
 
-aux <- indikator1[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind1", "ReshId")
-aux[, "Nevner Ind1"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind1"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind1_sårruptur_NorGast.csv', row.names = F)
-
-aux <- indikator2[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind2", "ReshId")
-aux[, "Nevner Ind2"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind2"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind2_andelavdøde_spiserør_NorGast.csv', row.names = F)
-
-aux <- indikator3[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind3", "ReshId")
-aux[, "Nevner Ind3"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind3"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind3_andelavdøde_magesekk_NorGast.csv', row.names = F)
-
-aux <- indikator4[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind4", "ReshId")
-aux[, "Nevner Ind4"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind4"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind4_andelavdøde_bykspytt_tolv_NorGast.csv', row.names = F)
-
-aux <- indikator5[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind5", "ReshId")
-aux[, "Nevner Ind5"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind5"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind5_andelavdøde_lever_NorGast.csv', row.names = F)
-
-aux <- indikator6[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind6", "ReshId")
-aux[, "Nevner Ind6"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind6"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind6_lekkasje_tykktarm_NorGast.csv', row.names = F)
-
-aux <- indikator7[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind7", "ReshId")
-aux[, "Nevner Ind7"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind7"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind7_lekkasje_endetarm_NorGast.csv', row.names = F)
-
-aux <- indikator8[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind8", "ReshId")
-aux[, "Nevner Ind8"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind8"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind8_kikkhullsteknikk_ lever_NorGast.csv', row.names = F)
-
-aux <- indikator9[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind9", "ReshId")
-aux[, "Nevner Ind9"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind9"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind9_kikkhullsteknikk_tykktarm_NorGast.csv', row.names = F)
-
-aux <- indikator10[, c(1,5,3)]
-names(aux) <- c("Aar", "Teller Ind10", "ReshId")
-aux[, "Nevner Ind10"] <- 1
-aux$AarID <- paste0(aux$Aar, aux$ReshId)
-aux$Indikator <- "Ind10"
-aux <- aux[, c(1,6,4,2,3,5)]
-write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind10_kikkhullsteknikk_endetarm_NorGast.csv', row.names = F)
+# aux <- indikator1[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind1", "ReshId")
+# aux[, "Nevner Ind1"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind1"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind1_sårruptur_NorGast.csv', row.names = F)
+#
+# aux <- indikator2[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind2", "ReshId")
+# aux[, "Nevner Ind2"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind2"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind2_andelavdøde_spiserør_NorGast.csv', row.names = F)
+#
+# aux <- indikator3[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind3", "ReshId")
+# aux[, "Nevner Ind3"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind3"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind3_andelavdøde_magesekk_NorGast.csv', row.names = F)
+#
+# aux <- indikator4[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind4", "ReshId")
+# aux[, "Nevner Ind4"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind4"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind4_andelavdøde_bykspytt_tolv_NorGast.csv', row.names = F)
+#
+# aux <- indikator5[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind5", "ReshId")
+# aux[, "Nevner Ind5"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind5"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind5_andelavdøde_lever_NorGast.csv', row.names = F)
+#
+# aux <- indikator6[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind6", "ReshId")
+# aux[, "Nevner Ind6"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind6"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind6_lekkasje_tykktarm_NorGast.csv', row.names = F)
+#
+# aux <- indikator7[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind7", "ReshId")
+# aux[, "Nevner Ind7"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind7"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind7_lekkasje_endetarm_NorGast.csv', row.names = F)
+#
+# aux <- indikator8[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind8", "ReshId")
+# aux[, "Nevner Ind8"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind8"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind8_kikkhullsteknikk_ lever_NorGast.csv', row.names = F)
+#
+# aux <- indikator9[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind9", "ReshId")
+# aux[, "Nevner Ind9"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind9"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind9_kikkhullsteknikk_tykktarm_NorGast.csv', row.names = F)
+#
+# aux <- indikator10[, c(1,5,3)]
+# names(aux) <- c("Aar", "Teller Ind10", "ReshId")
+# aux[, "Nevner Ind10"] <- 1
+# aux$AarID <- paste0(aux$Aar, aux$ReshId)
+# aux$Indikator <- "Ind10"
+# aux <- aux[, c(1,6,4,2,3,5)]
+# write.csv2(aux, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/Indikatorer/ind10_kikkhullsteknikk_endetarm_NorGast.csv', row.names = F)
 
 
 ############## Nøkkeltall  ###########################
@@ -495,11 +501,11 @@ write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Result
 
 
 
-########## Legge til teller i data ################################
+########## Legge til teller i data - UNDER UTVIKLING ################################
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -508,7 +514,8 @@ RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
 
-ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+ForlopData <- ForlopData[,c('erMann', 'AvdRESH', 'SykehusNavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 # RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 # RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
@@ -555,6 +562,34 @@ samlet$ind_id <- "norgast_dg_total"
 sammenstill <- bind_rows(sammenstill, samlet)
 
 tmp <- merge(dg_samlet, sammenstill, by = c("orgnr", "year", "ind_id"), all.x = T)
-tmp2 <- tmp[tmp$denominator==100, ]
+tmp2 <- tmp[tmp$year==2017, ]
 tmp2$nevner[tmp2$var!=0] <- round(tmp2$teller[tmp2$var!=0]*100/tmp2$var[tmp2$var!=0])
 # tmp2$nevner[tmp2$var==0] <- 0
+
+gjsn.2017 <- merge(dg_samlet[dg_samlet$year==2016, -3], dg_samlet[dg_samlet$year==2018, -3],
+                   by = c("orgnr", "ind_id"), all = T, suffixes = c("_2016", "_2018"))
+
+
+
+nevner <- dg_samlet[dg_samlet$year==2014, -c(2)] %>%
+  merge(dg_samlet[dg_samlet$year==2015, -c(2)], by = c("orgnr", "ind_id"),
+        all = T, suffixes = c("_2014", "_2015")) %>%
+  merge(dg_samlet[dg_samlet$year==2016, -c(2)], by = c("orgnr", "ind_id"),
+        all = T, suffixes = c("", "_2016")) %>%
+  merge(dg_samlet[dg_samlet$year==2017, -c(2)], by = c("orgnr", "ind_id"),
+        all = T, suffixes = c("", "_2017")) %>%
+  merge(dg_samlet[dg_samlet$year==2018, -c(2)], by = c("orgnr", "ind_id"),
+        all = T, suffixes = c("", "_2018")) %>%
+  merge(dg_samlet[dg_samlet$year==2019, -c(2)], by = c("orgnr", "ind_id"),
+        all = T, suffixes = c("", "_2019"))
+
+
+mapping_npr <- mapping_npr[mapping_npr$AvdRESH != 4204084, ] # fjerner én av Ringerikeoppføringene
+
+nevner <- merge(nevner, mapping_npr[,c("orgnr_sh", "Sykehusnavn")], by.x = "orgnr", by.y = "orgnr_sh", all.x = T)
+
+# nevner[is.na(nevner$Sykehusnavn), ]
+
+
+
+

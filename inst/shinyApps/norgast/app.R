@@ -28,9 +28,9 @@ if (rapbase::isRapContext()) {
   skjemaoversikt <- NorgastHentSkjemaOversikt()
 } else {
   Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
-  RegData <- read.table('I:/norgast/AlleVarNum2021-03-12 13-59-58.txt', header=TRUE, sep=";",
+  RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";",
                         encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-12 13-59-58.txt', header=TRUE, sep=";",
+  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=";",
                            encoding = 'UTF-8', stringsAsFactors = F)
 
   RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -39,11 +39,12 @@ if (rapbase::isRapContext()) {
                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                         "AvstandAnalVerge")]
-  names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+  # names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+  names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-03-12 13-59-58.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
   }
 
 
