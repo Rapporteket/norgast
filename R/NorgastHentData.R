@@ -45,6 +45,8 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   Hoveddiagnose,
                   Hastegrad,
                   AvstandAnalVerge,
+                  Albumin,
+                  CRP,
                   ForlopsOversikt.erMann AS ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.SykehusNavn AS Sykehusnavn,

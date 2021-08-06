@@ -38,7 +38,7 @@ if (rapbase::isRapContext()) {
                         'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
-                        "AvstandAnalVerge")]
+                        "AvstandAnalVerge", "Albumin", "CRP")]
   # names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
   names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
@@ -120,8 +120,8 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Datadump",
            h2("Datadump", align='center'),
-           h4("Velg variablene du ønsker inkludert i datadump og for hvilken tidsperiode.", align='center'),
-           # h4("Linn og Kristoffer lager mer tekst hvis ønskelig.", align='center'),
+           h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
+              som inkluderes i datadump på Rapporteket sammenlignet med datadump hentet fra registerets qreg-løsning.", align='center'),
            br(),
            br(),
            datadump_UI(id = "datadump_id", BrValg = BrValg)

@@ -11,27 +11,65 @@ datadump_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-      sidebarPanel(width = 3,
-        id = ns("id_dump_panel"),
-        uiOutput(outputId = ns('valgtevar_dump')),
-        dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                       max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-        selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                    choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-        uiOutput(outputId = ns('ncsp')),
-        selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                    choices = BrValg$sykehus, multiple = TRUE),
-        tags$hr(),
-        actionButton(ns("reset_input"), "Nullstill valg")
-      ),
+    sidebarPanel(width = 3,
+                 id = ns("id_dump_panel"),
+                 shinyjs::hidden(uiOutput(outputId = ns('valgtevar_dump'))),
+                 dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
+                                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                 selectInput(inputId = ns("dumptype"), label = "Velg type datadump",
+                             choices = c('AlleVar', 'AlleVarNum', 'ForlopsOversikt', 'SkjemaOversikt')),
+                 shinyjs::hidden(selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                             choices = BrValg$reseksjonsgrupper, multiple = TRUE)),
+                 shinyjs::hidden(uiOutput(outputId = ns('ncsp'))),
+                 selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                             choices = BrValg$sykehus, multiple = TRUE),
+                 tags$hr(),
+                 actionButton(ns("reset_input"), "Nullstill valg")
+    ),
     mainPanel(
-      downloadButton(ns("lastNed_dump"), "Last ned datadump")
+      tabsetPanel(id= ns("datadump"),
+                  tabPanel("Rådata", value = "datadump_raa",
+                           h2('Datadump med rådata', align='center'),
+                           br(),
+                           h4('Her kan du laste ned forskjellige varianter av datadump for NoRGast. LU-brukere kan kun laste ned data for egen avdeling.
+                              Merk at også registreringer i kladd er inkludert i datadump.'),
+                           br(),
+                           h4(tags$b(tags$u('Forklaring til de ulike datadump-typene:'))),
+                           h4(tags$b('AlleVar '), 'inneholder alle kliniske variabler i registeret og benytter etikettene til kategoriske variabler.'),
+                           h4(tags$b('AlleVarNum '), 'inneholder alle kliniske variabler i registeret og benytter tallkodene til kategoriske variabler.'),
+                           h4(tags$b('ForlopsOversikt '), 'inneholder en del administrative data relevant for forløpene.'),
+                           h4(tags$b('SkjemaOversikt '), 'er en oversikt over status til alle registreringer i registreret, også uferdige.'),
+                           DTOutput(ns("Tabell_datadum_raa")), downloadButton(ns("lastNed_dump_raa"), "Last ned datadump")
+                  ),
+                  tabPanel("Prosessert data", value = "datadump_pros",
+                           h2('Datadump prosessert - NoRGast', align='center'),
+                           br(),
+                           h4('Her kan du laste ned datadump basert på prosessert og koblet data som brukes på Rapporteket. Du kan velge hvilke variabler
+                              du vil inkludere, samt filtrere på operasjonstype i tillegg til dato. Kun ferdigstilte registreringer er inkludert.'),
+                           DTOutput(ns("Tabell_adm2")), downloadButton(ns("lastNed_dump"), "Last ned datadump")
+                  )
+      )
     )
   )
 }
 
 
 datadump <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+
+
+  observe(
+    if (input$datadump == "datadump_raa") {
+      shinyjs::hide(id = 'valgtevar_dump')
+      shinyjs::hide(id = 'op_gruppe')
+      shinyjs::hide(id = 'ncsp')
+      shinyjs::show(id = 'dumptype')
+    } else if (input$datadump == "datadump_pros") {
+      shinyjs::hide(id = 'dumptype')
+      shinyjs::show(id = 'valgtevar_dump')
+      shinyjs::show(id = 'op_gruppe')
+      shinyjs::show(id = 'ncsp')
+    }
+  )
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_dump_panel")
@@ -57,7 +95,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     ns <- session$ns
     if (!is.null(names(RegData))) {
       selectInput(inputId = ns("valgtevar_dump_verdi"), label = "Velg variabler å inkludere (ingen valgt er lik alle)",
-                              choices = names(RegData), multiple = TRUE)
+                  choices = names(RegData), multiple = TRUE)
     }
   })
 
@@ -84,6 +122,35 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     }
   )
 
+  output$lastNed_dump_raa <- downloadHandler(
+    filename = function(){
+      paste0(input$dumptype, '_NoRGast', Sys.time(), '.csv')
+    },
+    content = function(file){
+      if (rapbase::isRapContext()) {
+        query <- paste0("SELECT * FROM ", input$dumptype)
+        tmpData <- rapbase::LoadRegData("norgast", query, "mysql")
+
+        # tmpData <- norgastHentTabell(input$dumptype)
+      } else {
+        tmpData <- read.table(paste0('I:/norgast/', input$dumptype, '2021-06-02 08-20-32.txt'), header=TRUE, sep=";", encoding = 'UTF-8', stringsAsFactors = F)
+      }
+      if (input$dumptype %in% c('AlleVar', 'AlleVarNum')) {
+        tmpData$HovedDato <- tmpData$OpDato
+      }
+      dumpdata <- tmpData[as.Date(tmpData$HovedDato) >= input$datovalg[1] &
+                            as.Date(tmpData$HovedDato) <= input$datovalg[2], ]
+      if (userRole != 'SC') {
+        dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
+      } else {
+        if (!is.null(input$valgtShus)) {dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}
+      }
+
+      write.csv2(dumpdata, file, row.names = F, na = '', fileEncoding = 'Latin1')
+    }
+  )
+
+
   shiny::observe({
     if (rapbase::isRapContext()) {
 
@@ -92,6 +159,14 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
         raplog::repLogger(
           session = hvd_session,
           msg = paste0("NoRGast: nedlasting datadump")
+        )
+      )
+
+      shinyjs::onclick(
+        "lastNed_dump_raa",
+        raplog::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: nedlasting datadump raa")
         )
       )
     }
