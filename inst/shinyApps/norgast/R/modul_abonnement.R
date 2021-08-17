@@ -113,7 +113,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
   #   if (rapbase::isRapContext()) {
   #     shinyjs::onclick(
   #       "lastNedTabell",
-  #       raplog::repLogger(
+  #       rapbase::repLogger(
   #         session = hvd_session,
   #         msg = "Her kommer melding"
   #       )

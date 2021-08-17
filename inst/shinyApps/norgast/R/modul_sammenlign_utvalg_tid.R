@@ -411,14 +411,14 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
 
   shiny::observe({
     if (rapbase::isRapContext()) {
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = "NoRGast: KM-overlevelseskurve."
       )
 
       shinyjs::onclick(
         "lastNedBilde",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = "NoRGast: Laster ned KM-overlevelseskurve."
         )

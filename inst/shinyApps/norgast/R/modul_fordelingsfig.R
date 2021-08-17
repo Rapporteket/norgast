@@ -226,7 +226,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
           "NoRGast: tabell - fordeling. variabel - ",
           input$valgtVar)
       }
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = mld_fordeling
       )
@@ -240,14 +240,14 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
       )
       shinyjs::onclick(
         "lastNedBilde",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedFig
         )
       )
       shinyjs::onclick(
         "lastNedTabell",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedTab
         )

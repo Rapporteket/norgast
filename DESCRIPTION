@@ -19,13 +19,11 @@ Imports:
   shinyjs,
   rapFigurer,
   rapbase,
-  raplog,
   survival,
   survminer,
   shinyWidgets
 Remotes:
   Rapporteket/rapbase,
-  Rapporteket/raplog,
   Rapporteket/rapFigurer
 RoxygenNote: 7.1.1
 Suggests: knitr,

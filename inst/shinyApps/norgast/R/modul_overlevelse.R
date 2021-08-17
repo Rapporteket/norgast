@@ -377,14 +377,14 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   shiny::observe({
     if (rapbase::isRapContext()) {
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = "NoRGast: KM-overlevelseskurve."
       )
 
       shinyjs::onclick(
         "lastNedBilde",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = "NoRGast: Laster ned KM-overlevelseskurve."
         )

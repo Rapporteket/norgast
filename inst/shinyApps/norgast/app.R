@@ -178,7 +178,7 @@ ui <- navbarPage(id = "norgast_app_id",
 server <- function(input, output, session) {
 
   if (rapbase::isRapContext()) {
-    raplog::appLogger(session = session, msg = 'Starter NoRGast')
+    rapbase::appLogger(session = session, msg = 'Starter NoRGast')
     reshID <- rapbase::getUserReshId(session)
     userRole <- rapbase::getUserRole(session)
   } else {

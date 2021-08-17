@@ -348,7 +348,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
           "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
           input$valgtVar_gjsn)
       }
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = mld_fordeling
       )
@@ -378,42 +378,42 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedFigAndel
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_andel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedTabAndel
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_gjsn",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedFigGjsn
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_gjsn",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedTabGjsn
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel_stabel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedFigAndelStabel
         )
       )
       shinyjs::onclick(
         "lastNedStabelTabell",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedTabAndelStabel
         )

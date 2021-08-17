@@ -284,14 +284,14 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
           c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
             'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
       }
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = mld_adm1
       )
 
       shinyjs::onclick(
         "lastNed_adm1",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = paste0("NoRGast: nedlasting tabell: Antall skjema, dato ",
                        input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
@@ -299,7 +299,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole, hvd_sessio
       )
       shinyjs::onclick(
         "lastNed_adm2",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
           msg = paste0("NoRGast: nedlasting tabell: Antall skjema pr ",
                        c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
