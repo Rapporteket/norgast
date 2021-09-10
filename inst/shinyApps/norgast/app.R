@@ -257,7 +257,10 @@ server <- function(input, output, session) {
 
   #Navbarwidget
   output$appUserName <- renderText(rapbase::getUserFullName(session))
-  output$appOrgName <- renderText(rapbase::getUserReshId(session))
+  output$appOrgName <-
+    shiny::renderText(
+      names(BrValg$sykehus[BrValg$sykehus == rapbase::getUserReshId(session)])
+    )
 
   # Brukerinformasjon
   userInfo <- rapbase::howWeDealWithPersonalData(session)
