@@ -131,47 +131,32 @@ ui <- navbarPage(id = "norgast_app_id",
            admtab_UI(id = "admtab_id", BrValg = BrValg)
   ),
 
+  shiny::tabPanel(
+    shiny::span("Abonnement",
+                title="Bestill tilsending av rapporter på e-post"),
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(
+        rapbase::autoReportInput("norgastSubscription")
+      ),
+      shiny::mainPanel(
+        rapbase::autoReportUI("norgastSubscription")
+      )
+    )
+  ),
 
-  tabPanel(p("Abonnement",
-             title='Bestill automatisk utsending av rapporter på e-post'),
-           value = 'adm_abonnement',
-           sidebarLayout(
-             sidebarPanel(width = 3,
-                          selectInput("subscriptionRep", "Rapport:",
-                                      c("Kvartalsrapport")), #, "Samlerapport", "Influensaresultater")),
-                          selectInput("subscriptionFreq", "Frekvens:",
-                                      list(Årlig="Årlig-year",
-                                            Kvartalsvis="Kvartalsvis-quarter",
-                                            Månedlig="Månedlig-month",
-                                            Ukentlig="Ukentlig-week",
-                                            Daglig="Daglig-DSTday"),
-                                      selected = "Kvartalsvis-quarter"),
-                          dateInput("dato_forste_rap", label="Velg dato for første utsending", value = Sys.Date()+1,
-                                    min = Sys.Date()+1, language = "nb"),
-                          dateInput("dato_siste_rap", label="Velg dato for avslutning av abonnement", value = Sys.Date()+years(3),
-                                    min = Sys.Date()+1, language = "nb"),
-                          fileInput("file1", "Last opp CSV-fil med e-post og RESH for potensielle rapportmottakere. Filen må ha en
-                                    kolonne med overskrift 'epost' som inneholder e-postadressene til potensielle mottakere av rapporten,
-                                    og en kolonne med overskrift 'resh' som angir hvilken avdeling de tilhørende e-postadressene skal
-                                    motta rapport for.",
-                                    multiple = FALSE,
-                                    accept = c("text/csv",
-                                               "text/comma-separated-values,text/plain",
-                                               ".csv")),
-                          # bsTooltip(id = "file1", title= 'Forutsetter en semikolonseparert csv-fil med en kolonne med tittel
-                          #           epost og en kolonne med tittel resh som angir henholdsvis e-postadresse og avdelingstilhørighet.'
-                          #           , options = list(container = "body")),
-                          uiOutput("norgast_brukere"),
-                          selectInput(inputId = "valgtShus", label = "Velg sykehus rapport skal lages for",
-                                      choices = BrValg$sykehus, multiple = FALSE),
-                          actionButton("subscribe", "Bestill!")
-             ),
-             mainPanel(
-               uiOutput("subscriptionContent")
-             )
-           )
+  shiny::tabPanel(
+    shiny::span("Utsending",
+                title="Lag automatisk utsending av rapporter på e-post"),
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(
+        rapbase::autoReportOrgInput("norgastDispatch"),
+        rapbase::autoReportInput("norgastDispatch")
+      ),
+      shiny::mainPanel(
+        rapbase::autoReportUI("norgastDispatch")
+      )
+    )
   )
-
 )
 
 
@@ -236,109 +221,39 @@ server <- function(input, output, session) {
   callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
              hvd_session = session, skjemaoversikt=skjemaoversikt)
 
-  #################################################################################################################################
-  ################ Abonnement ##################################################################################################
-  #####################################################################################
-  #####################################################################################
 
-  make_named_vector <- function(x) {setNames(x$lnr, x$epost)}
+  #############################################################################
+  ################ Subscription and Dispatchment ##############################
 
-  les_brukerliste <- reactive(
-    if (!is.null(input$file1)) {
-      df <- read.csv2(input$file1$datapath, header = T, stringsAsFactors = F)
-      names(df) <- names(df) %>% trimws() %>% tolower()
-      df$shus <- RegData$Sykehusnavn[match(df$resh, RegData$AvdRESH)]
-      df$shus[is.na(df$shus)] <- 'Ukjent'
-      df$lnr <- 1:dim(df)[1]
-      nestliste <- df[, c("shus", "epost", "lnr")] %>% group_by(shus) %>% nest()
-      gulp <- map(nestliste$data, make_named_vector)
-      nestliste$data <- gulp
-      testliste <- tapply(nestliste$data, nestliste$shus, function(x) {x[1]})
-      list(df=df, testliste=testliste)
-    }
-  )
-
-  output$norgast_brukere <- renderUI({
-    if (!is.null(input$file1)) {
-      selectInput(inputId = "brukere_epost", label = "Velg brukere som skal motta rapport",
-                  choices = les_brukerliste()$testliste, multiple = TRUE)
-    }
-  })
-
-
-  ## reaktive verdier for å holde rede på endringer som skjer mens
-  ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    # subscriptionTab = rapbase::makeUserSubscriptionTab(session)
+  ## Objects currently shared among subscription and dispathcment
+  orgs <- as.list(BrValg$sykehus)
+  reports <- list(
+    Kvartalsrapport = list(
+      synopsis = "NoRGast: Kvartalsrapport",
+      fun = "NorgastKvartalsrapport_abonnement",
+      paramNames = c("baseName", "reshID"),
+      paramValues = c("NorgastKvartalsrapport_abonnement", reshID)
     )
-
-  ## lag tabell over gjeldende status for abonnement
-  output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    rownames = FALSE, options = list(dom = "tp", pageLength = 15, language = list(
-  paginate = list(previous = "Forrige",
-                  `next` = "Neste")))
   )
 
-  ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- renderUI({
-    fullName <- rapbase::getUserFullName(session)
-    if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", fullName))
-    } else {
-      tagList(
-        p("Aktive abonnement som sendes per epost:"),
-        DT::dataTableOutput("activeSubscriptions")
-      )
-    }
-  })
-  ## nye abonnement
-  observeEvent (input$subscribe, { #MÅ HA
-    owner <- rapbase::getUserName(session)
-    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-    organization <- rapbase::getUserReshId(session)
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(startDay = as.Date(input$dato_forste_rap), interval = interval)
-    if (!is.null(input$file1)) {
-      email <- les_brukerliste()$df$epost[match(input$brukere_epost, les_brukerliste()$df$lnr)]
-    } else {
-      email <- rapbase::getUserEmail(session)
-    }
+  ## Subscription
+  rapbase::autoReportServer(
+    id = "norgastSubscription", registryName = "norgast",
+    type = "subscription", reports = reports, orgs = orgs
+  )
 
-    # email <- c('kevin.thon@gmail.com', 'kevin.thon@skde.no')
-    if (input$subscriptionRep == "Kvartalsrapport") {
-      synopsis <- "NoRGast: Kvartalsrapport"
-      baseName <- "NorgastKvartalsrapport_abonnement" #Navn på fila
-      #print(rnwFil)
-    }
+  ## Dispatchment
+  org <- rapbase::autoReportOrgServer("norgastDispatch", orgs)
 
-    fun <- "abonnement_kvartal_norgast"  #"henteSamlerapporter"
+  paramNames <- shiny::reactive(c("reshID"))
+  paramValues <- shiny::reactive(c(org$value()))
 
-    paramNames <- c('baseName', "reshID")
-    paramValues <- c(baseName, if (userRole == 'SC') {input$valgtShus} else {reshID})
+  rapbase::autoReportServer(
+    id = "norgastDispatch", registryName = "norgast",
+    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgs
+  )
 
-    rapbase::createAutoReport(synopsis = synopsis, package = 'norgast',
-                              fun = fun, paramNames = paramNames,
-                              paramValues = paramValues, owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear, interval = interval,
-                              intervalName = intervalName, terminateDate = input$dato_siste_rap)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  })
-
-  ## slett eksisterende abonnement
-  observeEvent(input$del_button, {
-    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab_v2(session, map_resh_name=enhetsliste)
-    # rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  })
-
-  #####################################################################################
-  #####################################################################################
-  #####################################################################################
 
   #Navbarwidget
   output$appUserName <- renderText(rapbase::getUserFullName(session))
