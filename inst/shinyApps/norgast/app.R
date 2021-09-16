@@ -250,8 +250,9 @@ server <- function(input, output, session) {
 
   rapbase::autoReportServer(
     id = "norgastDispatch", registryName = "norgast",
-    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgs
+    type = "dispatchment", org = org$value, paramNames = paramNames,
+    paramValues = paramValues, reports = reports, orgs = orgs,
+    eligible = (userRole == "SC")
   )
 
 
