@@ -68,6 +68,7 @@ source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"),
 source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_indikatorer.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -99,6 +100,10 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Tidsvisning",
            tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Indikatorer",
+           indikatorfig_UI(id = "indikator_id", BrValg = BrValg)
   ),
 
   tabPanel("Overlevelse",
@@ -156,6 +161,18 @@ ui <- navbarPage(id = "norgast_app_id",
         rapbase::autoReportUI("norgastDispatch")
       )
     )
+  ),
+
+  shiny::tabPanel(
+    "Eksport",
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(
+        rapbase::exportUCInput("norgastExport")
+      ),
+      shiny::mainPanel(
+        rapbase::exportGuideUI("norgastExportGuide")
+      )
+    )
   )
 )
 
@@ -193,6 +210,11 @@ server <- function(input, output, session) {
   ################ Tidsvisning ########################################################################################################
 
   callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+
+  #################################################################################################################################
+  ################ Tidsvisning ########################################################################################################
+
+  callModule(indikatorfig, "indikator_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Overlevelseskurver ##################################################################################################
@@ -272,27 +294,19 @@ server <- function(input, output, session) {
   })
 
 
+  #################################################################################################################################
+  # Eksport  ###################################################################################################################
+  # brukerkontroller
+  rapbase::exportUCServer("norgastExport", "norgast")
+
+  ## veileding
+  rapbase::exportGuideServer("norgastExportGuide", "norgast")
+
+  #################################################################################################################################
+
 
 
 }
 
 # Run the application
 shinyApp(ui = ui, server = server)
-
-
-
-
-# tabPanel("testfluider",
-#          fluidRow(
-#            column(2,
-#                   sliderInput("obs", "Number of observations:",
-#                               min = 1, max = 1000, value = 500)
-#            ),
-#            column(8,
-#                   plotOutput("distPlot")
-#            ),
-#            column(2,
-#                   sliderInput("obs2", "andre siden:",
-#                               min = 1, max = 1000, value = 500))
-#          )
-# ),

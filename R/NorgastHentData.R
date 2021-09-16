@@ -47,6 +47,8 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   AvstandAnalVerge,
                   Albumin,
                   CRP,
+                  TelefonKontroll,
+                  FysiskKontroll,
                   ForlopsOversikt.erMann AS ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.SykehusNavn AS Sykehusnavn,
@@ -59,7 +61,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   ON AlleVarNum.ForlopsID = ForlopsOversikt.ForlopsID
                   WHERE HovedDato >= \'", datoFra, "\' AND HovedDato <= \'", datoTil, "\' ")
 
-  RegData <- rapbase::LoadRegData(registryName, query, dbType)
+  RegData <- rapbase::loadRegData(registryName, query, dbType)
 
   return(RegData)
 }
