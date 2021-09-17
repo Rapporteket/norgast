@@ -150,8 +150,7 @@ ui <- navbarPage(id = "norgast_app_id",
   ),
 
   shiny::tabPanel(
-    shiny::span("Utsending",
-                title="Lag automatisk utsending av rapporter på e-post"),
+    "Utsending",
     shiny::sidebarLayout(
       shiny::sidebarPanel(
         rapbase::autoReportOrgInput("norgastDispatch"),
@@ -190,6 +189,7 @@ server <- function(input, output, session) {
 
   if (userRole != 'SC') {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+    shiny::hideTab("norgast_app_id", target = "Utsending")
     shinyjs::hide(id = 'valgtShus')
     shinyjs::hide(id = 'file1')
   }
@@ -272,8 +272,9 @@ server <- function(input, output, session) {
 
   rapbase::autoReportServer(
     id = "norgastDispatch", registryName = "norgast",
-    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgs
+    type = "dispatchment", org = org$value, paramNames = paramNames,
+    paramValues = paramValues, reports = reports, orgs = orgs,
+    eligible = (userRole == "SC")
   )
 
 
