@@ -136,7 +136,32 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
                                                                    legPlass='topright', graaUt="",
                                                                 lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
                                                                    inkl_konf=T, op_gruppe='',
-                                                                   hastegrad_hybrid=1, malign=99, lavDGtekst = "")
+                                                                   hastegrad_hybrid=1, malign=99, lavDGtekst = ""),
+           "LapTilgang2" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                 valgtVar = "LapTilgang2",
+                                                                 outfile="", tittel="",  width=600, height=700,
+                                                                 decreasing=F, terskel=10, minstekrav = 60, maal = 70,
+                                                                 legPlass='topright', graaUt="",
+                                                                 lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                 inkl_konf=T, op_gruppe=1,
+                                                                 hastegrad_hybrid=1, malign=1, lavDGtekst = ""),
+           "LapTilgang2_ecog" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                 valgtVar = "LapTilgang2",
+                                                                 outfile="", tittel="",  width=600, height=700,
+                                                                 decreasing=F, terskel=10, minstekrav = 60, maal = 70,
+                                                                 legPlass='topright', graaUt="",
+                                                                 lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                 inkl_konf=T, op_gruppe=1, whoEcog = c(0,1),
+                                                                 hastegrad_hybrid=1, malign=1, lavDGtekst = ""),
+           "ReLapNarkose" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                  valgtVar = "ReLapNarkose",
+                                                                  outfile="", tittel="",  width=600, height=700,
+                                                                  decreasing=T, terskel=10, minstekrav = NA, maal = 12,
+                                                                  legPlass='topright', graaUt="",
+                                                                  lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                  inkl_konf=T, op_gruppe=1, whoEcog = c(0,1),
+                                                                  hastegrad_hybrid=1, malign=1, lavDGtekst = "")
+
            )
   }, width = 600, height = 700)
 
