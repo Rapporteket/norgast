@@ -55,3 +55,24 @@ fiksNULL <- function(x, erstatt='') {
   if (!is.null(x)) {x} else {erstatt}
 }
 
+
+#' Identifiserer pasienter med flere enn ett forløp med samme operasjonsdato
+#'
+#' @param RegData Datasettet som kan inneholde dobbeltregistreringer
+#'
+#' @return En dataramme med utvalgte variabler for potensielt dobbeltregistrerte forløp
+#'
+#' @export
+dobbelreg <- function(RegData) {
+  flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
+  flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
+
+  flere_sammedato <- merge(flere_sammedato, RegData, by = c('PasientID', 'HovedDato'), all.x = T)
+  flere_sammedato <- flere_sammedato[ , c("PasientID", "ForlopsID", "OperasjonsDato", "AvdRESH", "Sykehusnavn","Hovedoperasjon", "Operasjonsgrupper", "Hoveddiagnose")]
+  flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
+  flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
+  flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
+  flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
+  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
+  return(flere_sammedato)
+}

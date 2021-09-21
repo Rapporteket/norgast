@@ -136,6 +136,12 @@ ui <- navbarPage(id = "norgast_app_id",
            admtab_UI(id = "admtab_id", BrValg = BrValg)
   ),
 
+  shiny::tabPanel("Datakvalitet",
+                  h3('Pasienter som har to eller flere forløp med samme operasjonsdato'),
+                  downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
+                  DT::dataTableOutput('dobbeltreg')
+  ),
+
   shiny::tabPanel(
     shiny::span("Abonnement",
                 title="Bestill tilsending av rapporter på e-post"),
@@ -190,8 +196,10 @@ server <- function(input, output, session) {
   if (userRole != 'SC') {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
     shiny::hideTab("norgast_app_id", target = "Utsending")
-    shinyjs::hide(id = 'valgtShus')
-    shinyjs::hide(id = 'file1')
+    shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+    shiny::hideTab("norgast_app_id", target = "Eksport")
+    # shinyjs::hide(id = 'valgtShus')
+    # shinyjs::hide(id = 'file1')
   }
 
   shiny::callModule(startside, "startside", usrRole=userRole)
@@ -243,6 +251,19 @@ server <- function(input, output, session) {
   callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
              hvd_session = session, skjemaoversikt=skjemaoversikt)
 
+  #################################################################################################################################
+  ################ Datakvalitet ##################################################################################################
+
+  # output$dobbeltreg <- renderTable(norgast::dobbelreg(RegData))
+  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData), options = list(pageLength = 40))
+
+  output$lastNed_dobbeltreg <- downloadHandler(
+    filename = function(){
+      paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
+    },
+    content = function(file, filename){
+      write.csv2(norgast::dobbelreg(RegData), file, row.names = F, na = '', fileEncoding = "Latin1")
+    })
 
   #############################################################################
   ################ Subscription and Dispatchment ##############################
