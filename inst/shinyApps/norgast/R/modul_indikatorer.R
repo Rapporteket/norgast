@@ -79,8 +79,8 @@ indikatorfig_UI <- function(id, BrValg){
 
 indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
-  shinyjs::onclick("toggleAdvanced",
-                   shinyjs::toggle(id = "avansert", anim = TRUE))
+  # shinyjs::onclick("toggleAdvanced",
+  #                  shinyjs::toggle(id = "avansert", anim = TRUE))
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_indikator_panel")

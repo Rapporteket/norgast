@@ -42,19 +42,20 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-
-RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
-                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
-                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
-                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
-                      "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
-                      "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
-names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
-ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+# RegData <- read.table('I:/norgast/AlleVarNum2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+# ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+#
+# RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+#                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+#                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+#                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+#                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+#                       "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
+#                       "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
+# names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+# ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+# RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- norgast::NorgastHentRegData()
 RegData <- NorgastPreprosess(RegData)
 # RegData <- RegData[RegData$Aar==2016, ]
 
@@ -160,7 +161,7 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- T
+annet_format_ut <- F
 ut_format <- 'wmf'
 @
 
@@ -242,7 +243,7 @@ op_gruppe <- 1
 elektiv <- 1
 hastegrad_hybrid <- 1
 
-outfile <- 'ViktigsteFunn_kolon_elektiv.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/ViktigsteFunn_kolon_elektiv.pdf'
 FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
            enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
 if (annet_format_ut) {
@@ -253,7 +254,7 @@ if (annet_format_ut) {
 
 tittel <- ''
 
-outfile <- 'Tilgang_elektiv_malign.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign.pdf'
 malign <- 1
 NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid, outfile=outfile, Ngrense=10, malign = malign, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %')
 if (annet_format_ut) {
@@ -261,34 +262,34 @@ if (annet_format_ut) {
   NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid, outfile=outfile, Ngrense=10, malign = malign, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %')
 }
 
-outfile <- 'Tilgang_elektiv_malign_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_aar.pdf'
 valgtVar <- 'LapTilgang2'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
-outfile <- 'Tilgang_elektiv_malign_ecog_0_1.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_ecog_0_1.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 
-outfile <- 'AccordionGrad_elektiv_benign.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_benign.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1, outfile=outfile,
                            Ngrense=10, malign = 0, lavDG = graaUt_kolon)
 if (annet_format_ut) {
@@ -297,23 +298,23 @@ if (annet_format_ut) {
                              lavDG = graaUt_kolon)
 }
 
-outfile <- 'KumAcc_elektiv_benign_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_benign_aar.pdf'
 valgtVar <- 'KumAcc'
 tittel <- ''
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        lavDG = graaUt_kolon,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
 }
 
-outfile <- 'AccordionGrad_elektiv_malign.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_malign.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1,
                            outfile=outfile, Ngrense=10, malign = 1,
                            lavDG = graaUt_kolon)
@@ -324,16 +325,16 @@ if (annet_format_ut) {
                              lavDG = graaUt_kolon)
 }
 
-outfile <- 'KumAcc_elektiv_malign_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_malign_aar.pdf'
 valgtVar <- 'KumAcc'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                      hastegrad_hybrid=hastegrad_hybrid, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        lavDG = graaUt_kolon,
@@ -341,7 +342,7 @@ if (annet_format_ut) {
                        hastegrad_hybrid=hastegrad_hybrid, malign=1)
 }
 
-outfile <- 'AccordionGrad_ohjelp.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_ohjelp.pdf'
 FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=0, outfile=outfile, reshID=reshID)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -352,98 +353,98 @@ if (annet_format_ut) {
 
 valgtVar <- 'ReLapNarkose'
 malign <- 1
-outfile <- 'ReLapNarkose_malign_ecog0_1_aar.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_malign_ecog0_1_aar.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
-outfile <- 'konv_rate_malign_ecog0_1_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_malign_ecog0_1_aar.pdf'
 valgtVar <- 'konv_rate'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 valgtVar <- 'Anastomoselekkasje'
-outfile <- 'Anastomoselekkasje_malign_ecog0_1aar.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_malign_ecog0_1aar.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
-outfile <- 'mortalitet90_kolon_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar.pdf'
 valgtVar <- 'mortalitet90'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 }
 
-outfile <- 'mortalitet90_kolon_aar_refpas.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar_refpas.pdf'
 valgtVar <- 'mortalitet90'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
-outfile <- 'hastegrad_ny_kolon_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/hastegrad_ny_kolon_aar.pdf'
 valgtVar <- 'Hastegrad'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 }
 
-outfile <- 'ohjelp_kveld_kolon_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/ohjelp_kveld_kolon_aar.pdf'
 valgtVar <- 'ohjelp_kveld'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = 'Dekningsgrad < 55 %',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
@@ -453,97 +454,97 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ViktigsteFunn_kolon_elektiv.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ViktigsteFunn_kolon_elektiv.pdf}
 \caption{ViktigsteFunn\_kolon\_elektiv.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_elektiv_malign.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign.pdf}
 \caption{Tilgang\_elektiv\_malign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_elektiv_malign_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_aar.pdf}
 \caption{Tilgang\_elektiv\_malign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_elektiv_malign_ecog_0_1.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_ecog_0_1.pdf}
 \caption{Tilgang\_elektiv\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_elektiv_benign.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_benign.pdf}
 \caption{AccordionGrad\_elektiv\_benign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_elektiv_benign_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_benign_aar.pdf}
 \caption{KumAcc\_elektiv\_benign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_elektiv_malign.pdf} % 10
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_malign.pdf} % 10
 \caption{AccordionGrad\_elektiv\_malign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_elektiv_malign_aar.pdf} % 11
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_malign_aar.pdf} % 11
 \caption{KumAcc\_elektiv\_malign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_ohjelp.pdf} % 12
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_ohjelp.pdf} % 12
 \caption{AccordionGrad\_ohjelp.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_malign_ecog0_1_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_malign_ecog0_1_aar.pdf}
 \caption{ReLapNarkose\_malign\_ecog0\_1\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{konv_rate_malign_ecog0_1_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_malign_ecog0_1_aar.pdf}
 \caption{konv\_rate\_malign\_ecog0\_1\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Anastomoselekkasje_malign_ecog0_1aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_malign_ecog0_1aar.pdf}
 \caption{Anastomoselekkasje\_malign\_ecog0\_1aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_kolon_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar.pdf}
 \caption{mortalitet90\_kolon\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_kolon_aar_refpas.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar_refpas.pdf}
 \caption{mortalitet90\_kolon\_aar\_refpas.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{hastegrad_ny_kolon_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/hastegrad_ny_kolon_aar.pdf}
 \caption{hastegrad\_ny\_kolon\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ohjelp_kveld_kolon_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ohjelp_kveld_kolon_aar.pdf}
 \caption{ohjelp\_kveld\_kolon\_aar.pdf}
 \end{figure}
 
@@ -629,7 +630,7 @@ elektiv <- 99
 hastegrad_hybrid <- 99
 terskel <- 10
 
-outfile <- 'AvstandAnalVerge_kat_rekt.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/AvstandAnalVerge_kat_rekt.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AvstandAnalVerge_kat', op_gruppe=op_gruppe, outfile=outfile,
                            Ngrense=terskel, lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %')
 if (annet_format_ut) {
@@ -639,14 +640,14 @@ if (annet_format_ut) {
 }
 
 valgtVar <- 'LapTilgang2'
-outfile <- 'Tilgang_rekt_malign_ecog_0_1.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_rekt_malign_ecog_0_1.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
@@ -654,62 +655,62 @@ if (annet_format_ut) {
 
 
 valgtVar <- 'ReLapNarkose'
-outfile <- 'ReLapNarkose_rekt_malign_ecog_0_1.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_rekt_malign_ecog_0_1.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
 valgtVar <- 'Anastomoselekkasje'
-outfile <- 'Anastomoselekkasje_rekt_malign_ecog_0_1.pdf'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_rekt_malign_ecog_0_1.pdf'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
-outfile <- 'konv_rate_rektum_malign_ecog0_1.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_rektum_malign_ecog0_1.pdf'
 valgtVar <- 'konv_rate'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
-outfile <- 'mortalitet90_rektum_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_rektum_aar.pdf'
 valgtVar <- 'mortalitet90'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = 'Dekningsgrad < 55 %',
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
-outfile <- 'AccordionGrad_rekt.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_rekt.pdf'
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_rektum)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -717,15 +718,15 @@ if (annet_format_ut) {
 }
 
 
-outfile <- 'KumAcc_rekt_aar.pdf'
+outfile <- '/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_rekt_aar.pdf'
 valgtVar <- 'KumAcc'
-norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
@@ -737,50 +738,50 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Tilgang_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_rekt_malign_ecog_0_1.pdf}
 \caption{Tilgang\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{ReLapNarkose_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_rekt_malign_ecog_0_1.pdf}
 \caption{ReLapNarkose\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{Anastomoselekkasje_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_rekt_malign_ecog_0_1.pdf}
 \caption{Anastomoselekkasje\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{konv_rate_rektum_malign_ecog0_1.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_rektum_malign_ecog0_1.pdf}
 \caption{konv\_rate\_rektum\_malign\_ecog0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AccordionGrad_rekt.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_rekt.pdf}
 \caption{AccordionGrad\_rekt.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{KumAcc_rekt_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_rekt_aar.pdf}
 \caption{KumAcc\_rekt\_aar.pdf}
 \end{figure}
 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{mortalitet90_rektum_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_rektum_aar.pdf}
 \caption{mortalitet90\_rektum\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{AvstandAnalVerge_kat_rekt.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AvstandAnalVerge_kat_rekt.pdf}
 \caption{AvstandAnalVerge\_kat\_rekt.pdf}
 \end{figure}
 
