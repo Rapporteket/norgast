@@ -255,7 +255,7 @@ server <- function(input, output, session) {
   ################ Datakvalitet ##################################################################################################
 
   # output$dobbeltreg <- renderTable(norgast::dobbelreg(RegData))
-  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData), options = list(pageLength = 40))
+  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData), options = list(pageLength = 40), rownames = FALSE)
 
   output$lastNed_dobbeltreg <- downloadHandler(
     filename = function(){
