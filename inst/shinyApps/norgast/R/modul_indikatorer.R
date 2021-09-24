@@ -29,7 +29,15 @@ indikatorfig_UI <- function(id, BrValg){
                                          "Rektum: Relaparotomi/-laparoskopi" = "ReLapNarkose_rekt_malign_ecog_0_1",
                                          "Rektum: Konverteringsrate" = "konv_rate_rektum_malign_ecog0_1",
                                          "Rektum: Anastomoselekkasje" = "Anastomoselekkasje_rekt_malign_ecog_0_1",
-                                         "Rektum: 90-dagers dødelighet" = "mortalitet90_rektum_aar"
+                                         "Rektum: 90-dagers dødelighet" = "mortalitet90_rektum_aar",
+                                         "Lever: Laparoskopi" = "Tilgang_lever_aar",
+                                         "Lever: Relaparotomi/-laparoskopi" = "ReLapNarkose_lever_aar",
+                                         "Lever: 90-dagers dødelighet" = "mortalitet90_lever_aar",
+                                         "Whipple: Vene- eller arterierekonstruksjon" = "Rekonstruksjon_whipple_aar",
+                                         "Whipple: Relaparotomi/-laparoskopi" = "ReLapNarkose_whipple",
+                                         "Whipple: Accordion score ≥ 3" = "AccordionGrad_whipple_aar",
+                                         "Whipple: 90-dagers dødelighet" = "mortalitet90_whipple_aar",
+                                         "Whipple: Postoperativ pankreasfistel" = "CR_POPF_whipple_aar"
                                          )
                              ),
                  uiOutput(outputId = ns('tilAar')),
@@ -249,7 +257,32 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
                                                                             legPlass='topright', graaUt="",
                                                                             lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
                                                                             inkl_konf=T, op_gruppe=2,
-                                                                            hastegrad_hybrid=99, malign=99, lavDGtekst = "Lav dekningsgrad")
+                                                                            hastegrad_hybrid=99, malign=99, lavDGtekst = "Lav dekningsgrad"),
+           "Tilgang_lever_aar" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                       valgtVar = "LapTilgang2",
+                                                                       outfile="", tittel="",  width=600, height=700,
+                                                                       decreasing=F, terskel=10, minstekrav = NA, maal = 30,
+                                                                       legPlass='topleft', graaUt="",
+                                                                       lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                       inkl_konf=T, op_gruppe=5,
+                                                                       hastegrad_hybrid=99, malign=99, lavDGtekst = "Lav dekningsgrad"),
+           "ReLapNarkose_lever_aar" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                            valgtVar = "ReLapNarkose",
+                                                                            outfile="", tittel="",  width=600, height=700,
+                                                                            decreasing=T, terskel=10, minstekrav = 10, maal = 7,
+                                                                            legPlass='topleft', graaUt="",
+                                                                            lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                            inkl_konf=T, op_gruppe=5,
+                                                                            hastegrad_hybrid=99, malign=99, lavDGtekst = "Lav dekningsgrad"),
+           "mortalitet90_lever_aar" = norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(input$tilAar_verdi)), ],
+                                                                            valgtVar = "ReLapNarkose",
+                                                                            outfile="", tittel="",  width=600, height=700,
+                                                                            decreasing=T, terskel=10, minstekrav = 5, maal = 3,
+                                                                            legPlass='topleft', graaUt="",
+                                                                            lavDG= if (!is.null(input$valgtShus)) {RegData$Sykehusnavn[match(as.numeric(input$valgtShus), RegData$AvdRESH)]} else {''},
+                                                                            inkl_konf=T, op_gruppe=5,
+                                                                            hastegrad_hybrid=99, malign=99, lavDGtekst = "Lav dekningsgrad"),
+           "Rekonstruksjon_whipple_aar" =
     )
   }, width = 600, height = 700)
 
