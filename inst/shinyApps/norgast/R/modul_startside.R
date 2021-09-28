@@ -25,13 +25,18 @@ startside_UI <- function(id){
                         h4(id = ns("SC1"), tags$b('Sykehusvisning '), 'viser resultater per sykehus.
                            Man kan velge hvilken variabel man vil se på og om man vil se gjennomsnitt, andeler eller stablede andeler.'),
                         h4(tags$b('Tidsvisning '), 'viser tidsutviklingen for valgt variabel for ditt sykehus'),
+                        h4(id = ns("SC2"), tags$b('Indikatorer '), 'viser registerets kvalitetsindikatorer.'),
                         h4(tags$b('Overlevelse '), 'viser Kaplan-Meier overlevelseskurver for to distinkte utvalg.'),
-                        h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter som består av utvalgte figurer og tabeller.'),
-                        h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge hvilke
-                           variabler man vil inkludere og for hvilket tidsrom og hvilke reseksjonsgrupper.'),
+                        h4(tags$b('Sammenlign andeler '), 'viser tidsutviklingen for valgt dikotom variabel for to distinkte utvalg i én og samme figur.'),
+                        h4(tags$b('Samledokumenter '), 'genererer ulike dokumenter med tekst, figurer og tabeller.'),
+                        h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge om man vil hente rådata eller koblet og prosessert data.'),
                         h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
-                        h4(tags$b('Abonnement '), 'lar brukeren bestille rapporter til sin registrerte e-post. SC-bruker kan også bestille
-                           rapporter på vegne av andre avdelinger og kan velge hvilke e-postadresser som skal motta rapport.')
+                        h4(tags$b('Datakvalitet '), 'lister opp forløp der samme pasient har mer enn én operasjon med samme operasjonsdato.'),
+                        h4(tags$b('Abonnement '), 'lar brukeren bestille regelmessig utsendelse av rapporter til sin registrerte e-post. SC-bruker kan også bestille
+                           rapporter på vegne av andre avdelinger og kan velge hvilke e-postadresser som skal motta rapport.'),
+                        h4(id = ns("SC3"), tags$b('Utsending '), 'lar SC-bruker bestille rapporter på vegne av andre avdelinger og til valgte e-postadresser.'),
+                        h4(id = ns("SC4"), tags$b('Eksport '), 'lar et celebert utvalg brukere laste ned NoRGast-databasen kryptert med sin offentlige ssh-nøkkel. Kan kun
+                           leses vha. av vedkommendes private ssh-nøkkel.')
                     ),
                     br(),
                     br(),
@@ -57,6 +62,9 @@ startside <- function(input, output,session, usrRole){
   observe(
     if (usrRole != "SC") {
       shinyjs::hide("SC1")
+      shinyjs::hide("SC2")
+      shinyjs::hide("SC3")
+      shinyjs::hide("SC4")
     }
   )
 }
