@@ -107,7 +107,7 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
   })
 
 
-  ############### Plot #######################################################
+  ############### Plot figur #######################################################
 
   output$Figur1 <- renderPlot({
     switch(input$valgtVar,
