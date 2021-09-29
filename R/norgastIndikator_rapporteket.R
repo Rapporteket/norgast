@@ -56,8 +56,8 @@ norgastIndikator_rapporteket <- function(RegData, valgtVar, tittel='', width=800
   AntTilfeller <- AntTilfeller[, -1]
   AntTilfeller <- rbind(AntTilfeller, 'Norge'=colSums(AntTilfeller, na.rm = T))
   AntTilfeller[,paste0(names(AntTilfeller)[1], '-', names(AntTilfeller)[dim(AntTilfeller)[2]])] <- rowSums(AntTilfeller, na.rm = T)
-  Utdata <- list(ant_tilfeller=AntTilfeller, N=NA)
   AntTilfeller <- AntTilfeller[, (dim(AntTilfeller)[2]-1):dim(AntTilfeller)[2]]
+  Utdata <- list(ant_tilfeller=AntTilfeller, N=NA)
 
   tmp <- aggregate(RegData$Variabel, by=list(aar=RegData$Aar, sh=RegData$Sykehusnavn), length)
   N <- tidyr::spread(tmp, 'aar', 'x')
@@ -66,8 +66,8 @@ norgastIndikator_rapporteket <- function(RegData, valgtVar, tittel='', width=800
   N[is.na(N)] <- 0
   N <- rbind(N, 'Norge'=colSums(N, na.rm = T))
   N[,paste0(names(N)[1], '-', names(N)[dim(N)[2]])] <- rowSums(N, na.rm = T)
-  Utdata$N <- N
   N <- N[, (dim(N)[2]-1):dim(N)[2]]
+  Utdata$N <- N
 
   andeler <- AntTilfeller/N * 100
 
@@ -275,5 +275,7 @@ norgastIndikator_rapporteket <- function(RegData, valgtVar, tittel='', width=800
   # if (outfile != '') {savePlot(outfile, type=substr(outfile, nchar(outfile)-2, nchar(outfile)))}
   if ( outfile != '') {dev.off()}
 
+  Utdata$utvalgTxt <- utvalgTxt
+  Utdata$tittel <- tittel
   return(invisible(Utdata))
 }

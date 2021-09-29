@@ -6,7 +6,6 @@ library(kableExtra)
 library(DT)
 library(shiny)
 library(shinyjs)
-# library(shinyBS)
 library(shinyalert)
 library(lubridate)
 library(survival)
@@ -14,14 +13,6 @@ library(survminer)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
-logo <- includeHTML(system.file('www/logo.svg', package='rapbase'))
-logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
-                   "header.append('<div class=\"navbar-brand\" style=\"float:left;font-size:75%\">",
-                   logo,
-                   "</div>');\n",
-                   "console.log(header)")
-logoWidget <- tags$script(shiny::HTML(logoCode))
-
 
 if (rapbase::isRapContext()) {
   RegData <- NorgastHentRegData()
@@ -39,7 +30,6 @@ if (rapbase::isRapContext()) {
                         'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                         'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                         "AvstandAnalVerge", "Albumin", "CRP")]
-  # names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
   names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
   ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
@@ -47,13 +37,11 @@ if (rapbase::isRapContext()) {
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
   }
 
-
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
 RegData <- NorgastPreprosess(RegData, behold_kladd = TRUE)
 skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
 RegData <- RegData[which(RegData$RegistreringStatus==1),]
-# RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
@@ -86,7 +74,8 @@ ui <- navbarPage(id = "norgast_app_id",
                   rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
                                                organization = uiOutput("appOrgName"),
                                                addUserInfo = TRUE),
-                  tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+                  tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
+                            includeCSS(system.file("shinyApps/norgast/www/yohannes.css", package = "norgast"))),
                   startside_UI("startside")
   ),
 

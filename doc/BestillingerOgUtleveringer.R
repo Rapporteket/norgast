@@ -2,6 +2,13 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+############ Finn pasientID - Dille-Andam 29.09.2021 ##########################################
+
+forlopsliste <- read.csv2("/home/rstudio/.ssh/Datadump_NoRGast 2021 lever og pankreas V3.csv")
+
+pid <- forlopsliste[forlopsliste$AvdRESH==107440, c("ForlopsID", "PasientID")]
+write.csv2(pid, "/home/rstudio/.ssh/pasientID.csv", row.names = F, fileEncoding = "Latin1")
+
 ##### Tall til Kristoffer 30.03.2021 ####################################################
 RegData <- read.table('I:/norgast/AlleVarNum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
