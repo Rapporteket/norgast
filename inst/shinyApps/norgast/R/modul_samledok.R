@@ -101,10 +101,8 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     on.exit(setwd(owd))
     file.copy(src, tmpFile, overwrite = TRUE)
 
-    texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
-    tools::texi2pdf(texfil, clean = TRUE)
-
-    file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
+    pdfFile <- knitr::knit2pdf(tmpFile)
+    file.copy(pdfFile, file)
   }
 
   output$lastNed_saml <- downloadHandler(
