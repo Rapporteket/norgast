@@ -75,26 +75,10 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     }
   })
 
-  # render file function for re-use
-  # contentFile <- function(file, srcFile, tmpFile, datoFra, datoTil, reshID=0, valgtShus='') {
-  #   src <- normalizePath(system.file(srcFile, package="norgast"))
-  #
-  #   # temporarily switch to the temp dir, in case we do not have write
-  #   # permission to the current working directory
-  #   owd <- setwd(tempdir())
-  #   on.exit(setwd(owd))
-  #   file.copy(src, tmpFile, overwrite = TRUE)
-  #
-  #   texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
-  #   tools::texi2pdf(texfil, clean = TRUE)
-  #
-  #   # gc()
-  #   file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
-  #   # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
-  # }
+  contentFile2 <- function(file, baseName, datoFra, datoTil, reshID=0,
+                           valgtShus='') {
 
-  contentFile2 <- function(file, baseName, datoFra, datoTil, reshID=0, valgtShus='') {
-    src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
+    src <- system.file(paste0(baseName, ".Rnw"), package = "norgast")
     tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
 
     owd <- setwd(tempdir())
@@ -107,49 +91,39 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
   output$lastNed_saml <- downloadHandler(
     filename = function(){
-      paste0('samleDok', format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
+      paste0("samleDok", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
     },
-
     content = function(file){
-      # contentFile(file, "NorgastSamleDokShiny.Rnw", "tmpNorgastSamle.Rnw", input$datovalg[1],
-      #             input$datovalg[2], reshID=reshID,
-      #             valgtShus=if (!is.null(input$valgtShus)) {input$valgtShus} else {''})
-      contentFile2(file, "NorgastSamleDokShiny", input$datovalg[1],
-                  input$datovalg[2], reshID=reshID,
-                  valgtShus=if (!is.null(input$valgtShus)) {input$valgtShus} else {''})
+      contentFile2(
+        file, "NorgastSamleDokShiny", input$datovalg[1],
+        input$datovalg[2], reshID = reshID,
+        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
     }
   )
 
   output$lastNed_saml_land <- downloadHandler(
     filename = function(){
-      paste0('samleDokLandet', format(Sys.time(), format = "%Y-%m-%d-%H%M%S"),
-             '.pdf')
+      paste0("samleDokLandet", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"),
+             ".pdf")
     },
-
     content = function(file){
-      # contentFile(file, "NorgastSamleDokLandetShiny.Rnw", "tmpNorgastSamleLandet.Rnw", input$datovalg[1],
-      #             input$datovalg[2], reshID=reshID)
       contentFile2(file, "NorgastSamleDokLandetShiny", input$datovalg[1],
-                  input$datovalg[2], reshID=reshID)
+                  input$datovalg[2], reshID = reshID)
     }
   )
 
   output$lastNed_kvartal <- downloadHandler(
     filename = function(){
-      paste0('Kvartalsrapp',
+      paste0("Kvartalsrapp",
              RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)],
-             format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), '.pdf')
+             format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
     },
-
     content = function(file){
-      # contentFile(file, "NorgastKvartalsrapportShiny.Rnw", "tmpNorgastKvartalsrapportShiny.Rnw",
-      #             datoTil=input$kvartal_verdi, reshID=reshID,
-      #             valgtShus=if (!is.null(input$valgtShus)) {input$valgtShus} else {''})
-      contentFile2(file, "NorgastKvartalsrapportShiny",
-                  datoTil=input$kvartal_verdi, reshID=reshID,
-                  valgtShus=if (!is.null(input$valgtShus)) {input$valgtShus} else {''})
+      contentFile2(
+        file, "NorgastKvartalsrapportShiny",
+        datoTil = input$kvartal_verdi, reshID = reshID,
+        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
 
     }
   )
-
 }
