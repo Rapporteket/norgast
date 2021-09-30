@@ -107,7 +107,7 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
   output$lastNed_saml <- downloadHandler(
     filename = function(){
-      paste0('samleDok', Sys.time(), '.pdf')
+      paste0('samleDok', format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
     },
 
     content = function(file){
@@ -122,7 +122,8 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
   output$lastNed_saml_land <- downloadHandler(
     filename = function(){
-      paste0('samleDokLandet', Sys.time(), '.pdf')
+      paste0('samleDokLandet', format(Sys.time(), format = "%Y-%m-%d-%H%M%S"),
+             '.pdf')
     },
 
     content = function(file){
@@ -135,7 +136,9 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
   output$lastNed_kvartal <- downloadHandler(
     filename = function(){
-      paste0('Kvartalsrapp', RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)], Sys.time(), '.pdf')
+      paste0('Kvartalsrapp',
+             RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)],
+             format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), '.pdf')
     },
 
     content = function(file){
