@@ -15,8 +15,8 @@ addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
 
 if (rapbase::isRapContext()) {
-  RegData <- NorgastHentRegData()
-  skjemaoversikt <- NorgastHentSkjemaOversikt()
+  RegData <- norgast::NorgastHentRegData()
+  skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
 } else {
   Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
   RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";",
