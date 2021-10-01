@@ -35,7 +35,7 @@ if (rapbase::isRapContext()) {
   RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
   skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
-  }
+}
 
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 

@@ -15,6 +15,7 @@ services:
     volumes:
       - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
+      - ~/delt_folder:/home/rstudio/delt_folder
     ports:
       - "8787:8787"
       - "3838:3838"
