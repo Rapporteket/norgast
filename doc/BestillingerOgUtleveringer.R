@@ -4,10 +4,24 @@ rm(list=ls())
 
 ############ Finn pasientID - Dille-Andam 29.09.2021 ##########################################
 
-forlopsliste <- read.csv2("/home/rstudio/.ssh/Datadump_NoRGast 2021 lever og pankreas V3.csv")
+forlopsliste <- read.csv2("/home/rstudio/delt_folder/Datadump_NoRGast 2021 lever og pankreas V3.csv")
+pid <- forlopsliste[, c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn")]
+fid <- read.csv2("/home/rstudio/delt_folder/NoRGast_koblingstabell_datadump_2021-10-01.csv",
+                 colClasses = c("integer", "character"))
 
-pid <- forlopsliste[forlopsliste$AvdRESH==107440, c("ForlopsID", "PasientID")]
-write.csv2(pid, "/home/rstudio/.ssh/pasientID.csv", row.names = F, fileEncoding = "Latin1")
+kobl <- merge(pid, fid, by.x = "PasientID", by.y = "PID", all.x = TRUE)
+kobl$Sykehusnavn[kobl$AvdRESH == 601225] <- "UNN-Tromsø"
+
+write.csv2(kobl[which(kobl$AvdRESH == 700922), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/Haukeland.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH %in% c(103312, 700413)), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/OUS.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 107440), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/StOlavs.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 114271), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/Stavanger.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 601225), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/UNNTromso.csv", row.names = F, fileEncoding = "Latin1")
 
 ##### Tall til Kristoffer 30.03.2021 ####################################################
 RegData <- read.table('I:/norgast/AlleVarNum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
