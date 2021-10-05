@@ -144,27 +144,40 @@ ui <- navbarPage(id = "norgast_app_id",
     )
   ),
 
-  shiny::tabPanel(
-    "Utsending",
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        rapbase::autoReportOrgInput("norgastDispatch"),
-        rapbase::autoReportInput("norgastDispatch")
-      ),
-      shiny::mainPanel(
-        rapbase::autoReportUI("norgastDispatch")
+  shiny::navbarMenu("Verktøy",
+    shiny::tabPanel(
+      "Utsending",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportOrgInput("norgastDispatch"),
+          rapbase::autoReportInput("norgastDispatch")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("norgastDispatch")
+        )
       )
-    )
-  ),
+    ),
 
-  shiny::tabPanel(
-    "Eksport",
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        rapbase::exportUCInput("norgastExport")
-      ),
-      shiny::mainPanel(
-        rapbase::exportGuideUI("norgastExportGuide")
+    shiny::tabPanel(
+      "Eksport",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::exportUCInput("norgastExport")
+        ),
+        shiny::mainPanel(
+          rapbase::exportGuideUI("norgastExportGuide")
+        )
+      )
+    ),
+
+    shiny::tabPanel(
+      "Bruksstatistikk",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
+        shiny::mainPanel(
+          rapbase::statsUI("norgastStats"),
+          rapbase::statsGuideUI("norgastStatsGuide")
+        )
       )
     )
   )
@@ -255,7 +268,7 @@ server <- function(input, output, session) {
     })
 
   #############################################################################
-  ################ Subscription and Dispatchment ##############################
+  ################ Subscription, Dispatchment and Stats #######################
 
   ## Objects currently shared among subscription and dispathcment
   orgs <- as.list(BrValg$sykehus)
@@ -286,6 +299,11 @@ server <- function(input, output, session) {
     paramValues = paramValues, reports = reports, orgs = orgs,
     eligible = (userRole == "SC")
   )
+
+  ## Stats
+  rapbase::statsServer("norgastStats", registryName = "norgast",
+                       eligible = (userRole == "SC"))
+  rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
 
 
   #Navbarwidget
