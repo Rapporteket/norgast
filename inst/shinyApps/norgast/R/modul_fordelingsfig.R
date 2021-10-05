@@ -150,7 +150,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         mutate(AndelRest= 100*AntRest/Nrest)
       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
-      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1), row.names = F) %>%
         kable_styling("hover", full_width = F) %>%
         add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
     } else {
@@ -160,7 +160,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         mutate(AndelHoved = 100*AntHoved/NHoved)
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
       Tabell1 %>%
-        knitr::kable("html", digits = c(0,0,0,1)) %>%
+        knitr::kable("html", digits = c(0,0,0,1), row.names = F) %>%
         kable_styling("hover", full_width = F)
     }
 
