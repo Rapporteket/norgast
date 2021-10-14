@@ -246,7 +246,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         )
       )
       shinyjs::onclick(
-        "lastNedTabell",
+        "lastNed",
         rapbase::repLogger(
           session = hvd_session,
           msg = mldLastNedTab

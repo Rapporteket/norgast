@@ -1,15 +1,17 @@
 
 ######## Last data ########################################
-library(norgast)
-library(tidyverse)
-library(kableExtra)
-library(DT)
-library(shiny)
-library(shinyjs)
-library(shinyalert)
-library(lubridate)
-library(survival)
-library(survminer)
+library("norgast")
+library("tidyverse")
+library("kableExtra")
+library("DT")
+library("shiny")
+library("shinyjs")
+library("shinyalert")
+library("lubridate")
+library("survival")
+library("survminer")
+library("ggplot2")
+library("funnelR")
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
@@ -57,6 +59,7 @@ source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"),
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_indikatorer.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_tunnelplot.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -85,6 +88,10 @@ ui <- navbarPage(id = "norgast_app_id",
 
   tabPanel("Sykehusvisning",
            sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
+  ),
+
+  tabPanel("Tunnelplot",
+           tunnelplot_UI(id = "tunnelplot_id", BrValg = BrValg)
   ),
 
   tabPanel("Tidsvisning",
@@ -144,27 +151,40 @@ ui <- navbarPage(id = "norgast_app_id",
     )
   ),
 
-  shiny::tabPanel(
-    "Utsending",
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        rapbase::autoReportOrgInput("norgastDispatch"),
-        rapbase::autoReportInput("norgastDispatch")
-      ),
-      shiny::mainPanel(
-        rapbase::autoReportUI("norgastDispatch")
+  shiny::navbarMenu("Verktøy",
+    shiny::tabPanel(
+      "Utsending",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportOrgInput("norgastDispatch"),
+          rapbase::autoReportInput("norgastDispatch")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("norgastDispatch")
+        )
       )
-    )
-  ),
+    ),
 
-  shiny::tabPanel(
-    "Eksport",
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        rapbase::exportUCInput("norgastExport")
-      ),
-      shiny::mainPanel(
-        rapbase::exportGuideUI("norgastExportGuide")
+    shiny::tabPanel(
+      "Eksport",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::exportUCInput("norgastExport")
+        ),
+        shiny::mainPanel(
+          rapbase::exportGuideUI("norgastExportGuide")
+        )
+      )
+    ),
+
+    shiny::tabPanel(
+      "Bruksstatistikk",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
+        shiny::mainPanel(
+          rapbase::statsUI("norgastStats"),
+          rapbase::statsGuideUI("norgastStatsGuide")
+        )
       )
     )
   )
@@ -202,6 +222,12 @@ server <- function(input, output, session) {
   ################ Sykehusvisning #################################################################################################
 
   callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
+
+  #################################################################################################################################
+  ################ Tunnelplot #################################################################################################
+
+  callModule(tunnelplot, "tunnelplot_id", reshID = reshID, RegData = RegData, hvd_session = session)
+
 
   #################################################################################################################################
   ################ Tidsvisning ####################################################################################################
@@ -255,7 +281,7 @@ server <- function(input, output, session) {
     })
 
   #############################################################################
-  ################ Subscription and Dispatchment ##############################
+  ################ Subscription, Dispatchment and Stats #######################
 
   ## Objects currently shared among subscription and dispathcment
   orgs <- as.list(BrValg$sykehus)
@@ -286,6 +312,11 @@ server <- function(input, output, session) {
     paramValues = paramValues, reports = reports, orgs = orgs,
     eligible = (userRole == "SC")
   )
+
+  ## Stats
+  rapbase::statsServer("norgastStats", registryName = "norgast",
+                       eligible = (userRole == "SC"))
+  rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
 
 
   #Navbarwidget
