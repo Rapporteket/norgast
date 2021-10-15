@@ -288,7 +288,7 @@ server <- function(input, output, session) {
   reports <- list(
     Kvartalsrapport = list(
       synopsis = "NoRGast: Kvartalsrapport",
-      fun = "NorgastKvartalsrapport_abonnement",
+      fun = "abonnement_kvartal_norgast",
       paramNames = c("baseName", "reshID"),
       paramValues = c("NorgastKvartalsrapport_abonnement", reshID)
     )

@@ -28,8 +28,8 @@ write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
 #' @export
 abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukernavn='Pjotr') {
 
-  rapbase::subLogger(author = brukernavn, registryName = 'NoRGast',
-                    reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
+  # rapbase::autLogger(user = brukernavn, registryName = 'NoRGast',
+  #                   reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
 
   src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
   tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
@@ -42,8 +42,8 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
   tools::texi2pdf(texfil, clean = TRUE)
 
   utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
-  rapbase::subLogger(author = brukernavn, registryName = 'NoRGast',
-                    reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
+  # rapbase::subLogger(author = brukernavn, registryName = 'NoRGast',
+  #                   reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
 
   return(utfil)
 }
