@@ -21,7 +21,8 @@ Imports:
   rapbase,
   survival,
   survminer,
-  shinyWidgets
+  shinyWidgets,
+  funnelR
 Remotes:
   Rapporteket/rapbase,
   Rapporteket/rapFigurer

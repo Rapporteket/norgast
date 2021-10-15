@@ -52,10 +52,12 @@ tunnelplot_UI <- function(id, BrValg){
                  div(
                    style = "position:relative",
                    plotOutput(ns("fig_tunnel"),
-                              hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
+                              click = ns("plot_hover")),
+                              # hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
                    # uiOutput(ns("hover_info")),
                    plotOutput(ns("barplot"),
-                              hover = hoverOpts(ns("plot_hover2"), delay = 100, delayType = "debounce")),
+                              click = ns("plot_hover2")),
+                              # hover = hoverOpts(ns("plot_hover2"), delay = 100, delayType = "debounce")),
                    # plotlyOutput("testfig")
                    uiOutput(ns("hover_info_verbatim"))
                  )
@@ -211,10 +213,12 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   # })
 
   output$hover_info_verbatim <- renderUI({
-    HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red"], "<br/>",
-                "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red"], 1), "<b> % </b>","<br/>",
-                "<b> n: </b>", vals$shus$n[vals$shus$color=="red"], "<br/>",
-                "<b> N: </b>", vals$shus$d[vals$shus$color=="red"], "<br/>"))
+    if (dim(vals$shus)[1]>0) {
+      HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red"], "<br/>",
+                  "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red"], 1), "<b> % </b>","<br/>",
+                  "<b> n: </b>", vals$shus$n[vals$shus$color=="red"], "<br/>",
+                  "<b> N: </b>", vals$shus$d[vals$shus$color=="red"], "<br/>"))
+    }
   })
 
 
