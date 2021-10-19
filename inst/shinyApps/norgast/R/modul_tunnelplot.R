@@ -160,7 +160,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   observeEvent(input$plot_hover2, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
     vals$shus$color[round(input$plot_hover2$y)] <- "red"
-    vals$shus$color[-round(input$plot_hover2$y)] <- "blue"
+    # vals$shus$color[-round(input$plot_hover2$y)] <- "blue"
   }) #shiny::debounce
   observeEvent(input$plot_hover, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
