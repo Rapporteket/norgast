@@ -13,6 +13,8 @@ tunnelplot_UI <- function(id, BrValg){
                  id = ns("id_tunnel_panel"),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                              choices = BrValg$varvalg_andel),
+                 checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
+                 uiOutput(outputId = ns('settMaalnivaa')),
                  dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
                                 max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
                  sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
@@ -87,6 +89,16 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     }
   })
 
+  output$settMaalnivaa <- renderUI({
+    ns <- session$ns
+    if (input$aktiver_justering) {
+      sliderInput(inputId = ns("settMaalnivaa_verdi"), "Juster midtverdi", min = 0, max = 100,
+                  value = vals$benchmark, step = 0.01, ticks = F)
+    }
+  })
+
+  farger<-rapFigurer::figtype()$farger
+
   ############### Andeler #######################################################
 
   traktdata <- function() {
@@ -111,12 +123,22 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     my_data <- RegData %>% dplyr::group_by(Sykehusnavn) %>% dplyr::summarise(n = sum(Variabel),
                                                                              d = n())
     my_data <- my_data[my_data$d >= 10, ]
-    my_limits   <- fundata(input=my_data,
-                           # benchmark=sum(my_data$n)/sum(my_data$d),
-                           alpha=0.80,
-                           alpha2=0.95,
-                           method='approximate',
-                           step=1)
+
+    if (input$aktiver_justering & !is.null(input$settMaalnivaa_verdi)) {
+      my_limits   <- fundata(input=my_data,
+                             benchmark= as.numeric(input$settMaalnivaa_verdi)/100,
+                             alpha=0.80,
+                             alpha2=0.95,
+                             method='approximate',
+                             step=1)
+    } else {
+      my_limits   <- fundata(input=my_data,
+                             alpha=0.80,
+                             alpha2=0.95,
+                             method='approximate',
+                             step=1)
+    }
+
     my_limits$lo[my_limits$lo < 0] <- 0
     my_limits$lo2[my_limits$lo2 < 0] <- 0
     my_data$andel <- my_data$n/my_data$d*100
@@ -125,9 +147,15 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   }
 
   vals <- reactiveValues(
-    # shus = data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    shus = data.frame()
+    shus = data.frame(),
+    benchmark = 0
   )
+  observeEvent(input$aktiver_justering, {
+    vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
+  })
+  observeEvent(input$valgtVar, {
+    vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
+  })
   observeEvent(input$plot_hover2, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
     vals$shus$color[round(input$plot_hover2$y)] <- "red"
@@ -146,13 +174,14 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
       my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
     } else {my_data$color <- "blue"}
     ggplot(data=my_data, aes(x=d,y=andel, color=color)) +
-      geom_line(data=my_limits, aes(x=d, y=up2), colour="blue") +
-      geom_line(data=my_limits, aes(x=d, y=lo2), colour="blue") +
+      geom_line(data=my_limits, aes(x=d, y=up2), colour=farger[1]) +
+      geom_line(data=my_limits, aes(x=d, y=lo2), colour=farger[1]) +
       geom_hline(data=my_limits, aes(yintercept=benchmark*100), colour="red") +
-      coord_cartesian(ylim=c(0,max(my_limits$up2))) +
+      coord_cartesian(ylim=c(0,max(my_limits$up2, my_data$andel)), clip = "off") +
+      annotate("text", x = round(max(my_data$d)[1]*1.1), y = my_limits$benchmark[1]*110, label = as.character(round(my_limits$benchmark[1]*100, 2))) +
       theme_classic()+ geom_point(data=my_data, size=1.5) +
       scale_color_manual(values = c("red" = "red", "blue" = "black")) +
-      labs(x = "Antall forløp",  y = "Andel (%)") +
+      labs(x = "Antall forløp",  y = "Andel (%)") + #scale_x_discrete(expand = c(0, 10)) +
       theme(legend.position = "none")
   })
 
@@ -166,10 +195,10 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     ggplot(data=my_data, aes(x=Sykehusnavn, y=andel, fill = color)) +
       geom_bar(stat = "identity", width = 0.5) +
       coord_flip() +
-      theme_classic() + scale_y_discrete(expand = c(0, 0)) +
+      theme_classic() + scale_x_discrete(expand = c(0, 0)) +
       labs(x = "Sykehusnavn",  y = "andel") +
       theme(legend.position = "none") +
-      scale_fill_manual(values = c("red" = "red", "blue" = "blue" ))
+      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]))
     #   + theme(axis.line.y = element_blank(),
     #         axis.ticks.y = element_blank(),
     #         axis.text.x.bottom = andel)
@@ -214,10 +243,12 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
 
   output$hover_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
+      wellPanel(
       HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red"], "<br/>",
                   "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red"], 1), "<b> % </b>","<br/>",
                   "<b> n: </b>", vals$shus$n[vals$shus$color=="red"], "<br/>",
                   "<b> N: </b>", vals$shus$d[vals$shus$color=="red"], "<br/>"))
+      )
     }
   })
 
