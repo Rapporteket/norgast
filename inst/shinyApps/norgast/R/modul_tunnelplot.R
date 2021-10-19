@@ -61,6 +61,7 @@ tunnelplot_UI <- function(id, BrValg){
                               click = ns("plot_hover2")),
                               # hover = hoverOpts(ns("plot_hover2"), delay = 100, delayType = "debounce")),
                    # plotlyOutput("testfig")
+                   verbatimTextOutput(ns("hover_info_verbatim3")),
                    uiOutput(ns("hover_info_verbatim")),
                    tableOutput(ns("hover_info_verbatim2"))
                  )
@@ -149,7 +150,8 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
 
   vals <- reactiveValues(
     shus = data.frame(),
-    benchmark = 0
+    benchmark = 0,
+    klikkinfo = NULL
   )
   observeEvent(input$aktiver_justering, {
     vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
@@ -159,7 +161,8 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   })
   observeEvent(input$plot_hover2, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    vals$shus$color[round(input$plot_hover2$y)] <- "red"
+    vals$shus$color[round(as.numeric(input$plot_hover2$y))] <- "red"
+    vals$klikkinfo <- round(as.numeric(input$plot_hover2$y))
     # vals$shus$color[-round(input$plot_hover2$y)] <- "blue"
   }) #shiny::debounce
   observeEvent(input$plot_hover, {
@@ -238,6 +241,10 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
 
   output$hover_info_verbatim2 <- renderTable({
     vals$shus
+  })
+
+  output$hover_info_verbatim3 <- renderPrint({
+    print(vals$klikkinfo)
   })
 
   output$hover_info_verbatim <- renderUI({
