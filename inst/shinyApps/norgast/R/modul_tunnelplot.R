@@ -177,6 +177,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     if (dim(vals$shus)[1]>0) {
       my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
     } else {my_data$color <- "blue"}
+    my_data$color[is.na(my_data$color)] <- "red"
     ggplot(data=my_data, aes(x=d,y=andel, color=color)) +
       geom_line(data=my_limits, aes(x=d, y=up2), colour=farger[1]) +
       geom_line(data=my_limits, aes(x=d, y=lo2), colour=farger[1]) +
@@ -196,6 +197,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     } else {my_data$color <- "blue"}
     my_data <- my_data[order(my_data$andel), ]
     my_data$Sykehusnavn <- factor(my_data$Sykehusnavn, levels = my_data$Sykehusnavn)
+    my_data$color[is.na(my_data$color)] <- "red"
     ggplot(data=my_data, aes(x=Sykehusnavn, y=andel, fill = color)) +
       geom_bar(stat = "identity", width = 0.5) +
       coord_flip() +
@@ -250,10 +252,10 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   output$hover_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
       wellPanel(
-      HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red"], "<br/>",
-                  "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red"], 1), "<b> % </b>","<br/>",
-                  "<b> n: </b>", vals$shus$n[vals$shus$color=="red"], "<br/>",
-                  "<b> N: </b>", vals$shus$d[vals$shus$color=="red"], "<br/>"))
+      HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
+                  "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red" | is.na(vals$shus$color)], 1), "<b> % </b>","<br/>",
+                  "<b> n: </b>", vals$shus$n[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
+                  "<b> N: </b>", vals$shus$d[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>"))
       )
     }
   })
