@@ -61,7 +61,8 @@ tunnelplot_UI <- function(id, BrValg){
                               click = ns("plot_hover2")),
                               # hover = hoverOpts(ns("plot_hover2"), delay = 100, delayType = "debounce")),
                    # plotlyOutput("testfig")
-                   uiOutput(ns("hover_info_verbatim"))
+                   uiOutput(ns("hover_info_verbatim")),
+                   tableOutput(ns("hover_info_verbatim2"))
                  )
         )
       )
@@ -235,11 +236,9 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   #   )
   # })
 
-  # output$hover_info_verbatim <- renderPrint({
-  #   # ns <- session$ns
-  #   # cat("input$plot_hover:\n")
-  #   str(input$plot_hover)
-  # })
+  output$hover_info_verbatim2 <- renderTable({
+    vals$shus
+  })
 
   output$hover_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
