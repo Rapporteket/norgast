@@ -204,7 +204,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
       theme_classic() + scale_x_discrete(expand = c(0, 0)) +
       labs(x = "Sykehusnavn",  y = "andel") +
       theme(legend.position = "none") +
-      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]))
+      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]), na.value = farger[1])
     #   + theme(axis.line.y = element_blank(),
     #         axis.ticks.y = element_blank(),
     #         axis.text.x.bottom = andel)
