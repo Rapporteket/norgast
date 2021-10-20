@@ -7,8 +7,7 @@
 tunnelplot_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
-  pageWithSidebar(
-    headerPanel("Brukervalg:"),
+  shiny::sidebarLayout(
     sidebarPanel(width = 3,
                  id = ns("id_tunnel_panel"),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
@@ -45,7 +44,7 @@ tunnelplot_UI <- function(id, BrValg){
                  actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(
-      tabsetPanel(
+      # tabsetPanel(
         # id = ns("tabs_tunnelplot"),
         tabPanel("Tunnelplot", value = "Tunnelplot",
 
@@ -53,20 +52,16 @@ tunnelplot_UI <- function(id, BrValg){
                  # we don't change its position
                  div(
                    style = "position:relative",
-                   plotOutput(ns("fig_tunnel"),
-                              click = ns("plot_hover")),
-                              # hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
-                   # uiOutput(ns("hover_info")),
+                   uiOutput(ns("utvalg")),
                    plotOutput(ns("barplot"),
                               click = ns("plot_hover2")),
-                              # hover = hoverOpts(ns("plot_hover2"), delay = 100, delayType = "debounce")),
-                   # plotlyOutput("testfig")
-                   verbatimTextOutput(ns("hover_info_verbatim3")),
-                   uiOutput(ns("hover_info_verbatim")),
-                   tableOutput(ns("hover_info_verbatim2"))
+                   plotOutput(ns("fig_tunnel"),
+                              click = ns("plot_hover")),
+                   uiOutput(ns("hover_info_verbatim"))#,
+                   # tableOutput(ns("hover_info_verbatim2"))
                  )
         )
-      )
+      # )
       , width = 7
     )
   )
@@ -94,10 +89,16 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   output$settMaalnivaa <- renderUI({
     ns <- session$ns
     if (input$aktiver_justering) {
-      sliderInput(inputId = ns("settMaalnivaa_verdi"), "Juster midtverdi", min = 0, max = 100,
-                  value = vals$benchmark, step = 0.01, ticks = F)
+      numericInput(inputId = ns("settMaalnivaa_verdi"), "Midtverdi", min = 0, max = 100,
+                  value = round(vals$benchmark, 2), step = 0.01) #, ticks = F
     }
   })
+
+  output$utvalg <- renderUI({
+    tagList(
+      h3(HTML(paste0(traktdata()$tittel, '<br />'))),
+      h5(HTML(paste0(traktdata()$utvalgTxt, '<br />')))
+    )})
 
   farger<-rapFigurer::figtype()$farger
 
@@ -107,6 +108,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     ## Preparer variabler for fremstilling i figur
     PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=input$valgtVar)
     RegData <- PlotParams$RegData
+    tittel <- PlotParams$tittel
     PlotParams$RegData <- NA
 
     ## Gjør utvalg basert på brukervalg (LibUtvalg)
@@ -145,7 +147,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     my_limits$lo2[my_limits$lo2 < 0] <- 0
     my_data$andel <- my_data$n/my_data$d*100
     my_limits[, c("up2", "lo2")] <- 100*my_limits[, c("up2", "lo2")]
-    list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt)
+    list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt, tittel=tittel)
   }
 
   vals <- reactiveValues(
@@ -185,7 +187,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
       coord_cartesian(ylim=c(0,max(my_limits$up2, my_data$andel)), clip = "off") +
       annotate("text", x = round(max(my_data$d)[1]*1.1), y = my_limits$benchmark[1]*110, label = as.character(round(my_limits$benchmark[1]*100, 2))) +
       theme_classic()+ geom_point(data=my_data, size=1.5) +
-      scale_color_manual(values = c("red" = "red", "blue" = "black")) +
+      scale_color_manual(values = c("red" = "red", "blue" = "black"), na.value = "red") +
       labs(x = "Antall forløp",  y = "Andel (%)") + #scale_x_discrete(expand = c(0, 10)) +
       theme(legend.position = "none")
   })
@@ -202,52 +204,24 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
       geom_bar(stat = "identity", width = 0.5) +
       coord_flip() +
       theme_classic() + scale_x_discrete(expand = c(0, 0)) +
-      labs(x = "Sykehusnavn",  y = "andel") +
-      theme(legend.position = "none") +
-      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]), na.value = farger[1])
+      scale_y_continuous(expand = c(0,0)) +
+      labs(y = "Andel (%)") +
+      # ggtitle(traktdata()$tittel) +
+      theme(legend.position = "none",
+            plot.title = element_text(hjust = 0.5),
+            axis.line.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.title.y = element_blank()) +
+      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]), na.value = "red")
+
     #   + theme(axis.line.y = element_blank(),
     #         axis.ticks.y = element_blank(),
     #         axis.text.x.bottom = andel)
   })
 
-
-  # output$hover_info <- renderUI({
-  #   hover <- input$plot_hover
-  #   my_data <-traktdata()$my_data
-  #   point <- nearPoints(my_data, hover, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
-  #   if (nrow(point) == 0) return(NULL)
-  #
-  #   # calculate point position INSIDE the image as percent of total dimensions
-  #   # from left (horizontal) and from top (vertical)
-  #   left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
-  #   top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
-  #
-  #   # calculate distance from left and bottom side of the picture in pixels
-  #   left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
-  #   top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-  #
-  #   # create style property fot tooltip
-  #   # background color is set so tooltip is a bit transparent
-  #   # z-index is set so we are sure are tooltip will be on top
-  #   style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-  #                   "left:", left_px + 2, "px; top:", top_px + 2, "px;")
-  #
-  #   # actual tooltip created as wellPanel
-  #   wellPanel(
-  #     style = style,
-  #     p(HTML(paste0("<b> Avdeling: </b>", point$Sykehusnavn, "<br/>",
-  #                   "<b> Andel: </b>", round(point$andel, 1), "<b> % </b>","<br/>",
-  #                   "<b> N: </b>", point$d, "<br/>")))
-  #   )
+  # output$hover_info_verbatim2 <- renderTable({
+  #   vals$shus
   # })
-
-  output$hover_info_verbatim2 <- renderTable({
-    vals$shus
-  })
-
-  output$hover_info_verbatim3 <- renderPrint({
-    print(vals$klikkinfo)
-  })
 
   output$hover_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
@@ -262,13 +236,3 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
 
 
 }
-# output$fig_andel_grvar <- renderPlot({
-#   norgast::NorgastFigAndelerGrVar(RegData, valgtVar=input$valgtVar, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-#                                   minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
-#                                   inkl_konf = fiksNULL(input$inkl_konf), malign = as.numeric(input$malign), Ngrense=10,
-#                                   elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
-#                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
-#                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-#                                   op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
-# }, width = 700, height = 700)
-
