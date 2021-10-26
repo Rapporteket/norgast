@@ -59,7 +59,7 @@ source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"),
 source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_indikatorer.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_tunnelplot.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_traktplot.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -90,8 +90,8 @@ ui <- navbarPage(id = "norgast_app_id",
            sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
   ),
 
-  tabPanel("Tunnelplot",
-           tunnelplot_UI(id = "tunnelplot_id", BrValg = BrValg)
+  tabPanel("Traktplot",
+           traktplot_UI(id = "traktplot_id", BrValg = BrValg)
   ),
 
   tabPanel("Tidsvisning",
@@ -224,9 +224,9 @@ server <- function(input, output, session) {
   callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
 
   #################################################################################################################################
-  ################ Tunnelplot #################################################################################################
+  ################ Traktplot #################################################################################################
 
-  callModule(tunnelplot, "tunnelplot_id", reshID = reshID, RegData = RegData, hvd_session = session)
+  callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session)
 
 
   #################################################################################################################################

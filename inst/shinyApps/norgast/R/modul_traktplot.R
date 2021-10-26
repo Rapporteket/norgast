@@ -1,21 +1,26 @@
-# Modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+# Modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
 #
 # Kun til bruk i Shiny
 #
 # @return Modul sykehusvisning, andeler
 #
-tunnelplot_UI <- function(id, BrValg){
+traktplot_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
-                 id = ns("id_tunnel_panel"),
+                 id = ns("id_trakt_panel"),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                              choices = BrValg$varvalg_andel),
                  checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
                  uiOutput(outputId = ns('settMaalnivaa')),
-                 dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                 # dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
+                 #                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                 # sliderInput(inputId = ns("datovalg"), label = "Velg tidsintervall",
+                 #             min=as.Date("2014-01-01"), max = Sys.Date(), value=c(Sys.Date() %m-% months(15), Sys.Date() %m-% months(3)),
+                 #             step = 50, animate = animationOptions(interval = 50, loop = T), timeFormat="%F"),
+                 uiOutput(ns("slider_to_anim")),
+                 uiOutput(ns("speed_value")),
                  sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                              max = 120, value = c(0, 120)),
                  selectInput(inputId = ns("erMann"), label = "Kjønn",
@@ -39,28 +44,29 @@ tunnelplot_UI <- function(id, BrValg){
                              choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                  selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
                  selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-                 tags$hr(),
-                 actionButton(ns("reset_input"), "Nullstill valg")
+                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))#,
+                 # tags$hr(),
+                 # actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(
       # tabsetPanel(
-        # id = ns("tabs_tunnelplot"),
-        tabPanel("Tunnelplot", value = "Tunnelplot",
+      # id = ns("tabs_traktplot"),
+      tabPanel("Traktplot", value = "Traktplot",
 
-                 # this is an extra div used ONLY to create positioned ancestor for tooltip
-                 # we don't change its position
-                 div(
-                   style = "position:relative",
-                   uiOutput(ns("utvalg")),
-                   plotOutput(ns("barplot"),
-                              click = ns("plot_hover2")),
-                   plotOutput(ns("fig_tunnel"),
-                              click = ns("plot_hover")),
-                   uiOutput(ns("hover_info_verbatim"))#,
-                   # tableOutput(ns("hover_info_verbatim2"))
-                 )
-        )
+               # this is an extra div used ONLY to create positioned ancestor for tooltip
+               # we don't change its position
+               div(
+                 style = "position:relative",
+                 uiOutput(ns("utvalg")),
+                 plotOutput(ns("barplot"),
+                            click = ns("plot_click2")),
+                 plotOutput(ns("fig_trakt"),
+                            click = ns("plot_click")),
+                 uiOutput(ns("click_info_verbatim"))#,
+                 # verbatimTextOutput(ns("datoinfo"))
+                 # tableOutput(ns("click_info_verbatim2"))
+               )
+      )
       # )
       , width = 7
     )
@@ -69,11 +75,11 @@ tunnelplot_UI <- function(id, BrValg){
 
 
 
-tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
+traktplot <- function(input, output, session, reshID, RegData, hvd_session){
 
-  observeEvent(input$reset_input, {
-    shinyjs::reset("id_tunnel_panel")
-  })
+  # observeEvent(input$reset_input, {
+  #   shinyjs::reset("id_trakt_panel")
+  # })
 
   output$ncsp <- renderUI({
     ns <- session$ns
@@ -86,11 +92,36 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     }
   })
 
+  # verdi <- reactiveValues(
+  #   stepverdi = 365
+  # )
+
+  output$slider_to_anim <- renderUI({
+    ns <- session$ns
+    # shiny::validate(need(input$speed, F))
+    sliderInput(inputId = ns("datovalg"), label = "Velg tidsintervall",
+                min=as.Date("2014-01-01"), max = Sys.Date(),
+                value=c(Sys.Date() %m-% months(12), Sys.Date()),
+                step = 365,
+                animate = animationOptions(interval = if (!is.null(input$speed)) {1000*input$speed} else {1400}, loop = F,
+                                           playButton = "Spill av animasjon"),
+                timeFormat="%F")
+  })
+
+  # observeEvent(input$datovalg, {
+  #   verdi$stepverdi <- as.numeric(input$datovalg[2]-input$datovalg[1])
+  # })
+
+  output$speed_value <- renderUI({
+    ns <- session$ns
+    numericInput(ns("speed"),"Tid i sekunder mellom hvert animasjonssteg :", value = 1.4, min = 0.1, max = 5, step = 0.1)
+  })
+
   output$settMaalnivaa <- renderUI({
     ns <- session$ns
     if (input$aktiver_justering) {
       numericInput(inputId = ns("settMaalnivaa_verdi"), "Midtverdi", min = 0, max = 100,
-                  value = round(vals$benchmark, 2), step = 0.01) #, ticks = F
+                   value = round(vals$benchmark, 2), step = 0.01) #, ticks = F
     }
   })
 
@@ -106,48 +137,52 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
 
   traktdata <- function() {
     ## Preparer variabler for fremstilling i figur
-    PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=input$valgtVar)
+    PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=req(input$valgtVar))
     RegData <- PlotParams$RegData
     tittel <- PlotParams$tittel
     PlotParams$RegData <- NA
 
     ## Gjør utvalg basert på brukervalg (LibUtvalg)
-    NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                   minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
-                                   elektiv=as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
-                                   BMI=fiksNULL(input$BMI), valgtShus='', tilgang=fiksNULL(input$tilgang),
-                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                                   ASA=fiksNULL(input$ASA), whoEcog=fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                   malign=as.numeric(input$malign),
-                                   op_gruppe=fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), modGlasgow=fiksNULL(input$modGlasgow))
-    RegData <- NorgastUtvalg$RegData
-    utvalgTxt <- NorgastUtvalg$utvalgTxt
+    if (!is.null(input$datovalg)) {
+      NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+                                     minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
+                                     elektiv=as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                                     BMI=fiksNULL(input$BMI), valgtShus='', tilgang=fiksNULL(input$tilgang),
+                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
+                                     ASA=fiksNULL(input$ASA), whoEcog=fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
+                                     malign=as.numeric(input$malign),
+                                     op_gruppe=fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), modGlasgow=fiksNULL(input$modGlasgow))
+      RegData <- NorgastUtvalg$RegData
+      utvalgTxt <- NorgastUtvalg$utvalgTxt} else utvalgTxt <-""
 
     RegData <- RegData[!is.na(RegData$Variabel), ]
     my_data <- RegData %>% dplyr::group_by(Sykehusnavn) %>% dplyr::summarise(n = sum(Variabel),
                                                                              d = n())
     my_data <- my_data[my_data$d >= 10, ]
 
-    if (input$aktiver_justering & !is.null(input$settMaalnivaa_verdi)) {
-      my_limits   <- fundata(input=my_data,
-                             benchmark= as.numeric(input$settMaalnivaa_verdi)/100,
-                             alpha=0.80,
-                             alpha2=0.95,
-                             method='approximate',
-                             step=1)
-    } else {
-      my_limits   <- fundata(input=my_data,
-                             alpha=0.80,
-                             alpha2=0.95,
-                             method='approximate',
-                             step=1)
-    }
+    if (!is.null(my_data)) {
 
-    my_limits$lo[my_limits$lo < 0] <- 0
-    my_limits$lo2[my_limits$lo2 < 0] <- 0
-    my_data$andel <- my_data$n/my_data$d*100
-    my_limits[, c("up2", "lo2")] <- 100*my_limits[, c("up2", "lo2")]
-    list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt, tittel=tittel)
+      if (input$aktiver_justering & !is.null(input$settMaalnivaa_verdi)) {
+        my_limits   <- fundata(input=my_data,
+                               benchmark= as.numeric(input$settMaalnivaa_verdi)/100,
+                               alpha=0.80,
+                               alpha2=0.95,
+                               method='approximate',
+                               step=1)
+      } else {
+        my_limits   <- fundata(input=my_data,
+                               alpha=0.80,
+                               alpha2=0.95,
+                               method='approximate',
+                               step=1)
+      }
+
+      my_limits$lo[my_limits$lo < 0] <- 0
+      my_limits$lo2[my_limits$lo2 < 0] <- 0
+      my_data$andel <- my_data$n/my_data$d*100
+      my_limits[, c("up2", "lo2")] <- 100*my_limits[, c("up2", "lo2")]
+      list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt, tittel=tittel)
+    }
   }
 
   vals <- reactiveValues(
@@ -161,19 +196,19 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   observeEvent(input$valgtVar, {
     vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
   })
-  observeEvent(input$plot_hover2, {
+  observeEvent(input$plot_click2, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    vals$shus$color[round(as.numeric(input$plot_hover2$y))] <- 'red'
-    vals$klikkinfo <- c(round(as.numeric(input$plot_hover2$y)), vals$klikkinfo)
-    # vals$shus$color[-round(input$plot_hover2$y)] <- "blue"
+    vals$shus$color[round(as.numeric(input$plot_click2$y))] <- 'red'
+    vals$klikkinfo <- c(round(as.numeric(input$plot_click2$y)), vals$klikkinfo)
+    # vals$shus$color[-round(input$plot_click2$y)] <- "blue"
   }) #shiny::debounce
-  observeEvent(input$plot_hover, {
+  observeEvent(input$plot_click, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    point <- nearPoints(vals$shus, input$plot_hover, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
+    point <- nearPoints(vals$shus, input$plot_click, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
     if (nrow(point) != 0) {vals$shus$color <- ifelse(vals$shus$Sykehusnavn==point$Sykehusnavn,'red','blue')}
   })
 
-  output$fig_tunnel <- renderPlot({
+  output$fig_trakt <- renderPlot({
     my_limits <- traktdata()$my_limits
     my_data <- traktdata()$my_data
     if (dim(vals$shus)[1]>0) {
@@ -193,6 +228,7 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
   })
 
   output$barplot <- renderPlot({
+    if (!is.null(traktdata()$my_data)) {
     my_data <- traktdata()$my_data
     if (dim(vals$shus)[1]>0) {
       my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
@@ -217,19 +253,26 @@ tunnelplot <- function(input, output, session, reshID, RegData, hvd_session){
     #   + theme(axis.line.y = element_blank(),
     #         axis.ticks.y = element_blank(),
     #         axis.text.x.bottom = andel)
+    }
   })
 
-  # output$hover_info_verbatim2 <- renderTable({
+  # output$click_info_verbatim2 <- renderTable({
   #   vals$shus
   # })
 
-  output$hover_info_verbatim <- renderUI({
+  # output$datoinfo <- renderText({
+  #   print(input$datovalg)
+  #   print(input$speed)
+  # })
+
+  output$click_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
       wellPanel(
-      HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
-                  "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red" | is.na(vals$shus$color)], 1), "<b> % </b>","<br/>",
-                  "<b> n: </b>", vals$shus$n[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
-                  "<b> N: </b>", vals$shus$d[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>"))
+        HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
+                    "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red" | is.na(vals$shus$color)], 1), "<b> % </b>","<br/>",
+                    "<b> n: </b>", vals$shus$n[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
+                    "<b> N: </b>", vals$shus$d[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
+                    "<b> Dato: </b>", input$datovalg[1], "<br/>"))
       )
     }
   })

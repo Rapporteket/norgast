@@ -15,10 +15,11 @@ BrValgNorgastShiny <- function(RegData) {
                       'Tilgang i abdomen', 'Ny anastomose', 'Glasgow score', 'Relaparotomi', 'Anastomoselekkasje',
                       '90-dagers mortalitet', 'Sårruptur')
 
-  aux<-c('Robotassistanse', 'Robotassistanse', 'Tilgang i abdomen', 'LapTilgang', 'Tidspunkt for operasjonsstart', 'Hastegrad_tid',
-         'Hastegrad', 'Hastegrad', 'Ny anastomose', 'NyAnastomose', 'Relaparotomi', 'ReLapNarkose', 'Anastomoselekkasje', 'Anastomoselekkasje',
-         '90-dagers mortalitet', 'mortalitet90', 'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign', 'Sårruptur',
-         'Saarruptur')
+  aux<-c('Anastomoselekkasje', 'Anastomoselekkasje', '90-dagers mortalitet', 'mortalitet90',
+         'Relaparotomi', 'ReLapNarkose', 'Robotassistanse', 'Robotassistanse', 'Sårruptur',
+         'Saarruptur', 'Laparoskopisk operert', 'LapTilgang', 'Tidspunkt for operasjonsstart', 'Hastegrad_tid',
+         'Hastegrad', 'Hastegrad', 'Ny anastomose', 'NyAnastomose',
+         'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign')
   varvalg_andel <- aux[seq(2,length(aux), by = 2)]
   names(varvalg_andel) <- aux[seq(1,length(aux), by = 2)]
 
