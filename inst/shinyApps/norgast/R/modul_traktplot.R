@@ -12,6 +12,7 @@ traktplot_UI <- function(id, BrValg){
                  id = ns("id_trakt_panel"),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                              choices = BrValg$varvalg_andel),
+                 checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
                  checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
                  uiOutput(outputId = ns('settMaalnivaa')),
                  # dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
@@ -36,6 +37,7 @@ traktplot_UI <- function(id, BrValg){
                              choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
                  selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
                  selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
+                 uiOutput(outputId = ns('robotassistanse')),
                  sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
                  selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
                  selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
@@ -62,6 +64,8 @@ traktplot_UI <- function(id, BrValg){
                             click = ns("plot_click2")),
                  plotOutput(ns("fig_trakt"),
                             click = ns("plot_click")),
+                            # hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
+                 # uiOutput(ns("hover_info")),
                  uiOutput(ns("click_info_verbatim"))#,
                  # verbatimTextOutput(ns("datoinfo"))
                  # tableOutput(ns("click_info_verbatim2"))
@@ -92,9 +96,13 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
     }
   })
 
-  # verdi <- reactiveValues(
-  #   stepverdi = 365
-  # )
+  output$robotassistanse <- renderUI({
+    ns <- session$ns
+    if (max(fiksNULL(input$tilgang) %in% c(2,3)) == 1) {
+      selectInput(inputId = ns("robotassistanse_verdi"), label = "Minimalinvasiv:",
+                  choices = c('Ikke valgt'=99, 'Konvensjonell laparoskopi'=0, 'Robotassistert'=1))
+    }
+  })
 
   output$slider_to_anim <- renderUI({
     ns <- session$ns
@@ -144,13 +152,13 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
 
     ## Gjør utvalg basert på brukervalg (LibUtvalg)
     if (!is.null(input$datovalg)) {
-      NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+      NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2], kun_ferdigstilte = input$kun_ferdigstilte,
                                      minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
                                      elektiv=as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
                                      BMI=fiksNULL(input$BMI), valgtShus='', tilgang=fiksNULL(input$tilgang),
                                      minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
                                      ASA=fiksNULL(input$ASA), whoEcog=fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                     malign=as.numeric(input$malign),
+                                     malign=as.numeric(input$malign), robotassiastanse = as.numeric(fiksNULL(input$robotassistanse_verdi, 99)),
                                      op_gruppe=fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), modGlasgow=fiksNULL(input$modGlasgow))
       RegData <- NorgastUtvalg$RegData
       utvalgTxt <- NorgastUtvalg$utvalgTxt} else utvalgTxt <-""
@@ -200,8 +208,7 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
     vals$shus$color[round(as.numeric(input$plot_click2$y))] <- 'red'
     vals$klikkinfo <- c(round(as.numeric(input$plot_click2$y)), vals$klikkinfo)
-    # vals$shus$color[-round(input$plot_click2$y)] <- "blue"
-  }) #shiny::debounce
+  })
   observeEvent(input$plot_click, {
     vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
     point <- nearPoints(vals$shus, input$plot_click, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
@@ -229,50 +236,67 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
 
   output$barplot <- renderPlot({
     if (!is.null(traktdata()$my_data)) {
-    my_data <- traktdata()$my_data
-    if (dim(vals$shus)[1]>0) {
-      my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
-    } else {my_data$color <- "blue"}
-    my_data <- my_data[order(my_data$andel), ]
-    my_data$Sykehusnavn <- factor(my_data$Sykehusnavn, levels = my_data$Sykehusnavn)
-    my_data$color[is.na(my_data$color)] <- "red"
-    ggplot(data=my_data, aes(x=Sykehusnavn, y=andel, fill = color)) +
-      geom_bar(stat = "identity", width = 0.5) +
-      coord_flip() +
-      theme_classic() + scale_x_discrete(expand = c(0, 0)) +
-      scale_y_continuous(expand = c(0,0)) +
-      labs(y = "Andel (%)") +
-      # ggtitle(traktdata()$tittel) +
-      theme(legend.position = "none",
-            plot.title = element_text(hjust = 0.5),
-            axis.line.y = element_blank(),
-            axis.ticks.y = element_blank(),
-            axis.title.y = element_blank()) +
-      scale_fill_manual(values = c("red" = "red", "blue" = farger[1]), na.value = "red")
-
-    #   + theme(axis.line.y = element_blank(),
-    #         axis.ticks.y = element_blank(),
-    #         axis.text.x.bottom = andel)
+      my_data <- traktdata()$my_data
+      if (dim(vals$shus)[1]>0) {
+        my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
+      } else {my_data$color <- "blue"}
+      my_data <- my_data[order(my_data$andel), ]
+      my_data$Sykehusnavn <- factor(my_data$Sykehusnavn, levels = my_data$Sykehusnavn)
+      my_data$color[is.na(my_data$color)] <- "red"
+      ggplot(data=my_data, aes(x=Sykehusnavn, y=andel, fill = color)) +
+        geom_bar(stat = "identity", width = 0.5) +
+        coord_flip() +
+        theme_classic() + scale_x_discrete(expand = c(0, 0)) +
+        scale_y_continuous(expand = c(0,0)) +
+        labs(y = "Andel (%)") +
+        theme(legend.position = "none",
+              plot.title = element_text(hjust = 0.5),
+              axis.line.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title.y = element_blank()) +
+        scale_fill_manual(values = c("red" = "red", "blue" = farger[1]), na.value = "red")
     }
   })
 
-  # output$click_info_verbatim2 <- renderTable({
-  #   vals$shus
-  # })
-
-  # output$datoinfo <- renderText({
-  #   print(input$datovalg)
-  #   print(input$speed)
-  # })
+    # output$hover_info <- renderUI({
+    #   hover <- input$plot_hover
+    #   my_data <-traktdata()$my_data
+    #   point <- nearPoints(my_data, hover, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
+    #   if (nrow(point) == 0) return(NULL)
+    #
+    #   # calculate point position INSIDE the image as percent of total dimensions
+    #   # from left (horizontal) and from top (vertical)
+    #   left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
+    #   top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
+    #
+    #   # calculate distance from left and bottom side of the picture in pixels
+    #   left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
+    #   top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
+    #
+    #   # create style property fot tooltip
+    #   # background color is set so tooltip is a bit transparent
+    #   # z-index is set so we are sure are tooltip will be on top
+    #   style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+    #                   "left:", left_px -6, "px; top:", top_px + 452, "px;")
+    #
+    #   # actual tooltip created as wellPanel
+    #   wellPanel(
+    #     style = style,
+    #     p(HTML(paste0("<b> Avdeling: </b>", point$Sykehusnavn, "<br/>",
+    #                   "<b> Andel: </b>", round(point$andel, 1), "<b> % </b>","<br/>",
+    #                   "<b> N: </b>", point$d, "<br/>")))
+    #   )
+    # })
 
   output$click_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {
+      my_data <- traktdata()$my_data
+      my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
       wellPanel(
-        HTML(paste0("<b> Avdeling: </b>", vals$shus$Sykehusnavn[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
-                    "<b> Andel: </b>", round(vals$shus$andel[vals$shus$color=="red" | is.na(vals$shus$color)], 1), "<b> % </b>","<br/>",
-                    "<b> n: </b>", vals$shus$n[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
-                    "<b> N: </b>", vals$shus$d[vals$shus$color=="red" | is.na(vals$shus$color)], "<br/>",
-                    "<b> Dato: </b>", input$datovalg[1], "<br/>"))
+        HTML(paste0("<b> Avdeling: </b>", my_data$Sykehusnavn[my_data$color=="red" | is.na(my_data$color)], "<br/>",
+                    "<b> Andel: </b>", round(my_data$andel[my_data$color=="red" | is.na(my_data$color)], 1), "<b> % </b>","<br/>",
+                    "<b> n: </b>", my_data$n[my_data$color=="red" | is.na(my_data$color)], "<br/>",
+                    "<b> N: </b>", my_data$d[my_data$color=="red" | is.na(my_data$color)], "<br/>"))
       )
     }
   })
