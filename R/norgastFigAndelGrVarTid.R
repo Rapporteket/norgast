@@ -12,11 +12,11 @@
 #' @export
 #'
 norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
-                                   decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
-                                   minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
-                                   minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
-                                   tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
-                                   hentData=0, op_gruppe='', ncsp='')
+                                    decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
+                                    minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
+                                    minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
+                                    tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
+                                    hentData=0, op_gruppe='', ncsp='', robotassiastanse=99, kun_ferdigstilte=FALSE)
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -39,10 +39,11 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
-                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                 BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse,
+                                 kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
@@ -136,7 +137,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
   if (!is.na(minstekrav)) {
     lines(x=rep(minstekrav, 2), y=c(-1, yposOver), col=farger[2], lwd=2)
     barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
-            names.arg=rep('',dim(andeler)[1]),
+             names.arg=rep('',dim(andeler)[1]),
              horiz=T, axes=F, space=c(0,0.3),
              col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
     par(xpd=TRUE)
@@ -183,7 +184,7 @@ norgastFigAndelGrVarTid <- function(RegData, valgtVar, tittel='', width=800, hei
       # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
       #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
       #        legend=names(N), ncol = dim(andeler)[2])
-      } #
+    } #
 
   } else {
     if (!inkl_konf) {

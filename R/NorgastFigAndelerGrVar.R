@@ -14,7 +14,8 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
                                    minald=0, maxald=130, erMann=99, outfile='',
                                    preprosess=F, inkl_konf=F, malign=99, Ngrense=10, modGlasgow='',
                                    elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, hastegrad = 99,
-                                   maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
+                                   maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
+                                   ncsp='', robotassiastanse=99, kun_ferdigstilte=FALSE)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -37,10 +38,11 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
-                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+                                 BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow,
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

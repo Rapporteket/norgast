@@ -15,7 +15,8 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
                                                minald=0, maxald=130, erMann=99, outfile='',
                                                preprosess=F, malign=99, Ngrense=30,
                                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
-                                               maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
+                                               maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='',
+                                               robotassiastanse=99, kun_ferdigstilte=FALSE)
 
 {
 
@@ -45,7 +46,8 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                  maxald=maxald, erMann=erMann, elektiv=elektiv,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe,
+                                 ncsp=ncsp, robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

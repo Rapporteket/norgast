@@ -10,18 +10,16 @@ traktplot_UI <- function(id, BrValg){
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
                  id = ns("id_trakt_panel"),
+                 div(id = ns("br_kontroller1"),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                              choices = BrValg$varvalg_andel),
                  checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
                  checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
-                 uiOutput(outputId = ns('settMaalnivaa')),
-                 # dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                 #                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-                 # sliderInput(inputId = ns("datovalg"), label = "Velg tidsintervall",
-                 #             min=as.Date("2014-01-01"), max = Sys.Date(), value=c(Sys.Date() %m-% months(15), Sys.Date() %m-% months(3)),
-                 #             step = 50, animate = animationOptions(interval = 50, loop = T), timeFormat="%F"),
+                 uiOutput(outputId = ns('settMaalnivaa'))),
                  uiOutput(ns("slider_to_anim")),
+                 div(id = ns("br_kontroller2"),
                  uiOutput(ns("speed_value")),
+                 checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
                  sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                              max = 120, value = c(0, 120)),
                  selectInput(inputId = ns("erMann"), label = "Kjønn",
@@ -35,6 +33,8 @@ traktplot_UI <- function(id, BrValg){
                              choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
                  selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                              choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+                 selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad (hybrid)",
+                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
                  selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
                  selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
                  uiOutput(outputId = ns('robotassistanse')),
@@ -46,9 +46,9 @@ traktplot_UI <- function(id, BrValg){
                              choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                  selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
                  selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))#,
-                 # tags$hr(),
-                 # actionButton(ns("reset_input"), "Nullstill valg")
+                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))),
+                 tags$hr(),
+                 actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(
       # tabsetPanel(
@@ -64,7 +64,7 @@ traktplot_UI <- function(id, BrValg){
                             click = ns("plot_click2")),
                  plotOutput(ns("fig_trakt"),
                             click = ns("plot_click")),
-                            # hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
+                 # hover = hoverOpts(ns("plot_hover"), delay = 100, delayType = "debounce")),
                  # uiOutput(ns("hover_info")),
                  uiOutput(ns("click_info_verbatim"))#,
                  # verbatimTextOutput(ns("datoinfo"))
@@ -79,10 +79,14 @@ traktplot_UI <- function(id, BrValg){
 
 
 
-traktplot <- function(input, output, session, reshID, RegData, hvd_session){
+traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrValg){
 
+  observeEvent(input$reset_input, {
+    shinyjs::reset("br_kontroller1")
+    shinyjs::reset("br_kontroller2")
+  })
   # observeEvent(input$reset_input, {
-  #   shinyjs::reset("id_trakt_panel")
+  #   shinyjs::reset("br_kontroller2")
   # })
 
   output$ncsp <- renderUI({
@@ -133,6 +137,17 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
     }
   })
 
+  observe(
+    if (req(input$referansepasient)) {
+      shiny::updateSelectInput(inputId = "hastegrad_hybrid", label = "Hastegrad (hybrid)",
+                               choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0), selected = 1)
+      shiny::updateSelectInput(inputId = "malign", label = "Diagnose",
+                               choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0), selected = 1)
+      shiny::updateSelectInput(inputId = "whoEcog", label = "WHO ECOG score",
+                               choices = BrValg$whoEcog_valg, selected = c(0, 1))
+    })
+
+
   output$utvalg <- renderUI({
     tagList(
       h3(HTML(paste0(traktdata()$tittel, '<br />'))),
@@ -155,6 +170,7 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
       NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2], kun_ferdigstilte = input$kun_ferdigstilte,
                                      minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
                                      elektiv=as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                                     hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
                                      BMI=fiksNULL(input$BMI), valgtShus='', tilgang=fiksNULL(input$tilgang),
                                      minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
                                      ASA=fiksNULL(input$ASA), whoEcog=fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
@@ -258,35 +274,35 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session){
     }
   })
 
-    # output$hover_info <- renderUI({
-    #   hover <- input$plot_hover
-    #   my_data <-traktdata()$my_data
-    #   point <- nearPoints(my_data, hover, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
-    #   if (nrow(point) == 0) return(NULL)
-    #
-    #   # calculate point position INSIDE the image as percent of total dimensions
-    #   # from left (horizontal) and from top (vertical)
-    #   left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
-    #   top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
-    #
-    #   # calculate distance from left and bottom side of the picture in pixels
-    #   left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
-    #   top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-    #
-    #   # create style property fot tooltip
-    #   # background color is set so tooltip is a bit transparent
-    #   # z-index is set so we are sure are tooltip will be on top
-    #   style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-    #                   "left:", left_px -6, "px; top:", top_px + 452, "px;")
-    #
-    #   # actual tooltip created as wellPanel
-    #   wellPanel(
-    #     style = style,
-    #     p(HTML(paste0("<b> Avdeling: </b>", point$Sykehusnavn, "<br/>",
-    #                   "<b> Andel: </b>", round(point$andel, 1), "<b> % </b>","<br/>",
-    #                   "<b> N: </b>", point$d, "<br/>")))
-    #   )
-    # })
+  # output$hover_info <- renderUI({
+  #   hover <- input$plot_hover
+  #   my_data <-traktdata()$my_data
+  #   point <- nearPoints(my_data, hover, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
+  #   if (nrow(point) == 0) return(NULL)
+  #
+  #   # calculate point position INSIDE the image as percent of total dimensions
+  #   # from left (horizontal) and from top (vertical)
+  #   left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
+  #   top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
+  #
+  #   # calculate distance from left and bottom side of the picture in pixels
+  #   left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
+  #   top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
+  #
+  #   # create style property fot tooltip
+  #   # background color is set so tooltip is a bit transparent
+  #   # z-index is set so we are sure are tooltip will be on top
+  #   style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+  #                   "left:", left_px -6, "px; top:", top_px + 452, "px;")
+  #
+  #   # actual tooltip created as wellPanel
+  #   wellPanel(
+  #     style = style,
+  #     p(HTML(paste0("<b> Avdeling: </b>", point$Sykehusnavn, "<br/>",
+  #                   "<b> Andel: </b>", round(point$andel, 1), "<b> % </b>","<br/>",
+  #                   "<b> N: </b>", point$d, "<br/>")))
+  #   )
+  # })
 
   output$click_info_verbatim <- renderUI({
     if (dim(vals$shus)[1]>0) {

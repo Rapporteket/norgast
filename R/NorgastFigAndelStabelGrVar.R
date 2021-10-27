@@ -16,7 +16,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                                        preprosess=F, malign=99, Ngrense=30, lavDG='',
                                        lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
-                                       maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='')
+                                       maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
+                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=FALSE)
 
 {
 
@@ -49,7 +50,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
                                  maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad, hastegrad_hybrid=hastegrad_hybrid,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, modGlasgow=modGlasgow,
-                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp)
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp,
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -164,8 +166,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                    xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax))#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
     barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=desat(farger[1:N_kat], 0.5), main='', font.main=1,
             xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
-      legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
-             bty='n', cex=0.7, xpd = T, title = legendTitle)
+    legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
+           bty='n', cex=0.7, xpd = T, title = legendTitle)
 
     mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
     text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),

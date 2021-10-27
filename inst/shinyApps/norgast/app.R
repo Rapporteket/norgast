@@ -224,9 +224,9 @@ server <- function(input, output, session) {
   callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
 
   #################################################################################################################################
-  ################ Traktplot #################################################################################################
+  ################ Traktplot ######################################################################################################
 
-  callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session)
+  callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session, BrValg = BrValg)
 
 
   #################################################################################################################################
@@ -256,7 +256,7 @@ server <- function(input, output, session) {
   callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
-  ################ Datadump   ##################################################################################################
+  ################ Datadump   #####################################################################################################
 
   callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
@@ -267,7 +267,7 @@ server <- function(input, output, session) {
              hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
-  ################ Datakvalitet ##################################################################################################
+  ################ Datakvalitet ###################################################################################################
 
   # output$dobbeltreg <- renderTable(norgast::dobbelreg(RegData))
   output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData), options = list(pageLength = 40), rownames = FALSE)
