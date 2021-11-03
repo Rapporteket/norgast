@@ -2,7 +2,7 @@
 #
 # Kun til bruk i Shiny
 #
-# @return Modul sykehusvisning, andeler
+# @return Modul traktplot
 #
 traktplot_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
@@ -11,42 +11,43 @@ traktplot_UI <- function(id, BrValg){
     sidebarPanel(width = 3,
                  id = ns("id_trakt_panel"),
                  div(id = ns("br_kontroller1"),
-                 selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                             choices = BrValg$varvalg_andel),
-                 checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
-                 checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
-                 uiOutput(outputId = ns('settMaalnivaa'))),
+                     checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
+                     checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
+                     selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                                 choices = BrValg$varvalg_andel),
+                     numericInput(ns("fjern_n"),"Fjern avdelinger med antall forløp færre enn:", value = 10, min = 0, max = 500, step = 1),
+                     checkboxInput(inputId = ns("aktiver_justering"), label = "Juster midtverdi"),
+                     uiOutput(outputId = ns('settMaalnivaa'))),
                  uiOutput(ns("slider_to_anim")),
                  div(id = ns("br_kontroller2"),
-                 uiOutput(ns("speed_value")),
-                 checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
-                 sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
-                             max = 120, value = c(0, 120)),
-                 selectInput(inputId = ns("erMann"), label = "Kjønn",
-                             choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-                 selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                             choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                 uiOutput(outputId = ns('ncsp')),
-                 # selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
-                 #             choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-                 selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
-                             choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-                 selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-                 selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad (hybrid)",
-                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
-                 selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-                 selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
-                 uiOutput(outputId = ns('robotassistanse')),
-                 sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                 selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-                 selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
-                 selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-                 selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
-                             choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                 selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-                 selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))),
+                     uiOutput(ns("speed_value")),
+                     sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
+                                 max = 120, value = c(0, 120)),
+                     selectInput(inputId = ns("erMann"), label = "Kjønn",
+                                 choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+                     selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                                 choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+                     uiOutput(outputId = ns('ncsp')),
+                     # selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
+                     #             choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
+                     selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+                                 choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+                     selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
+                                 choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+                     selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad (hybrid)",
+                                 choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
+                     selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+                     selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
+                     uiOutput(outputId = ns('robotassistanse')),
+                     sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+                     selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+                     selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
+                     selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
+                     selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
+                                 choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+                     selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+                     selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                                 choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))),
                  tags$hr(),
                  actionButton(ns("reset_input"), "Nullstill valg")
     ),
@@ -85,9 +86,6 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
     shinyjs::reset("br_kontroller1")
     shinyjs::reset("br_kontroller2")
   })
-  # observeEvent(input$reset_input, {
-  #   shinyjs::reset("br_kontroller2")
-  # })
 
   output$ncsp <- renderUI({
     ns <- session$ns
@@ -182,7 +180,7 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
     RegData <- RegData[!is.na(RegData$Variabel), ]
     my_data <- RegData %>% dplyr::group_by(Sykehusnavn) %>% dplyr::summarise(n = sum(Variabel),
                                                                              d = n())
-    my_data <- my_data[my_data$d >= 10, ]
+    my_data <- my_data[my_data$d >= req(input$fjern_n), ]
 
     if (!is.null(my_data)) {
 

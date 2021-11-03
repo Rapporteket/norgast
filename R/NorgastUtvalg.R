@@ -72,7 +72,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", m
                  if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])},
                  if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))},
                  if (robotassiastanse %in% c(0,1)){paste0('Minimalinvasiv: ', c('Konv. laparoskopi', 'Robotassistert')[robotassiastanse+1])},
-                 if (kun_ferdigstilte){'Oppfølginger ferdigstilte: Ja'}
+                 if (!kun_ferdigstilte){'Ikke-ferdigstilte oppfølginger inkludert: Ja'}
   )
 
 
