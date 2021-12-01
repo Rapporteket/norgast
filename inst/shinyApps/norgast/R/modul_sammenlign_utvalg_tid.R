@@ -274,7 +274,9 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
     }
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
-    Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+    # Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+    Samlet <- bind_rows(Utvalg1data, Utvalg2data[!(Utvalg2data$ForlopsID %in% Utvalg1data$ForlopsID), ]) # Fjerner forløp fra utvalg 2
+                                                                                                         # som finnes i utvalg 1
     Samlet <- Samlet[order(Samlet$HovedDato, Samlet$Utvalg, decreasing = F), ]    # Hvis pasient opptrer flere ganger, velg
     Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 

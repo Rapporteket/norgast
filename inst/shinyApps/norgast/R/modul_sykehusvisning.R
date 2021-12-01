@@ -352,70 +352,88 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
         session = hvd_session,
         msg = mld_fordeling
       )
-      mldLastNedFigAndel <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
-        input$valgtVar
-      )
-      mldLastNedTabAndel <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
-        input$valgtVar
-      )
-      mldLastNedFigGjsn <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
-        input$valgtVar_gjsn
-      )
-      mldLastNedTabGjsn <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
-        input$valgtVar_gjsn
-      )
-      mldLastNedFigAndelStabel <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
-        input$valgtVar_andel_stabel
-      )
-      mldLastNedTabAndelStabel <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
-        input$valgtVar_andel_stabel
-      )
+      # mldLastNedFigAndel <- paste(
+      #   "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+      #   input$valgtVar
+      # )
+      # mldLastNedTabAndel <- paste(
+      #   "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
+      #   input$valgtVar
+      # )
+      # mldLastNedFigGjsn <- paste(
+      #   "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
+      #   input$valgtVar_gjsn
+      # )
+      # mldLastNedTabGjsn <- paste(
+      #   "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
+      #   input$valgtVar_gjsn
+      # )
+      # mldLastNedFigAndelStabel <- paste(
+      #   "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
+      #   input$valgtVar_andel_stabel
+      # )
+      # mldLastNedTabAndelStabel <- paste(
+      #   "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
+      #   input$valgtVar_andel_stabel
+      # )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigAndel
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_andel",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabAndel
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_gjsn",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigGjsn
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
+            input$valgtVar_gjsn
+          )
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_gjsn",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabGjsn
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
+            input$valgtVar_gjsn
+          )
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel_stabel",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigAndelStabel
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
+            input$valgtVar_andel_stabel
+          )
         )
       )
       shinyjs::onclick(
         "lastNedStabelTabell",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabAndelStabel
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
+            input$valgtVar_andel_stabel
+          )
         )
       )
 

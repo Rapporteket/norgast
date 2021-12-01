@@ -207,8 +207,9 @@ server <- function(input, output, session) {
     shiny::hideTab("norgast_app_id", target = "Utsending")
     shiny::hideTab("norgast_app_id", target = "Datakvalitet")
     shiny::hideTab("norgast_app_id", target = "Eksport")
-    # shinyjs::hide(id = 'valgtShus')
-    # shinyjs::hide(id = 'file1')
+    shiny::hideTab("norgast_app_id", target = "Traktplot")
+    shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+    shiny::hideTab("norgast_app_id", target = "Verktøy")
   }
 
   shiny::callModule(startside, "startside", usrRole=userRole)

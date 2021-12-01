@@ -10,7 +10,7 @@
 NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", minald=0, maxald=120, erMann=99,
                           elektiv=99, BMI='', hastegrad=99, valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='',
                           whoEcog='', modGlasgow = '', forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='',
-                          ncsp='', icd='', hastegrad_hybrid=99, dagtid=99, robotassiastanse=99, kun_ferdigstilte=FALSE)
+                          ncsp='', icd='', hastegrad_hybrid=99, dagtid=99, robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
   # Definerer intersect-operator
   "%i%" <- intersect

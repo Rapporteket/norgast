@@ -1,6 +1,28 @@
-setwd('C:/GIT/norgast/doc/')
+# setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
+
+############ Sårruptur Stavanger
+# Hei Kevin,
+#
+# Stavanger bruker Rapporteket aktivt i sin kvalitetsforbedring og stusser over egne tall for sårruptur i 2020 og 2021 (betydelig høyere enn forventet).
+#
+# Kan du lage en kryptert liste over personnummer + operasjonsdato for de som tilfredsstiller
+# Operasjonsdato 2020 + 2021
+# Stavanger
+# Åpent eller konvertert inngrep
+# Sårruptur som hovedfunn ved reoperasjon.
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("/home/rstudio/delt_folder/NoRGast_koblingstabell_datadump_2021-11-30.csv",
+                 colClasses = c("integer", "character"))
+
+utdata <- RegData[RegData$AvdRESH == 114271 & RegData$Aar %in% 2020:2021 & RegData$Saarruptur == 1, ] %>%
+  merge(fid, by.x = "PasientID", by.y = "PID", all.x = TRUE)
+utdata <- utdata[, c("SSN", "OperasjonsDato")]
+write.csv2(utdata, "/home/rstudio/delt_folder/saarruptur_stavanger.csv", row.names = F, fileEncoding = "Latin1")
+
 
 ############ Finn pasientID - Dille-Andam 29.09.2021 ##########################################
 

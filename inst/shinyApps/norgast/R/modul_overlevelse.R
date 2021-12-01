@@ -167,24 +167,6 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   output$icd <- renderUI({
     ns <- session$ns
-    # Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-    #                          minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
-    #                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
-    #                          BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-    #                          valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-    #                          op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-    #                          ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-    #                          tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-    #                          minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-    #                          ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-    #                          modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
-    #                          whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-    #                          forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-    #                          malign = as.numeric(input$malign))
-    # Utvalg1 <- Utvalg1$RegData
-    # if (!is.null(input$valgtShus)) {
-    #   Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus)), ]
-    # }
     Utvalg1 <- NorgastUtvalg(RegData = RegData,
                              op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
                              ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
@@ -199,24 +181,6 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   output$icd2 <- renderUI({
     ns <- session$ns
-    # Utvalg1 <- NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
-    #                          minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
-    #                          elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
-    #                          BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-    #                          valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
-    #                          op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
-    #                          ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
-    #                          tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-    #                          minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-    #                          ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
-    #                          modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
-    #                          whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-    #                          forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-    #                          malign = as.numeric(input$malign2))
-    # Utvalg1 <- Utvalg1$RegData
-    # if (!is.null(input$valgtShus2)) {
-    #   Utvalg1 <- Utvalg1[which(Utvalg1$AvdRESH %in% as.numeric(input$valgtShus2)), ]
-    # }
     Utvalg1 <- NorgastUtvalg(RegData = RegData,
                              op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
                              ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
@@ -294,12 +258,15 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
-    Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+    # Samlet <- bind_rows(Utvalg1data, Utvalg2data)
+    Samlet <- bind_rows(Utvalg1data, Utvalg2data[!(Utvalg2data$ForlopsID %in% Utvalg1data$ForlopsID), ]) # Fjerner forløp fra utvalg 2
+                                                                                                         # som finnes i utvalg 1
     Samlet <- Samlet[order(Samlet$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 
     if (input$ekskluder_felles) {
-      Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)), ]
+      Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID,
+                                                         Utvalg2data$PasientID[!(Utvalg2data$ForlopsID %in% Utvalg1data$ForlopsID)])), ]
     }
 
     Samlet$overlev <- difftime(as.Date(Sys.Date()), Samlet$OperasjonsDato, units = 'days')

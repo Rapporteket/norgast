@@ -1,4 +1,4 @@
-# Modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+# Modul for abonnement i NoRGast sin shiny-app på Rapporteket
 #
 # Kun til bruk i Shiny
 #
@@ -109,18 +109,31 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
 
 
-  # shiny::observe({
-  #   if (rapbase::isRapContext()) {
-  #     shinyjs::onclick(
-  #       "lastNedTabell",
-  #       rapbase::repLogger(
-  #         session = hvd_session,
-  #         msg = "Her kommer melding"
-  #       )
-  #     )
-  #   }
-  # })
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$tabs_sykehusvisning) == "tab_gjsn") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
+          input$valgtVar_gjsn)
+      }
+      rapbase::repLogger(
+        session = hvd_session,
+        msg = mld_fordeling
+      )
 
+      shinyjs::onclick(
+        "lastNedBilde_sykehus_andel",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+            input$valgtVar
+          )
+        )
+      )
+
+    }
+  })
 
 
 
