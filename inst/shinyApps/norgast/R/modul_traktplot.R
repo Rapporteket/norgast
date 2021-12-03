@@ -315,5 +315,21 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
     }
   })
 
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      rapbase::repLogger(
+        session = hvd_session,
+        msg = paste(
+          "NoRGast: Traktplott, variabel -",
+          input$valgtVar
+        )
+      )
+    }
+  })
+
+
+
+
+
 
 }

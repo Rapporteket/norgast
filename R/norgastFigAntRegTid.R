@@ -18,7 +18,7 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
                                 minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
                                 minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, BMI='',
                                 tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
-                                hentData=0, op_gruppe='', ncsp='', robotassiastanse=99, kun_ferdigstilte=FALSE)
+                                hentData=0, op_gruppe='', ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){

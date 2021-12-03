@@ -413,16 +413,27 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
 
   shiny::observe({
     if (rapbase::isRapContext()) {
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = "NoRGast: KM-overlevelseskurve."
+      shinyjs::onclick(
+        "goButton",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: Sammenlignede andeler, variabel - ", input$valgtVar)
+        )
       )
 
       shinyjs::onclick(
         "lastNedBilde",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: Laster ned KM-overlevelseskurve."
+          msg = paste0("NoRGast: Laster ned figur sammenlignede andeler, variabel - ", input$valgtVar)
+        )
+      )
+
+      shinyjs::onclick(
+        "lastNed_tabell",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste0("NoRGast: Laster ned tabell sammenlignede andeler, variabel - ", input$valgtVar)
         )
       )
     }

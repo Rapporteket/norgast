@@ -16,7 +16,7 @@ NorgastFigAndelStabelGrVarAarsrapp <- function(RegData=0, valgtVar='ModGlasgowSc
                                                preprosess=F, malign=99, Ngrense=30,
                                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='', ncsp='',
-                                               robotassiastanse=99, kun_ferdigstilte=FALSE)
+                                               robotassiastanse=99, kun_ferdigstilte=TRUE)
 
 {
 

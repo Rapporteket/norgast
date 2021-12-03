@@ -24,7 +24,7 @@ NorgastFigAndelTid_kvartalsrapp <- function(RegData=0, valgtVar='ReLapNarkose', 
                                             elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                             maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                                             tidsenhet='Aar', op_gruppe='', ncsp='', robotassiastanse=99,
-                                            kun_ferdigstilte=FALSE)
+                                            kun_ferdigstilte=TRUE)
 {
 
   ## Hvis spørring skjer fra R på server. ######################

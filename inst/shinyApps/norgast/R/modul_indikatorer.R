@@ -1159,7 +1159,34 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
     }
   )
 
-
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$tab) == "fig") {
+        mld_fordeling <- paste0(
+          "NoRGast: Indikatorfigur, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tab) == "tab") {
+        mld_fordeling <- paste(
+          "NoRGast: Indikatortabell, variabel - ",
+          input$valgtVar)
+      }
+      rapbase::repLogger(
+        session = hvd_session,
+        msg = mld_fordeling
+      )
+      shinyjs::onclick(
+        "lastNedBilde",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste(
+            "NoRGast: nedlasting indikatorfigur, variabel -",
+            input$valgtVar
+          )
+        )
+      )
+    }
+  })
 
 
 
@@ -1171,31 +1198,3 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

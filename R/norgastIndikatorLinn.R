@@ -17,7 +17,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
                                  minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, hastegrad=99, BMI='',
                                  tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', dagtid =99,
                                  hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='',
-                                 lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, robotassiastanse=99, kun_ferdigstilte=FALSE)
+                                 lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){

@@ -24,7 +24,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                                tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99,
-                               robotassiastanse=99, kun_ferdigstilte=FALSE)
+                               robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
 
   ## Hvis spørring skjer fra R på server. ######################

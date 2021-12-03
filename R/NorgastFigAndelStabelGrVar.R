@@ -17,7 +17,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                                        lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=FALSE)
+                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE)
 
 {
 

@@ -66,128 +66,128 @@ source(system.file("shinyApps/norgast/R/modul_traktplot.R", package = "norgast")
 # Define UI for application
 ui <- navbarPage(id = "norgast_app_id",
 
-  title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
-              regTitle),
-  windowTitle = regTitle,
-  theme = "rap/bootstrap.css",
+                 title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
+                             regTitle),
+                 windowTitle = regTitle,
+                 theme = "rap/bootstrap.css",
 
-  shiny::tabPanel("Startside",
-                  shinyjs::useShinyjs(),
-                  shinyalert::useShinyalert(),
-                  rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
-                                               organization = uiOutput("appOrgName"),
-                                               addUserInfo = TRUE),
-                  tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
-                            includeCSS(system.file("shinyApps/norgast/www/yohannes.css", package = "norgast"))),
-                  startside_UI("startside")
-  ),
+                 shiny::tabPanel("Startside",
+                                 shinyjs::useShinyjs(),
+                                 shinyalert::useShinyalert(),
+                                 rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
+                                                              organization = uiOutput("appOrgName"),
+                                                              addUserInfo = TRUE),
+                                 tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
+                                           includeCSS(system.file("shinyApps/norgast/www/yohannes.css", package = "norgast"))),
+                                 startside_UI("startside")
+                 ),
 
-  tabPanel("Fordelinger",
-           fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
-  ),
+                 tabPanel("Fordelinger",
+                          fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Sykehusvisning",
-           sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
-  ),
+                 tabPanel("Sykehusvisning",
+                          sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Traktplot",
-           traktplot_UI(id = "traktplot_id", BrValg = BrValg)
-  ),
+                 tabPanel("Traktplott",
+                          traktplot_UI(id = "traktplot_id", BrValg = BrValg)
+                 ),
+                 shiny::navbarMenu("Tidsvisning",
+                                   tabPanel("Andeler over tid",
+                                            tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
+                                   ),
+                                   tabPanel("Sammenlign andeler",
+                                            saml_andeler_UI(id = "saml_andeler_id", BrValg = BrValg)
+                                   )
+                 ),
 
-  tabPanel("Tidsvisning",
-           tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
-  ),
+                 tabPanel("Indikatorer",
+                          indikatorfig_UI(id = "indikator_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Indikatorer",
-           indikatorfig_UI(id = "indikator_id", BrValg = BrValg)
-  ),
+                 tabPanel("Overlevelse",
+                          overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Overlevelse",
-           overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
-  ),
+                 tabPanel("Samledokumenter",
+                          h2("Samledokumenter", align='center'),
+                          h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
+                          # h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
+                          br(),
+                          br(),
+                          samledok_UI(id = "samledok_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Sammenlign andeler",
-           saml_andeler_UI(id = "saml_andeler_id", BrValg = BrValg)
-  ),
-
-  tabPanel("Samledokumenter",
-           h2("Samledokumenter", align='center'),
-           h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
-           # h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
-           br(),
-           br(),
-           samledok_UI(id = "samledok_id", BrValg = BrValg)
-  ),
-
-  tabPanel("Datadump",
-           h2("Datadump", align='center'),
-           h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
+                 tabPanel("Datadump",
+                          h2("Datadump", align='center'),
+                          h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
               som inkluderes i datadump på Rapporteket sammenlignet med datadump hentet fra registerets qreg-løsning.", align='center'),
-           br(),
-           br(),
-           datadump_UI(id = "datadump_id", BrValg = BrValg)
-  ),
+                          br(),
+                          br(),
+                          datadump_UI(id = "datadump_id", BrValg = BrValg)
+                 ),
 
-  tabPanel("Administrative tabeller",
-           admtab_UI(id = "admtab_id", BrValg = BrValg)
-  ),
+                 tabPanel("Administrative tabeller",
+                          admtab_UI(id = "admtab_id", BrValg = BrValg)
+                 ),
 
-  shiny::tabPanel("Datakvalitet",
-                  h3('Pasienter som har to eller flere forløp med samme operasjonsdato'),
-                  downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
-                  DT::dataTableOutput('dobbeltreg')
-  ),
+                 shiny::tabPanel("Datakvalitet",
+                                 h3('Pasienter som har to eller flere forløp med samme operasjonsdato'),
+                                 downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
+                                 DT::dataTableOutput('dobbeltreg')
+                 ),
 
-  shiny::tabPanel(
-    shiny::span("Abonnement",
-                title="Bestill tilsending av rapporter på e-post"),
-    shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        rapbase::autoReportInput("norgastSubscription")
-      ),
-      shiny::mainPanel(
-        rapbase::autoReportUI("norgastSubscription")
-      )
-    )
-  ),
+                 shiny::tabPanel(
+                   shiny::span("Abonnement",
+                               title="Bestill tilsending av rapporter på e-post"),
+                   shiny::sidebarLayout(
+                     shiny::sidebarPanel(
+                       rapbase::autoReportInput("norgastSubscription")
+                     ),
+                     shiny::mainPanel(
+                       rapbase::autoReportUI("norgastSubscription")
+                     )
+                   )
+                 ),
 
-  shiny::navbarMenu("Verktøy",
-    shiny::tabPanel(
-      "Utsending",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::autoReportOrgInput("norgastDispatch"),
-          rapbase::autoReportInput("norgastDispatch")
-        ),
-        shiny::mainPanel(
-          rapbase::autoReportUI("norgastDispatch")
-        )
-      )
-    ),
+                 shiny::navbarMenu("Verktøy",
+                                   shiny::tabPanel(
+                                     "Utsending",
+                                     shiny::sidebarLayout(
+                                       shiny::sidebarPanel(
+                                         rapbase::autoReportOrgInput("norgastDispatch"),
+                                         rapbase::autoReportInput("norgastDispatch")
+                                       ),
+                                       shiny::mainPanel(
+                                         rapbase::autoReportUI("norgastDispatch")
+                                       )
+                                     )
+                                   ),
 
-    shiny::tabPanel(
-      "Eksport",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::exportUCInput("norgastExport")
-        ),
-        shiny::mainPanel(
-          rapbase::exportGuideUI("norgastExportGuide")
-        )
-      )
-    ),
+                                   shiny::tabPanel(
+                                     "Eksport",
+                                     shiny::sidebarLayout(
+                                       shiny::sidebarPanel(
+                                         rapbase::exportUCInput("norgastExport")
+                                       ),
+                                       shiny::mainPanel(
+                                         rapbase::exportGuideUI("norgastExportGuide")
+                                       )
+                                     )
+                                   ),
 
-    shiny::tabPanel(
-      "Bruksstatistikk",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
-        shiny::mainPanel(
-          rapbase::statsUI("norgastStats"),
-          rapbase::statsGuideUI("norgastStatsGuide")
-        )
-      )
-    )
-  )
+                                   shiny::tabPanel(
+                                     "Bruksstatistikk",
+                                     shiny::sidebarLayout(
+                                       shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
+                                       shiny::mainPanel(
+                                         rapbase::statsUI("norgastStats"),
+                                         rapbase::statsGuideUI("norgastStatsGuide")
+                                       )
+                                     )
+                                   )
+                 )
 )
 
 
@@ -236,7 +236,7 @@ server <- function(input, output, session) {
   callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
-  ################ Tidsvisning ####################################################################################################
+  ################ Indikatorfigurer ###############################################################################################
 
   callModule(indikatorfig, "indikator_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
@@ -280,6 +280,18 @@ server <- function(input, output, session) {
     content = function(file, filename){
       write.csv2(norgast::dobbelreg(RegData), file, row.names = F, na = '', fileEncoding = "Latin1")
     })
+
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      shinyjs::onclick(
+        "lastNed_dobbeltreg",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: nedlasting tabell over potensielle duplikater"
+        )
+      )
+    }
+  })
 
   #############################################################################
   ################ Subscription, Dispatchment and Stats #######################

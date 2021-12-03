@@ -2,7 +2,7 @@
 #
 # Kun til bruk i Shiny
 #
-# @return Modul fordelingsfigur
+# @return Modul abonnement
 #
 abonnement_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
@@ -34,17 +34,6 @@ abonnement_UI <- function(id, BrValg){
 
 abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
-  # shinyjs::onclick("toggleAdvanced",
-  #                  shinyjs::toggle(id = "avansert", anim = TRUE))
-
-  # observeEvent(input$reset_input, {
-  #   shinyjs::reset("id_fordeling_panel")
-  # })
-  #
-  # observe(
-  #   if (userRole != 'SC') {
-  #     shinyjs::hide(id = 'valgtShus')
-  #   })
 
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
@@ -111,23 +100,14 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
   shiny::observe({
     if (rapbase::isRapContext()) {
-      if (req(input$tabs_sykehusvisning) == "tab_gjsn") {
-        mld_fordeling <- paste(
-          "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
-          input$valgtVar_gjsn)
-      }
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = mld_fordeling
-      )
 
       shinyjs::onclick(
-        "lastNedBilde_sykehus_andel",
+        "subscribe",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste(
-            "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
-            input$valgtVar
+          msg = paste0(
+            "NoRGast: abonnement bestilt: ",
+            input$subscriptionRep
           )
         )
       )

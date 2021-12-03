@@ -126,4 +126,34 @@ samledok <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
     }
   )
+
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+
+      shinyjs::onclick(
+        "lastNed_saml",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: samledokument nedlastet"
+        )
+      )
+
+      shinyjs::onclick(
+        "lastNed_saml_land",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: samledokument med nasjonale talll nedlastet"
+        )
+      )
+      shinyjs::onclick(
+        "lastNed_kvartal",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: Kvartalsrapport nedlastet"
+        )
+      )
+    }
+  })
+
+
 }

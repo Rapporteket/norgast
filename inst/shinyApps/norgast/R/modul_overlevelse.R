@@ -344,11 +344,18 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
   shiny::observe({
     if (rapbase::isRapContext()) {
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = "NoRGast: KM-overlevelseskurve."
-      )
+      # rapbase::repLogger(
+      #   session = hvd_session,
+      #   msg = "NoRGast: KM-overlevelseskurve."
+      # )
 
+      shinyjs::onclick(
+        "goButton",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = "NoRGast: KM-overlevelseskurve."
+        )
+      )
       shinyjs::onclick(
         "lastNedBilde",
         rapbase::repLogger(
@@ -358,7 +365,6 @@ overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_s
       )
     }
   })
-
 
 
 

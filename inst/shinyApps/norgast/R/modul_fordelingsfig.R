@@ -230,26 +230,24 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         session = hvd_session,
         msg = mld_fordeling
       )
-      mldLastNedFig <- paste(
-        "NoRGast: nedlasting figur - fordeling. variabel -",
-        input$valgtVar
-      )
-      mldLastNedTab <- paste(
-        "NoRGast: nedlasting tabell - fordeling. variabel -",
-        input$valgtVar
-      )
       shinyjs::onclick(
         "lastNedBilde",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFig
+          msg = paste(
+            "NoRGast: nedlasting figur - fordeling. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
         "lastNed",
         rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTab
+          msg = paste(
+            "NoRGast: nedlasting tabell - fordeling. variabel -",
+            input$valgtVar
+          )
         )
       )
     }

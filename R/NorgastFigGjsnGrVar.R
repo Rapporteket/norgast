@@ -17,7 +17,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
                                 elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                 maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0,
                                 op_gruppe='', ncsp='', modGlasgow = '', robotassiastanse=99,
-                                kun_ferdigstilte=FALSE)
+                                kun_ferdigstilte=TRUE)
 
 {
 

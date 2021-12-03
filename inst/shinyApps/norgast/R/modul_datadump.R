@@ -158,7 +158,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
         "lastNed_dump",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting datadump")
+          msg = paste0("NoRGast: nedlasting prosessert datadump")
         )
       )
 
@@ -166,7 +166,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
         "lastNed_dump_raa",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting datadump raa")
+          msg = paste0("NoRGast: nedlasting ", input$dumptype)
         )
       )
     }

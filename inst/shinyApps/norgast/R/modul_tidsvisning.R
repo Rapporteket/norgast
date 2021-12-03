@@ -9,51 +9,51 @@ tidsvisning_UI <- function(id, BrValg){
 
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
-      id = ns("id_tid_panel"),
-      selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                  choices = BrValg$varvalg_andel),
-      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                     max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
-      selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
-                  choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
-      selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                  choices = BrValg$sykehus, multiple = TRUE),
-      sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
-                  max = 120, value = c(0, 120)),
-      selectInput(inputId = ns("erMann"), label = "Kjønn",
-                  choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-      selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                  choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-      uiOutput(outputId = ns('ncsp')),
-      selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
-                  choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
-                  choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-      selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-      selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
-      sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-      selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
-      selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-      selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
-                  choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-      selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-      selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
-      selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-      tags$hr(),
-      actionButton(ns("reset_input"), "Nullstill valg")
+                 id = ns("id_tid_panel"),
+                 selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                             choices = BrValg$varvalg_andel),
+                 dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
+                                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                 selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
+                             choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
+                 selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                             choices = BrValg$sykehus, multiple = TRUE),
+                 sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
+                             max = 120, value = c(0, 120)),
+                 selectInput(inputId = ns("erMann"), label = "Kjønn",
+                             choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+                 selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                             choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+                 uiOutput(outputId = ns('ncsp')),
+                 selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
+                             choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
+                 selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+                             choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
+                 selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
+                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+                 selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+                 selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
+                 sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
+                 selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+                 selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
+                 selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
+                 selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
+                             choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+                 selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+                 selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
+                 selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+                 tags$hr(),
+                 actionButton(ns("reset_input"), "Nullstill valg")
     ),
-    mainPanel(tabsetPanel(
-      tabPanel("Figur",
-               plotOutput(ns("fig_andel_tid"), height="auto"),
-               downloadButton(ns("lastNedBilde_tid"), "Last ned figur")),
-      tabPanel("Tabell",
-               uiOutput(ns("utvalg_tid")),
-               tableOutput(ns("Tabell_tid")),
-               downloadButton(ns("lastNed_tid"), "Last ned tabell"))
+    mainPanel(tabsetPanel(id = ns("tab"),
+                          tabPanel("Figur", value = "fig",
+                                   plotOutput(ns("fig_andel_tid"), height="auto"),
+                                   downloadButton(ns("lastNedBilde_tid"), "Last ned figur")),
+                          tabPanel("Tabell", value = "tab",
+                                   uiOutput(ns("utvalg_tid")),
+                                   tableOutput(ns("Tabell_tid")),
+                                   downloadButton(ns("lastNed_tid"), "Last ned tabell"))
     )
     )
 
@@ -182,6 +182,47 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                   tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), outfile = file)
     }
   )
+
+
+  shiny::observe({
+    if (rapbase::isRapContext()) {
+      if (req(input$tab) == "fig") {
+        mld_fordeling <- paste0(
+          "NoRGast: Figur - tidsvisning, variabel - ",
+          input$valgtVar)
+      }
+      if (req(input$tab) == "tab") {
+        mld_fordeling <- paste(
+          "NoRGast: tabell - tidsvisning variabel - ",
+          input$valgtVar)
+      }
+      rapbase::repLogger(
+        session = hvd_session,
+        msg = mld_fordeling
+      )
+      shinyjs::onclick(
+        "lastNedBilde_tid",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste(
+            "NoRGast: nedlasting figur - tidsvisning, variabel -",
+            input$valgtVar
+          )
+        )
+      )
+      shinyjs::onclick(
+        "lastNed_tid",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste(
+            "NoRGast: nedlasting tabell - tidsvisning, variabel -",
+            input$valgtVar
+          )
+        )
+      )
+    }
+  })
+
 
 
 }
