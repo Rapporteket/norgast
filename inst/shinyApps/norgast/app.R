@@ -205,10 +205,10 @@ server <- function(input, output, session) {
   if (userRole != 'SC') {
     shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
     shiny::hideTab("norgast_app_id", target = "Utsending")
-    shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+    # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
     shiny::hideTab("norgast_app_id", target = "Eksport")
-    shiny::hideTab("norgast_app_id", target = "Traktplot")
-    shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+    shiny::hideTab("norgast_app_id", target = "Traktplott")
+    shiny::hideTab("norgast_app_id", target = "Indikatorer")
     shiny::hideTab("norgast_app_id", target = "Verktøy")
   }
 
@@ -271,14 +271,15 @@ server <- function(input, output, session) {
   ################ Datakvalitet ###################################################################################################
 
   # output$dobbeltreg <- renderTable(norgast::dobbelreg(RegData))
-  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData), options = list(pageLength = 40), rownames = FALSE)
+  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID),
+                                           options = list(pageLength = 40), rownames = FALSE)
 
   output$lastNed_dobbeltreg <- downloadHandler(
     filename = function(){
       paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
     },
     content = function(file, filename){
-      write.csv2(norgast::dobbelreg(RegData), file, row.names = F, na = '', fileEncoding = "Latin1")
+      write.csv2(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID), file, row.names = F, na = '', fileEncoding = "Latin1")
     })
 
   shiny::observe({

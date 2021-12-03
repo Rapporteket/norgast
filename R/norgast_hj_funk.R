@@ -68,7 +68,7 @@ fiksNULL <- function(x, erstatt='') {
 #' @return En dataramme med utvalgte variabler for potensielt dobbeltregistrerte forløp
 #'
 #' @export
-dobbelreg <- function(RegData) {
+dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
   flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
   flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
 
@@ -79,5 +79,6 @@ dobbelreg <- function(RegData) {
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
   flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
   flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
+  if (usrRole != 'SC') {flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]}
   return(flere_sammedato)
 }

@@ -33,8 +33,8 @@ startside_UI <- function(id){
                         h4(tags$b('Datadump '), 'gir mulighet til å laste ned din egen avdelings registreringer. Man kan velge om man
                            vil hente rådata eller koblet og prosessert data.'),
                         h4(tags$b('Administrative tabeller '), 'er en samling oversikter over antall registreringer.'),
-                        shinyjs::hidden(h4(id = ns("SC6"), tags$b('Datakvalitet '), 'lister opp forløp der samme pasient
-                                           har mer enn én operasjon med samme operasjonsdato.')),
+                        h4(id = ns("SC6"), tags$b('Datakvalitet '), 'lister opp forløp der samme pasient
+                                           har mer enn én operasjon med samme operasjonsdato. SC-bruker ser alle avdelinger, øvrige kun sin egen.'),
                         h4(tags$b('Abonnement '), 'lar brukeren bestille regelmessig utsendelse av rapporter til sin
                         registrerte e-post.'),
                         shinyjs::hidden(h4(id = ns("SC3"), tags$b('Utsending '), 'lar SC-bruker bestille rapporter på vegne
@@ -70,7 +70,7 @@ startside <- function(input, output,session, usrRole){
       shinyjs::show("SC3")
       shinyjs::show("SC4")
       shinyjs::show("SC5")
-      shinyjs::show("SC6")
+      # shinyjs::show("SC6")
     }
   )
 }
