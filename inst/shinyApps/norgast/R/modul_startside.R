@@ -36,8 +36,7 @@ startside_UI <- function(id){
                         shinyjs::hidden(h4(id = ns("SC6"), tags$b('Datakvalitet '), 'lister opp forløp der samme pasient
                                            har mer enn én operasjon med samme operasjonsdato.')),
                         h4(tags$b('Abonnement '), 'lar brukeren bestille regelmessig utsendelse av rapporter til sin
-                        registrerte e-post. SC-bruker kan også bestille
-                           rapporter på vegne av andre avdelinger og kan velge hvilke e-postadresser som skal motta rapport.'),
+                        registrerte e-post.'),
                         shinyjs::hidden(h4(id = ns("SC3"), tags$b('Utsending '), 'lar SC-bruker bestille rapporter på vegne
                                            av andre avdelinger og til valgte e-postadresser.')),
                         shinyjs::hidden(h4(id = ns("SC4"), tags$b('Eksport '), 'lar et celebert utvalg brukere laste ned
