@@ -129,7 +129,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
     content = function(file){
       if (rapbase::isRapContext()) {
         query <- paste0("SELECT * FROM ", input$dumptype)
-        tmpData <- rapbase::LoadRegData("norgast", query, "mysql")
+        tmpData <- rapbase::loadRegData("norgast", query, "mysql")
 
         # tmpData <- norgastHentTabell(input$dumptype)
       } else {
