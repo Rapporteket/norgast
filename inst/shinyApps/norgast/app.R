@@ -311,7 +311,7 @@ server <- function(input, output, session) {
   ## Subscription
   rapbase::autoReportServer(
     id = "norgastSubscription", registryName = "norgast",
-    type = "subscription", reports = reports, orgs = orgs
+    type = "subscription", reports = reports, orgs = orgs, freq = "quarter"
   )
 
   ## Dispatchment
@@ -324,7 +324,7 @@ server <- function(input, output, session) {
     id = "norgastDispatch", registryName = "norgast",
     type = "dispatchment", org = org$value, paramNames = paramNames,
     paramValues = paramValues, reports = reports, orgs = orgs,
-    eligible = (userRole == "SC")
+    eligible = (userRole == "SC"), freq = "quarter"
   )
 
   ## Stats
