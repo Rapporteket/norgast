@@ -29,7 +29,9 @@ NorgastFigGjsnGrVar(
   hentData = 0,
   op_gruppe = "",
   ncsp = "",
-  modGlasgow = ""
+  modGlasgow = "",
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

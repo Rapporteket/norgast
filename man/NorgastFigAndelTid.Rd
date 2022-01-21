@@ -32,7 +32,9 @@ NorgastFigAndelTid(
   tidsenhet = "Aar",
   op_gruppe = "",
   ncsp = "",
-  hastegrad = 99
+  hastegrad = 99,
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

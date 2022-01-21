@@ -287,7 +287,7 @@ server <- function(input, output, session) {
       shinyjs::onclick(
         "lastNed_dobbeltreg",
         rapbase::repLogger(
-          session = hvd_session,
+          session = session,
           msg = "NoRGast: nedlasting tabell over potensielle duplikater"
         )
       )

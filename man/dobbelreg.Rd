@@ -4,7 +4,7 @@
 \alias{dobbelreg}
 \title{Identifiserer pasienter med flere enn ett forløp med samme operasjonsdato}
 \usage{
-dobbelreg(RegData)
+dobbelreg(RegData, usrRole = "LU", reshID)
 }
 \arguments{
 \item{RegData}{Datasettet som kan inneholde dobbeltregistreringer}

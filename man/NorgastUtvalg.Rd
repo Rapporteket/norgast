@@ -28,7 +28,9 @@ NorgastUtvalg(
   ncsp = "",
   icd = "",
   hastegrad_hybrid = 99,
-  dagtid = 99
+  dagtid = 99,
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

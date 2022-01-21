@@ -27,7 +27,9 @@ NorgastFigAndelStabelGrVarAarsrapp(
   forbehandling = "",
   hentData = 0,
   op_gruppe = "",
-  ncsp = ""
+  ncsp = "",
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

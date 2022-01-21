@@ -46,7 +46,9 @@ norgastIndikator_rapporteket(
   maalretn = "hoy",
   lavDG = "",
   lavDGtekst = "Dekningsgrad < 60 \%",
-  hastegrad_hybrid = 99
+  hastegrad_hybrid = 99,
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{
