@@ -60,6 +60,7 @@ source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), e
 source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_indikatorer.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_traktplot.R", package = "norgast"), encoding = 'UTF-8')
+source(system.file("shinyApps/norgast/R/modul_datakvalitet.R", package = "norgast"), encoding = 'UTF-8')
 
 ######################################################################
 
@@ -137,6 +138,9 @@ ui <- navbarPage(id = "norgast_app_id",
                                  downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
                                  DT::dataTableOutput('dobbeltreg')
                  ),
+                 # shiny::tabPanel("Datakvalitet v2",
+                 #                 datakval_ui("datakval_id")
+                 # ),
 
                  shiny::tabPanel(
                    shiny::span("Abonnement",
