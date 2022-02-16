@@ -138,9 +138,9 @@ ui <- navbarPage(id = "norgast_app_id",
                                  downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
                                  DT::dataTableOutput('dobbeltreg')
                  ),
-                 # shiny::tabPanel("Datakvalitet v2",
-                 #                 datakval_ui("datakval_id")
-                 # ),
+                 shiny::tabPanel("Datakvalitet v2",
+                                 datakval_ui("datakval_id")
+                 ),
 
                  shiny::tabPanel(
                    shiny::span("Abonnement",
@@ -274,7 +274,9 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Datakvalitet ###################################################################################################
 
-  # output$dobbeltreg <- renderTable(norgast::dobbelreg(RegData))
+  callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
+             RegData = RegData, hvd_session = session)
+
   output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID),
                                            options = list(pageLength = 40), rownames = FALSE)
 
