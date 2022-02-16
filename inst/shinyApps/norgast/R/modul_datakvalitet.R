@@ -11,11 +11,17 @@ datakval_ui <- function(id){
   ns <- shiny::NS(id)
 
   shiny::fluidPage(
-    shiny::fluidRow(
-      id = ns("id_datakval_panel"),
-      h3('Pasienter som har to eller flere forløp med samme operasjonsdato'),
-      downloadButton(outputId = ns('lastNed_dobbeltreg'), label='Last ned tabell'),
-      DT::dataTableOutput(ns('dobbeltreg'))
+    tabsetPanel(
+      tabPanel(
+        id = ns("id_datakval_panel"),
+        h3('Pasienter med flere forløp med samme operasjonsdato'),
+        downloadButton(outputId = ns('lastNed_dobbeltreg'), label='Last ned tabell'),
+        DT::dataTableOutput(ns('dobbeltreg'))
+      )#,
+      # tabPanel(
+      #   id = ns("id_datakval_panel2"),
+      #   h3('En ny fane')
+      # )
     )
   )
 }

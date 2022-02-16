@@ -134,11 +134,6 @@ ui <- navbarPage(id = "norgast_app_id",
                  ),
 
                  shiny::tabPanel("Datakvalitet",
-                                 h3('Pasienter som har to eller flere forløp med samme operasjonsdato'),
-                                 downloadButton(outputId = 'lastNed_dobbeltreg', label='Last ned tabell'),
-                                 DT::dataTableOutput('dobbeltreg')
-                 ),
-                 shiny::tabPanel("Datakvalitet v2",
                                  datakval_ui("datakval_id")
                  ),
 
@@ -276,29 +271,6 @@ server <- function(input, output, session) {
 
   callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
              RegData = RegData, hvd_session = session)
-
-  output$dobbeltreg <- DT::renderDataTable(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID),
-                                           options = list(pageLength = 40), rownames = FALSE)
-
-  output$lastNed_dobbeltreg <- downloadHandler(
-    filename = function(){
-      paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
-    },
-    content = function(file, filename){
-      write.csv2(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID), file, row.names = F, na = '', fileEncoding = "Latin1")
-    })
-
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-      shinyjs::onclick(
-        "lastNed_dobbeltreg",
-        rapbase::repLogger(
-          session = session,
-          msg = "NoRGast: nedlasting tabell over potensielle duplikater"
-        )
-      )
-    }
-  })
 
   #############################################################################
   ################ Subscription, Dispatchment and Stats #######################
