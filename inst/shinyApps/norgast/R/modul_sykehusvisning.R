@@ -222,15 +222,32 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
 
   output$Tabell_sykehus_andel_stabel <- function() {
     TabellData <- tabellReagerSykehusAndelStabel()
-    Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)])
-    names(Tabell)[(dim(Tabell)[2]/2 + 2):dim(Tabell)[2]] <- names(Tabell)[2:(dim(Tabell)[2]/2)]
+    Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
+                        .name_repair = "minimal")
     names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
 
     Tabell %>% knitr::kable("html", digits = c(rep(0, dim(Tabell)[2]/2 + 1), rep(1, dim(Tabell)[2]/2 - 1))) %>%
       kable_styling("hover", full_width = F) %>%
       add_header_above(c(" ", "Antall" = dim(Tabell)[2]/2 - 1, " ", "Andel (%)" = dim(Tabell)[2]/2 - 1))
-
   }
+
+
+
+  output$lastNedStabelTabell <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar_andel_stabel, '_sykehus_stabel_', Sys.time(), '.csv')
+    },
+    content = function(file){
+      TabellData <- tabellReagerSykehusAndelStabel()
+      Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
+                          .name_repair = "minimal")
+      names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
+      write.csv3(Tabell, file, row.names = F, na = '')
+    }
+  )
+
+
+
 
   output$lastNedBilde_sykehus_andel_stabel <- downloadHandler(
     filename = function(){
@@ -352,30 +369,6 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
         session = hvd_session,
         msg = mld_fordeling
       )
-      # mldLastNedFigAndel <- paste(
-      #   "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
-      #   input$valgtVar
-      # )
-      # mldLastNedTabAndel <- paste(
-      #   "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
-      #   input$valgtVar
-      # )
-      # mldLastNedFigGjsn <- paste(
-      #   "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
-      #   input$valgtVar_gjsn
-      # )
-      # mldLastNedTabGjsn <- paste(
-      #   "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
-      #   input$valgtVar_gjsn
-      # )
-      # mldLastNedFigAndelStabel <- paste(
-      #   "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
-      #   input$valgtVar_andel_stabel
-      # )
-      # mldLastNedTabAndelStabel <- paste(
-      #   "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
-      #   input$valgtVar_andel_stabel
-      # )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel",
         rapbase::repLogger(
