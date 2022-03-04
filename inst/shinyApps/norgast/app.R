@@ -16,37 +16,21 @@ library("funnelR")
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
 
-if (rapbase::isRapContext()) {
-  RegData <- norgast::NorgastHentRegData()
+RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
+  RegData <-  norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
-} else {
-  Sys.setenv(R_RAP_CONFIG_PATH='C:/GIT/norgast/doc')
-  RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";",
-                        encoding = 'UTF-8', stringsAsFactors = F)
-  ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=";",
-                           encoding = 'UTF-8', stringsAsFactors = F)
-
-  RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
-                        'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
-                        'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
-                        'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-                        'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
-                        "AvstandAnalVerge", "Albumin", "CRP")]
-  names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
-  ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-  RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-
-  skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=';', stringsAsFactors = F, encoding = 'UTF-8')
+  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+  skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+  RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  rapbase::saveStagingData("norgast", "RegData", RegData)
+  rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
 }
 
-skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
-
-RegData <- NorgastPreprosess(RegData, behold_kladd = TRUE)
-skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
-RegData <- RegData[which(RegData$RegistreringStatus==1),]
-RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
-
 BrValg <- BrValgNorgastShiny(RegData)
 
 source(system.file("shinyApps/norgast/R/modul_startside.R", package = "norgast"), encoding = 'UTF-8')
@@ -74,7 +58,6 @@ ui <- navbarPage(id = "norgast_app_id",
 
                  shiny::tabPanel("Startside",
                                  shinyjs::useShinyjs(),
-                                 shinyalert::useShinyalert(),
                                  rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
                                                               organization = uiOutput("appOrgName"),
                                                               addUserInfo = TRUE),

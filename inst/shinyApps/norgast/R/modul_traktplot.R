@@ -34,7 +34,7 @@ traktplot_UI <- function(id, BrValg){
                                  choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
                      selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-                     selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad (hybrid)",
+                     selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
                                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
                      selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
                      selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),

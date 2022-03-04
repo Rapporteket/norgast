@@ -15,7 +15,9 @@ admtab_UI <- function(id, BrValg){
       id = ns("id_adm_panel"),
       div(id = ns("fane1"),
           dateRangeInput(inputId=ns("datovalg_adm"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                         max = Sys.Date(), start  = Sys.Date() %m-% months(12), end = Sys.Date(), separator = " til ")
+                         max = Sys.Date(),
+                         start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
+                         end = Sys.Date(), separator = " til ")
           ),
       shinyjs::hidden(selectInput(inputId = ns("adm_tidsenhet"), label = "Velg tidsenhet",
                                   choices = c('Måneder'=1, 'År'=2))),

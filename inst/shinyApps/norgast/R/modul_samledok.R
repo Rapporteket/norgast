@@ -16,7 +16,9 @@ samledok_UI <- function(id, BrValg){
       conditionalPanel(condition = paste0("input['", ns('tabs'), "'] == 'samledok_egen' |
                                           input['", ns('tabs'), "'] == 'samledok_landet'"),
                        dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                      max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til ")),
+                                      max = Sys.Date(),
+                                      start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
+                                      end = Sys.Date(), separator = " til ")),
       conditionalPanel(condition = paste0("input['", ns('tabs'), "'] == 'kvartalsrapport'"),
                        # dateInput(inputId=ns("datovalg_kv"), label = "Dato til", min = '2015-01-01',
                        #                max = Sys.Date(), value  = Sys.Date(), language = "nb"),

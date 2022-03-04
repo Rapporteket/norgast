@@ -10,10 +10,18 @@ tidsvisning_UI <- function(id, BrValg){
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
                  id = ns("id_tid_panel"),
+                 # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
+                 checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
                  selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                              choices = BrValg$varvalg_andel),
                  dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                                max = Sys.Date(),
+                                start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
+                                end = Sys.Date(), separator = " til "),
+                 selectInput(inputId = ns("tidsenhet"),
+                             label = "Velg tidsenhet",
+                             choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar'),
+                             selected = 'Kvartal'),
                  selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
                              choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
                  selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
@@ -31,6 +39,8 @@ tidsvisning_UI <- function(id, BrValg){
                              choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
                  selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                              choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+                 selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
+                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
                  selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
                  selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
                  sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
@@ -40,7 +50,6 @@ tidsvisning_UI <- function(id, BrValg){
                  selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                              choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
                  selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-                 selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
                  selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                              choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                  tags$hr(),
@@ -97,7 +106,8 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                 minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
                                 whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                 malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), hastegrad=as.numeric(input$hastegrad))
+                                tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99),
+                                hastegrad=as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   }, width = 700, height = 700)
 
   tabellReagerTid <- reactive({
@@ -108,7 +118,8 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA),
                                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                                   malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), hastegrad=as.numeric(input$hastegrad))
+                                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99),
+                                                  hastegrad=as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   })
 
   output$utvalg_tid <- renderUI({
@@ -179,7 +190,8 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA = fiksNULL(input$ASA), hastegrad=as.numeric(input$hastegrad),
                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
                                   malign = as.numeric(input$malign), erMann = as.numeric(input$erMann), elektiv = as.numeric(input$elektiv),
-                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), outfile = file)
+                                  tidsenhet = fiksNULL(input$tidsenhet, 'Aar'), inkl_konf = fiksNULL(input$inkl_konf, 99), kun_ferdigstilte = input$kun_ferdigstilte,
+                                  outfile = file, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
     }
   )
 

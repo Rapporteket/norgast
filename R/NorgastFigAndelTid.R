@@ -23,7 +23,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                               tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99,
+                               tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99, hastegrad_hybrid = 99,
                                robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
 
@@ -47,7 +47,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                  maxald=maxald, erMann=erMann, elektiv=elektiv, modGlasgow = modGlasgow,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                 op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad, hastegrad_hybrid = hastegrad_hybrid,
                                  robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
