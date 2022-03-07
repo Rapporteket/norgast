@@ -20,7 +20,6 @@ Imports:
   rapFigurer,
   rapbase,
   survival,
-  survminer,
   shinyWidgets,
   funnelR,
   tsibble
