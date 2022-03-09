@@ -53,6 +53,23 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='laerebok') {
+    tittel <- c('Lærebokforløp')
+    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
+    RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+    RegData$mortalitet90 <- 0
+    RegData$mortalitet90[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
+    RegData$Variabel <- 0
+    RegData$Variabel[RegData$mortalitet90 == 0 & RegData$ReLapNarkose == 0 & RegData$KumAcc == 0] <- 1
+
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    retn <- 'V'
+    VarTxt <- 'pasienter med lærebokfoløp'
+    # incl_pst <- T
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='konv_rate') {
     tittel <- 'Andel laparoskopiske inngrep konvertert til åpen kirurgi'
     RegData <- RegData[which(RegData$Tilgang %in% 2:3), ]
