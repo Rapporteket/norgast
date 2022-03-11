@@ -12,6 +12,7 @@
 NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
+  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
