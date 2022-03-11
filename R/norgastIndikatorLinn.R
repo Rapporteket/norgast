@@ -12,11 +12,12 @@
 #' @export
 #'
 norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height=700, sideTxt='Boområde/opptaksområde',
-                                   decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
-                                   minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
-                                   minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, hastegrad=99, BMI='',
-                                   tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', dagtid =99,
-                                   hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='', hastegrad_hybrid=99)
+                                 decreasing=F, terskel=30, minstekrav = NA, maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top',
+                                 minstekravTxt='Min.', maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
+                                 minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99, hastegrad=99, BMI='',
+                                 tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', dagtid =99,
+                                 hentData=0, op_gruppe='', ncsp='', maalretn='hoy', lavDG='',
+                                 lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -32,10 +33,11 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
-                                    BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, dagtid = dagtid,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+                                 BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, dagtid = dagtid,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid,
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
@@ -85,7 +87,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
   pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
   # pst_txt[is.na(andeler[, dim(andeler)[2]])] <- paste0('N<', terskel, ' eller dekningsgrad mindre en 60 pst.')
   pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
-  pst_txt[rownames(andeler) %in% lavDG] <- 'Dekningsgrad < 60 %'
+  pst_txt[rownames(andeler) %in% lavDG] <- lavDGtekst
   pst_txt <- c(NA, pst_txt, NA, NA)
 
   FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
@@ -121,15 +123,15 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
 
   if (inkl_konf) {
     par('mar'=c(5.1, 4.1, 5.1, 2.1))
-    xmax <- min(max(KI, na.rm = T)*1.15,100)
+    xmax <- min(max(KI, max(andeler, na.rm = T), na.rm = T)*1.15,100)
   } else {
     xmax <- min(100, 1.15*max(andeler, na.rm = T))
   }
 
   # if (dim(andeler)[1] < 15) {
-    andeler <- rbind(c(NA,NA), andeler, c(NA,NA))
-    rownames(andeler)[dim(andeler)[1]] <- ''
-    rownames(andeler)[1] <- ' '
+  andeler <- rbind(c(NA,NA), andeler, c(NA,NA))
+  rownames(andeler)[dim(andeler)[1]] <- ''
+  rownames(andeler)[1] <- ' '
   # }
 
   ypos <- barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
@@ -157,7 +159,7 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
     rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
 
   barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
-          names.arg=rep('',dim(andeler)[1]),
+           names.arg=rep('',dim(andeler)[1]),
            horiz=T, axes=F, space=c(0,0.3),
            col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
 
@@ -217,16 +219,16 @@ norgastIndikatorLinn <- function(RegData, valgtVar, tittel='', width=800, height
              lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
              legend=names(N), ncol = dim(andeler)[2])}
     if (legPlass=='topleft'){
-    legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
-           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
-           legend=names(N), ncol = dim(andeler)[2])}
+      legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+             lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+             legend=names(N), ncol = dim(andeler)[2])}
     if (legPlass=='topright'){
       legend('topright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
              lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
              legend=names(N), ncol = dim(andeler)[2])}
-      # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
-      #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
-      #        legend=names(N), ncol = dim(andeler)[2])
+    # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
+    #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+    #        legend=names(N), ncol = dim(andeler)[2])
 
   } else {
     if (!inkl_konf) {

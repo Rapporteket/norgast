@@ -1,15 +1,15 @@
 Package: norgast
 Type: Package
 Title: Resultatrapporter for NoRGast
-Version: 1.5.6
+Version: 2.0.0
 Date: 2015-12-17
 Author: Kevin Thon
 Maintainer: Kevin Thon <kevin.thon@skde.no>
-Description: Pakke for generering av resultatrapporter for NoRGast. Trenger skde-tools (>=0.15).
+Description: Pakke for generering av resultatrapporter for NoRGast.
 License: GPL2
 LazyData: TRUE
 Encoding: UTF-8
-Depends: R (>= 3.0.2)
+Depends: R (>= 3.6.0)
 Imports:
   xtable,
   plotrix,
@@ -19,15 +19,13 @@ Imports:
   shinyjs,
   rapFigurer,
   rapbase,
-  raplog,
   survival,
-  survminer,
-  shinyWidgets
+  shinyWidgets,
+  funnelR,
+  tsibble
 Remotes:
-  Rapporteket/rapbase,
-  Rapporteket/raplog,
-  Rapporteket/rapFigurer
-RoxygenNote: 7.1.0
+  Rapporteket/rapbase@*release
+RoxygenNote: 7.1.2
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

@@ -23,7 +23,8 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
                                elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                               tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99)
+                               tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99, hastegrad_hybrid = 99,
+                               robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -43,10 +44,11 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv, modGlasgow = modGlasgow,
-                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, modGlasgow = modGlasgow,
+                                 BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad, hastegrad_hybrid = hastegrad_hybrid,
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -137,9 +139,10 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
     KonfRest <- binomkonf(NTidHendRest, NTidRest)*100}
 
   ##-----------Figur---------------------------------------
-  tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
-  stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
-  incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
+  tittel <- PlotParams$tittel; #grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;
+  # stabel <- PlotParams$stabel; subtxt <- PlotParams$subtxt; incl_N <- PlotParams$incl_N;
+  # incl_pst <- PlotParams$incl_pst; retn <- PlotParams$retn; cexgr <- PlotParams$cexgr;
+  cexgr <- 1.0
   VarTxt <- PlotParams$VarTxt; ##
   if (!(inkl_konf %in% c(0,1))) {inkl_konf=PlotParams$inkl_konf}
 

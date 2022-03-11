@@ -13,7 +13,7 @@ NorgastHentSkjemaOversikt <- function() {
   query <- paste0("SELECT *
                   FROM SkjemaOversikt")
 
-  SkjemaOversikt <- rapbase::LoadRegData(registryName, query, dbType)
+  SkjemaOversikt <- rapbase::loadRegData(registryName, query, dbType)
 
   return(SkjemaOversikt)
 }

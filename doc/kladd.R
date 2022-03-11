@@ -1,3 +1,44 @@
+
+norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(2021)), ], valgtVar = "Saarruptur",
+                                      minald=as.numeric(0),
+                                      maxald=as.numeric(120), outfile="", tittel="tittel",  width=600, height=700,
+                                      decreasing=F, terskel=5, minstekrav = 80, maal = 90,
+                                      legPlass='topleft', minstekravTxt="", maalTxt="maalTxt", graaUt="",
+                                      inkl_konf=F, op_gruppe='',
+                                      hastegrad_hybrid=1, malign=99, lavDG = "", lavDGtekst = "")
+
+
+
+RegData = RegData[which(RegData$Aar <= as.numeric(2021)), ]; valgtVar = "Saarruptur";
+minald=as.numeric(0);
+maxald=as.numeric(120); outfile=""; tittel="tittel";  width=600; height=700;
+decreasing=F; terskel=5; minstekrav = 80; maal = 90;
+legPlass='topleft'; minstekravTxt=""; maalTxt="maalTxt"; graaUt="";
+inkl_konf=F; op_gruppe='';
+hastegrad_hybrid=1; malign=99; lavDG = ""; lavDGtekst = ""
+
+
+datoFra='2014-01-01'; datoTil='2050-12-31'
+erMann=99
+elektiv=99
+hastegrad=99
+dagtid =99
+BMI=''
+tilgang=''
+minPRS=0; maxPRS=2.2
+ASA=''
+whoEcog= ''
+ncsp=''
+forbehandling=''
+skriftStr=1.3
+
+
+####################################################################
+
+
+
+
+
 library(norgast)
 library(dplyr)
 library(tidyverse)

@@ -101,10 +101,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         reshID, enhetsUtvalg=1, stabel=F, preprosess=F, malign=99,
                         elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
                         maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                        op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99)
+                        op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99,
+                        robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
 
-  print(datoFra)
+  # print(datoFra)
 
   ## Hvis spørring skjer fra R på server. ######################
   if(hentData){
@@ -119,10 +120,11 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
-                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                    op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow, hastegrad_hybrid=hastegrad_hybrid)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+                                 BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow, hastegrad_hybrid=hastegrad_hybrid,
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
@@ -181,7 +183,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
     Antall <- as.data.frame(cbind(AntHoved, NHoved=N_ut))
   }
 
-####################
+  ####################
 
   ##-----------Figur---------------------------------------
   tittel <- PlotParams$tittel; grtxt <- PlotParams$grtxt; grtxt2 <- PlotParams$grtxt2;

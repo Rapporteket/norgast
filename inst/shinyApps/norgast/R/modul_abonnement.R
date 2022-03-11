@@ -1,8 +1,8 @@
-# Modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+# Modul for abonnement i NoRGast sin shiny-app på Rapporteket
 #
 # Kun til bruk i Shiny
 #
-# @return Modul fordelingsfigur
+# @return Modul abonnement
 #
 abonnement_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
@@ -34,17 +34,6 @@ abonnement_UI <- function(id, BrValg){
 
 abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
-  # shinyjs::onclick("toggleAdvanced",
-  #                  shinyjs::toggle(id = "avansert", anim = TRUE))
-
-  # observeEvent(input$reset_input, {
-  #   shinyjs::reset("id_fordeling_panel")
-  # })
-  #
-  # observe(
-  #   if (userRole != 'SC') {
-  #     shinyjs::hide(id = 'valgtShus')
-  #   })
 
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
@@ -109,18 +98,22 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
 
 
-  # shiny::observe({
-  #   if (rapbase::isRapContext()) {
-  #     shinyjs::onclick(
-  #       "lastNedTabell",
-  #       raplog::repLogger(
-  #         session = hvd_session,
-  #         msg = "Her kommer melding"
-  #       )
-  #     )
-  #   }
-  # })
+  shiny::observe({
+    if (rapbase::isRapContext()) {
 
+      shinyjs::onclick(
+        "subscribe",
+        rapbase::repLogger(
+          session = hvd_session,
+          msg = paste0(
+            "NoRGast: abonnement bestilt: ",
+            input$subscriptionRep
+          )
+        )
+      )
+
+    }
+  })
 
 
 

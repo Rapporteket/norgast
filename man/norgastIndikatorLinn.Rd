@@ -39,12 +39,16 @@ norgastIndikatorLinn(
   ASA = "",
   whoEcog = "",
   forbehandling = "",
+  dagtid = 99,
   hentData = 0,
   op_gruppe = "",
   ncsp = "",
   maalretn = "hoy",
   lavDG = "",
-  hastegrad_hybrid = 99
+  lavDGtekst = "Dekningsgrad < 60 \%",
+  hastegrad_hybrid = 99,
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

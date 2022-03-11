@@ -23,7 +23,8 @@ NorgastFigAndelTid_kvartalsrapp <- function(RegData=0, valgtVar='ReLapNarkose', 
                                             reshID, enhetsUtvalg=1, preprosess=F, inkl_konf=99, malign=99,
                                             elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                             maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
-                                            tidsenhet='Aar', op_gruppe='', ncsp='')
+                                            tidsenhet='Aar', op_gruppe='', ncsp='', robotassiastanse=99,
+                                            kun_ferdigstilte=TRUE)
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -43,10 +44,10 @@ NorgastFigAndelTid_kvartalsrapp <- function(RegData=0, valgtVar='ReLapNarkose', 
 
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
   NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                    maxald=maxald, erMann=erMann, elektiv=elektiv,
-                                    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
-                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                 op_gruppe=op_gruppe, ncsp=ncsp)
+                                 maxald=maxald, erMann=erMann, elektiv=elektiv,
+                                 BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                                 op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

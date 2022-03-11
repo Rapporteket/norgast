@@ -28,8 +28,8 @@ write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
 #' @export
 abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukernavn='Pjotr') {
 
-  raplog::subLogger(author = brukernavn, registryName = 'NoRGast',
-                    reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
+  # rapbase::autLogger(user = brukernavn, registryName = 'NoRGast',
+  #                   reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
 
   src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
   tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
@@ -38,12 +38,17 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
   on.exit(setwd(owd))
   file.copy(src, tmpFile, overwrite = TRUE)
 
-  texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
-  tools::texi2pdf(texfil, clean = TRUE)
+  # texfil <- knitr::knit(tmpFile, encoding = 'UTF-8')
+  # tools::texi2pdf(texfil, clean = TRUE)
 
+
+  pdfFile <- knitr::knit2pdf(tmpFile)
   utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
-  raplog::subLogger(author = brukernavn, registryName = 'NoRGast',
-                    reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
+
+  file.copy(pdfFile, utfil)
+
+  # rapbase::subLogger(author = brukernavn, registryName = 'NoRGast',
+  #                   reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
 
   return(utfil)
 }
@@ -55,3 +60,49 @@ fiksNULL <- function(x, erstatt='') {
   if (!is.null(x)) {x} else {erstatt}
 }
 
+
+#' Identifiserer pasienter med flere enn ett forløp med samme operasjonsdato
+#'
+#' @param RegData Datasettet som kan inneholde dobbeltregistreringer
+#'
+#' @return En dataramme med utvalgte variabler for potensielt dobbeltregistrerte forløp
+#'
+#' @export
+dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
+  flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
+  flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
+
+  flere_sammedato <- merge(flere_sammedato, RegData, by = c('PasientID', 'HovedDato'), all.x = T)
+  flere_sammedato <- flere_sammedato[ , c("PasientID", "ForlopsID", "OperasjonsDato", "AvdRESH", "Sykehusnavn","Hovedoperasjon", "Operasjonsgrupper", "Hoveddiagnose")]
+  flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
+  flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
+  flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
+  flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
+  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
+  if (usrRole != 'SC') {flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]}
+  return(flere_sammedato)
+}
+
+
+#' Make staging data for NoRGast
+#'
+#' This function makes queries and pre-processing of registry data before
+#' storing relevant staging data. Running this function may take a while so use
+#' with care!
+#'
+#' @return Character vector of staging files, invisibly
+#' @export
+makeStagingData <- function() {
+
+  RegData <-  norgast::NorgastHentRegData()
+  skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
+  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+  skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+  RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  rapbase::saveStagingData("norgast", "RegData", RegData)
+  rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
+
+  invisible(rapbase::listStagingData("norgast"))
+}

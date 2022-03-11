@@ -8,13 +8,18 @@ fordelingsfig_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(width = 3,
+    shiny::sidebarPanel(
+      width = 3,
       id = ns("id_fordeling_panel"),
+      # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
+      checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg),
       # bsTooltip(id = ns("valgtVar"), title= 'Velg hvilken variabel du vil generere fordelingsfigur for.'),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
-                     max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), language = "nb", separator = " til "),
+                     max = Sys.Date(),
+                     start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
+                     end = Sys.Date(), language = "nb", separator = " til "),
       selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
                   choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
       selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
@@ -28,6 +33,8 @@ fordelingsfig_UI <- function(id, BrValg){
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+      selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
       # shinyjs::hidden(
       #   div(
       #     id = ns("avansert"),
@@ -81,15 +88,15 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
   observe(
     if (userRole != 'SC') {
       shinyjs::hide(id = 'valgtShus')
-  })
+    })
 
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
       selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
                   choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
-                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+                                                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
+                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
                   }, multiple = TRUE)
     }
   })
@@ -111,7 +118,9 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                         forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                         malign = as.numeric(input$malign),
                         reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                        elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
+                        elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+                        kun_ferdigstilte = input$kun_ferdigstilte)
   }, width = 700, height = 700)
 
 
@@ -129,7 +138,9 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                                       forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                                       malign = as.numeric(input$malign),
                                       reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                                      elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad))
+                                      elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                                      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+                                      kun_ferdigstilte = input$kun_ferdigstilte)
   })
 
   output$utvalg <- renderUI({
@@ -150,7 +161,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         mutate(AndelRest= 100*AntRest/Nrest)
       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
-      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1)) %>%
+      Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1), row.names = F) %>%
         kable_styling("hover", full_width = F) %>%
         add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
     } else {
@@ -160,7 +171,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         mutate(AndelHoved = 100*AntHoved/NHoved)
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
       Tabell1 %>%
-        knitr::kable("html", digits = c(0,0,0,1)) %>%
+        knitr::kable("html", digits = c(0,0,0,1), row.names = F) %>%
         kable_styling("hover", full_width = F)
     }
 
@@ -210,7 +221,9 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                           forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
                           malign = as.numeric(input$malign),
                           reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad), outfile = file)
+                          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+                          hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+                          kun_ferdigstilte = input$kun_ferdigstilte, outfile = file)
     }
   )
 
@@ -226,30 +239,28 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
           "NoRGast: tabell - fordeling. variabel - ",
           input$valgtVar)
       }
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = mld_fordeling
       )
-      mldLastNedFig <- paste(
-        "NoRGast: nedlasting figur - fordeling. variabel -",
-        input$valgtVar
-      )
-      mldLastNedTab <- paste(
-        "NoRGast: nedlasting tabell - fordeling. variabel -",
-        input$valgtVar
-      )
       shinyjs::onclick(
         "lastNedBilde",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFig
+          msg = paste(
+            "NoRGast: nedlasting figur - fordeling. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
-        "lastNedTabell",
-        raplog::repLogger(
+        "lastNed",
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTab
+          msg = paste(
+            "NoRGast: nedlasting tabell - fordeling. variabel -",
+            input$valgtVar
+          )
         )
       )
     }

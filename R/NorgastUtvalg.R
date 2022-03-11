@@ -10,7 +10,7 @@
 NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", minald=0, maxald=120, erMann=99,
                           elektiv=99, BMI='', hastegrad=99, valgtShus='', tilgang='', minPRS=0, maxPRS=2.2, ASA='',
                           whoEcog='', modGlasgow = '', forbehandling='', malign=99, fargepalett='BlaaRapp', op_gruppe='',
-                          ncsp='', icd='', hastegrad_hybrid=99, dagtid=99)
+                          ncsp='', icd='', hastegrad_hybrid=99, dagtid=99, robotassiastanse=99, kun_ferdigstilte=TRUE)
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -35,10 +35,12 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", m
   indForb <- if (forbehandling[1] != '') {which(RegData$Forbehandling %in% as.numeric(forbehandling))} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
   indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
+  indRobot <- if (robotassiastanse %in% c(0,1)){which(RegData$Robotassistanse == robotassiastanse)} else {indRobot <- 1:Ninn}
+  indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1)} else {indFerdig <- 1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i%
-    indICD %i% indGlasgow %i% indHast2 %i% indDag
+    indICD %i% indGlasgow %i% indHast2 %i% indDag %i% indRobot %i% indFerdig
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -68,7 +70,9 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01", m
                  if (forbehandling[1] != '') {paste0('Onkologisk forbehandling: ',
                                                      paste(c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[as.numeric(forbehandling)], collapse = ', '))},
                  if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])},
-                 if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))}
+                 if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))},
+                 if (robotassiastanse %in% c(0,1)){paste0('Minimalinvasiv: ', c('Konv. laparoskopi', 'Robotassistert')[robotassiastanse+1])},
+                 if (!kun_ferdigstilte){'Ikke-ferdigstilte oppfølginger inkludert: Ja'}
   )
 
 

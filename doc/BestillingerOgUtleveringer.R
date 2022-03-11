@@ -1,8 +1,137 @@
-setwd('C:/GIT/norgast/doc/')
+# setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+############ Sårruptur Stavanger
+# Hei Kevin,
+#
+# Stavanger bruker Rapporteket aktivt i sin kvalitetsforbedring og stusser over egne tall for sårruptur i 2020 og 2021 (betydelig høyere enn forventet).
+#
+# Kan du lage en kryptert liste over personnummer + operasjonsdato for de som tilfredsstiller
+# Operasjonsdato 2020 + 2021
+# Stavanger
+# Åpent eller konvertert inngrep
+# Sårruptur som hovedfunn ved reoperasjon.
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("/home/rstudio/delt_folder/NoRGast_koblingstabell_datadump_2021-11-30.csv",
+                 colClasses = c("integer", "character"))
+
+utdata <- RegData[RegData$AvdRESH == 114271 & RegData$Aar %in% 2020:2021 & RegData$Saarruptur == 1, ] %>%
+  merge(fid, by.x = "PasientID", by.y = "PID", all.x = TRUE)
+utdata <- utdata[, c("SSN", "OperasjonsDato")]
+write.csv2(utdata, "/home/rstudio/delt_folder/saarruptur_stavanger.csv", row.names = F, fileEncoding = "Latin1")
+
+
+############ Finn pasientID - Dille-Andam 29.09.2021 ##########################################
+
+forlopsliste <- read.csv2("/home/rstudio/delt_folder/Datadump_NoRGast 2021 lever og pankreas V3.csv")
+pid <- forlopsliste[, c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn")]
+fid <- read.csv2("/home/rstudio/delt_folder/NoRGast_koblingstabell_datadump_2021-10-01.csv",
+                 colClasses = c("integer", "character"))
+
+kobl <- merge(pid, fid, by.x = "PasientID", by.y = "PID", all.x = TRUE)
+kobl$Sykehusnavn[kobl$AvdRESH == 601225] <- "UNN-Tromsø"
+
+write.csv2(kobl[which(kobl$AvdRESH == 700922), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/Haukeland.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH %in% c(103312, 700413)), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/OUS.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 107440), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/StOlavs.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 114271), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/Stavanger.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(kobl[which(kobl$AvdRESH == 601225), c("PasientID", "ForlopsID", "SSN")],
+           "/home/rstudio/delt_folder/UNNTromso.csv", row.names = F, fileEncoding = "Latin1")
+
+##### Tall til Kristoffer 30.03.2021 ####################################################
+RegData <- read.table('I:/norgast/AlleVarNum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess(RegData)
+
+utvalg <- NorgastUtvalg(RegData=RegData, datoFra = '2018-01-01', datoTil = '2020-12-31', whoEcog = c(0, 1),
+                        op_gruppe = 1)
+PlotParams <- NorgastPrepVar(RegData=utvalg$RegData, valgtVar="Anastomoselekkasje", enhetsUtvalg=0)
+RegData_lekk <- PlotParams$RegData
+PlotParams$RegData <- NA
+andel_lekk <- sum(RegData_lekk$Variabel)/length(RegData_lekk$Variabel)*100
+konf_lekk <- binomkonf(sum(RegData_lekk$Variabel), length(RegData_lekk$Variabel), konfnivaa = .9)*100
+
+PlotParams <- NorgastPrepVar(RegData=utvalg$RegData, valgtVar="KumAcc2", enhetsUtvalg=0)
+RegData_acc <- PlotParams$RegData
+RegData_acc <- RegData_acc[which(RegData_acc$NyAnastomose==1), ]
+PlotParams$RegData <- NA
+andel_acc <- sum(RegData_acc$Variabel)/length(RegData_acc$Variabel)*100
+konf_acc <- binomkonf(sum(RegData_acc$Variabel), length(RegData_acc$Variabel), konfnivaa = .9)*100
+
+##### Feilsøk etter flytting av tilhørighet OUS-pasienter 11.03.2021 ####################################################
+RegData <- read.table('I:/norgast/AlleVarNum2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess_behold_kladd(RegData)
+RegData <- RegData[which(RegData$RegistreringStatus==1),]
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+RegData_ny <-  RegData
+
+RegData <- read.table('I:/norgast/AlleVarNum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                      encoding = 'UTF-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+                         encoding = 'UTF-8', stringsAsFactors = F)
+
+RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
+                      'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
+                      'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
+                      'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
+                      'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
+                      "AvstandAnalVerge")]
+names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
+RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
+RegData <- NorgastPreprosess_behold_kladd(RegData)
+RegData <- RegData[which(RegData$RegistreringStatus==1),]
+RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+
+RegData <- merge(RegData[, c("ForlopsID", "HovedDato", "Op_gr", "Operasjonsgrupper", "Hovedoperasjon", "AvdRESH",
+                             "Sykehusnavn")], RegData_ny[, c("ForlopsID", "Op_gr", "AvdRESH", "Sykehusnavn")], by = "ForlopsID",
+                 suffixes = c("", "_ny"))
+
+tmp <- as.data.frame.matrix(table(RegData$Sykehusnavn[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  RegData$Sykehusnavn_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  useNA = 'ifany'))
+tmp2 <- as.data.frame.matrix(table(RegData$AvdRESH[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  RegData$AvdRESH_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                  useNA = 'ifany'))
+
+
+write.csv2(tmp, "I:/norgast/konvertering.csv")
+
+
 ###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################
+mangler <- c(31533, 31750, 31865, 13526, 34068, 34348, 37090, 37223)
 
 RegData <- read.table('I:/norgast/NoRGast_AlleVarNum_datadump_2021-02-16.csv', header=TRUE, sep=";",
                       fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
@@ -27,10 +156,11 @@ kobl_tab <- read.table('I:/norgast/NoRGast_koblingstabell_datadump_2021-02-16.cs
                        stringsAsFactors = F, fileEncoding = 'UTF-8-BOM', colClasses = "character")
 RegDataOUS <- RegData[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet"), ]
 RegDataOUS <- RegDataOUS[which(tolower(substr(RegDataOUS$Hovedoperasjon, 1, 3)) == "jjb"), ]
+# RegDataOUS <- RegDataOUS[which(as.Date(RegDataOUS$HovedDato) >= "2020-01-01" &
+#                                  as.Date(RegDataOUS$HovedDato) <= "2020-12-31" &
+#                                  RegDataOUS$RegistreringStatus == 1), ]
 RegDataOUS <- RegDataOUS[which(as.Date(RegDataOUS$HovedDato) >= "2020-01-01" &
-                                 as.Date(RegDataOUS$HovedDato) <= "2020-12-31" &
-                                 RegDataOUS$RegistreringStatus == 1), ]
-
+                                 as.Date(RegDataOUS$HovedDato) <= "2020-12-31"), ]
 tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
              skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus", "Sykehusnavn")],
              by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))

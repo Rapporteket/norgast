@@ -32,7 +32,9 @@ FigAndeler(
   op_gruppe = "",
   ncsp = "",
   modGlasgow = "",
-  hastegrad_hybrid = 99
+  hastegrad_hybrid = 99,
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

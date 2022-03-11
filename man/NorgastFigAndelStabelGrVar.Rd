@@ -18,6 +18,7 @@ NorgastFigAndelStabelGrVar(
   malign = 99,
   Ngrense = 30,
   lavDG = "",
+  lavDGtekst = "Dekningsgrad < 60 \%",
   hastegrad = 99,
   elektiv = 99,
   BMI = "",
@@ -31,7 +32,9 @@ NorgastFigAndelStabelGrVar(
   forbehandling = "",
   hentData = 0,
   op_gruppe = "",
-  ncsp = ""
+  ncsp = "",
+  robotassiastanse = 99,
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

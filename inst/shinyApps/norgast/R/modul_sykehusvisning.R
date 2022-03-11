@@ -10,6 +10,8 @@ sykehusvisning_UI <- function(id, BrValg){
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
       id = ns("id_shus_panel"),
+      # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
+      checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
       selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
                   choices = BrValg$varvalg_andel),
       selectInput(inputId = ns("valgtVar_gjsn"), label = "Velg variabel",
@@ -17,7 +19,9 @@ sykehusvisning_UI <- function(id, BrValg){
       selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
                   choices = BrValg$varvalg_andel_stabel),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                     max = Sys.Date(), start  = '2014-01-01', end = Sys.Date(), separator = " til "),
+                     max = Sys.Date(),
+                     start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
+                     end = Sys.Date(), separator = " til "),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                   max = 120, value = c(0, 120)),
       selectInput(inputId = ns("erMann"), label = "Kjønn",
@@ -31,6 +35,8 @@ sykehusvisning_UI <- function(id, BrValg){
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+      selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt. for op.start)",
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
       selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
       selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
       sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
@@ -131,7 +137,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                     elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                     whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                    op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad),
+                                    kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   }, width = 700, height = 700)
 
   tabellReagerSykehusAndel <- reactive({
@@ -141,7 +148,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                   elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                   minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                   whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                                  op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                                  op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad),
+                                                  kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   })
 
   output$utvalg_sykehus_andel <- renderUI({
@@ -186,7 +194,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                       elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                       whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
+                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file,
+                                      hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
     }
   )
 
@@ -199,7 +208,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                         elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                         minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                         whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                        op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                        op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi),
+                                        hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   }, width = 700, height = 700)
 
 
@@ -210,7 +220,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                       elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                       minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                       whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                                      op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi),
+                                                      hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   })
 
   output$utvalg_sykehus_andel_stabel <- renderUI({
@@ -222,15 +233,32 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
 
   output$Tabell_sykehus_andel_stabel <- function() {
     TabellData <- tabellReagerSykehusAndelStabel()
-    Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)])
-    names(Tabell)[(dim(Tabell)[2]/2 + 2):dim(Tabell)[2]] <- names(Tabell)[2:(dim(Tabell)[2]/2)]
+    Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
+                        .name_repair = "minimal")
     names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
 
     Tabell %>% knitr::kable("html", digits = c(rep(0, dim(Tabell)[2]/2 + 1), rep(1, dim(Tabell)[2]/2 - 1))) %>%
       kable_styling("hover", full_width = F) %>%
       add_header_above(c(" ", "Antall" = dim(Tabell)[2]/2 - 1, " ", "Andel (%)" = dim(Tabell)[2]/2 - 1))
-
   }
+
+
+
+  output$lastNedStabelTabell <- downloadHandler(
+    filename = function(){
+      paste0(input$valgtVar_andel_stabel, '_sykehus_stabel_', Sys.time(), '.csv')
+    },
+    content = function(file){
+      TabellData <- tabellReagerSykehusAndelStabel()
+      Tabell <- bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
+                          .name_repair = "minimal")
+      names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
+      write.csv3(Tabell, file, row.names = F, na = '')
+    }
+  )
+
+
+
 
   output$lastNedBilde_sykehus_andel_stabel <- downloadHandler(
     filename = function(){
@@ -243,7 +271,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                           elektiv=as.numeric(input$elektiv),BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                           minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                           whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                          op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file, hastegrad = as.numeric(input$hastegrad))
+                                          op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file,
+                                          hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
     }
   )
 
@@ -257,7 +286,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                  elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                  minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                  whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                 op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                 op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi),
+                                 hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   }, width = 700, height = 700)
 
   tabellReagerSykehusGjsn <- reactive({
@@ -268,7 +298,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                                elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                                minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                                whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                               op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), hastegrad = as.numeric(input$hastegrad))
+                                               op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi),
+                                               hastegrad = as.numeric(input$hastegrad), kun_ferdigstilte = input$kun_ferdigstilte, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
   })
 
   output$utvalg_sykehus_gjsn <- renderUI({
@@ -312,7 +343,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
                                    elektiv=as.numeric(input$elektiv), BMI = fiksNULL(input$BMI), tilgang = fiksNULL(input$tilgang),
                                    minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]), ASA= fiksNULL(input$ASA),
                                    whoEcog = fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling), modGlasgow = fiksNULL(input$modGlasgow),
-                                   op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), outfile = file)
+                                   op_gruppe = fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi),
+                                   kun_ferdigstilte = input$kun_ferdigstilte, outfile = file, hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
     }
   )
 
@@ -348,74 +380,68 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session)
           "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
           input$valgtVar_gjsn)
       }
-      raplog::repLogger(
+      rapbase::repLogger(
         session = hvd_session,
         msg = mld_fordeling
       )
-      mldLastNedFigAndel <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
-        input$valgtVar
-      )
-      mldLastNedTabAndel <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
-        input$valgtVar
-      )
-      mldLastNedFigGjsn <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
-        input$valgtVar_gjsn
-      )
-      mldLastNedTabGjsn <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
-        input$valgtVar_gjsn
-      )
-      mldLastNedFigAndelStabel <- paste(
-        "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
-        input$valgtVar_andel_stabel
-      )
-      mldLastNedTabAndelStabel <- paste(
-        "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
-        input$valgtVar_andel_stabel
-      )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigAndel
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_andel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabAndel
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
+            input$valgtVar
+          )
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_gjsn",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigGjsn
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
+            input$valgtVar_gjsn
+          )
         )
       )
       shinyjs::onclick(
         "lastNed_sykehus_gjsn",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabGjsn
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
+            input$valgtVar_gjsn
+          )
         )
       )
       shinyjs::onclick(
         "lastNedBilde_sykehus_andel_stabel",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedFigAndelStabel
+          msg = paste(
+            "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
+            input$valgtVar_andel_stabel
+          )
         )
       )
       shinyjs::onclick(
         "lastNedStabelTabell",
-        raplog::repLogger(
+        rapbase::repLogger(
           session = hvd_session,
-          msg = mldLastNedTabAndelStabel
+          msg = paste(
+            "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
+            input$valgtVar_andel_stabel
+          )
         )
       )
 
