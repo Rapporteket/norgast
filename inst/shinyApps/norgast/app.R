@@ -16,9 +16,9 @@ library("funnelR")
 addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
 
-RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
-skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
-if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
+# RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+# skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+# if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
   RegData <-  norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
@@ -26,9 +26,9 @@ if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
   skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
   RegData <- RegData[which(RegData$RegistreringStatus==1),]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
-  rapbase::saveStagingData("norgast", "RegData", RegData)
-  rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
-}
+#   rapbase::saveStagingData("norgast", "RegData", RegData)
+#   rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
+# }
 
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 BrValg <- BrValgNorgastShiny(RegData)
