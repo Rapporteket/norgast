@@ -2,7 +2,54 @@
 library(norgast)
 rm(list=ls())
 
-############ Sårruptur Stavanger
+
+###### Utlevering kreftregisteret ######################################3
+
+fra_krg <- read.csv2("/home/rstudio/.ssh/pancreas2021_norgast_koblet_KRG.csv",
+                     colClasses = c("character", "Date", "numeric"))
+
+fra_krg <- fra_krg[fra_krg$pdac_krg == 1, ]
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData <- RegData[RegData$Aar %in% 2021, ]
+fid <- read.csv2("/home/rstudio/.ssh/NoRGast_koblingstabell_datadump_18.03.2022.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- merge(RegData, fid, by.x = "PasientID", by.y = "PID", all.x = T)
+
+kobletdata <- merge(fra_krg, RegData, by.x = c("fnr", "operasjonsdato"), by.y = c("SSN", "OperasjonsDato"))
+
+kobletdata %>% group_by(Sykehusnavn) %>%
+  summarise(
+    N = n(),
+    gj.sn.alder = mean(Alder),
+    andel.kvinner = sum(erMann==0)/N*100,
+    med.bmi = median(BMI, na.rm = T),
+    )
+
+
+###### DG- og frafallsanalyse 2021 - 18.03.2022###############################################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("/home/rstudio/.ssh/NoRGast_koblingstabell_datadump_18.03.2022.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- RegData[RegData$Op_gr %in% 1:8 & RegData$Aar == 2021, ]
+
+
+RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
+                      "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon")]
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+write.csv2(RegData, "/home/rstudio/delt_folder/aktivitetsdata_norgast_2021.csv",
+           row.names = F, fileEncoding = 'Latin1')
+write.csv2(RegData, "/home/rstudio/delt_folder/kobling_norgast_2021.csv",
+           row.names = F, fileEncoding = 'Latin1')
+
+############ Sårruptur Stavanger ###############################################################
 # Hei Kevin,
 #
 # Stavanger bruker Rapporteket aktivt i sin kvalitetsforbedring og stusser over egne tall for sårruptur i 2020 og 2021 (betydelig høyere enn forventet).
@@ -123,8 +170,8 @@ tmp <- as.data.frame.matrix(table(RegData$Sykehusnavn[RegData$Sykehusnavn %in% c
                                   RegData$Sykehusnavn_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
                                   useNA = 'ifany'))
 tmp2 <- as.data.frame.matrix(table(RegData$AvdRESH[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
-                                  RegData$AvdRESH_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
-                                  useNA = 'ifany'))
+                                   RegData$AvdRESH_ny[RegData$Sykehusnavn %in% c("OUS", "OUS-Radiumhospitalet", "OUS-Rikshospitalet")],
+                                   useNA = 'ifany'))
 
 
 write.csv2(tmp, "I:/norgast/konvertering.csv")
@@ -185,7 +232,7 @@ library(tidyverse)
 skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
                              stringsAsFactors = F, encoding = 'UTF-8')
 RegData <- read.table('I:/norgast/AlleVarNum2021-02-03 15-28-13.txt', header=TRUE, sep=";",
-                         encoding = 'UTF-8', stringsAsFactors = F)
+                      encoding = 'UTF-8', stringsAsFactors = F)
 tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
              skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus")],
              by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
@@ -204,10 +251,10 @@ aux <- tmp %>% filter(HovedDato >= "2019-01-01" & HovedDato <= "2019-12-31") %>%
                                       'N' = n())
 aux2 <- tmp2 %>% filter(HovedDato >= "2019-01-01" & HovedDato <= "2019-12-31") %>%
   group_by(Sykehusnavn) %>% summarise('Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
-            'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
-            'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
-            'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
-            'N' = n())
+                                      'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
+                                      'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+                                      'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
+                                      'N' = n())
 
 ant_skjema <- bind_rows(aux, aux2)
 
@@ -219,11 +266,11 @@ ant_skjema[ant_skjema$Sykehusnavn == "HS-Sandnessjøen", ]
 ###### Testdata ifm. dataprodukter. Aksel 14.01.2021 ##############################
 library(tidyverse)
 AlleVarNum <- read.table('I:/norgast/AlleVarNum2021-01-14 13-59-17.txt', header=TRUE, sep=";",
-                      encoding = 'UTF-8', stringsAsFactors = F)
+                         encoding = 'UTF-8', stringsAsFactors = F)
 AlleVar <- read.table('I:/norgast/AlleVar2021-01-14 13-59-17.txt', header=TRUE, sep=";",
-                         encoding = 'UTF-8', stringsAsFactors = F)
+                      encoding = 'UTF-8', stringsAsFactors = F)
 ForlopOversikt <- read.table('I:/norgast/ForlopsOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=";",
-                         encoding = 'UTF-8', stringsAsFactors = F)
+                             encoding = 'UTF-8', stringsAsFactors = F)
 SkjemaOversikt <- read.table('I:/norgast/SkjemaOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=';',
                              stringsAsFactors = F, encoding = 'UTF-8')
 
@@ -300,7 +347,7 @@ RegData <- RegDataAll[RegDataAll$Sykehusnavn == 'St.Olavs' & RegDataAll$Aar < 20
 RegData <- RegData[(RegData$Op_gr == 3 & RegData$Malign==1) | (RegData$Op_gr == 4 & RegData$Malign==1) | RegData$Op_gr %in% c(5,6), ]
 
 tabell <- RegData %>% group_by(Aar, Operasjonsgrupper) %>% summarise(gj.sn.liggetid = sum(PostopLiggedogn, na.rm = T),
-                                        N = sum(!is.na(PostopLiggedogn)))
+                                                                     N = sum(!is.na(PostopLiggedogn)))
 
 tabell$gj.sn.liggetid <- paste0(round(tabell$gj.sn.liggetid, 1), ' (', tabell$N, ')')
 spread(tabell[,-4], key = Aar, value = gj.sn.liggetid)
@@ -395,7 +442,7 @@ RegData <- RegData[RegData$BasisRegStatus == 1, ]
 
 library(tidyverse)
 tmp <- RegData %>% group_by(PasientID, HovedDato, Hovedoperasjon) %>% summarise(antall = n(),
-                                                                ForlopsID = ForlopsID[1])
+                                                                                ForlopsID = ForlopsID[1])
 tmp <- tmp[tmp$antall>1, ]
 RegData <- RegData[!(RegData$ForlopsID %in% tmp$ForlopsID), ] # fjern dobbelreg
 RegData <- RegData[, c("PasientID", "ForlopsID", "HovedDato", "Hovedoperasjon", "op_gr_npr", "AvdRESH", "Sykehusnavn")]
@@ -556,7 +603,7 @@ RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 RegData$op_gr_npr <- 'Annet'
 RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
 RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-                                    which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
+                            which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
 RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
 RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
 RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
