@@ -46,7 +46,7 @@ names(fid) <- c("PasientID", "Fnr")
 
 write.csv2(RegData, "/home/rstudio/delt_folder/aktivitetsdata_norgast_2021.csv",
            row.names = F, fileEncoding = 'Latin1')
-write.csv2(RegData, "/home/rstudio/delt_folder/kobling_norgast_2021.csv",
+write.csv2(fid, "/home/rstudio/delt_folder/kobling_norgast_2021.csv",
            row.names = F, fileEncoding = 'Latin1')
 
 ############ Sårruptur Stavanger ###############################################################
