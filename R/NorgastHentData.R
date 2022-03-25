@@ -50,6 +50,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   TelefonKontroll,
                   FysiskKontroll,
                   Rekonstruksjon,
+                  Rekonstruksjonstype,
                   EndoInterBlod,
                   EndoInterLekkasje,
                   PerkDrenasje,

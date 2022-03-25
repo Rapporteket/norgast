@@ -1,5 +1,6 @@
 # setwd('C:/GIT/norgast/doc/')
 library(norgast)
+library(tidyverse)
 rm(list=ls())
 
 
@@ -20,13 +21,41 @@ RegData <- merge(RegData, fid, by.x = "PasientID", by.y = "PID", all.x = T)
 
 kobletdata <- merge(fra_krg, RegData, by.x = c("fnr", "operasjonsdato"), by.y = c("SSN", "OperasjonsDato"))
 
-kobletdata %>% group_by(Sykehusnavn) %>%
-  summarise(
+aggdata <- kobletdata %>% #dplyr::group_by(Sykehusnavn) %>%
+  dplyr::summarise(
     N = n(),
     gj.sn.alder = mean(Alder),
+    median.alder = median(Alder),
     andel.kvinner = sum(erMann==0)/N*100,
     med.bmi = median(BMI, na.rm = T),
-    )
+    andel.whipple = sum(Op_gr==6)/N*100,
+    andel.distal = sum(Op_gr==7)/N*100,
+    andel.annet = sum(Op_gr==8)/N*100,
+    andel.åpen.distal = sum(Op_gr == 7 & Tilgang == 1)/sum(Op_gr == 7)*100,
+    andel.åpen.annet = sum(Op_gr == 8 & Tilgang == 1)/sum(Op_gr == 8)*100,
+    andel.åpen.begge = sum(Op_gr %in% 7:8 & Tilgang == 1)/sum(Op_gr %in% 7:8)*100,
+    andel.lap.distal = sum(Op_gr == 7 & Tilgang == 3)/sum(Op_gr == 7)*100,
+    andel.lap.annet = sum(Op_gr == 8 & Tilgang == 3)/sum(Op_gr == 8)*100,
+    andel.lap.begge = sum(Op_gr %in% 7:8 & Tilgang == 3)/sum(Op_gr %in% 7:8)*100,
+    andel.portvene.whipple = sum(Op_gr == 6 & Rekonstruksjonstype %in% c(1,3))/sum(Op_gr==6)*100,
+    andel.arterie.whipple = sum(Op_gr == 6 & Rekonstruksjonstype %in% c(2,3))/sum(Op_gr==6)*100,
+    andel.accord_str_4.whipple = sum(Op_gr == 6 & KumAcc2 == 1)/sum(Op_gr==6)*100,
+    andel.accord_str_4.distal = sum(Op_gr == 7 & KumAcc2 == 1)/sum(Op_gr==7)*100,
+    andel.accord_str_4.annet = sum(Op_gr == 8 & KumAcc2 == 1)/sum(Op_gr==8)*100,
+    andel.accord_str_4.begge = sum(Op_gr %in% 7:8 & KumAcc2 == 1)/sum(Op_gr %in% 7:8)*100,
+    andel.relap.whipple = sum(Op_gr == 6 & ReLapNarkose == 1)/sum(Op_gr==6)*100,
+    andel.relap.distal = sum(Op_gr == 7 & ReLapNarkose == 1)/sum(Op_gr==7)*100,
+    andel.relap.annet = sum(Op_gr == 8 & ReLapNarkose == 1)/sum(Op_gr==8)*100,
+    andel.relap.begge = sum(Op_gr %in% 7:8 & ReLapNarkose == 1)/sum(Op_gr %in% 7:8)*100
+  )
+
+write.csv2(aggdata, "/home/rstudio/delt_folder/krg_pdac_2021.csv",
+           row.names = F, fileEncoding = 'Latin1')
+
+# registryName <- "norgast"
+# dbType <- "mysql"
+# query <- "SELECT * FROM AlleVarNum"
+# allevar <- rapbase::loadRegData(registryName, query, dbType)
 
 
 ###### DG- og frafallsanalyse 2021 - 18.03.2022###############################################################
