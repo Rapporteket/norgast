@@ -64,11 +64,12 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
   }
   N <- N[rekkefolge, ]
 
-  FigTypUt <- rapFigurer::figtype(outfile='', width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
   farger <- FigTypUt$farger
   soyleFarger <- rep(farger[3], length(N[,dim(N)[2]]))
 
-  windows(width = width, height = height)
+  # windows(width = width, height = height)
+
 
   oldpar_mar <- par()$mar
   oldpar_fig <- par()$fig
@@ -171,6 +172,6 @@ norgastFigAntRegTid <- function(RegData, tittel='', width=800, height=700, sideT
   par('oma'= oldpar_oma)
   # if (outfile != '') {dev.off()}
 
-  if (outfile != '') {savePlot(outfile, type=substr(outfile, nchar(outfile)-2, nchar(outfile)))}
-
+  # if (outfile != '') {savePlot(outfile, type=substr(outfile, nchar(outfile)-2, nchar(outfile)))}
+  if (outfile != '') {dev.off()}
 }

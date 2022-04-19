@@ -55,6 +55,11 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='laerebok') {
     tittel <- c('Lærebokforløp')
+    # Referansepasient:
+    RegData <- RegData[RegData$Hastegrad_hybrid %in% 1, ]
+    RegData <- RegData[RegData$Malign %in% 1, ]
+    RegData <- RegData[RegData$WHOECOG %in% c(0,1), ]
+    # Lærebok:
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$mortalitet90 <- 0

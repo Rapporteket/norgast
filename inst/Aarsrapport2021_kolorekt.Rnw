@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2020 - Kolon og rektum}
+\title{Figurer og tabeller for årsrapport NoRGast 2021 - Kolon og rektum}
 \author{NoRGast}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
@@ -21,14 +21,8 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \pagestyle{myheadings}
-% \definecolor{SKDE}{rgb}{0,0.32,0.61}
 \definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
-% \definecolor{moerkblaa}{rgb}{0.0,0.0,0.47}
-% \definecolor{lysgraa}{rgb}{0.8,0.8,0.8}
-% \definecolor{middelsgraa}{rgb}{0.5,0.5,0.5}
 \definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
-% \color{moerkgraa}
-% \color{lysblaa}
 
 <<'initOpts',include=FALSE>>=
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
@@ -42,22 +36,8 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-# RegData <- read.table('I:/norgast/AlleVarNum2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-# ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-#
-# RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
-#                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
-#                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
-#                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-#                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
-#                       "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
-#                       "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
-# names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
-# ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-# RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- norgast::NorgastHentRegData()
 RegData <- NorgastPreprosess(RegData)
-# RegData <- RegData[RegData$Aar==2016, ]
 
 gr <- c(1:6)
 grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
@@ -65,7 +45,7 @@ grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
 RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==7]<- 6
 RegData$Op_grAarsrapp[RegData$Op_grAarsrapp %in% c(8,99)]<- NA
 
-rap_aar <- 2020 # Året rapporten skal kjøres for
+rap_aar <- 2021 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
 
 RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)

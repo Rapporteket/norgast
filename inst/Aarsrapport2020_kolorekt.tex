@@ -12,6 +12,9 @@
 \makeatother
 
 \definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\makeatletter
+\@ifundefined{AddToHook}{}{\AddToHook{package/xcolor/after}{\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}}}
+\makeatother
 \newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
 \newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
 \newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
@@ -46,6 +49,14 @@
 \definecolor{messagecolor}{rgb}{0, 0, 0}
 \definecolor{warningcolor}{rgb}{1, 0, 1}
 \definecolor{errorcolor}{rgb}{1, 0, 0}
+\makeatletter
+\@ifundefined{AddToHook}{}{\AddToHook{package/xcolor/after}{
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+}}
+\makeatother
 \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
 
 \usepackage{alltt} % ,twoside
@@ -106,11 +117,8 @@
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-\begin{kframe}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(file, ifelse(append, "{}a"{}, "{}w"{}), encoding = fileEncoding): cannot open the connection}}\end{kframe}% latex table generated in R 4.0.5 by xtable 1.8-4 package
-% Wed Sep 29 15:15:35 2021
+% latex table generated in R 4.1.3 by xtable 1.8-4 package
+% Tue Apr 19 13:59:49 2022
 \begin{tabular}{lrrrrrrrr}
   \toprule
   & & & \multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\%)} \\
@@ -119,7 +127,7 @@
  Operasjonsgruppe & $N$ & rate (\%) & lekkasje\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\
  \midrule
-Kolonreseksjoner & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\ 
+Kolonreseksjoner & 2468 & 8.4 & 3.3 & 0.5 & 0.8 & 1.1 & 2.2 & 0.4 \\ 
    \bottomrule
 \end{tabular}
 
@@ -132,8 +140,8 @@ Kolonreseksjoner & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-% latex table generated in R 4.0.5 by xtable 1.8-4 package
-% Wed Sep 29 15:15:35 2021
+% latex table generated in R 4.1.3 by xtable 1.8-4 package
+% Tue Apr 19 13:59:49 2022
 \begin{tabular}{lrrrrrrrr}
   \toprule
   & & & \multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\%)} \\
@@ -142,11 +150,11 @@ Kolonreseksjoner & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\
  Tilgang & $N$ & rate (\%) & lekkasje\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\
  \midrule
-Alle & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\ 
-  Åpen & 441 & 10.0 & 3.4 & 0.7 & 0.7 & 2.5 & 2.7 & 0.0 \\ 
-  Laparoskopisk & 1887 & 9.2 & 4.3 & 0.5 & 0.8 & 0.7 & 2.3 & 0.5 \\ 
-  Konvertert & 198 & 11.6 & 3.0 & 0.0 & 1.0 & 3.0 & 4.0 & 0.5 \\ 
-  Robotassistert & 156 & 10.9 & 4.5 & 1.3 & 1.3 & 0.0 & 3.2 & 0.6 \\ 
+Alle & 2468 & 8.4 & 3.3 & 0.5 & 0.8 & 1.1 & 2.2 & 0.4 \\ 
+  Åpen & 421 & 8.6 & 2.4 & 0.7 & 0.7 & 2.1 & 2.6 & 0.0 \\ 
+  Laparoskopisk & 1858 & 8.4 & 3.7 & 0.5 & 0.9 & 0.7 & 2.1 & 0.5 \\ 
+  Konvertert & 189 & 8.5 & 1.6 & 0.0 & 1.1 & 3.2 & 2.6 & 0.0 \\ 
+  Robotassistert & 154 & 10.4 & 3.9 & 1.3 & 1.3 & 0.0 & 3.2 & 0.7 \\ 
    \bottomrule
 \end{tabular}
 
@@ -159,97 +167,97 @@ Alle & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ViktigsteFunn_kolon_elektiv.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/ViktigsteFunn_kolon_elektiv.pdf}
 \caption{ViktigsteFunn\_kolon\_elektiv.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Tilgang_elektiv_malign.pdf}
 \caption{Tilgang\_elektiv\_malign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Tilgang_elektiv_malign_aar.pdf}
 \caption{Tilgang\_elektiv\_malign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_elektiv_malign_ecog_0_1.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Tilgang_elektiv_malign_ecog_0_1.pdf}
 \caption{Tilgang\_elektiv\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_benign.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/AccordionGrad_elektiv_benign.pdf}
 \caption{AccordionGrad\_elektiv\_benign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_benign_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/KumAcc_elektiv_benign_aar.pdf}
 \caption{KumAcc\_elektiv\_benign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_elektiv_malign.pdf} % 10
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/AccordionGrad_elektiv_malign.pdf} % 10
 \caption{AccordionGrad\_elektiv\_malign.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_elektiv_malign_aar.pdf} % 11
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/KumAcc_elektiv_malign_aar.pdf} % 11
 \caption{KumAcc\_elektiv\_malign\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_ohjelp.pdf} % 12
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/AccordionGrad_ohjelp.pdf} % 12
 \caption{AccordionGrad\_ohjelp.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_malign_ecog0_1_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/ReLapNarkose_malign_ecog0_1_aar.pdf}
 \caption{ReLapNarkose\_malign\_ecog0\_1\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_malign_ecog0_1_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/konv_rate_malign_ecog0_1_aar.pdf}
 \caption{konv\_rate\_malign\_ecog0\_1\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_malign_ecog0_1aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Anastomoselekkasje_malign_ecog0_1aar.pdf}
 \caption{Anastomoselekkasje\_malign\_ecog0\_1aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/mortalitet90_kolon_aar.pdf}
 \caption{mortalitet90\_kolon\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_kolon_aar_refpas.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/mortalitet90_kolon_aar_refpas.pdf}
 \caption{mortalitet90\_kolon\_aar\_refpas.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/hastegrad_ny_kolon_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/hastegrad_ny_kolon_aar.pdf}
 \caption{hastegrad\_ny\_kolon\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ohjelp_kveld_kolon_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/ohjelp_kveld_kolon_aar.pdf}
 \caption{ohjelp\_kveld\_kolon\_aar.pdf}
 \end{figure}
 
@@ -260,11 +268,8 @@ Alle & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-\begin{kframe}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in file(file, ifelse(append, "{}a"{}, "{}w"{}), encoding = fileEncoding): cannot open the connection}}\end{kframe}% latex table generated in R 4.0.5 by xtable 1.8-4 package
-% Wed Sep 29 15:15:37 2021
+% latex table generated in R 4.1.3 by xtable 1.8-4 package
+% Tue Apr 19 13:59:51 2022
 \begin{tabular}{lrrrrrrrr}
   \toprule
   & & & \multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\%)} \\
@@ -273,7 +278,7 @@ Alle & 2526 & 9.5 & 4.0 & 0.5 & 0.8 & 1.2 & 2.5 & 0.4 \\
  Operasjonsgruppe & $N$ & rate (\%) & lekkasje\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\
  \midrule
-Rektumreseksjoner & 929 & 10.1 & 3.7 & 1.0 & 0.8 & 1.3 & 3.3 & 0.1 \\ 
+Rektumreseksjoner & 917 & 9.7 & 3.4 & 1.0 & 0.8 & 1.2 & 3.3 & 0.1 \\ 
    \bottomrule
 \end{tabular}
 
@@ -284,8 +289,8 @@ Rektumreseksjoner & 929 & 10.1 & 3.7 & 1.0 & 0.8 & 1.3 & 3.3 & 0.1 \\
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-% latex table generated in R 4.0.5 by xtable 1.8-4 package
-% Wed Sep 29 15:15:37 2021
+% latex table generated in R 4.1.3 by xtable 1.8-4 package
+% Tue Apr 19 13:59:51 2022
 \begin{tabular}{lrrrrrrrr}
   \toprule
   & & & \multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\%)} \\
@@ -294,11 +299,11 @@ Rektumreseksjoner & 929 & 10.1 & 3.7 & 1.0 & 0.8 & 1.3 & 3.3 & 0.1 \\
  Tilgang & $N$ & rate (\%) & lekkasje\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\
  \midrule
-Alle & 929 & 10.1 & 3.7 & 1.0 & 0.8 & 1.3 & 3.3 & 0.1 \\ 
-  Åpen & 135 & 11.1 & 3.0 & 1.5 & 0.0 & 4.4 & 2.2 & 0.0 \\ 
-  Laparoskopisk & 747 & 9.9 & 3.9 & 0.9 & 0.9 & 0.5 & 3.5 & 0.1 \\ 
-  Konvertert & 47 & 10.6 & 2.1 & 0.0 & 0.0 & 4.3 & 4.3 & 0.0 \\ 
-  Robotassistert & 308 & 13.6 & 6.2 & 1.0 & 1.0 & 0.3 & 4.9 & 0.3 \\ 
+Alle & 917 & 9.7 & 3.4 & 1.0 & 0.8 & 1.2 & 3.3 & 0.1 \\ 
+  Åpen & 131 & 9.9 & 2.3 & 1.5 & 0.0 & 3.8 & 2.3 & 0.0 \\ 
+  Laparoskopisk & 740 & 9.7 & 3.8 & 0.9 & 0.9 & 0.5 & 3.4 & 0.1 \\ 
+  Konvertert & 46 & 8.7 & 0.0 & 0.0 & 0.0 & 4.3 & 4.3 & 0.0 \\ 
+  Robotassistert & 306 & 13.7 & 6.2 & 1.0 & 1.0 & 0.3 & 4.9 & 0.3 \\ 
    \bottomrule
 \end{tabular}
 
@@ -306,57 +311,56 @@ Alle & 929 & 10.1 & 3.7 & 1.0 & 0.8 & 1.3 & 3.3 & 0.1 \\
 \end{minipage}
 \end{table}
 
-###################
 
 
 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Tilgang_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Tilgang_rekt_malign_ecog_0_1.pdf}
 \caption{Tilgang\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/ReLapNarkose_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/ReLapNarkose_rekt_malign_ecog_0_1.pdf}
 \caption{ReLapNarkose\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/Anastomoselekkasje_rekt_malign_ecog_0_1.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/Anastomoselekkasje_rekt_malign_ecog_0_1.pdf}
 \caption{Anastomoselekkasje\_rekt\_malign\_ecog\_0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/konv_rate_rektum_malign_ecog0_1.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/konv_rate_rektum_malign_ecog0_1.pdf}
 \caption{konv\_rate\_rektum\_malign\_ecog0\_1.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AccordionGrad_rekt.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/AccordionGrad_rekt.pdf}
 \caption{AccordionGrad\_rekt.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/KumAcc_rekt_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/KumAcc_rekt_aar.pdf}
 \caption{KumAcc\_rekt\_aar.pdf}
 \end{figure}
 
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/mortalitet90_rektum_aar.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/mortalitet90_rektum_aar.pdf}
 \caption{mortalitet90\_rektum\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp_2020/AvstandAnalVerge_kat_rekt.pdf}
+\includegraphics[width=1\textwidth]{/home/rstudio/norgast/inst/fig_aarsrapp2021/AvstandAnalVerge_kat_rekt.pdf}
 \caption{AvstandAnalVerge\_kat\_rekt.pdf}
 \end{figure}
 
