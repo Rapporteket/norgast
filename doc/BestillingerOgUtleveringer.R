@@ -3,6 +3,19 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+##### Stig Norderval, andel malign kolon med robotassistanse 19.04.2022 ########
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+aux <- RegData[which(RegData$Aar >= 2020 & RegData$AvdRESH == 601225 &
+                     RegData$Malign == 1 & RegData$Op_gr == 1 &
+                       RegData$Hastegrad == 1 & RegData$Robotassistanse == 1), ]
+# fid <- read.csv2("/home/rstudio/.ssh/NoRGast_koblingstabell_datadump_20.04.2022.csv",
+#                  colClasses = c("integer", "character"))
+# aux <- merge(aux[, c("PasientID", "ForlopsID", "OperasjonsDato", "Hovedoperasjon", "Hoveddiagnose")],
+#              fid, by.x = "PasientID", by.y = "PID", all.x = T)
+
+write.csv2(aux[, c("PasientID", "ForlopsID")], "~/delt_folder/robot.csv", row.names = F, fileEncoding = "Latin1")
 
 ###### Utlevering kreftregisteret ######################################3
 

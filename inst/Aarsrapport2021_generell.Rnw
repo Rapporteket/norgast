@@ -37,21 +37,6 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-# RegData <- read.table('I:/norgast/AlleVarNum2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-# ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-04-11 22-44-41.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-#
-# RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
-#                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
-#                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
-#                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-#                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
-#                       "Rekonstruksjon", "Rekonstruksjonstype", "EndoInterLekkasje", "EndoInterBlod", "PerkDrenasje",
-#                       "HoyAmylaseKons", "AvstandAnalVerge", "KunDrenasje", "TelefonKontroll", "FysiskKontroll")]
-# names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
-# ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-#
-# RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-# RegData <- NorgastPreprosess(RegData)
 
 RegData <-  norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
@@ -117,7 +102,7 @@ decreasing=F
 terskel=10
 minstekrav = NA
 maal = NA
-skriftStr=1.3
+skriftStr=1.1
 pktStr=1.4
 legPlass='top'
 minstekravTxt='Akseptabelt'
@@ -146,7 +131,7 @@ op_gruppe <- ''
 malign <- 99
 annet_format_ut <- F
 ut_format <- 'wmf'
-figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/"
+figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/generell/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
@@ -178,13 +163,13 @@ if (annet_format_ut) {
 valgtVar <- 'Vekttap_registrert'
 outfile <- 'Vekttap_registrert.pdf'
 outfile <- paste0(figfolder, outfile)
-norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 80, maal = 90, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 80, maal = 90, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
@@ -193,13 +178,13 @@ if (annet_format_ut) {
 valgtVar <- 'AktivKontroll'
 outfile <- 'AktivKontroll.pdf'
 outfile <- paste0(figfolder, outfile)
-norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+  norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
@@ -236,13 +221,13 @@ op_gruppe <- ''
 valgtVar <- 'Saarruptur'
 outfile <- 'Saarruptur_utvalg.pdf'
 outfile <- paste0(figfolder, outfile)
-norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
+norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
                      width=width, height=height, decreasing=T, terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikatorLinn(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
+  norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
                        width=width, height=height, decreasing=T, terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
@@ -271,7 +256,7 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
 
-write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/ant_reg_alle.csv', row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, '~/norgast/inst/tabeller/ant_reg_alle.csv', row.names = T, fileEncoding = 'Latin1')
 
 Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)], RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
@@ -285,7 +270,7 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
 
-write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/ant_reg_oblig.csv', row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, '~/norgast/inst/tabeller/ant_reg_oblig.csv', row.names = T, fileEncoding = 'Latin1')
 
 @
 
@@ -303,7 +288,7 @@ print(xtable::xtable(Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
       add.to.row = list(pos=list(nrow(Tabell)-1),
                         command=c('\\midrule\n')))
 
-write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/RegistrenrendeAvd.csv', row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, '~/norgast/inst/tabeller/RegistrenrendeAvd.csv', row.names = T, fileEncoding = 'Latin1')
 @
 
 

@@ -178,32 +178,104 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 
 % Det er i tillegg, både på kolonreseksjoner og rectumreseksjoner ønsket et enkelt oppsett som viser reoperasjonsraten ved åpen, laparoskopisk og robotassistert operasjon innledningsvis i begge gruppene. Altså tabell 4 og 5 med undergruppene som nevnt, i tillegg til N, ikke bare for N. Kan det være mulig å få det til?
 
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerKolon v2', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+%
+% Terskel<-20
+% TabellData_aapen <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==1), ],
+%                                     datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
+%                                     enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+% TabellData_lap <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==2), ],
+%                                     datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
+%                                     enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+% TabellData_konv <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==3), ],
+%                                     datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
+%                                     enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+% TabellData_robot <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Robotassistanse==1), ],
+%                                     datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
+%                                     enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+%
+% Tabell <- bind_rows(Tabell,
+%                     TabellData_aapen$Tabell2[1, ],
+%                     TabellData_lap$Tabell2[1, ],
+%                     TabellData_konv$Tabell2[1, ],
+%                     TabellData_robot$Tabell2[1, ])
+% Tabell$Operasjonsgruppe <- c("Alle", "Åpen", "Laparoskopisk", "Konvertert", "Robotassistert")
+% names(Tabell)[1] <- "Operasjon"
+% print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
+%       floating=FALSE,
+%       hline.after=NULL,
+%       align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%       add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%                       command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+%                                 '\\cline{4-9} \n',
+%                                 '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+%                                 'Tilgang & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+% alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang og Robotassistanse. Robotassistanse er en undergruppe av Laparoskopisk. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
+
+
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
 \centering
-<<'Tabell:ReoperasjonerKolon v2', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+<<'Tabell:ReoperasjonerKolon v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+regdata_store <- RegData
+aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
+                       RegData$ReLapNarkose %in% c(0, 1) &
+                       RegData$Op_gr==1 & RegData$OppfStatus == 1), ]
+aux$Tilgang <- factor(aux$Tilgang, levels = 1:3, labels = c("Åpen", "Laparoskopisk", "Konvertert") )
 
-Terskel<-20
-TabellData_aapen <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==1), ],
-                                    datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
-                                    enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
-TabellData_lap <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==2), ],
-                                    datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
-                                    enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
-TabellData_konv <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Tilgang==3), ],
-                                    datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
-                                    enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
-TabellData_robot <- NorgastTabeller(RegData=RegData[which(RegData$Hastegrad_hybrid==1 & RegData$Robotassistanse==1), ],
-                                    datoFra=datoFra, datoTil=datoTil, minald=0, maxald=130, erMann=99,
-                                    enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+nytab <- aux %>% group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
 
-Tabell <- bind_rows(Tabell,
-                    TabellData_aapen$Tabell2[1, ],
-                    TabellData_lap$Tabell2[1, ],
-                    TabellData_konv$Tabell2[1, ],
-                    TabellData_robot$Tabell2[1, ])
-Tabell$Operasjonsgruppe <- c("Alle", "Åpen", "Laparoskopisk", "Konvertert", "Robotassistert")
-names(Tabell)[1] <- "Operasjon"
+aux$Robotassistanse <- factor(aux$Robotassistanse, levels = 0:1, labels = c("\\quad Standard", "\\quad Robotassistert") )
+
+undergr_lap <- aux %>% filter(Tilgang=="Laparoskopisk") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr_konv <- aux %>% filter(Tilgang=="Konvertert") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr <- bind_rows(undergr_lap, undergr_konv) %>%
+  rename(Tilgang = Robotassistanse) %>%
+  mutate(Tilgang = as.character(Tilgang))
+
+nytab <- bind_rows(nytab, undergr)
+nytab <- nytab[c(1,2,5,6,3,7,8,4), ]
+
+nytab[, -(1:2)] <- nytab[, -(1:2)]/nytab$N*100
+
+Tabell <- nytab
+
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -213,9 +285,9 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
                                 '\\cline{4-9} \n',
                                 '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
                                 'Tilgang & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
-alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
 @
-\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang og Robotassistanse. Robotassistanse er en undergruppe av Laparoskopisk. Gjelder \textbf{hele landet}.}
+\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
