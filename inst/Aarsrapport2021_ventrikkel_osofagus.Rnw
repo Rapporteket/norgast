@@ -161,7 +161,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(3), ]
-write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_osofagus.csv', row.names = F, fileEncoding = 'Latin1')
+write.csv2(Tabell, '~/norgast/inst/tabeller/reop_osofagus.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,
@@ -326,7 +326,7 @@ TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=d
                                      minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell2
 Tabell <- Tabell[c(4), ]
-write.csv2(Tabell, 'C:/GIT/norgast/inst/tabeller/reop_ventrikkel.csv', row.names = F, fileEncoding = 'Latin1')
+write.csv2(Tabell, '~/norgast/inst/tabeller/reop_ventrikkel.csv', row.names = F, fileEncoding = 'Latin1')
 print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
       floating=FALSE,
       hline.after=NULL,

@@ -34,6 +34,7 @@ knitr::opts_knit$set(root.dir = './')
 <<LastData, include=FALSE, cache=FALSE>>=
 library(norgast)
 library(tidyverse)
+options(dplyr.summarise.inform = FALSE)
 rm(list = ls())
 
 RegData <- norgast::NorgastHentRegData()
@@ -288,6 +289,78 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
 alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
 @
 \captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+\end{minipage}
+\end{table}
+
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerKolon robotassistanse', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+aux <- RegData %>%
+  filter(Hastegrad_hybrid==1) %>%
+  filter(ReLapNarkose %in% c(0, 1)) %>%
+  filter(Op_gr==1) %>%
+  filter(OppfStatus == 1) %>%
+  filter(Tilgang %in% 2:3)
+
+aux$Tilgang <- factor(aux$Tilgang, levels = 2:3, labels = c("\\quad Laparoskopisk", "\\quad Konvertert") )
+
+nytab <- aux %>% group_by(Robotassistanse, Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
+
+
+ikkerobot <- aux %>% filter(Robotassistanse == 0) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Ikke-robot")
+
+robot <- aux %>% filter(Robotassistanse == 1) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Robotassistert")
+
+tab_4c <- dplyr::bind_rows(robot[c(3,1,2), ], ikkerobot[c(3,1,2), ])
+tab_4c <- dplyr::bind_rows(tab_4c, data.frame(Tilgang = "Totalt", t(colSums(tab_4c[c(1,4), -1]))))
+
+tab_4c[, -(1:2)] <- tab_4c[, -(1:2)]/tab_4c$N*100
+
+Tabell <- tab_4c
+
+print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
+      floating=FALSE,
+      hline.after=NULL,
+      align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+                                'Tilgang & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
+@
+\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Robotassistanse. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
