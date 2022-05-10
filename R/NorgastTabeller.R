@@ -65,12 +65,12 @@ grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur'
 for (p in  1:N_opgr){
   Subset <- RegData[RegData$Op_gr==p, ]
   if (p==N_opgr) Subset <- RegData[RegData$Op_gr==99, ]
-  Tabell2$Reoperasjonsrate[p] <- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)[2]
+  Tabell2$Reoperasjonsrate[p] <- table(Subset$VariabelGr)[2]/length(Subset$VariabelGr)*100
   Tabell2$N[p] <- dim(Subset)[1]
   Subset <- Subset[Subset$ReLapNarkose==1,]
   Subset$VariabelGr <- factor(Subset$ViktigsteFunn, levels=1:6, labels = grtxt)
 #   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)
-  Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/Tabell2$N[p]*100,2)
+  Tabell2[p,grtxt]<- table(Subset$VariabelGr)/Tabell2$N[p]*100
 }
 
 Data <- list(Tabell=Tabell, Tabell2=Tabell2, Terskel=Terskel)
