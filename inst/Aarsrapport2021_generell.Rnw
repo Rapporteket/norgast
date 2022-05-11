@@ -59,37 +59,18 @@ datoTil= paste0(rap_aar, '-12-31')
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
 
-# mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
-#
-# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 17', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-# DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-#   DG_alle$Total[DG_alle$Org..nr.==974589095]
-#
-# Ant_tot <- RegData[!is.na(RegData$Op_grAarsrapp), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-# DG_alle <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-#                  by.x = "Org..nr.", by.y = "orgnr_sh")
-# DG_alle$dg <- DG_alle$NoRGast/DG_alle$Total*100
-# graaUt_alle <- DG_alle$Sykehusnavn[DG_alle$dg <55]
-# write.csv2(DG_alle[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020.csv",
-#            row.names = F, fileEncoding = "Latin1")
-
-graaUt_alle <- ""
+mapping_npr <- read.csv2('~/.ssh/Sykehus/Koblingstabell_AvdRESH_sh_standard.csv', fileEncoding = "Latin1")
+DG <- read.csv2('~/.ssh/Sykehus/Alle_sh.csv', fileEncoding = "Latin1")
+DG$AvdRESH <- mapping_npr$AvdRESH[match(DG$sh_standard, mapping_npr$sh_standard)]
+DG <- DG[!is.na(DG$AvdRESH), ]
+DG$Sykehusnavn <- RegData$Sykehusnavn[match(DG$AvdRESH, RegData$AvdRESH)]
+graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < 60]
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
 
 \maketitle
-
-% \tableofcontents
-% \newpage
-% \thispagestyle{empty}
-% \listoffigures
-% \newpage
-% \thispagestyle{empty}
-% \listoftables
-
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
@@ -100,10 +81,11 @@ decreasing=F
 terskel=10
 minstekrav = NA
 maal = NA
-skriftStr=1.1
+skriftStr=0.9
 pktStr=1.2
 legPlass='top'
 minstekravTxt='Akseptabelt'
+dg_tekst <- "Dekningsgrad < 60 %"
 maalTxt='Mål'
 graaUt=NA
 minald=0
@@ -168,13 +150,13 @@ outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 80, maal = 90, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 80, maal = 90, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 }
 
 valgtVar <- 'AktivKontroll'
@@ -183,13 +165,13 @@ outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 }
 @
 
@@ -226,13 +208,13 @@ outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
                      width=width, height=height, decreasing=T, terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, tilgang = c('1', '3'),
                        width=width, height=height, decreasing=T, terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = 'Dekningsgrad < 55 %')
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 }
 @
 

@@ -58,48 +58,34 @@ datoTil= paste0(rap_aar, '-12-31')
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
 
-# mapping_npr <- read.csv2('C:/GIT/norgast/doc/map_orgnr_resh_norgast_2021.csv')
-#
-# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 13', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-# # DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-# #   DG_alle$Total[DG_alle$Org..nr.==974589095]
-# Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Pankreas"), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-# DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-#                  by.x = "Org..nr.", by.y = "orgnr_sh")
-# DG$dg <- DG$NoRGast/DG$Total*100
-# graaUt_pankreas <- DG$Sykehusnavn[DG$dg <55]
-# write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_pankreas.csv",
-#            row.names = F, fileEncoding = "Latin1")
-#
-# DG_alle <- xlsx::read.xlsx("I:/norgast/vedleggstabeller2019data.xlsx", sheetName = 'Tabell 12', encoding = 'UTF-8', stringsAsFactors=FALSE, startRow = 3)
-# # DG_alle$Total[DG_alle$Org..nr.==974589095] <- DG_alle$Total[DG_alle$Org..nr.==974588951] +
-# #   DG_alle$Total[DG_alle$Org..nr.==974589095]
-# Ant_tot <- RegData[which(RegData$Op_grAarsrapp == "Lever"), ] %>% group_by(AvdRESH) %>% summarise(NoRGast = n()) %>%
-#   merge(mapping_npr[, c("orgnr_sh", "AvdRESH", "Sykehusnavn")], by = "AvdRESH", all.x = T)
-# DG <- merge(DG_alle[, c("Org..nr.", "Total")], Ant_tot,
-#                  by.x = "Org..nr.", by.y = "orgnr_sh")
-# DG$dg <- DG$NoRGast/DG$Total*100
-# graaUt_lever <- DG$Sykehusnavn[DG$dg <55]
-# write.csv2(DG[, c("Sykehusnavn", "NoRGast", "Total", "dg")], "I:/norgast/dg_tot_estimert_2020_lever.csv",
-#            row.names = F, fileEncoding = "Latin1")
+mapping_npr <- read.csv2('~/.ssh/Sykehus/Koblingstabell_AvdRESH_sh_standard.csv', fileEncoding = "Latin1")
+DG <- read.csv2('~/.ssh/Sykehus/Lever_sh.csv', fileEncoding = "Latin1")
+DG$AvdRESH <- mapping_npr$AvdRESH[match(DG$sh_standard, mapping_npr$sh_standard)]
+DG <- DG[!is.na(DG$AvdRESH), ]
+DG$Sykehusnavn <- RegData$Sykehusnavn[match(DG$AvdRESH, RegData$AvdRESH)]
+graaUt_lever <- DG$Sykehusnavn[DG$DG_norgast < 60]
 
-graaUt_pankreas <- ""
-graaUt_lever <- ""
+DG <- read.csv2('~/.ssh/Sykehus/Whipple_sh.csv', fileEncoding = "Latin1")
+DG$AvdRESH <- mapping_npr$AvdRESH[match(DG$sh_standard, mapping_npr$sh_standard)]
+DG <- DG[!is.na(DG$AvdRESH), ]
+DG$Sykehusnavn <- RegData$Sykehusnavn[match(DG$AvdRESH, RegData$AvdRESH)]
+graaUt_whipple <- DG$Sykehusnavn[DG$DG_norgast < 60]
+
+DG1 <- read.csv2('~/.ssh/Sykehus/Andre_pankreas_sh.csv', fileEncoding = "Latin1")
+DG2 <- read.csv2('~/.ssh/Sykehus/Distal_pankreas_sh.csv', fileEncoding = "Latin1")
+DG <- merge(DG1, DG2, by = "sh_standard", all = T)
+DG[, -1][is.na(DG[, -1])] <- 0
+DG$DG_norgast <- rowSums(DG[, c("Begge.x", "Begge.y", "Kun_norgast.x", "Kun_norgast.y")])/rowSums(DG[, c("Total.x", "Total.y")])*100
+DG$AvdRESH <- mapping_npr$AvdRESH[match(DG$sh_standard, mapping_npr$sh_standard)]
+DG <- DG[!is.na(DG$AvdRESH), ]
+DG$Sykehusnavn <- RegData$Sykehusnavn[match(DG$AvdRESH, RegData$AvdRESH)]
+graaUt_pankreas <- DG$Sykehusnavn[DG$DG_norgast < 60]
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
 
   \maketitle
-
-% \tableofcontents
-% \newpage
-% \thispagestyle{empty}
-% \listoffigures
-% \newpage
-% \thispagestyle{empty}
-% \listoftables
 
 \clearpage
 
@@ -117,6 +103,7 @@ skriftStr=1.1
 pktStr=1.2
 legPlass='top'
 minstekravTxt='Akseptabelt'
+dg_tekst <- "Dekningsgrad < 60 %"
 maalTxt='Mål'
 graaUt=NA
 minald=0
@@ -245,26 +232,26 @@ outfile <- figfolder %>% paste0('Tilgang_lever_aar.pdf')
 valgtVar <- 'LapTilgang2'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 30, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 30, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 outfile <- figfolder %>% paste0('ReLapNarkose_lever_aar.pdf')
 valgtVar <- 'ReLapNarkose'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = 10, maal = 7, skriftStr=skriftStr, lavDG = graaUt_lever, lavDGtekst = 'Dekningsgrad < 55 %',
+                     decreasing=T, terskel=terskel, minstekrav = 10, maal = 7, skriftStr=skriftStr, lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn = 'lav',
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = 10, maal = 7, skriftStr=skriftStr, lavDG = graaUt_lever, lavDGtekst = 'Dekningsgrad < 55 %',
+                       decreasing=T, terskel=terskel, minstekrav = 10, maal = 7, skriftStr=skriftStr, lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn = 'lav',
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
@@ -273,7 +260,7 @@ outfile <- figfolder %>% paste0('mortalitet90_lever_aar.pdf')
 valgtVar <- 'mortalitet90'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 5, maal = 3, skriftStr=skriftStr,
-                     lavDG = graaUt_lever, lavDGtekst = 'Dekningsgrad < 55 %',
+                     lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                      hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
@@ -281,7 +268,7 @@ if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 5, maal = 3, skriftStr=skriftStr,
-                       lavDG = graaUt_lever, lavDGtekst = 'Dekningsgrad < 55 %',
+                       lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                        hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
@@ -385,7 +372,6 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 \end{table}
 
 
-
 <<'fig_whipple', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
   # reseksjonsGr <- 'JLC30|JLC31'
   op_gruppe <- 6
@@ -394,13 +380,13 @@ outfile <- figfolder %>% paste0('Rekonstruksjon_whipple_aar.pdf')
 valgtVar <- 'Rekonstruksjon'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
@@ -408,13 +394,13 @@ outfile <- figfolder %>% paste0('CR_POPF_whipple_aar.pdf')
 valgtVar <- 'CR_POPF'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 20, maal = 15, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 20, maal = 15, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
@@ -423,14 +409,14 @@ outfile <- figfolder %>% paste0('ReLapNarkose_whipple.pdf')
 valgtVar <- 'ReLapNarkose'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 20, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, maalretn = 'lav',
                      hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 20, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, maalretn = 'lav',
                        hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
@@ -440,7 +426,7 @@ valgtVar <- 'mortalitet90'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=T, terskel=terskel, minstekrav = 8, maal = 5, skriftStr=skriftStr,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                     graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                      hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
 if (annet_format_ut) {
@@ -448,28 +434,28 @@ if (annet_format_ut) {
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=T, terskel=terskel, minstekrav = 8, maal = 5, skriftStr=skriftStr,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                       graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
                        hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)}
 
 outfile <- figfolder %>% paste0('AccordionGrad_whipple.pdf')
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_pankreas)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_whipple)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_pankreas)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_whipple)
 }
 
 outfile <- figfolder %>% paste0('AccordionGrad_whipple_aar.pdf')
 valgtVar <- 'KumAcc'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 @
@@ -587,13 +573,13 @@ outfile <- figfolder %>% paste0('Tilgang_ovrigpankreas_aar.pdf')
 valgtVar <- 'LapTilgang2'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 35, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = 35, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
@@ -601,13 +587,13 @@ outfile <- figfolder %>% paste0('Rekonstruksjon_ovrigpankreas_aar.pdf')
 valgtVar <- 'Rekonstruksjon'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
@@ -615,13 +601,13 @@ outfile <- figfolder %>% paste0('CR_POPF_ovrigpankreas_aar.pdf')
 valgtVar <- 'CR_POPF'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                      decreasing=decreasing, terskel=terskel, minstekrav = 20, maal = 15, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
                        decreasing=decreasing, terskel=terskel, minstekrav = 20, maal = 15, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = 'Dekningsgrad < 55 %',
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_pankreas, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
