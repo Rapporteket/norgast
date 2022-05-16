@@ -128,9 +128,10 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'wmf'
-figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/pankreas_lever/"
+annet_format_ut <- T
+ut_format <- 'svg'
+# figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/pankreas_lever/"
+figfolder <- "~/.ssh/norgast/fig_aarsrapp2021/pankreas_lever/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }

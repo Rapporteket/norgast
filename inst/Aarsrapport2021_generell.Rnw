@@ -109,9 +109,10 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'wmf'
-figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/generell/"
+annet_format_ut <- T
+ut_format <- 'svg'
+# figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/generell/"
+figfolder <- "~/.ssh/norgast/fig_aarsrapp2021/generell/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }

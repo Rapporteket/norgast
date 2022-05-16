@@ -117,9 +117,10 @@ valgtShus=c('')
 # reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
-annet_format_ut <- F
-ut_format <- 'wmf'
-figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/ventrikkel_oefsofagus/"
+annet_format_ut <- T
+ut_format <- 'svg'
+# figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/ventrikkel_oefsofagus/"
+figfolder <- "~/.ssh/norgast/fig_aarsrapp2021/ventrikkel_oefsofagus/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
