@@ -17,7 +17,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                                        lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE)
+                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1)
 
 {
 
@@ -150,38 +150,40 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     landet <- AndelerGr
     landet[-which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
-    AndelerGr[which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
+    # AndelerGr[which(substr(grtxt, 1, 5) =='Norge'), ] <- NA
     ## Function for desaturating colors by specified proportion
-    desat <- function(cols, sat=0.5) {
-      X <- diag(c(1, sat, 1)) %*% rgb2hsv(col2rgb(cols))
-      hsv(X[1,], X[2,], X[3,])
-    }
+    # desat <- function(cols, sat=0.5) {
+    #   X <- diag(c(1, sat, 1)) %*% rgb2hsv(col2rgb(cols))
+    #   hsv(X[1,], X[2,], X[3,])
+    # }
     #Tilpasse marger for å kunne skrive utvalgsteksten
     NutvTxt <- length(utvalgTxt)
-    vmarg <- max(0, strwidth(grtxt, units='figure', cex=0.9))
+    vmarg <- max(0, strwidth(grtxt, units='figure', cex=0.9*skriftStr))
     #NB: strwidth oppfører seg ulikt avh. av device...
     par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1)))	#Har alltid datoutvalg med
 
     pos <- barplot(t(AndelerGr), horiz=T, beside=FALSE, border=NA, col=farger[1:N_kat], main='', font.main=1,
-                   xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax))#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
-    barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=desat(farger[1:N_kat], 0.5), main='', font.main=1,
-            xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
+                   xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), cex.names = skriftStr)#, cex.names=xkr ) #ylim=c(ymin, 1.05*ymax+2),
+    # barplot(t(landet), horiz=T, beside=FALSE, border=NA, col=desat(farger[1:N_kat], 0.5), main='', font.main=1,
+    #         xlab='', xlim=c(0, min(1.1*xmax, 100)), las=1, ylim=c(0, ymax), add=TRUE)
     legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
-           bty='n', cex=0.7, xpd = T, title = legendTitle)
+           bty='n', cex=0.7*skriftStr, xpd = T, title = legendTitle)
 
-    mtext(at=pos, grtxt, side=2, las=1, cex=1, adj=1, line=0.25)	#Sykehusnavn
-    text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
+    mtext(at=pos, grtxt, side=2, las=1, cex=1*skriftStr, adj=1, line=0.25)	#Sykehusnavn
+    text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8*skriftStr, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
     x_pos_landet <- cumsum(c(0, landet[which(substr(grtxt, 1, 5) =='Norge'), ])[1:N_kat]) +
       landet[which(substr(grtxt, 1, 5) =='Norge'), ]/2
-    text(x=x_pos_landet, y=pos[which(substr(grtxt, 1, 5) =='Norge')],
-         paste0(round(landet[which(substr(grtxt, 1, 5) =='Norge'), ]), '%'), las=1, cex=0.8, adj=0.5, lwd=3)
+    y_pos_landet <- pos[which(substr(grtxt, 1, 5) =='Norge')] + (pos[2]-pos[1])/4.5*((-1)^(0:(N_kat-1)))
+    text(x=x_pos_landet, y=y_pos_landet,
+         paste0(round(landet[which(substr(grtxt, 1, 5) =='Norge'), ]), '%'),
+         las=1, cex=0.6*skriftStr, adj=0.5, lwd=3, xpd=TRUE)
 
     mtext('Prosent (%)', las=1, side=1, line=2)
-    title(tittel, line=1.5, font.main=1, cex.main=1.5)
+    title(tittel, line=1.5, font.main=1, cex.main=1.4*skriftStr, xpd=TRUE)
     # mtext('(Tall på søylene angir antall registreringer)', las=1, side=1, line=3)
 
     #Tekst som angir hvilket utvalg som er gjort
-    mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
+    mtext(utvalgTxt, side=3, las=1, cex=0.7*skriftStr, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
 
 
     par('fig'=c(0, 1, 0, 1))

@@ -55,6 +55,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
                   EndoInterLekkasje,
                   PerkDrenasje,
                   HoyAmylaseKons,
+                  KunDrenasje,
                   ForlopsOversikt.erMann AS ErMann,
                   ForlopsOversikt.AvdRESH,
                   ForlopsOversikt.SykehusNavn AS Sykehusnavn,

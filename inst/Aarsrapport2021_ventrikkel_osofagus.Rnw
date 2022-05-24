@@ -194,26 +194,41 @@ alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n'
 <<'fig_osofagus', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 terskel <- 5
 op_gruppe <- 3
+skriftStr2 <- 1.4
 
 outfile <- paste0(figfolder, 'Tilgang_osofagus.pdf')
-NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus, lavDGtekst = dg_tekst)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe,
+                           outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus,
+                           lavDGtekst = dg_tekst, skriftStr = skriftStr2)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus, lavDGtekst = dg_tekst)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe,
+                             outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus,
+                             lavDGtekst = dg_tekst, skriftStr = skriftStr2)
 }
 
 outfile <- paste0(figfolder, 'TilgangThorax_osofagus.pdf')
-NorgastFigAndelStabelGrVar(RegData, valgtVar='ThoraxTilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus, lavDGtekst = dg_tekst)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='ThoraxTilgang',
+                           op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel,
+                           lavDG = graaUt_osofagus, lavDGtekst = dg_tekst,
+                           skriftStr = skriftStr2)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(RegData, valgtVar='ThoraxTilgang', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus, lavDGtekst = dg_tekst)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='ThoraxTilgang', op_gruppe=op_gruppe,
+                             outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus,
+                             lavDGtekst = dg_tekst, skriftStr = skriftStr2)
 }
 
 outfile <- paste0(figfolder, 'AccordionGrad_osofagus.pdf')
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje',
+                           op_gruppe=op_gruppe, outfile=outfile,
+                           Ngrense=terskel, lavDG = graaUt_osofagus,
+                           skriftStr = skriftStr2)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_osofagus)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje',
+                             op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel,
+                             lavDG = graaUt_osofagus, skriftStr = skriftStr2)
 }
 
 outfile <- paste0(figfolder, 'AccordionGrad_osofagus_aar.pdf')
@@ -434,10 +449,15 @@ if (annet_format_ut) {
 
 
 outfile <- paste0(figfolder, 'AccordionGrad_ventrikkel.pdf')
-NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_ventrikkel)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje',
+                           op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel,
+                           lavDG = graaUt_ventrikkel, skriftStr = skriftStr2)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_ventrikkel)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje',
+                             op_gruppe=op_gruppe, outfile=outfile,
+                             Ngrense=terskel, lavDG = graaUt_ventrikkel,
+                             skriftStr = skriftStr2)
 }
 
 outfile <- paste0(figfolder, 'AccordionGrad_ventrikkel_aar.pdf')
