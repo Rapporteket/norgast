@@ -142,6 +142,19 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='AktivKontroll_v2') {
+    tittel <- c('Aktiv kontroll')
+    VarTxt <- 'med aktiv kontroll'
+    grtxt <- c('Nei', 'Ja')
+    RegData$Variabel <- NA
+    RegData$Variabel[which(RegData$TelefonKontroll==1 | RegData$FysiskKontroll==1)] <- 1
+    RegData$Variabel[which(RegData$TelefonKontroll==0 & RegData$FysiskKontroll==0)] <- 0
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+
   if (valgtVar=='Saarruptur') {
     tittel <- c('Andel med sårruptur')
     VarTxt <- 'med sårruptur'

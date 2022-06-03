@@ -93,7 +93,8 @@ maxald=130
 erMann <- 99
 inkl_konf <- T
 elektiv=99
-datoFra <- '2015-01-01'
+# datoFra <- '2015-01-01'
+datoFra= paste0(rap_aar-2, '-01-01')
 tittel <- ''
 hentData <- F
 preprosess <- F
@@ -124,7 +125,7 @@ outfile <- paste0(figfolder, outfile)
 norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width, height=height,
                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=1.1,
                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2017-01-01', datoTil=datoTil, elektiv=elektiv,
+                    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, elektiv=elektiv,
                     malign=malign, kun_ferdigstilte = F)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -174,6 +175,23 @@ if (annet_format_ut) {
                        pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 }
+
+valgtVar <- 'AktivKontroll_v2'
+outfile <- 'AktivKontroll_v2.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll[RegDataAll$Op_gr %in% 1:7, ], valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = 70, maal = 90, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+}
+
+
 @
 
 \begin{figure}[ht]
@@ -198,6 +216,12 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AktivKontroll.pdf}
 \caption{AktivKontroll.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AktivKontroll_v2.pdf}
+\caption{AktivKontroll\_v2.pdf}
 \end{figure}
 
 
