@@ -1,7 +1,6 @@
 .Rproj.user
 .Rhistory
 .RData
-data/*
 inst/doc
 inst/*.gitignore
 inst/jrxml/*.gitignore
