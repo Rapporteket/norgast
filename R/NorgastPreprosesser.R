@@ -144,12 +144,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$ReLapNarkose <- pmax(RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
   RegData$ViktigsteFunn <- pmin(RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
 
-  ##############
-  # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
-  # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
-  # Definer Hastegrad_tid med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
-
-  Helligdager <- as.Date(sort(rapbase::Helligdager2008til2022$Dato))
+  Helligdager <- norgast::Helligdager
 
   RegData$Dagtid <- NA
   RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% 7:15] <- 1
