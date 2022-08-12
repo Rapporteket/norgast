@@ -17,11 +17,15 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   RegData$Variabel <- NA
-  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
-                      'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
-                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2', 'KumAcc', 'MissingVekt',
-                      'Sykehusnavn', 'Malign', 'Saarruptur', 'Rekonstruksjon')) {
+  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA',
+                      'ModGlasgowScore', 'Forbehandling', 'BMI_kodet', 'Op_gr',
+                      'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang',
+                      'AccordionGrad', 'ReLapNarkose', 'AvlastendeStomiRektum',
+                      'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse',
+                      'erMann', 'PRSScore', 'NyAnastomose','Anastomoselekkasje',
+                      'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2',
+                      'KumAcc', 'MissingVekt', 'Sykehusnavn', 'Malign',
+                      'Saarruptur', 'Rekonstruksjon')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 

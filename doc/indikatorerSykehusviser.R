@@ -45,12 +45,12 @@ valgtShus=c('')
 op_gruppe <- ''
 malign <- 99
 
-elektiv=1
+hastegrad_hybrid=1
 tilgang = c('1', '3')
 valgtVar <- 'Saarruptur'
 
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -64,14 +64,52 @@ indikator$KvalIndID <- 'norgast1'
 indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_orgnr$resh)]
 indikator1 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
 
+#########
+tilgang = ''
+valgtVar <- 'AktivKontroll_v2'
+NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig,
+                               datoFra=datoFra, datoTil=datoTil, minald=minald,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
+                               BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                               ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                               op_gruppe=op_gruppe, ncsp=ncsp)
+RegData <- NorgastUtvalg$RegData
+PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+RegData <- PlotParams$RegData
 
-elektiv=99
+indikator <- RegData[, c("AvdRESH", "Aar", "Variabel", "Sykehusnavn")]
+names(indikator) <- c('ReshId', 'Aar', 'Variabel', 'ShNavn')
+indikator$KvalIndID <- 'norgast_aktivkontroll'
+indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_orgnr$resh)]
+indikator_aktivkontroll <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
+
+
+valgtVar <- 'Vekttap_registrert'
+NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig,
+                               datoFra=datoFra, datoTil=datoTil, minald=minald,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
+                               BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+                               ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+                               op_gruppe=op_gruppe, ncsp=ncsp)
+RegData <- NorgastUtvalg$RegData
+PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+RegData <- PlotParams$RegData
+
+indikator <- RegData[, c("AvdRESH", "Aar", "Variabel", "Sykehusnavn")]
+names(indikator) <- c('ReshId', 'Aar', 'Variabel', 'ShNavn')
+indikator$KvalIndID <- 'norgast_vekt_reg'
+indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_orgnr$resh)]
+indikator_vekt_reg <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
+
+#########
+
+hastegrad_hybrid=99
 tilgang = ''
 op_gruppe <- 3
 valgtVar <- 'mortalitet90'
 
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -86,9 +124,26 @@ indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_
 indikator2 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
 
 
+# valgtVar <- "Anastomoselekk_osofagus"
+# NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
+#                                maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
+#                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
+#                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+#                                op_gruppe=op_gruppe, ncsp=ncsp)
+# RegData <- NorgastUtvalg$RegData
+# PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=valgtVar)
+# RegData <- PlotParams$RegData
+#
+# indikator <- RegData[, c("AvdRESH", "Aar", "Variabel", "Sykehusnavn")]
+# names(indikator) <- c('ReshId', 'Aar', 'Variabel', 'ShNavn')
+# indikator$KvalIndID <- 'norgast2'
+# indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_orgnr$resh)]
+# indikator_anastomelekk_osofagus <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
+
+
 op_gruppe <- 4
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -105,7 +160,7 @@ indikator3 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", 
 
 op_gruppe <- 6
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -122,7 +177,7 @@ indikator4 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", 
 
 op_gruppe <- 5
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -141,10 +196,10 @@ op_gruppe <- 1
 valgtVar <- 'Anastomoselekkasje'
 whoEcog= c('0', '1')
 malign <- 1
-elektiv=1
+hastegrad_hybrid=1
 
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -161,7 +216,7 @@ indikator6 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", 
 
 op_gruppe <- 2
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -178,7 +233,7 @@ indikator7 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", 
 
 valgtVar <- 'LapTilgang2'
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -195,7 +250,7 @@ indikator10 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel",
 
 op_gruppe <- 1
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -213,9 +268,9 @@ indikator9 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", 
 op_gruppe <- 5
 whoEcog= ''
 malign <- 99
-elektiv=99
+hastegrad_hybrid=99
 NorgastUtvalg <- NorgastUtvalg(RegData=RegDataOblig, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                               maxald=maxald, erMann=erMann, elektiv=elektiv,
+                               maxald=maxald, erMann=erMann, hastegrad_hybrid=hastegrad_hybrid,
                                BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                op_gruppe=op_gruppe, ncsp=ncsp)
@@ -229,7 +284,11 @@ indikator$KvalIndID <- 'norgast8'
 indikator$OrgNrShus <- map_resh_orgnr$orgnr_sh[match(indikator$ReshId, map_resh_orgnr$resh)]
 indikator8 <- indikator[, c("Aar", "ShNavn", "ReshId", "OrgNrShus", "Variabel", "KvalIndID")]
 
-indikator <- bind_rows(indikator1, indikator2, indikator3, indikator4, indikator5, indikator6, indikator7, indikator8, indikator9, indikator10)
+
+
+indikator <- bind_rows(indikator1, indikator2, indikator3, indikator4, indikator5,
+                       indikator6, indikator7, indikator8, indikator9, indikator10,
+                       indikator_aktivkontroll, indikator_vekt_reg)
 indikator$denominator <- 1
 indikator <- indikator[, c(4,1,5,7,6)]
 names(indikator) <- c("orgnr",	"year",	"var",	"denominator",	"ind_id")
@@ -377,6 +436,9 @@ dg_samlet$var <- round(dg_samlet$var)
 
 write.csv2(dg_samlet[dg_samlet$year <= rap_aar, ], "~/.ssh/norgast/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
 
+ind_info <- readxl::read_xlsx("~/.ssh/norgast/Indikatorbeskrivelse publisering SKDE_KH.xlsx", sheet = 2)
+
+# write.csv2
 
 
 ############## Nøkkeltall  ###########################
