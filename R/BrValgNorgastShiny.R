@@ -9,18 +9,17 @@ BrValgNorgastShiny <- function(RegData) {
   varvalg <- c('Alder', 'BMI_kodet', 'Vektendring', 'Op_gr', 'AccordionGrad', 'Forbehandling',
                'WHOECOG', 'ASA', 'Hastegrad_tid', 'Hastegrad', 'erMann', 'MedDiabetes', 'PRSScore', 'Robotassistanse',
                'Tilgang', 'NyAnastomose', 'ModGlasgowScore', 'ReLapNarkose', 'Anastomoselekkasje',
-               'mortalitet90', 'Saarruptur', 'laerebok')
+               'mortalitet90', 'Saarruptur')
   names(varvalg) <- c('Alder', 'BMI', 'Vektendring', 'Operasjonsgrupper', 'Komplikasjoner', 'Forbehandling',
                       'WHO-ECOG', 'ASA-grad', 'Tidspunkt for operasjonsstart', 'Hastegrad',  'Kjønn', 'Diabetes', 'mE-PASS', 'Robotassistanse',
                       'Tilgang i abdomen', 'Ny anastomose', 'Glasgow score', 'Relaparotomi', 'Anastomoselekkasje',
-                      '90-dagers mortalitet', 'Sårruptur', 'Lærebokforløp')
+                      '90-dagers mortalitet', 'Sårruptur')
 
   aux<-c('Anastomoselekkasje', 'Anastomoselekkasje', '90-dagers mortalitet', 'mortalitet90',
          'Relaparotomi', 'ReLapNarkose', 'Robotassistanse', 'Robotassistanse', 'Sårruptur',
          'Saarruptur', 'Laparoskopisk operert', 'LapTilgang', 'Tidspunkt for operasjonsstart', 'Hastegrad_tid',
          'Hastegrad', 'Hastegrad', 'Ny anastomose', 'NyAnastomose',
-         'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign',
-         'Lærebokforløp', 'laerebok')
+         'Kummulativ accordion score', 'KumAcc', 'Andel maligne', 'Malign') # 'Lærebokforløp', 'laerebok'
   varvalg_andel <- aux[seq(2,length(aux), by = 2)]
   names(varvalg_andel) <- aux[seq(1,length(aux), by = 2)]
 

@@ -17,6 +17,7 @@ NorgastFigGjsnGrVar(
   malign = 99,
   Ngrense = 30,
   hastegrad = 99,
+  hastegrad_hybrid = 99,
   elektiv = 99,
   BMI = "",
   tilgang = "",

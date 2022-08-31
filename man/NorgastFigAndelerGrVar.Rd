@@ -13,6 +13,7 @@ NorgastFigAndelerGrVar(
   maxald = 130,
   erMann = 99,
   outfile = "",
+  hastegrad_hybrid = 99,
   preprosess = F,
   inkl_konf = F,
   malign = 99,
@@ -32,7 +33,7 @@ NorgastFigAndelerGrVar(
   op_gruppe = "",
   ncsp = "",
   robotassiastanse = 99,
-  kun_ferdigstilte = FALSE
+  kun_ferdigstilte = TRUE
 )
 }
 \arguments{

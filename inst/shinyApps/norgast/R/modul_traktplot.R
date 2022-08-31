@@ -165,15 +165,27 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
 
     ## Gjør utvalg basert på brukervalg (LibUtvalg)
     if (!is.null(input$datovalg)) {
-      NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2], kun_ferdigstilte = input$kun_ferdigstilte,
-                                     minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann=as.numeric(input$erMann),
-                                     elektiv=as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+      NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra = input$datovalg[1],
+                                     datoTil = input$datovalg[2],
+                                     kun_ferdigstilte = input$kun_ferdigstilte,
+                                     minald=as.numeric(input$alder[1]),
+                                     maxald=as.numeric(input$alder[2]),
+                                     erMann=as.numeric(input$erMann),
+                                     elektiv=as.numeric(input$elektiv),
+                                     hastegrad = as.numeric(input$hastegrad),
                                      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-                                     BMI=fiksNULL(input$BMI), valgtShus='', tilgang=fiksNULL(input$tilgang),
-                                     minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                                     ASA=fiksNULL(input$ASA), whoEcog=fiksNULL(input$whoEcog), forbehandling = fiksNULL(input$forbehandling),
-                                     malign=as.numeric(input$malign), robotassiastanse = as.numeric(fiksNULL(input$robotassistanse_verdi, 99)),
-                                     op_gruppe=fiksNULL(input$op_gruppe), ncsp = fiksNULL(input$ncsp_verdi), modGlasgow=fiksNULL(input$modGlasgow))
+                                     BMI=fiksNULL(input$BMI), valgtShus='',
+                                     tilgang=fiksNULL(input$tilgang),
+                                     minPRS = as.numeric(input$PRS[1]),
+                                     maxPRS = as.numeric(input$PRS[2]),
+                                     ASA=fiksNULL(input$ASA),
+                                     whoEcog=fiksNULL(input$whoEcog),
+                                     forbehandling = fiksNULL(input$forbehandling),
+                                     malign=as.numeric(input$malign),
+                                     robotassiastanse = as.numeric(fiksNULL(input$robotassistanse_verdi, 99)),
+                                     op_gruppe=fiksNULL(input$op_gruppe),
+                                     ncsp = fiksNULL(input$ncsp_verdi),
+                                     modGlasgow=fiksNULL(input$modGlasgow))
       RegData <- NorgastUtvalg$RegData
       utvalgTxt <- NorgastUtvalg$utvalgTxt} else utvalgTxt <-""
 

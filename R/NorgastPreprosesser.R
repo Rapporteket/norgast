@@ -62,7 +62,8 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c('jlc00','jlc10','jlc11','jlc20','jlc40'))] <- "Andre pankreasreseksjoner"
+  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c('jlc10','jlc11'))] <- "Distale pankreasreseksjoner"
+  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96'))] <- "Andre pankreasreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jlc30","jlc31"))] <- "Whipples operasjon"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jka20","jka21"))] <- "Cholecystektomi"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jea00","jea01"))] <- "Appendektomi"
@@ -77,12 +78,13 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Andre pankreasreseksjoner")] <- 7
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 8
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 9
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 10
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 11
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 12
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Distale pankreasreseksjoner")] <- 7
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Andre pankreasreseksjoner")] <- 7 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 8 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 9 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 10 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 11 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 12 + 1
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
   RegData$Op_gr2 <- 9
@@ -131,7 +133,6 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   #### Definerer variabelen Saarruptur basert på funn ved reoperasjon under opphold eller v/ reinnleggelse innen 30 dager
   #### UTELUKKER LAPAROSKOPISKE INNGREP, PR. BESTILLING LINN.
   RegData$Saarruptur <- NA
-  # RegData$Saarruptur[which(RegData$ReLapNarkose == 1 | RegData$OppfReLapNarkose == 1), ] <- 0
   RegData$Saarruptur[RegData$Tilgang %in% 1:3] <- 0
   RegData$Saarruptur[which(RegData$ViktigsteFunn==4 | RegData$OppfViktigsteFunn==4)] <- 1
   RegData$Saarruptur[!(RegData$Tilgang %in% 1:3)] <- NA
@@ -143,12 +144,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$ReLapNarkose <- pmax(RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
   RegData$ViktigsteFunn <- pmin(RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
 
-  ##############
-  # Helligdager <- read.table(paste0(libkat, 'Helligdager2008-2022.csv'), header=TRUE, sep=";")
-  # Helligdager <- sort(as.POSIXlt(Helligdager$Dato, format="%d.%m.%Y"))
-  # Definer Hastegrad_tid med 1=elektiv, 0=akutt. Elektiv er alle operasjoner i vanlig arbeidstid på hverdager
-
-  Helligdager <- as.Date(sort(rapbase::Helligdager2008til2022$Dato))
+  Helligdager <- norgast::Helligdager
 
   RegData$Dagtid <- NA
   RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% 7:15] <- 1

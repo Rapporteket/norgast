@@ -17,11 +17,15 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   RegData$Variabel <- NA
-  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA', 'ModGlasgowScore', 'Forbehandling',
-                      'BMI_kodet', 'Op_gr', 'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang', 'AccordionGrad', 'ReLapNarkose',
-                      'AvlastendeStomiRektum', 'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse', 'erMann', 'PRSScore',
-                      'NyAnastomose','Anastomoselekkasje', 'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2', 'KumAcc', 'MissingVekt',
-                      'Sykehusnavn', 'Malign', 'Saarruptur', 'Rekonstruksjon')) {
+  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA',
+                      'ModGlasgowScore', 'Forbehandling', 'BMI_kodet', 'Op_gr',
+                      'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang',
+                      'AccordionGrad', 'ReLapNarkose', 'AvlastendeStomiRektum',
+                      'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse',
+                      'erMann', 'PRSScore', 'NyAnastomose','Anastomoselekkasje',
+                      'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2',
+                      'KumAcc', 'MissingVekt', 'Sykehusnavn', 'Malign',
+                      'Saarruptur', 'Rekonstruksjon')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -55,6 +59,11 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='laerebok') {
     tittel <- c('Lærebokforløp')
+    # Referansepasient:
+    RegData <- RegData[RegData$Hastegrad_hybrid %in% 1, ]
+    RegData <- RegData[RegData$Malign %in% 1, ]
+    RegData <- RegData[RegData$WHOECOG %in% c(0,1), ]
+    # Lærebok:
     RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
     RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$mortalitet90 <- 0
@@ -136,6 +145,19 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
+
+  if (valgtVar=='AktivKontroll_v2') {
+    tittel <- c('Aktiv kontroll')
+    VarTxt <- 'med aktiv kontroll'
+    grtxt <- c('Nei', 'Ja')
+    RegData$Variabel <- NA
+    RegData$Variabel[which(RegData$TelefonKontroll==1 | RegData$FysiskKontroll==1)] <- 1
+    RegData$Variabel[which(RegData$TelefonKontroll==0 & RegData$FysiskKontroll==0)] <- 0
+    RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
 
   if (valgtVar=='Saarruptur') {
     tittel <- c('Andel med sårruptur')

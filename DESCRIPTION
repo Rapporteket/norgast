@@ -1,7 +1,7 @@
 Package: norgast
 Type: Package
 Title: Resultatrapporter for NoRGast
-Version: 2.0.0
+Version: 2.1.0
 Date: 2015-12-17
 Author: Kevin Thon
 Maintainer: Kevin Thon <kevin.thon@skde.no>
