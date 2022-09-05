@@ -21,14 +21,6 @@ skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benytte
 if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
   norgast::norgastMakeStagingData()
 }
-# if (!("Tilgang_utvidet" %in% names(RegData))) {
-#   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
-#   RegData$Tilgang_utvidet <- RegData$Tilgang
-#   RegData$Tilgang_utvidet[RegData$Tilgang == 2 & RegData$Robotassistanse == 0] <- 2
-#   RegData$Tilgang_utvidet[RegData$Tilgang == 2 & RegData$Robotassistanse == 1] <- 3
-#   RegData$Tilgang_utvidet[RegData$Tilgang == 3 & RegData$Robotassistanse == 0] <- 4
-#   RegData$Tilgang_utvidet[RegData$Tilgang == 3 & RegData$Robotassistanse == 1] <- 5
-# }
 
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 BrValg <- norgast::BrValgNorgastShiny(RegData)
