@@ -37,8 +37,11 @@ traktplot_UI <- function(id, BrValg){
                      selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
                                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
                      selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-                     selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
-                     uiOutput(outputId = ns('robotassistanse')),
+                     # selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
+                     # uiOutput(outputId = ns('robotassistanse')),
+                     selectInput(inputId = ns("tilgang_utvidet"),
+                                 label = "Tilgang i abdomen (inkl. robotassistanse)",
+                                 choices = BrValg$tilgang_utvidet, multiple = TRUE),
                      sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
                      selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
                      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
@@ -98,13 +101,13 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
     }
   })
 
-  output$robotassistanse <- renderUI({
-    ns <- session$ns
-    if (max(fiksNULL(input$tilgang) %in% c(2,3)) == 1) {
-      selectInput(inputId = ns("robotassistanse_verdi"), label = "Minimalinvasiv:",
-                  choices = c('Ikke valgt'=99, 'Konvensjonell laparoskopi'=0, 'Robotassistert'=1))
-    }
-  })
+  # output$robotassistanse <- renderUI({
+  #   ns <- session$ns
+  #   if (max(fiksNULL(input$tilgang) %in% c(2,3)) == 1) {
+  #     selectInput(inputId = ns("robotassistanse_verdi"), label = "Minimalinvasiv:",
+  #                 choices = c('Ikke valgt'=99, 'Konvensjonell laparoskopi'=0, 'Robotassistert'=1))
+  #   }
+  # })
 
   output$slider_to_anim <- renderUI({
     ns <- session$ns
@@ -175,14 +178,15 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
                                      hastegrad = as.numeric(input$hastegrad),
                                      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
                                      BMI=fiksNULL(input$BMI), valgtShus='',
-                                     tilgang=fiksNULL(input$tilgang),
+                                     # tilgang=fiksNULL(input$tilgang),
+                                     tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
                                      minPRS = as.numeric(input$PRS[1]),
                                      maxPRS = as.numeric(input$PRS[2]),
                                      ASA=fiksNULL(input$ASA),
                                      whoEcog=fiksNULL(input$whoEcog),
                                      forbehandling = fiksNULL(input$forbehandling),
                                      malign=as.numeric(input$malign),
-                                     robotassiastanse = as.numeric(fiksNULL(input$robotassistanse_verdi, 99)),
+                                     # robotassiastanse = as.numeric(fiksNULL(input$robotassistanse_verdi, 99)),
                                      op_gruppe=fiksNULL(input$op_gruppe),
                                      ncsp = fiksNULL(input$ncsp_verdi),
                                      modGlasgow=fiksNULL(input$modGlasgow))

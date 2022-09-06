@@ -39,6 +39,10 @@ BrValgNorgastShiny <- function(RegData) {
   names(bmi_valg) <- levels(RegData$BMI_kategori)
   tilgang_valg <- c(1,2,3)
   names(tilgang_valg) <- c('Åpen', 'Laparoskopisk', 'Konvertert')
+  tilgang_utvidet <- 1:5
+  names(tilgang_utvidet) <- c('Åpen', 'Laparoskopisk: konvensjonell',
+                              'Laparoskopisk: robotassistert', 'Konvertert: konvensjonell',
+                              'Konvertert: robotassistert')
   ASA_valg <- 1:5
   names(ASA_valg) <- c('Grad I', 'Grad II', 'Grad III', 'Grad IV', 'Grad V')
   whoEcog_valg <- c(0:4, 9)
@@ -49,7 +53,7 @@ BrValgNorgastShiny <- function(RegData) {
 
   Valg <- list(varvalg=varvalg, varvalg_andel=varvalg_andel, varvalg_andel_stabel=varvalg_andel_stabel, varvalg_gjsn=varvalg_gjsn,
                reseksjonsgrupper=reseksjonsgrupper, sykehus=sykehus, bmi_valg=bmi_valg, tilgang_valg=tilgang_valg,
-               ASA_valg=ASA_valg, whoEcog_valg=whoEcog_valg)
+               ASA_valg=ASA_valg, whoEcog_valg=whoEcog_valg, tilgang_utvidet=tilgang_utvidet)
 
 
 }

@@ -72,8 +72,12 @@ dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
   flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
   flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
 
-  flere_sammedato <- merge(flere_sammedato, RegData, by = c('PasientID', 'HovedDato'), all.x = T)
-  flere_sammedato <- flere_sammedato[ , c("PasientID", "ForlopsID", "OperasjonsDato", "AvdRESH", "Sykehusnavn","Hovedoperasjon", "Operasjonsgrupper", "Hoveddiagnose")]
+  flere_sammedato <- merge(flere_sammedato, RegData,
+                           by = c('PasientID', 'HovedDato'), all.x = T)
+  flere_sammedato <- flere_sammedato[ , c("PasientID", "ForlopsID", "OperasjonsDato",
+                                          "AvdRESH", "Sykehusnavn","Hovedoperasjon",
+                                          "Operasjonsgrupper", "Hoveddiagnose",
+                                          "OppfStatus")]
   flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
   flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)

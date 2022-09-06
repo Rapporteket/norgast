@@ -23,7 +23,7 @@ if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
 }
 
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
-BrValg <- BrValgNorgastShiny(RegData)
+BrValg <- norgast::BrValgNorgastShiny(RegData)
 
 source(system.file("shinyApps/norgast/R/modul_startside.R", package = "norgast"), encoding = 'UTF-8')
 source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')

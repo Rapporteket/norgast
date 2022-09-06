@@ -17,7 +17,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                                        lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
                                        elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
                                        maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1)
+                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1,
+                                       tilgang_utvidet='')
 
 {
 
@@ -51,7 +52,8 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
                                  maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad, hastegrad_hybrid=hastegrad_hybrid,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, modGlasgow=modGlasgow,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp,
-                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+                                 tilgang_utvidet=tilgang_utvidet)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

@@ -13,6 +13,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
   names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
@@ -191,6 +192,11 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$LapTilgang2[RegData$LapTilgang2 %in% c(2,3)] <- 1
   RegData$LapTilgang2[!(RegData$LapTilgang2 %in% c(0,1))] <- NA
 
+  RegData$Tilgang_utvidet <- RegData$Tilgang
+  RegData$Tilgang_utvidet[RegData$Tilgang == 2 & RegData$Robotassistanse == 0] <- 2
+  RegData$Tilgang_utvidet[RegData$Tilgang == 2 & RegData$Robotassistanse == 1] <- 3
+  RegData$Tilgang_utvidet[RegData$Tilgang == 3 & RegData$Robotassistanse == 0] <- 4
+  RegData$Tilgang_utvidet[RegData$Tilgang == 3 & RegData$Robotassistanse == 1] <- 5
 
   RegData$KumAcc <- NA
   RegData$KumAcc[RegData$AccordionGrad < 3] <- 0

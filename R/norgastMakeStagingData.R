@@ -19,6 +19,5 @@ norgastMakeStagingData <- function() {
   rapbase::saveStagingData("norgast", "RegData", RegData)
   rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
 
-  print("Lager mer stagingdata")
-  # invisible(rapbase::listStagingData("norgast"))
+  invisible(rapbase::listStagingData("norgast"))
 }

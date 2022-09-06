@@ -17,7 +17,7 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
                                 elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                 maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0,
                                 op_gruppe='', ncsp='', modGlasgow = '', robotassiastanse=99,
-                                kun_ferdigstilte=TRUE)
+                                kun_ferdigstilte=TRUE, tilgang_utvidet='')
 
 {
 
@@ -46,7 +46,8 @@ NorgastFigGjsnGrVar <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                  op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow = modGlasgow, hastegrad_hybrid = hastegrad_hybrid,
-                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+                                 tilgang_utvidet=tilgang_utvidet)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

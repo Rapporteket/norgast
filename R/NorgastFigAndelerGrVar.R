@@ -15,7 +15,7 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
                                    preprosess=F, inkl_konf=F, malign=99, Ngrense=10, modGlasgow='',
                                    elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, hastegrad = 99,
                                    maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-                                   ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE)
+                                   ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, tilgang_utvidet='')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -42,7 +42,8 @@ NorgastFigAndelerGrVar <- function(RegData=0, valgtVar='', datoFra='2014-01-01',
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                  op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow, hastegrad_hybrid = hastegrad_hybrid,
-                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
+                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+                                 tilgang_utvidet=tilgang_utvidet)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
