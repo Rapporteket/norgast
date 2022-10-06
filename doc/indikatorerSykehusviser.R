@@ -304,7 +304,7 @@ indikator$ind_id[indikator$ind_id == "norgast9"] <- "norgast_kikkhullsteknikk_ty
 indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
 indikator$context <- "caregiver"
 
-write.csv2(indikator, "~/.ssh/norgast/norgast_indikator_2022_08_04.csv", row.names = F, fileEncoding = 'UTF-8')
+# write.csv2(indikator, "~/.ssh/norgast/norgast_indikator_2022_08_04.csv", row.names = F, fileEncoding = 'UTF-8')
 
 
 ### Tilbered dekningsgrad for sykehusviser
@@ -434,116 +434,18 @@ dg_samlet <- bind_rows(DG_samlet, dg_samlet)
 dg_samlet$context <- "caregiver"
 dg_samlet$var <- round(dg_samlet$var)
 
-write.csv2(dg_samlet[dg_samlet$year <= rap_aar, ], "~/.ssh/norgast/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
+indikator <- bind_rows(indikator, dg_samlet)
 
-ind_info <- readxl::read_xlsx("~/.ssh/norgast/Indikatorbeskrivelse publisering SKDE_KH.xlsx", sheet = 2)
+write.csv2(indikator, "~/.ssh/norgast/norgast_indikator_2022_09_06.csv", row.names = F, fileEncoding = 'UTF-8')
 
-# write.csv2
+slett_resident <- indikator[match(unique(indikator$ind_id), indikator$ind_id), ]
+slett_resident$context <- "resident"
+slett_resident$var <- 0
+slett_resident$denominator <- 1
 
+write.csv2(slett_resident, "~/.ssh/norgast/norgast_slett_resident_2022_09_06.csv", row.names = F, fileEncoding = 'UTF-8')
 
-############## Nøkkeltall  ###########################
+# write.csv2(dg_samlet[dg_samlet$year <= rap_aar, ], "~/.ssh/norgast/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
 #
-# nokkeltall <- RegDataOblig %>% group_by(Aar) %>% summarise("Antall operasjoner" = n(),
-#                                                            "Antall avdelinger" = length(unique(AvdRESH)),
-#                                                            "Gjennomsnittsalder" = mean(Alder),
-#                                                            "Medianalder" = median(Alder),
-#                                                            "Andel sårruptur" = sum(Saarruptur==1 & LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T)/
-#                                                              sum(LapTilgang == 0 & Hastegrad_tid == 1, na.rm = T),
-#                                                            "Andel reopererte" = sum(ReLapNarkose & Hastegrad_tid == 1)/sum(Hastegrad_tid),
-#                                                            "Overlevelse 90 dager" = sum((OpDoedTid>=90 | is.na(OpDoedTid)) & Hastegrad_tid == 1)/sum(Hastegrad_tid))
-# nokkeltall$Dekningsgrad <- c(13.5, 21.3, 46.6, 65, 67.7, NA, NA)/100
-#
-# write.csv2(nokkeltall, 'Q:/SKDE/Nasjonalt servicemiljø/Resultattjenester/Resultatportalen/5. NorGast/nokkeltall.csv', row.names = F)
-#
-#
-
-########## Legge til teller i data - UNDER UTVIKLING ################################
-
-# RegData <- read.table('I:/norgast/AlleVarNum2021-06-02 08-20-32.txt', header=TRUE, sep=";",
-#                       encoding = 'UTF-8', stringsAsFactors = F)
-# ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-06-02 08-20-32.txt', header=TRUE, sep=";",
-#                          encoding = 'UTF-8', stringsAsFactors = F)
-#
-# RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
-#                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
-#                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
-#                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
-#                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose')]
-#
-# ForlopData <- ForlopData[,c('erMann', 'AvdRESH', 'SykehusNavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
-# names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
-# RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
-# # RegData$Sykehusnavn[RegData$AvdRESH==700413] <- 'OUS' # Navn på OUS fikses
-# # RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
-# RegData$op_gr_npr <- 'Annet'
-# RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
-# RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-#                             which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
-# RegData$op_gr_npr[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-# RegData$op_gr_npr[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jlc"),
-#                             which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% c(0:40, 96)))] <- "Pankreasreseksjoner"
-# RegData <- RegData[which(RegData$op_gr_npr != 'Annet'), ]
-# RegData$Aar <- format(as.Date(RegData$HovedDato), '%Y')
-# RegData <- RegData[RegData$Aar %in% 2014:2019,  ]
-# RegData <- RegData[RegData$BasisRegStatus == 1, ]
-#
-# library(tidyverse)
-# tmp <- RegData %>% group_by(PasientID, HovedDato, Hovedoperasjon) %>% summarise(antall = n(),
-#                                                                                 ForlopsID = ForlopsID[1])
-# tmp <- tmp[tmp$antall>1, ]
-# RegData <- RegData[!(RegData$ForlopsID %in% tmp$ForlopsID), ] # fjern dobbelreg
-# RegData <- RegData[, c("PasientID", "ForlopsID", "HovedDato", "Hovedoperasjon", "op_gr_npr", "AvdRESH", "Sykehusnavn")]
-#
-# RegData$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(RegData$AvdRESH, dg_kobl_resh_orgnr$resh)]
-# RegData$year <- as.numeric(substr(RegData$HovedDato, 1,4))
-#
-# RegData$ind_id <- NA
-# RegData$ind_id[RegData$op_gr_npr == "Kolonreseksjoner"] <- "norgast_dg_tykktarm"
-# RegData$ind_id[RegData$op_gr_npr == "Rektumreseksjoner"] <- "norgast_dg_endetarm"
-# RegData$ind_id[RegData$op_gr_npr == "Øsofagusreseksjoner"] <- "norgast_dg_spiseroer"
-# RegData$ind_id[RegData$op_gr_npr == "Ventrikkelreseksjoner"] <- "norgast_dg_magesekk"
-# RegData$ind_id[RegData$op_gr_npr == "Leverreseksjoner"] <- "norgast_dg_lever"
-# RegData$ind_id[RegData$op_gr_npr == "Pankreasreseksjoner"] <- "norgast_dg_pankreas"
-#
-#
-# sammenstill <- RegData %>% group_by(orgnr, year, ind_id) %>% summarise(teller = n())
-# samlet <- RegData %>% group_by(orgnr, year) %>% summarise(teller = n())
-# samlet$ind_id <- "norgast_dg_total"
-#
-# sammenstill <- bind_rows(sammenstill, samlet)
-#
-# tmp <- merge(dg_samlet, sammenstill, by = c("orgnr", "year", "ind_id"), all.x = T)
-# tmp2 <- tmp[tmp$year==2017, ]
-# tmp2$nevner[tmp2$var!=0] <- round(tmp2$teller[tmp2$var!=0]*100/tmp2$var[tmp2$var!=0])
-# # tmp2$nevner[tmp2$var==0] <- 0
-#
-# gjsn.2017 <- merge(dg_samlet[dg_samlet$year==2016, -3], dg_samlet[dg_samlet$year==2018, -3],
-#                    by = c("orgnr", "ind_id"), all = T, suffixes = c("_2016", "_2018"))
-#
-#
-#
-# nevner <- dg_samlet[dg_samlet$year==2014, -c(2)] %>%
-#   merge(dg_samlet[dg_samlet$year==2015, -c(2)], by = c("orgnr", "ind_id"),
-#         all = T, suffixes = c("_2014", "_2015")) %>%
-#   merge(dg_samlet[dg_samlet$year==2016, -c(2)], by = c("orgnr", "ind_id"),
-#         all = T, suffixes = c("", "_2016")) %>%
-#   merge(dg_samlet[dg_samlet$year==2017, -c(2)], by = c("orgnr", "ind_id"),
-#         all = T, suffixes = c("", "_2017")) %>%
-#   merge(dg_samlet[dg_samlet$year==2018, -c(2)], by = c("orgnr", "ind_id"),
-#         all = T, suffixes = c("", "_2018")) %>%
-#   merge(dg_samlet[dg_samlet$year==2019, -c(2)], by = c("orgnr", "ind_id"),
-#         all = T, suffixes = c("", "_2019"))
-#
-#
-# mapping_npr <- mapping_npr[mapping_npr$AvdRESH != 4204084, ] # fjerner én av Ringerikeoppføringene
-#
-# nevner <- merge(nevner, mapping_npr[,c("orgnr_sh", "Sykehusnavn")], by.x = "orgnr", by.y = "orgnr_sh", all.x = T)
-
-
-
+# ind_info <- readxl::read_xlsx("~/.ssh/norgast/Indikatorbeskrivelse publisering SKDE_KH.xlsx", sheet = 2)
 

@@ -88,7 +88,7 @@ dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
 }
 
 
-#' Make staging data for NoRGast
+#' Make staging data for norgast
 #'
 #' This function makes queries and pre-processing of registry data before
 #' storing relevant staging data. Running this function may take a while so use
@@ -96,7 +96,7 @@ dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
 #'
 #' @return Character vector of staging files, invisibly
 #' @export
-makeStagingData <- function() {
+norgastMakeStagingData <- function() {
 
   RegData <-  norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
