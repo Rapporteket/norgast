@@ -34,7 +34,8 @@ FigAndeler(
   modGlasgow = "",
   hastegrad_hybrid = 99,
   robotassiastanse = 99,
-  kun_ferdigstilte = TRUE
+  kun_ferdigstilte = TRUE,
+  tilgang_utvidet = ""
 )
 }
 \arguments{

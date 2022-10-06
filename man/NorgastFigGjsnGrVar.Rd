@@ -32,7 +32,8 @@ NorgastFigGjsnGrVar(
   ncsp = "",
   modGlasgow = "",
   robotassiastanse = 99,
-  kun_ferdigstilte = TRUE
+  kun_ferdigstilte = TRUE,
+  tilgang_utvidet = ""
 )
 }
 \arguments{
