@@ -58,6 +58,8 @@ fordelingsfig_UI <- function(id, BrValg){
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+      selectInput(inputId = ns("ny_stomi"), label = "Ny stomi",
+                  choices = c('--'=99, 'Nei'=0, 'Ja'=1)),
       #     )
       # ),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
@@ -131,7 +133,8 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                         reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
                         elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
                         hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-                        kun_ferdigstilte = input$kun_ferdigstilte)
+                        kun_ferdigstilte = input$kun_ferdigstilte,
+                        ny_stomi = as.numeric(input$ny_stomi))
   }, width = 700, height = 700)
 
 
