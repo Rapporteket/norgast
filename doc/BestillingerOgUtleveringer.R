@@ -3,6 +3,39 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+
+### Leveranse Lassen 2022-10-21 #####################################
+
+
+RegData <- rapbase::loadStagingData("norgast", "RegData")
+
+RegData <- RegData %>% filter(HovedDato >= "2017-01-01" &
+                                HovedDato < "2022-07-01") %>%
+  filter(Op_gr == 1) %>%
+  filter(NyAnastomose == 1) %>%
+  filter(NyStomi == 0) %>%
+  filter(Hastegrad_hybrid == 1) %>%
+  filter(Malign == 1) %>%
+  filter(WHOECOG %in% 0:1) %>%
+  filter(OppfStatus==1)
+
+RegData$Tilgang_utvidet[RegData$Tilgang_utvidet==5] <- 4
+RegData$Tilgang_utvidet <- factor(RegData$Tilgang_utvidet, levels = 1:4,
+                                  labels = c("Åpen", "Laparoskopisk", "Laparoskopi med robotassistanse", "Konvertert"))
+
+rater <- RegData %>% group_by(Tilgang_utvidet) %>%
+  summarise(n_lekkasje = sum(Anastomoselekkasje),
+            N = n()) %>%
+  janitor::adorn_totals() %>%
+  mutate(Andel = n_lekkasje/N*100)
+
+konf <- binomkonf(rater$n_lekkasje, rater$N)
+
+rater$konf95_lav <- konf[1, ]*100
+rater$konf95_hoy <- konf[2, ]*100
+
+write.csv2(rater, "~/.ssh/norgast/rater_norgast_oktober2022_kunferdige.csv", row.names = F, fileEncoding = "Latin1")
+
 ##### Stig Norderval, andel malign kolon med robotassistanse 19.04.2022 ########
 
 RegData <- norgast::NorgastHentRegData()

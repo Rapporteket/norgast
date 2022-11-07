@@ -102,7 +102,8 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                         elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
                         maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                         op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99,
-                        robotassiastanse=99, kun_ferdigstilte=TRUE, tilgang_utvidet='')
+                        robotassiastanse=99, kun_ferdigstilte=TRUE, tilgang_utvidet='',
+                        ny_stomi=99)
 {
 
   # print(datoFra)
@@ -125,7 +126,7 @@ FigAndeler  <- function(RegData=0, valgtVar='Alder', datoFra='2014-01-01', datoT
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                  op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow, hastegrad_hybrid=hastegrad_hybrid,
                                  robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-                                 tilgang_utvidet=tilgang_utvidet)
+                                 tilgang_utvidet=tilgang_utvidet, ny_stomi=ny_stomi)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
