@@ -12,9 +12,9 @@
 NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
-  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  RegData$Sykehusnavn <- trimws(RegData$SykehusNavn)
   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
-  names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
+  # names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
   # RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
