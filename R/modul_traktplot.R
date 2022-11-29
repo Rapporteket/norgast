@@ -1,9 +1,10 @@
-# Modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @return Modul traktplot
-#
+#' UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul traktplot
+#'
+#' @export
 traktplot_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -81,8 +82,13 @@ traktplot_UI <- function(id, BrValg){
   )
 }
 
-
-
+#' UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul traktplot
+#'
+#' @export
 traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrValg){
 
   observeEvent(input$reset_input, {

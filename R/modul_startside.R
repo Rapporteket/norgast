@@ -1,3 +1,6 @@
+#' UI-del av startside for NoRGast sin Rapporteket-app
+#'
+#' @export
 startside_UI <- function(id){
   ns <- NS(id)
   shiny::bootstrapPage(
@@ -62,6 +65,9 @@ startside_UI <- function(id){
   )
 }
 
+#' Server-del av startside for NoRGast sin Rapporteket-app
+#'
+#' @export
 startside <- function(input, output,session, usrRole){
   observe(
     if (usrRole == "SC") {

@@ -1,12 +1,10 @@
-# Modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# inheritParams norgastFigAndeler
-#
-# return Modulfunksjoner til Administrative tabeller
-
-
+#' UI-modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til Administrative tabeller
+#'
+#' @export
 admtab_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -54,7 +52,13 @@ admtab_UI <- function(id, BrValg){
   )
 }
 
-
+#' Serverdel av modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til Administrative tabeller
+#'
+#' @export
 admtab <- function(input, output, session, reshID, RegData, userRole, hvd_session, skjemaoversikt, BrValg){
 
   observeEvent(input$reset_input, {

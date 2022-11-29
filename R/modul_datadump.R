@@ -1,12 +1,10 @@
-# Modul for datadump-fane i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @inheritParams norgastFigAndeler
-#
-# @return Modulfunksjoner til datadump-fane
-
-
+#' UI-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til datadump-fane
+#'
+#' @export
 datadump_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -55,7 +53,13 @@ datadump_UI <- function(id, BrValg){
   )
 }
 
-
+#' Server-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til datadump-fane
+#'
+#' @export
 datadump <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
 

@@ -1,12 +1,10 @@
-# Modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @inheritParams norgastFigAndeler
-#
-# @return Modulfunksjoner til Samledokumenter
-
-
+#' UI-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til Samledokumenter
+#'
+#' @export
 samledok_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -48,7 +46,13 @@ samledok_UI <- function(id, BrValg){
   )
 }
 
-
+#' Server-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modulfunksjoner til Samledokumenter
+#'
+#' @export
 samledok <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   observeEvent(input$reset_input, {

@@ -1,9 +1,10 @@
-# Modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# return Modul fordelingsfigur
-#
+#' UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
 fordelingsfig_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -86,7 +87,13 @@ fordelingsfig_UI <- function(id, BrValg){
 
 
 
-
+#' Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
 fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   # shinyjs::onclick("toggleAdvanced",

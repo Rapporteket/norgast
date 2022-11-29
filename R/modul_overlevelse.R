@@ -1,10 +1,11 @@
-# Modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @return Modul sammenligning av andeler
-#
-saml_andeler_UI <- function(id, BrValg){
+#' UI-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul overlevelesesfigurer
+#'
+#' @export
+overlevelse_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   fluidRow(
@@ -13,6 +14,12 @@ saml_andeler_UI <- function(id, BrValg){
            id = ns("id_overlevelse_panel"),
            h4(tags$b('Utvalg 1')),
            br(),
+           # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
+           checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt). Gjelder begge utvalg", value = TRUE),
+           dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
+                          max = Sys.Date(),
+                          start  = lubridate::floor_date(lubridate::today() - lubridate::years(5), unit = "year"),
+                          end = Sys.Date(), language = "nb", separator = " til "),
            selectInput(inputId = ns("enhetsUtvalg"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
            selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
@@ -46,8 +53,8 @@ saml_andeler_UI <- function(id, BrValg){
            actionButton(ns("reset_input"), "Nullstill valg")
     ),
     column(8,
-           h2("Sammenlign andeler over tid", align='center'),
-           h4("Her kan du sammenligne andeler over tid for to distinkte utvalg. Det er ikke helt rett frem å bruke verktøyet, og
+           h2("Kaplan-Meier overlevelseskurver", align='center'),
+           h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Det er ikke helt rett frem å bruke verktøyet, og
               brukeren bør være oppmerksom på måten utvalgene gjøres: "),
 
            div(class = "container", style ="margin-right:(@gutter / 10)" ,
@@ -67,46 +74,22 @@ saml_andeler_UI <- function(id, BrValg){
                )
            ),
            br(),
-           fluidRow(
-             column(3,
-                    # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
-                    checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
-                    selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                                choices = BrValg$varvalg_andel),
-                    dateRangeInput(inputId=ns("datovalg"), label = "Operasjonsdato fra og til", min = '2014-01-01',
-                                   max = Sys.Date(),
-                                   start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
-                                   end = Sys.Date(), language = "nb", separator = " til "),
-                    selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                                choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))),
-             column(3, offset = 1,
-                    selectInput(inputId = ns("tidsenhet"), label = "Velg tidsenhet", choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar')),
-                    checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
-                    checkboxInput(ns("fra0"), label = 'Vis y-aksen fra 0'),
-                    checkboxInput(ns("inkl_tall"), label = 'Vis nevner i figur'),
-                    br(),
-                    actionButton(ns("goButton"), "Beregn!"))),
+           actionButton(ns("goButton"), "Beregn!"),
+           checkboxInput(ns("inkl_konf"), label = 'Inkluder konfidensintervall'),
            br(),
            fluidRow(
              column(7,
-                    tabsetPanel(
-                      tabPanel("Figur",
-                               downloadButton(ns("lastNedBilde"), "Last ned figur"),
-                               plotOutput(ns("Figur_andeler"))
-                      ),
-                      tabPanel("Tabell",
-                               downloadButton(ns("lastNed_tabell"), "Last ned tabell"),
-                               tableOutput(ns("Tabell_utvalg"))
-                      ))),
+                    plotOutput(ns("Figur_surv"))),
              column(4, offset = 1,
                     uiOutput(ns("utvalg")),
                     br(),
-                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg')#,
-                    # br(),
-                    # br(),
-                    #,
-                    # textInput(ns("tittel"), "Angi tittel for lagret plot", ""),
-             )
+                    checkboxInput(ns("ekskluder_felles"), label = 'Fjern pasienter med forløp som tilfredsstiller begge utvalg'),
+                    br(),
+                    br(),
+                    selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                                choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+                    textInput(ns("tittel"), "Angi tittel for lagret plot", ""),
+                    downloadButton(ns("lastNedBilde"), "Last ned figur"))
            )
     ),
     column(2,
@@ -114,6 +97,10 @@ saml_andeler_UI <- function(id, BrValg){
            id = ns("id_overlevelse_panel2"),
            h4(tags$b('Utvalg 2')),
            br(),
+           dateRangeInput(inputId=ns("datovalg2"), label = "Operasjonsdato fra og til", min = '2014-01-01',
+                          max = Sys.Date(),
+                          start  = lubridate::floor_date(lubridate::today() - lubridate::years(5), unit = "year"),
+                          end = Sys.Date(), language = "nb", separator = " til "),
            selectInput(inputId = ns("enhetsUtvalg2"), label = "Velg enhet", choices = c('Hele landet'=0, 'Egen avdeling'=2)),
            selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                        choices = BrValg$sykehus, multiple = TRUE),
@@ -150,9 +137,14 @@ saml_andeler_UI <- function(id, BrValg){
 }
 
 
-
-
-saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+#' Server-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul overlevelesesfigurer
+#'
+#' @export
+overlevelse <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_overlevelse_panel")
@@ -223,16 +215,19 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
     }
   })
 
-  utvalgsfunksjon <- function() {
+  calc_overlevelse <- function() {
 
     input$goButton
 
-    PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=input$valgtVar)
-    RegData <- PlotParams$RegData
+    feilreg <- which(RegData$OpDoedTid<0)
+    if (length(feilreg) != 0) {
+      RegData <- RegData[-which(RegData$OpDoedTid<0), ] #feilregistreringer: død før operasjon
+    }
+    RegData <- RegData[!(RegData$Avdod == 1 & is.na(RegData$OpDoedTid)), ] #manglende data: død men ingen dødsdato
+    RegData$OpDoedTid[RegData$OpDoedTid==0] <- 0.5 #Døde ved dag 0 settes til 0.5 for å inkluderes i analysen
 
     Utvalg1 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                            minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
-                                            erMann = as.numeric(input$erMann), kun_ferdigstilte = input$kun_ferdigstilte,
+                                            minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]), erMann = as.numeric(input$erMann),
                                             elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
                                             hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
                                             BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
@@ -246,23 +241,21 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
                                             modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
                                             whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
                                             forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                                            malign = as.numeric(input$malign),
+                                            malign = as.numeric(input$malign), kun_ferdigstilte = input$kun_ferdigstilte,
                                             icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''}))
     Utvalg1data <- Utvalg1$RegData
-    if (dim(Utvalg1data)[1] > 0) {
-      shiny::isolate(if (!is.null(input$valgtShus)) {
-        Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
-      })
-      shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
-        if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
-      })
-      Utvalg1data$Utvalg <- 1
-      Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
-      Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
-    }
-    Utvalg2 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                            minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]),
-                                            erMann = as.numeric(input$erMann2), kun_ferdigstilte = input$kun_ferdigstilte,
+    shiny::isolate(if (!is.null(input$valgtShus)) {
+      Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
+    })
+    shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
+      if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
+    })
+    Utvalg1data$Utvalg <- 1
+    Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
+    Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
+
+    Utvalg2 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg2[1], datoTil = input$datovalg2[2],
+                                            minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]), erMann = as.numeric(input$erMann2),
                                             elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
                                             hastegrad_hybrid = as.numeric(input$hastegrad_hybrid2),
                                             BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
@@ -276,56 +269,55 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
                                             modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
                                             whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
                                             forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                                            malign = as.numeric(input$malign2),
+                                            malign = as.numeric(input$malign2), kun_ferdigstilte = input$kun_ferdigstilte,
                                             icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''}))
     Utvalg2data <- Utvalg2$RegData
-    if (dim(Utvalg2data)[1] > 0) {
-      shiny::isolate(if (!is.null(input$valgtShus2)) {
-        Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
-      })
-      shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
-        if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
-      })
-      Utvalg2data$Utvalg <- 2
-      Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
-      Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
-    }
+    shiny::isolate(if (!is.null(input$valgtShus2)) {
+      Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
+    })
+    shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
+      if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
+    })
+    Utvalg2data$Utvalg <- 2
+    Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
+    Utvalg2data <- Utvalg2data[match(unique(Utvalg2data$PasientID), Utvalg2data$PasientID), ]   # første operasjon i utvalget
+
     utdata <- list(Utvalg1 = Utvalg1data, Utvalg2 = Utvalg2data, utvalgTxt1 = Utvalg1$utvalgTxt, utvalgTxt2 = Utvalg2$utvalgTxt)
 
     # Samlet <- bind_rows(Utvalg1data, Utvalg2data)
     Samlet <- bind_rows(Utvalg1data, Utvalg2data[!(Utvalg2data$ForlopsID %in% Utvalg1data$ForlopsID), ]) # Fjerner forløp fra utvalg 2
                                                                                                          # som finnes i utvalg 1
-    Samlet <- Samlet[order(Samlet$HovedDato, Samlet$Utvalg, decreasing = F), ]    # Hvis pasient opptrer flere ganger, velg
+    Samlet <- Samlet[order(Samlet$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg
     Samlet <- Samlet[match(unique(Samlet$PasientID), Samlet$PasientID), ]         # første operasjon i utvalget
 
     if (input$ekskluder_felles) {
-      Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID, Utvalg2data$PasientID)), ]
+      Samlet <- Samlet[!(Samlet$PasientID %in% intersect(Utvalg1data$PasientID,
+                                                         Utvalg2data$PasientID[!(Utvalg2data$ForlopsID %in% Utvalg1data$ForlopsID)])), ]
     }
 
-    PlotParams <- NorgastPrepVar(RegData=Samlet, valgtVar=input$valgtVar)
-    Samlet <- PlotParams$RegData
-    PlotParams$RegData <- NA
-    utdata$PlotParams <- PlotParams
+    Samlet$overlev <- difftime(as.Date(Sys.Date()), Samlet$OperasjonsDato, units = 'days')
+    Samlet$overlev[Samlet$Avdod==1] <- Samlet$OpDoedTid[Samlet$Avdod==1]
+    Samlet$overlev <- as.numeric(Samlet$overlev)
+    Samlet$SurvObj <- with(Samlet, Surv(overlev, Avdod == 1))
+
+    fit1 <- survival::survfit(SurvObj ~ Utvalg, data = Samlet)
 
     utdata$Samlet <- Samlet
-    # print(dim(utdata$Samlet[utdata$Samlet$Utvalg==1, ]))
+    utdata$fit1 <- fit1
 
     return(utdata)
   }
 
 
-  output$Figur_andeler <- renderPlot({
-    input$goButton
-    isolate(norgast::NorgastFigAndelTid_SammenligUtvalg(plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
-                                                        inkl_konf = input$inkl_konf,
-                                                        datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                        fra0 = input$fra0, inkl_tall=input$inkl_tall))
+  output$Figur_surv <- renderPlot({
+    overlevdata <- calc_overlevelse()
+    survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, pval = TRUE, conf.int = input$inkl_konf, fun = "pct",
+                          risk.table = TRUE, legend = "bottom")
   }, width = 800, height = 800) #
 
 
   output$utvalg <- renderUI({
-    input$goButton
-    utvlgdata <- isolate(utvalgsfunksjon())
+    utvlgdata <- calc_overlevelse()
     tagList(
       h4('Utvalg 1:'),
       h5(HTML(paste0(utvlgdata$utvalgTxt1, '<br />'))),
@@ -361,102 +353,44 @@ saml_andeler <- function(input, output, session, reshID, RegData, userRole, hvd_
       }
     )})
 
-  output$Tabell_utvalg <- function() {
-    input$goButton
-    utdata <- isolate(norgast::NorgastFigAndelTid_SammenligUtvalg(plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
-                                                                  inkl_konf = input$inkl_konf,
-                                                                  datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                                  fra0 = input$fra0, inkl_tall=input$inkl_tall))
-    if (is.na(utdata$Konf$Utvalg2[1])){
-      Tabell_tid <- tibble(Tidsperiode = utdata$andeler$TidsEnhet,
-                           Antall = utdata$antall[["1"]],
-                           N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
-                           KI_ovre = utdata$Konf$Utvalg1[2,])
-      Tabell_tid %>%
-        knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
-        kable_styling("hover", full_width = F)
-    } else {
-      Tabell_tid <- tibble(Tidsperiode = utdata$andeler$TidsEnhet, Antall = utdata$antall[["1"]],
-                           N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
-                           Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
-                           N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
-                           Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
-      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
-                             'KI_nedre', 'KI_ovre')
-      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
-        kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Utvalg 1" = 5, "Utvalg 2" = 5))
-    }
-  }
-
-  output$lastNed_tabell <- downloadHandler(
-    filename = function(){
-      paste0('sammenlign_andel_', input$valgtVar, Sys.time(), '.csv')
-    },
-    content = function(file){
-      utdata <- isolate(norgast::NorgastFigAndelTid_SammenligUtvalg(plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
-                                                                    inkl_konf = input$inkl_konf,
-                                                                    datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                                    fra0 = input$fra0, inkl_tall=input$inkl_tall))
-      if (is.na(utdata$Konf$Utvalg2)[1]){
-        Tabell_tid <- tibble(Tidsperiode = utdata$andeler$TidsEnhet,
-                             Antall = utdata$antall[["1"]],
-                             N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
-                             KI_ovre = utdata$Konf$Utvalg1[2,])
-      } else {
-        Tabell_tid <- tibble(Tidsperiode = utdata$andeler$TidsEnhet, Antall = utdata$antall[["1"]],
-                             N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
-                             Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
-                             N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
-                             Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
-        names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
-                               'KI_nedre', 'KI_ovre')
-      }
-      write.csv3(Tabell_tid, file, row.names = F)
-    }
-  )
-
   output$lastNedBilde <- downloadHandler(
     filename = function(){
-      paste0('sammenlign_andel_', input$valgtVar, Sys.time(), '.', input$bildeformat)
+      paste0('KM_kurve', Sys.time(), '.', input$bildeformat)
     },
 
     content = function(file){
-      norgast::NorgastFigAndelTid_SammenligUtvalg(plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
-                                                  inkl_konf = input$inkl_konf,
-                                                  datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                                  fra0 = input$fra0, inkl_tall=input$inkl_tall, outfile = file)
+      overlevdata <- calc_overlevelse()
+      survp <- survminer::ggsurvplot(overlevdata$fit1, data = overlevdata$Samlet, title = input$tittel, pval = TRUE,
+                                     conf.int = input$inkl_konf, fun = "pct", risk.table = TRUE, legend = "bottom")
+      rapFigurer::figtype(outfile=file, pointsizePDF=11)
+      print(survp, newpage = FALSE)
+      dev.off()
     }
   )
 
   shiny::observe({
     if (rapbase::isRapContext()) {
+      # rapbase::repLogger(
+      #   session = hvd_session,
+      #   msg = "NoRGast: KM-overlevelseskurve."
+      # )
+
       shinyjs::onclick(
         "goButton",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: Sammenlignede andeler, variabel - ", input$valgtVar)
+          msg = "NoRGast: KM-overlevelseskurve."
         )
       )
-
       shinyjs::onclick(
         "lastNedBilde",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: Laster ned figur sammenlignede andeler, variabel - ", input$valgtVar)
-        )
-      )
-
-      shinyjs::onclick(
-        "lastNed_tabell",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = paste0("NoRGast: Laster ned tabell sammenlignede andeler, variabel - ", input$valgtVar)
+          msg = "NoRGast: Laster ned KM-overlevelseskurve."
         )
       )
     }
   })
-
 
 
 

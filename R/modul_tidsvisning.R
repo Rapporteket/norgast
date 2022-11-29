@@ -1,9 +1,10 @@
-# Modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @return Modul tidsvisning, andeler
-#
+#' UI-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul tidsvisning, andeler
+#'
+#' @export
 tidsvisning_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -72,7 +73,13 @@ tidsvisning_UI <- function(id, BrValg){
   )
 }
 
-
+#' Server-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul tidsvisning, andeler
+#'
+#' @export
 tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_session){
 
   observeEvent(input$reset_input, {

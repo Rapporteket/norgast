@@ -4,7 +4,7 @@ library("norgast")
 library("tidyverse")
 library("kableExtra")
 library("DT")
-library("shiny")
+# library("shiny")
 library("shinyjs")
 library("shinyalert")
 library("lubridate")
@@ -13,7 +13,7 @@ library("survminer")
 library("ggplot2")
 library("funnelR")
 
-addResourcePath('rap', system.file('www', package='rapbase'))
+shiny::addResourcePath('rap', system.file('www', package='rapbase'))
 regTitle = "NoRGast"
 
 RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
@@ -27,23 +27,8 @@ if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
 enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 BrValg <- norgast::BrValgNorgastShiny(RegData)
 
-source(system.file("shinyApps/norgast/R/modul_startside.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_fordelingsfig.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_sykehusvisning.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_tidsvisning.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_overlevelse.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_datadump.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_samledok.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_admtab.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_sammenlign_utvalg_tid.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_indikatorer.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_traktplot.R", package = "norgast"), encoding = 'UTF-8')
-source(system.file("shinyApps/norgast/R/modul_datakvalitet.R", package = "norgast"), encoding = 'UTF-8')
-
-######################################################################
-
 # Define UI for application
-ui <- navbarPage(id = "norgast_app_id",
+ui <- shiny::navbarPage(id = "norgast_app_id",
 
                  title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
                              regTitle),
@@ -55,63 +40,63 @@ ui <- navbarPage(id = "norgast_app_id",
                                  rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
                                                               organization = uiOutput("appOrgName"),
                                                               addUserInfo = TRUE),
-                                 tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
+                                 shiny::tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
                                            includeCSS(system.file("shinyApps/norgast/www/yohannes.css", package = "norgast"))),
-                                 startside_UI("startside")
+                                 norgast::startside_UI("startside")
                  ),
 
-                 tabPanel("Fordelinger",
-                          fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
+                 shiny::tabPanel("Fordelinger",
+                                 norgast::fordelingsfig_UI(id = "fordelingsfig_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Sykehusvisning",
-                          sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
+                 shiny::tabPanel("Sykehusvisning",
+                                 norgast::sykehusvisning_UI(id = "sykehusvisning_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Traktplott",
-                          traktplot_UI(id = "traktplot_id", BrValg = BrValg)
+                 shiny::tabPanel("Traktplott",
+                                                      norgast::traktplot_UI(id = "traktplot_id", BrValg = BrValg)
                  ),
                  shiny::navbarMenu("Tidsvisning",
-                                   tabPanel("Andeler over tid",
-                                            tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
+                                   shiny::tabPanel("Andeler over tid",
+                                                   norgast::tidsvisning_UI(id = "tidsvisning_id", BrValg = BrValg)
                                    ),
-                                   tabPanel("Sammenlign andeler",
-                                            saml_andeler_UI(id = "saml_andeler_id", BrValg = BrValg)
+                                   shiny::tabPanel("Sammenlign andeler",
+                                                   norgast::saml_andeler_UI(id = "saml_andeler_id", BrValg = BrValg)
                                    )
                  ),
 
-                 tabPanel("Indikatorer",
-                          indikatorfig_UI(id = "indikator_id", BrValg = BrValg)
+                 shiny::tabPanel("Indikatorer",
+                                 norgast::indikatorfig_UI(id = "indikator_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Overlevelse",
-                          overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
+                 shiny::tabPanel("Overlevelse",
+                                 norgast::overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Samledokumenter",
-                          h2("Samledokumenter", align='center'),
-                          h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
+                 shiny::tabPanel("Samledokumenter",
+                                 shiny::h2("Samledokumenter", align='center'),
+                                 shiny::h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
                           # h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
-                          br(),
-                          br(),
+                          shiny::br(),
+                          shiny::br(),
                           samledok_UI(id = "samledok_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Datadump",
-                          h2("Datadump", align='center'),
-                          h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
+                 shiny::tabPanel("Datadump",
+                                 shiny::h2("Datadump", align='center'),
+                                 shiny::h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
               som inkluderes i datadump på Rapporteket sammenlignet med datadump hentet fra registerets qreg-løsning.", align='center'),
-                          br(),
-                          br(),
-                          datadump_UI(id = "datadump_id", BrValg = BrValg)
+                                 shiny::br(),
+                                 shiny::br(),
+                                 norgast::datadump_UI(id = "datadump_id", BrValg = BrValg)
                  ),
 
-                 tabPanel("Administrative tabeller",
-                          admtab_UI(id = "admtab_id", BrValg = BrValg)
+                 shiny::tabPanel("Administrative tabeller",
+                                 norgast::admtab_UI(id = "admtab_id", BrValg = BrValg)
                  ),
 
                  shiny::tabPanel("Datakvalitet",
-                                 datakval_ui("datakval_id")
+                                 norgast::datakval_ui("datakval_id")
                  ),
 
                  shiny::tabPanel(
@@ -193,60 +178,60 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Sykehusvisning #################################################################################################
 
-  callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
+  shiny::callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
 
   #################################################################################################################################
   ################ Traktplot ######################################################################################################
 
-  callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session, BrValg = BrValg)
+  shiny::callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session, BrValg = BrValg)
 
 
   #################################################################################################################################
   ################ Tidsvisning ####################################################################################################
 
-  callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Indikatorfigurer ###############################################################################################
 
-  callModule(indikatorfig, "indikator_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(indikatorfig, "indikator_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Overlevelseskurver #############################################################################################
 
-  callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Sammenlign utvalg ##############################################################################################
 
-  callModule(saml_andeler, "saml_andeler_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(saml_andeler, "saml_andeler_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
 
   #################################################################################################################################
   ################ Samledokumenter ################################################################################################
 
-  callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Datadump   #####################################################################################################
 
-  callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
 
   #################################################################################################################################
   ################ Adm. tabeller ##################################################################################################
 
-  callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
+  shiny::callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
              hvd_session = session, skjemaoversikt=skjemaoversikt)
 
   #################################################################################################################################
   ################ Datakvalitet ###################################################################################################
 
-  callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
+  shiny::callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
              RegData = RegData, hvd_session = session)
 
   #############################################################################
@@ -297,8 +282,8 @@ server <- function(input, output, session) {
 
   # Brukerinformasjon
   userInfo <- rapbase::howWeDealWithPersonalData(session)
-  observeEvent(input$userInfo, {
-    shinyalert("Dette vet Rapporteket om deg:", userInfo,
+  shiny::observeEvent(input$userInfo, {
+    shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
                type = "", imageUrl = "rap/logo.svg",
                closeOnEsc = TRUE, closeOnClickOutside = TRUE,
                html = TRUE, confirmButtonText = "Den er grei!")
@@ -320,4 +305,4 @@ server <- function(input, output, session) {
 }
 
 # Run the application
-shinyApp(ui = ui, server = server)
+shiny::shinyApp(ui = ui, server = server)

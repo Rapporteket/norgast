@@ -1,9 +1,10 @@
-# Modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @return Modul sykehusvisning, andeler
-#
+#' UI-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul sykehusvisning, andeler
+#'
+#' @export
 sykehusvisning_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
@@ -82,8 +83,13 @@ sykehusvisning_UI <- function(id, BrValg){
   )
 }
 
-
-
+#' Server-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul sykehusvisning, andeler
+#'
+#' @export
 sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session){
 
   observeEvent(input$reset_input, {
