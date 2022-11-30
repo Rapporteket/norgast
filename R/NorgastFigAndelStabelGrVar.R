@@ -104,12 +104,12 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     N_kat <- nlevels(RegData$Variabel)
     AndelerGr <- ftable(RegData[ ,c(grVar, 'Variabel')])/rep(Ngr, N_kat)*100
     utdata_antall <- RegData[ ,c(grVar, 'Variabel')] %>% table() %>%
-      addmargins(2) %>% as_tibble() %>% spread(key = Variabel, value = n)
+      addmargins(2) %>% dplyr::as_tibble() %>% tidyr::spread(key = Variabel, value = n)
     if (!(valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje'))) {
       names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
     utdata_andel <- utdata_antall
-    utdata_andel <- utdata_andel %>% mutate_at(2:(N_kat+1), funs(. / Sum * 100))
+    utdata_andel <- utdata_andel %>% dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100))
     AndelerGr[which(Ngr<Ngrense),] <- NA
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 

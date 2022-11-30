@@ -8,14 +8,25 @@ appUi <- function() {
   shiny::addResourcePath("rap", system.file("www", package = "rapbase"))
   appTitle <- "NoRGast"
 
+  RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+  skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
+    norgast::norgastMakeStagingData()
+    RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+    skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  }
+
+  enhetsliste <- RegData[match(unique(RegData$AvdRESH), RegData$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+  BrValg <- norgast::BrValgNorgastShiny(RegData)
+
   shiny::tagList(
 
     shiny::navbarPage(
       id = "norgast_app_id",
 
       title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
-                  regTitle),
-      windowTitle = regTitle,
+                  appTitle),
+      windowTitle = appTitle,
       theme = "rap/bootstrap.css",
 
       shiny::tabPanel(

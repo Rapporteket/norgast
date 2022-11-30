@@ -5,59 +5,69 @@
 #' @return Modul tidsvisning, andeler
 #'
 #' @export
-tidsvisning_UI <- function(id, BrValg){
+tidsvisning_UI <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(width = 3,
-                 id = ns("id_tid_panel"),
-                 # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
-                 checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
-                 selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                             choices = BrValg$varvalg_andel),
-                 dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                max = Sys.Date(),
-                                start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
-                                end = Sys.Date(), separator = " til "),
-                 selectInput(inputId = ns("tidsenhet"),
-                             label = "Velg tidsenhet",
-                             choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar'),
-                             selected = 'Kvartal'),
-                 selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
-                             choices = c('Egen avd. mot landet forøvrig'=1, 'Hele landet'=0, 'Egen avd.'=2)),
-                 selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                             choices = BrValg$sykehus, multiple = TRUE),
-                 sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
-                             max = 120, value = c(0, 120)),
-                 selectInput(inputId = ns("erMann"), label = "Kjønn",
-                             choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-                 selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                             choices = BrValg$reseksjonsgrupper, multiple = TRUE),
-                 uiOutput(outputId = ns('ncsp')),
-                 selectInput(inputId = ns("inkl_konf"), label = "Inkluder konfidensintervall",
-                             choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
-                 selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
-                             choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1, 'Utenfor normalarbeidstid'=0)),
-                 selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
-                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-                 selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
-                             choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
-                 selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
-                 # selectInput(inputId = ns("tilgang"), label = "Tilgang i abdomen (velg en eller flere)", choices = BrValg$tilgang_valg, multiple = TRUE),
-                 selectInput(inputId = ns("tilgang_utvidet"),
-                             label = "Tilgang i abdomen (inkl. robotassistanse)",
-                             choices = BrValg$tilgang_utvidet, multiple = TRUE),
-                 sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-                 selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
-                 selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
-                 selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
-                 selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
-                             choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
-                 selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
-                 selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
-                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
-                 tags$hr(),
-                 actionButton(ns("reset_input"), "Nullstill valg")
+    sidebarPanel(
+      width = 3,
+      id = ns("id_tid_panel"),
+      checkboxInput(
+        inputId = ns("kun_ferdigstilte"),
+        label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)",
+        value = TRUE),
+      uiOutput(outputId = ns('valgtVar_ui')),
+      dateRangeInput(
+        inputId=ns("datovalg"), label = "Dato fra og til",
+        min = '2014-01-01', language = "nb",
+        max = Sys.Date(),
+        start  = lubridate::floor_date(lubridate::today() - lubridate::years(1),
+                                       unit = "year"),
+        end = Sys.Date(), separator = " til "),
+      selectInput(inputId = ns("tidsenhet"),
+                  label = "Velg tidsenhet",
+                  choices = c('Aar', 'Mnd', 'Kvartal', 'Halvaar'),
+                  selected = 'Kvartal'),
+      selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
+                  choices = c('Egen avd. mot landet forøvrig'=1,
+                              'Hele landet'=0, 'Egen avd.'=2)),
+      uiOutput(outputId = ns('valgtShus_ui')),
+      sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
+                  max = 120, value = c(0, 120)),
+      selectInput(inputId = ns("erMann"), label = "Kjønn",
+                  choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
+      uiOutput(outputId = ns('op_gruppe_ui')),
+      uiOutput(outputId = ns('ncsp')),
+      selectInput(inputId = ns("inkl_konf"),
+                  label = "Inkluder konfidensintervall",
+                  choices = c(' '=99, 'Ja'=1, 'Nei'=0)),
+      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+                  choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1,
+                              'Utenfor normalarbeidstid'=0)),
+      selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
+      selectInput(inputId = ns("hastegrad_hybrid"),
+                  label = "Hastegrad, hybrid (bruker hastegrad når den finnes,
+                  ellers tidspkt for op.start)",
+                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
+      uiOutput(outputId = ns('BMI_ui')),
+      uiOutput(outputId = ns('tilgang_utvidet_ui')),
+      sliderInput(inputId = ns("PRS"), label = "mE-PASS", min = 0,
+                  max = 2.2, value = c(0, 2.2), step = 0.05),
+      uiOutput(outputId = ns('ASA_ui')),
+      selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score",
+                  choices = 0:2, multiple = TRUE),
+      uiOutput(outputId = ns('whoEcog_ui')),
+      selectInput(inputId = ns("forbehandling"),
+                  label = "Onkologisk forbehandling", multiple = TRUE,
+                  choices = c('Cytostatika'=1, 'Stråleterapi'=2,
+                              'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
+      selectInput(inputId = ns("malign"), label = "Diagnose",
+                  choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+      selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
+                  choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(tabsetPanel(id = ns("tab"),
                           tabPanel("Figur", value = "fig",
@@ -80,7 +90,8 @@ tidsvisning_UI <- function(id, BrValg){
 #' @return Modul tidsvisning, andeler
 #'
 #' @export
-tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+tidsvisning <- function(input, output, session, reshID, RegData, userRole,
+                        hvd_session, BrValg){
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_tid_panel")
@@ -90,10 +101,6 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
     if (userRole != 'SC') {
       shinyjs::hide(id = 'valgtShus')
     })
-
-  # fiksNULL <- function(x, erstatt='') {
-  #   if (!is.null(x)) {x} else {erstatt}
-  # }
 
   output$ncsp <- renderUI({
     ns <- session$ns
@@ -105,6 +112,50 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
                   }, multiple = TRUE)
     }
   })
+
+  output$valgtShus_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                choices = BrValg$sykehus, multiple = TRUE)
+  })
+
+  output$valgtVar_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                choices = BrValg$varvalg_andel)
+  })
+
+  output$op_gruppe_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                choices = BrValg$reseksjonsgrupper, multiple = TRUE)
+  })
+
+  output$tilgang_utvidet_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("tilgang_utvidet"),
+                label = "Tilgang i abdomen (inkl. robotassistanse)",
+                choices = BrValg$tilgang_utvidet, multiple = TRUE)
+  })
+
+  output$BMI_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("BMI"), label = "BMI",
+                choices = BrValg$bmi_valg, multiple = TRUE)
+  })
+
+  output$ASA_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("ASA"), label = "ASA-grad",
+                choices = BrValg$ASA_valg, multiple = TRUE)
+  })
+
+  output$whoEcog_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
+                choices = BrValg$whoEcog_valg, multiple = TRUE)
+  })
+
 
 
 
@@ -183,7 +234,7 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
 
     utdata <- tabellReagerTid()
     if (input$enhetsUtvalg == 1) {
-      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+      Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
                            N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
                            Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
                            N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
@@ -191,16 +242,16 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
       names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
                              'KI_nedre', 'KI_ovre')
       Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
-        kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
+        kableExtra::kable_styling("hover", full_width = F) %>%
+        kableExtra::add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
     } else {
-      Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+      Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
                            Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
                            N = utdata$NTid$NTidHoved, 'Andel (%)'= utdata$Andeler$AndelHoved, KI_nedre = utdata$KonfInt$Konf[1,],
                            KI_ovre = utdata$KonfInt$Konf[2,])
       Tabell_tid %>%
         knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
-        kable_styling("hover", full_width = F)
+        kableExtra::kable_styling("hover", full_width = F)
     }
   }
 
@@ -211,13 +262,13 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole, hvd_s
     content = function(file){
       utdata <- tabellReagerTid()
       if (input$enhetsUtvalg == 1) {
-        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+        Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
                              N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
                              Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
                              N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
                              Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
       } else {
-        Tabell_tid <- tibble(Tidsperiode = utdata$Tidtxt,
+        Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
                              Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
                              N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
                              Konf.int.ovre = utdata$KonfInt$Konf[2,])
