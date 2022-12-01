@@ -190,39 +190,39 @@ server <- function(input, output, session) {
     shiny::hideTab("norgast_app_id", target = "Verktøy")
   }
 
-  shiny::callModule(startside, "startside", usrRole=userRole)
+  shiny::callModule(norgast::startside, "startside", usrRole=userRole)
 
   #################################################################################################################################
   ################ Fordelingsfigurer ##############################################################################################
 
-  shiny::callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID,
+  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = reshID,
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
   #################################################################################################################################
   ################ Sykehusvisning #################################################################################################
 
-  shiny::callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID,
+  shiny::callModule(norgast::sykehusvisning, "sykehusvisning_id", reshID = reshID,
                     RegData = RegData, hvd_session = session, BrValg = BrValg)
 
   #################################################################################################################################
   ################ Traktplot ######################################################################################################
 
-  shiny::callModule(traktplot, "traktplot_id", reshID = reshID,
+  shiny::callModule(norgast::traktplot, "traktplot_id", reshID = reshID,
                     RegData = RegData, hvd_session = session, BrValg = BrValg)
 
 
   #################################################################################################################################
   ################ Tidsvisning ####################################################################################################
 
-  shiny::callModule(tidsvisning, "tidsvisning_id", reshID = reshID,
+  shiny::callModule(norgast::tidsvisning, "tidsvisning_id", reshID = reshID,
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
   #################################################################################################################################
   ################ Sammenlign utvalg ##############################################################################################
 
-  shiny::callModule(saml_andeler, "saml_andeler_id", reshID = reshID,
+  shiny::callModule(norgast::saml_andeler, "saml_andeler_id", reshID = reshID,
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
@@ -230,7 +230,7 @@ server <- function(input, output, session) {
   #################################################################################################################################
   ################ Indikatorfigurer ###############################################################################################
 
-  shiny::callModule(indikatorfig, "indikator_id", reshID = reshID,
+  shiny::callModule(norgast::indikatorfig, "indikator_id", reshID = reshID,
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
