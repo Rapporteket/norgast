@@ -76,10 +76,10 @@ ui <- shiny::navbarPage(
                      norgast::indikatorfig_UI(id = "indikator_id")
      ),
 
-  #    shiny::tabPanel("Overlevelse",
-  #                    norgast::overlevelse_UI(id = "overlevelse_id", BrValg = BrValg)
-  #    ),
-  #
+   shiny::tabPanel("Overlevelse",
+                   norgast::overlevelse_UI(id = "overlevelse_id")
+   ),
+
   #    shiny::tabPanel("Samledokumenter",
   #                    shiny::h2("Samledokumenter", align='center'),
   #                    shiny::h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
@@ -234,11 +234,13 @@ server <- function(input, output, session) {
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
-  # #################################################################################################################################
-  # ################ Overlevelseskurver #############################################################################################
-  #
-  # shiny::callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-  #
+  #################################################################################################################################
+  ################ Overlevelseskurver #############################################################################################
+
+  shiny::callModule(norgast::overlevelse, "overlevelse_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
   # #################################################################################################################################
   # ################ Samledokumenter ################################################################################################
   #
