@@ -69,7 +69,9 @@ fiksNULL <- function(x, erstatt='') {
 #'
 #' @export
 dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
-  flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
+  flere_sammedato <- RegData %>%
+    dplyr::group_by(PasientID, HovedDato) %>%
+    dplyr::summarise(Op_pr_dag = dplyr::n())
   flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
 
   flere_sammedato <- merge(flere_sammedato, RegData,

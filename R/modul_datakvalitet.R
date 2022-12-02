@@ -31,7 +31,8 @@ datakval_ui <- function(id){
 #' @return Modulfunksjoner til Datakvalitet
 #'
 #' @export
-datakval_server <- function(input, output, session, reshID, userRole, RegData, hvd_session) {
+datakval_server <- function(input, output, session, reshID,
+                            userRole, RegData, hvd_session) {
 
 
   output$dobbeltreg <-

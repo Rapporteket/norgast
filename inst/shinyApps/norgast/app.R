@@ -72,39 +72,43 @@ ui <- shiny::navbarPage(
     )
   ),
 
-     shiny::tabPanel("Indikatorer",
-                     norgast::indikatorfig_UI(id = "indikator_id")
-     ),
+  shiny::tabPanel("Indikatorer",
+                  norgast::indikatorfig_UI(id = "indikator_id")
+  ),
 
-   shiny::tabPanel("Overlevelse",
-                   norgast::overlevelse_UI(id = "overlevelse_id")
-   ),
+  shiny::tabPanel("Overlevelse",
+                  norgast::overlevelse_UI(id = "overlevelse_id")
+  ),
 
-  #    shiny::tabPanel("Samledokumenter",
-  #                    shiny::h2("Samledokumenter", align='center'),
-  #                    shiny::h4("Når du velger ", strong("Last ned samledokument"), " genereres en samlerapport bestående av figurer og tabeller.", align='center'),
-  #             # h4("Nærmere beskrivelse av de ulike samledokumentene finner du under de tilhørende fanene.", align='center'),
-  #             shiny::br(),
-  #             shiny::br(),
-  #             samledok_UI(id = "samledok_id", BrValg = BrValg)
-  #    ),
-  #
-  #    shiny::tabPanel("Datadump",
-  #                    shiny::h2("Datadump", align='center'),
-  #                    shiny::h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan det være små avvik i antall forløp
-  # som inkluderes i datadump på Rapporteket sammenlignet med datadump hentet fra registerets qreg-løsning.", align='center'),
-  #                    shiny::br(),
-  #                    shiny::br(),
-  #                    norgast::datadump_UI(id = "datadump_id", BrValg = BrValg)
-  #    ),
-  #
-  #    shiny::tabPanel("Administrative tabeller",
-  #                    norgast::admtab_UI(id = "admtab_id", BrValg = BrValg)
-  #    ),
-  #
-  #    shiny::tabPanel("Datakvalitet",
-  #                    norgast::datakval_ui("datakval_id")
-  #    ),
+  shiny::tabPanel("Samledokumenter",
+                  shiny::h2("Samledokumenter", align='center'),
+                  shiny::h4("Når du velger ", strong("Last ned samledokument"),
+                            " genereres en samlerapport bestående av figurer og
+                            tabeller.", align='center'),
+                  shiny::br(),
+                  shiny::br(),
+                  norgast::samledok_UI(id = "samledok_id")
+  ),
+
+  shiny::tabPanel(
+    "Datadump",
+    shiny::h2("Datadump", align='center'),
+    shiny::h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan
+    det være små avvik i antall forløp som inkluderes i datadump på Rapporteket
+              sammenlignet med datadump hentet fra registerets qreg-løsning.",
+              align='center'),
+    shiny::br(),
+    shiny::br(),
+    norgast::datadump_UI(id = "datadump_id")
+  ),
+
+  shiny::tabPanel("Administrative tabeller",
+                  norgast::admtab_UI(id = "admtab_id")
+  ),
+
+  shiny::tabPanel("Datakvalitet",
+                  norgast::datakval_ui("datakval_id")
+  ),
 
   shiny::tabPanel(
     shiny::span("Abonnement",
@@ -241,27 +245,34 @@ server <- function(input, output, session) {
                     RegData = RegData, userRole = userRole,
                     hvd_session = session, BrValg = BrValg)
 
-  # #################################################################################################################################
-  # ################ Samledokumenter ################################################################################################
-  #
-  # shiny::callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-  #
-  # #################################################################################################################################
-  # ################ Datadump   #####################################################################################################
-  #
-  # shiny::callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-  #
-  # #################################################################################################################################
-  # ################ Adm. tabeller ##################################################################################################
-  #
-  # shiny::callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
-  #            hvd_session = session, skjemaoversikt=skjemaoversikt)
-  #
-  # #################################################################################################################################
-  # ################ Datakvalitet ###################################################################################################
-  #
-  # shiny::callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
-  #            RegData = RegData, hvd_session = session)
+  #################################################################################################################################
+  ################ Samledokumenter ################################################################################################
+
+  shiny::callModule(norgast::samledok, "samledok_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
+  #################################################################################################################################
+  ################ Datadump   #####################################################################################################
+
+  shiny::callModule(norgast::datadump, "datadump_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
+  #################################################################################################################################
+  ################ Adm. tabeller ##################################################################################################
+
+  shiny::callModule(norgast::admtab, "admtab_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, skjemaoversikt=skjemaoversikt,
+                    BrValg = BrValg)
+
+  #################################################################################################################################
+  ################ Datakvalitet ###################################################################################################
+
+  shiny::callModule(norgast::datakval_server, "datakval_id",
+                    reshID = reshID, userRole = userRole,
+                    RegData = RegData, hvd_session = session)
 
   #############################################################################
   ################ Subscription, Dispatchment and Stats #######################

@@ -99,16 +99,23 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole,
 
   observe(
     if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus')
+      shinyjs::hide(id = 'valgtShus_ui')
     })
 
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder  (velg en eller flere)",
+      selectInput(inputId = ns("ncsp_verdi"),
+                  label = "NCSP koder (velg en eller flere)",
                   choices = if (!is.null(input$op_gruppe)) {
-                    setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
-                             sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+                    RegData %>%
+                      dplyr::select(Hovedoperasjon, Op_gr) %>%
+                      dplyr::filter(Op_gr %in% as.numeric(input$op_gruppe)) %>%
+                      dplyr::select(Hovedoperasjon) %>%
+                      unique() %>%
+                      dplyr::arrange(Hovedoperasjon) %>%
+                      dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
+                      dplyr::pull(NCSP, Hovedoperasjon)
                   }, multiple = TRUE)
     }
   })

@@ -5,49 +5,62 @@
 #' @return Modulfunksjoner til datadump-fane
 #'
 #' @export
-datadump_UI <- function(id, BrValg){
+datadump_UI <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
-    sidebarPanel(width = 3,
-                 id = ns("id_dump_panel"),
-                 shinyjs::hidden(uiOutput(outputId = ns('valgtevar_dump'))),
-                 dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01', language = "nb",
-                                max = Sys.Date(),
-                                start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
-                                end = Sys.Date(), separator = " til "),
-                 selectInput(inputId = ns("dumptype"), label = "Velg type datadump",
-                             choices = c('AlleVar', 'AlleVarNum', 'ForlopsOversikt', 'SkjemaOversikt')),
-                 shinyjs::hidden(selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                             choices = BrValg$reseksjonsgrupper, multiple = TRUE)),
-                 shinyjs::hidden(uiOutput(outputId = ns('ncsp'))),
-                 selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                             choices = BrValg$sykehus, multiple = TRUE),
-                 tags$hr(),
-                 actionButton(ns("reset_input"), "Nullstill valg")
+    sidebarPanel(
+      width = 3,
+      id = ns("id_dump_panel"),
+      shinyjs::hidden(uiOutput(outputId = ns('valgtevar_dump'))),
+      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til",
+                     min = '2014-01-01', language = "nb",
+                     max = Sys.Date(),
+                     start  = lubridate::floor_date(lubridate::today() -
+                                                      lubridate::years(1),
+                                                    unit = "year"),
+                     end = Sys.Date(), separator = " til "),
+      selectInput(inputId = ns("dumptype"), label = "Velg type datadump",
+                  choices = c('AlleVar', 'AlleVarNum', 'ForlopsOversikt',
+                              'SkjemaOversikt')),
+      shinyjs::hidden(uiOutput(outputId = ns('op_gruppe_ui'))),
+      shinyjs::hidden(uiOutput(outputId = ns('ncsp'))),
+      uiOutput(outputId = ns('valgtShus_ui')),
+      tags$hr(),
+      actionButton(ns("reset_input"), "Nullstill valg")
     ),
     mainPanel(
-      tabsetPanel(id= ns("datadump"),
-                  tabPanel("Rådata", value = "datadump_raa",
-                           h2('Datadump med rådata', align='center'),
-                           br(),
-                           h4('Her kan du laste ned forskjellige varianter av datadump for NoRGast. LU-brukere kan kun laste ned data for egen avdeling.
-                              Merk at også registreringer i kladd er inkludert i datadump.'),
-                           br(),
-                           h4(tags$b(tags$u('Forklaring til de ulike datadump-typene:'))),
-                           h4(tags$b('AlleVar '), 'inneholder alle kliniske variabler i registeret og benytter etikettene til kategoriske variabler.'),
-                           h4(tags$b('AlleVarNum '), 'inneholder alle kliniske variabler i registeret og benytter tallkodene til kategoriske variabler.'),
-                           h4(tags$b('ForlopsOversikt '), 'inneholder en del administrative data relevant for forløpene.'),
-                           h4(tags$b('SkjemaOversikt '), 'er en oversikt over status til alle registreringer i registreret, også uferdige.'),
-                           DTOutput(ns("Tabell_datadum_raa")), downloadButton(ns("lastNed_dump_raa"), "Last ned datadump")
-                  ),
-                  tabPanel("Prosessert data", value = "datadump_pros",
-                           h2('Datadump prosessert - NoRGast', align='center'),
-                           br(),
-                           h4('Her kan du laste ned datadump basert på prosessert og koblet data som brukes på Rapporteket. Du kan velge hvilke variabler
-                              du vil inkludere, samt filtrere på operasjonstype i tillegg til dato. Kun ferdigstilte registreringer er inkludert.'),
-                           DTOutput(ns("Tabell_adm2")), downloadButton(ns("lastNed_dump"), "Last ned datadump")
-                  )
+      tabsetPanel(
+        id= ns("datadump"),
+        tabPanel(
+          "Rådata", value = "datadump_raa",
+          h2('Datadump med rådata', align='center'),
+          br(),
+          h4('Her kan du laste ned forskjellige varianter av datadump for NoRGast.
+          LU-brukere kan kun laste ned data for egen avdeling. Merk at også
+             registreringer i kladd er inkludert i datadump.'),
+          br(),
+          h4(tags$b(tags$u('Forklaring til de ulike datadump-typene:'))),
+          h4(tags$b('AlleVar '), 'inneholder alle kliniske variabler i registeret
+             og benytter etikettene til kategoriske variabler.'),
+          h4(tags$b('AlleVarNum '), 'inneholder alle kliniske variabler i
+             registeret og benytter tallkodene til kategoriske variabler.'),
+          h4(tags$b('ForlopsOversikt '), 'inneholder en del administrative data
+             relevant for forløpene.'),
+          h4(tags$b('SkjemaOversikt '), 'er en oversikt over status til alle
+             registreringer i registreret, også uferdige.'),
+          downloadButton(ns("lastNed_dump_raa"), "Last ned datadump")
+        ),
+        tabPanel(
+          "Prosessert data", value = "datadump_pros",
+          h2('Datadump prosessert - NoRGast', align='center'),
+          br(),
+          h4('Her kan du laste ned datadump basert på prosessert og koblet data
+          som brukes på Rapporteket. Du kan velge hvilke variabler du vil
+             inkludere, samt filtrere på operasjonstype i tillegg til dato.
+             Kun ferdigstilte registreringer er inkludert.'),
+          downloadButton(ns("lastNed_dump"), "Last ned datadump")
+        )
       )
     )
   )
@@ -60,19 +73,20 @@ datadump_UI <- function(id, BrValg){
 #' @return Modulfunksjoner til datadump-fane
 #'
 #' @export
-datadump <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+datadump <- function(input, output, session, reshID, RegData, userRole,
+                     hvd_session, BrValg){
 
 
   observe(
     if (input$datadump == "datadump_raa") {
       shinyjs::hide(id = 'valgtevar_dump')
-      shinyjs::hide(id = 'op_gruppe')
+      shinyjs::hide(id = 'op_gruppe_ui')
       shinyjs::hide(id = 'ncsp')
       shinyjs::show(id = 'dumptype')
     } else if (input$datadump == "datadump_pros") {
       shinyjs::hide(id = 'dumptype')
       shinyjs::show(id = 'valgtevar_dump')
-      shinyjs::show(id = 'op_gruppe')
+      shinyjs::show(id = 'op_gruppe_ui')
       shinyjs::show(id = 'ncsp')
     }
   )
@@ -83,16 +97,35 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
 
   observe(
     if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus')
+      shinyjs::hide(id = 'valgtShus_ui')
     })
+
+  output$op_gruppe_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                choices = BrValg$reseksjonsgrupper, multiple = TRUE)
+  })
+
+  output$valgtShus_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                choices = BrValg$sykehus, multiple = TRUE)
+  })
 
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
-                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+      selectInput(inputId = ns("ncsp_verdi"),
+                  label = "NCSP koder (velg en eller flere)",
+                  choices = if (!is.null(input$op_gruppe)) {
+                    RegData %>%
+                      dplyr::select(Hovedoperasjon, Op_gr) %>%
+                      dplyr::filter(Op_gr %in% as.numeric(input$op_gruppe)) %>%
+                      dplyr::select(Hovedoperasjon) %>%
+                      unique() %>%
+                      dplyr::arrange(Hovedoperasjon) %>%
+                      dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
+                      dplyr::pull(NCSP, Hovedoperasjon)
                   }, multiple = TRUE)
     }
   })
@@ -100,7 +133,8 @@ datadump <- function(input, output, session, reshID, RegData, userRole, hvd_sess
   output$valgtevar_dump <- renderUI({
     ns <- session$ns
     if (!is.null(names(RegData))) {
-      selectInput(inputId = ns("valgtevar_dump_verdi"), label = "Velg variabler å inkludere (ingen valgt er lik alle)",
+      selectInput(inputId = ns("valgtevar_dump_verdi"),
+                  label = "Velg variabler å inkludere (ingen valgt er lik alle)",
                   choices = names(RegData), multiple = TRUE)
     }
   })

@@ -219,26 +219,24 @@ overlevelse <- function(input, output, session, reshID, RegData,
     }
   })
 
-
-  # RegData %>%
-  # dplyr::select(Hovedoperasjon, Op_gr) %>%
-  # dplyr::filter(Op_gr %in% 1) %>%
-  # dplyr::select(Hovedoperasjon) %>%
-  # unique() %>%
-  # dplyr::arrange(Hovedoperasjon) %>%
-  # dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
-  # dplyr::pull(Hovedoperasjon, NCSP)
-
   output$ncsp2 <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe2)) {
-      selectInput(inputId = ns("ncsp_verdi2"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe2)) {
-                    setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe2)])), 1, 5),
-                             sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe2)])))
+      selectInput(inputId = ns("ncsp_verdi2"),
+                  label = "NCSP koder (velg en eller flere)",
+                  choices = if (!is.null(input$op_gruppe)) {
+                    RegData %>%
+                      dplyr::select(Hovedoperasjon, Op_gr) %>%
+                      dplyr::filter(Op_gr %in% as.numeric(input$op_gruppe2)) %>%
+                      dplyr::select(Hovedoperasjon) %>%
+                      unique() %>%
+                      dplyr::arrange(Hovedoperasjon) %>%
+                      dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
+                      dplyr::pull(NCSP, Hovedoperasjon)
                   }, multiple = TRUE)
     }
   })
+
 
 
   output$valgtShus_ui <- renderUI({
