@@ -9,6 +9,15 @@
 
 appServer <- function(input, output, session) {
 
+  RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+  skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
+    norgast::norgastMakeStagingData()
+    RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+    skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  }
+  BrValg <- norgast::BrValgNorgastShiny(RegData)
+
   if (rapbase::isRapContext()) {
     rapbase::appLogger(session = session, msg = 'Starter NoRGast')
     reshID <- rapbase::getUserReshId(session)
@@ -28,69 +37,88 @@ appServer <- function(input, output, session) {
     shiny::hideTab("norgast_app_id", target = "Verktøy")
   }
 
-  shiny::callModule(startside, "startside", usrRole=userRole)
+  shiny::callModule(norgast::startside, "startside", usrRole=userRole)
 
-  #################################################################################################################################
-  ################ Fordelingsfigurer ##############################################################################################
+  ##############################################################################
+  ################ Fordelingsfigurer ###########################################
 
-  shiny::callModule(fordelingsfig, "fordelingsfig_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
 
-  #################################################################################################################################
-  ################ Sykehusvisning #################################################################################################
+  ##############################################################################
+  ################ Sykehusvisning ##############################################
 
-  shiny::callModule(sykehusvisning, "sykehusvisning_id", reshID = reshID, RegData = RegData, hvd_session = session)
+  shiny::callModule(norgast::sykehusvisning, "sykehusvisning_id", reshID = reshID,
+                    RegData = RegData, hvd_session = session, BrValg = BrValg)
 
-  #################################################################################################################################
-  ################ Traktplot ######################################################################################################
+  ##############################################################################
+  ################ Traktplot ###################################################
 
-  shiny::callModule(traktplot, "traktplot_id", reshID = reshID, RegData = RegData, hvd_session = session, BrValg = BrValg)
-
-
-  #################################################################################################################################
-  ################ Tidsvisning ####################################################################################################
-
-  shiny::callModule(tidsvisning, "tidsvisning_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-
-  #################################################################################################################################
-  ################ Indikatorfigurer ###############################################################################################
-
-  shiny::callModule(indikatorfig, "indikator_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-
-  #################################################################################################################################
-  ################ Overlevelseskurver #############################################################################################
-
-  shiny::callModule(overlevelse, "overlevelse_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
-
-  #################################################################################################################################
-  ################ Sammenlign utvalg ##############################################################################################
-
-  shiny::callModule(saml_andeler, "saml_andeler_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(norgast::traktplot, "traktplot_id", reshID = reshID,
+                    RegData = RegData, hvd_session = session, BrValg = BrValg)
 
 
-  #################################################################################################################################
-  ################ Samledokumenter ################################################################################################
+  ##############################################################################
+  ################ Tidsvisning #################################################
 
-  shiny::callModule(samledok, "samledok_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(norgast::tidsvisning, "tidsvisning_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
 
-  #################################################################################################################################
-  ################ Datadump   #####################################################################################################
+  ##############################################################################
+  ################ Sammenlign utvalg ###########################################
 
-  shiny::callModule(datadump, "datadump_id", reshID = reshID, RegData = RegData, userRole = userRole, hvd_session = session)
+  shiny::callModule(norgast::saml_andeler, "saml_andeler_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
 
-  #################################################################################################################################
-  ################ Adm. tabeller ##################################################################################################
 
-  shiny::callModule(admtab, "admtab_id", reshID = reshID, RegData = RegData, userRole = userRole,
-                    hvd_session = session, skjemaoversikt=skjemaoversikt)
+  ##############################################################################
+  ################ Indikatorfigurer ############################################
 
-  #################################################################################################################################
-  ################ Datakvalitet ###################################################################################################
+  shiny::callModule(norgast::indikatorfig, "indikator_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
 
-  shiny::callModule(datakval_server, "datakval_id", reshID = reshID, userRole = userRole,
+  ##############################################################################
+  ################ Overlevelseskurver ##########################################
+
+  shiny::callModule(norgast::overlevelse, "overlevelse_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
+  ##############################################################################
+  ################ Samledokumenter #############################################
+
+  shiny::callModule(norgast::samledok, "samledok_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
+  ##############################################################################
+  ################ Datadump   ##################################################
+
+  shiny::callModule(norgast::datadump, "datadump_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, BrValg = BrValg)
+
+  ##############################################################################
+  ################ Adm. tabeller ###############################################
+
+  shiny::callModule(norgast::admtab, "admtab_id", reshID = reshID,
+                    RegData = RegData, userRole = userRole,
+                    hvd_session = session, skjemaoversikt=skjemaoversikt,
+                    BrValg = BrValg)
+
+  ##############################################################################
+  ################ Datakvalitet ################################################
+
+  shiny::callModule(norgast::datakval_server, "datakval_id",
+                    reshID = reshID, userRole = userRole,
                     RegData = RegData, hvd_session = session)
 
-  #############################################################################
-  ################ Subscription, Dispatchment and Stats #######################
+  ##############################################################################
+  ################ Subscription, Dispatchment and Stats ########################
 
   ## Objects currently shared among subscription and dispathcment
   orgs <- as.list(BrValg$sykehus)
@@ -145,19 +173,15 @@ appServer <- function(input, output, session) {
   })
 
 
-  #################################################################################################################################
-  # Eksport  ###################################################################################################################
+  ##############################################################################
+  # Eksport  ###################################################################
   # brukerkontroller
   rapbase::exportUCServer("norgastExport", "norgast")
 
   ## veileding
   rapbase::exportGuideServer("norgastExportGuide", "norgast")
 
-  #################################################################################################################################
-
-
-
-
+  ##############################################################################
 
 
 
