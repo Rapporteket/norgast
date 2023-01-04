@@ -31,7 +31,8 @@ NorgastUtvalg(
   dagtid = 99,
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
-  tilgang_utvidet = ""
+  tilgang_utvidet = "",
+  ny_stomi = 99
 )
 }
 \arguments{
