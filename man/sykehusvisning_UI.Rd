@@ -4,7 +4,7 @@
 \alias{sykehusvisning_UI}
 \title{UI-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-sykehusvisning_UI(id, BrValg)
+sykehusvisning_UI(id)
 }
 \value{
 Modul sykehusvisning, andeler

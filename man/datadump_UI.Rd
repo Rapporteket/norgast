@@ -4,7 +4,7 @@
 \alias{datadump_UI}
 \title{UI-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket}
 \usage{
-datadump_UI(id, BrValg)
+datadump_UI(id)
 }
 \value{
 Modulfunksjoner til datadump-fane

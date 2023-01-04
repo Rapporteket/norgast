@@ -4,7 +4,16 @@
 \alias{samledok}
 \title{Server-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket}
 \usage{
-samledok(input, output, session, reshID, RegData, userRole, hvd_session)
+samledok(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modulfunksjoner til Samledokumenter

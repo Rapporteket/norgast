@@ -4,7 +4,16 @@
 \alias{datadump}
 \title{Server-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket}
 \usage{
-datadump(input, output, session, reshID, RegData, userRole, hvd_session)
+datadump(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modulfunksjoner til datadump-fane

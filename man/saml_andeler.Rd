@@ -4,7 +4,16 @@
 \alias{saml_andeler}
 \title{Server-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-saml_andeler(input, output, session, reshID, RegData, userRole, hvd_session)
+saml_andeler(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modul sammenligning av andeler

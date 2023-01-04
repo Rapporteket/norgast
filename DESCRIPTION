@@ -25,7 +25,7 @@ Imports:
   tsibble
 Remotes:
   Rapporteket/rapbase@*release
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

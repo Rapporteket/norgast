@@ -4,7 +4,7 @@
 \alias{sykehusvisning}
 \title{Server-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-sykehusvisning(input, output, session, reshID, RegData, hvd_session)
+sykehusvisning(input, output, session, reshID, RegData, hvd_session, BrValg)
 }
 \value{
 Modul sykehusvisning, andeler

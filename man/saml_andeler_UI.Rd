@@ -4,7 +4,7 @@
 \alias{saml_andeler_UI}
 \title{UI-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-saml_andeler_UI(id, BrValg)
+saml_andeler_UI(id)
 }
 \value{
 Modul sammenligning av andeler

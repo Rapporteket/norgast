@@ -4,7 +4,7 @@
 \alias{samledok_UI}
 \title{UI-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket}
 \usage{
-samledok_UI(id, BrValg)
+samledok_UI(id)
 }
 \value{
 Modulfunksjoner til Samledokumenter

@@ -24,7 +24,7 @@ appUi <- function() {
                                    organization = uiOutput("appOrgName"),
                                    addUserInfo = TRUE),
       shiny::tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
-                       includeCSS(system.file("shinyApps/norgast/www/yohannes.css",
+                       includeCSS(system.file("www/yohannes.css",
                                               package = "norgast"))),
       norgast::startside_UI("startside")
     ),

@@ -4,7 +4,16 @@
 \alias{fordelingsfig}
 \title{Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket}
 \usage{
-fordelingsfig(input, output, session, reshID, RegData, userRole, hvd_session)
+fordelingsfig(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modul fordelingsfigur

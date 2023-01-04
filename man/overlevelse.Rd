@@ -4,7 +4,16 @@
 \alias{overlevelse}
 \title{Server-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket}
 \usage{
-overlevelse(input, output, session, reshID, RegData, userRole, hvd_session)
+overlevelse(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modul overlevelesesfigurer

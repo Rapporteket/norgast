@@ -4,7 +4,7 @@
 \alias{tidsvisning_UI}
 \title{UI-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-tidsvisning_UI(id, BrValg)
+tidsvisning_UI(id)
 }
 \value{
 Modul tidsvisning, andeler

@@ -4,7 +4,7 @@
 \alias{indikatorfig_UI}
 \title{UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket}
 \usage{
-indikatorfig_UI(id, BrValg)
+indikatorfig_UI(id)
 }
 \value{
 Modul fordelingsfigur

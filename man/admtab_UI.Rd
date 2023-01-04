@@ -4,7 +4,7 @@
 \alias{admtab_UI}
 \title{UI-modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket}
 \usage{
-admtab_UI(id, BrValg)
+admtab_UI(id)
 }
 \value{
 Modulfunksjoner til Administrative tabeller

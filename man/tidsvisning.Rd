@@ -4,7 +4,16 @@
 \alias{tidsvisning}
 \title{Server-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket}
 \usage{
-tidsvisning(input, output, session, reshID, RegData, userRole, hvd_session)
+tidsvisning(
+  input,
+  output,
+  session,
+  reshID,
+  RegData,
+  userRole,
+  hvd_session,
+  BrValg
+)
 }
 \value{
 Modul tidsvisning, andeler

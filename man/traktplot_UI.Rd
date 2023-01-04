@@ -4,7 +4,7 @@
 \alias{traktplot_UI}
 \title{UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket}
 \usage{
-traktplot_UI(id, BrValg)
+traktplot_UI(id)
 }
 \value{
 Modul traktplot

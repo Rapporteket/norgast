@@ -4,7 +4,7 @@
 \alias{overlevelse_UI}
 \title{UI-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket}
 \usage{
-overlevelse_UI(id, BrValg)
+overlevelse_UI(id)
 }
 \value{
 Modul overlevelesesfigurer
