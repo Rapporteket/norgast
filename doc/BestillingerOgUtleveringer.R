@@ -3,6 +3,23 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+### Leveranse Lassen 2023-02-08 #####################################
+
+RegData <- rapbase::loadStagingData("norgast", "RegData")
+
+krissdata <- RegData %>% filter(HovedDato >= "2016-01-01" &
+                                HovedDato < "2023-01-01") %>%
+  filter(SykehusNavn == "OUS-Rikshospitalet") %>%
+  filter(substr(Hoveddiagnose, 1, 3) == "C22")
+
+fnr <- readr::read_csv2("~/mydata/NoRGast_koblingstabell_datadump_06.02.2023.csv")
+
+krissdata <- merge(krissdata, fnr, by.x = "PasientId", by.y = "PID", all.x = T)
+
+utlevering <- krissdata[, c("PasientID", "SSN", "Hoveddiagnose")]
+
+write.csv2(utlevering, "~/mydata/utlev_lassen_08022023.csv", row.names = F, fileEncoding = "Latin1")
+
 
 ### Leveranse Lassen 2022-10-21 #####################################
 
