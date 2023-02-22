@@ -1,26 +1,27 @@
-# Modul for abonnement i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# @return Modul abonnement
-#
+#' UI-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul abonnement
+#'
+#' @export
 abonnement_UI <- function(id, BrValg){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
     sidebarPanel(width = 3,
-      selectInput(ns("subscriptionRep"), "Rapport:",
-                  c("Kvartalsrapport")),
-      selectInput(ns("subscriptionFreq"), "Frekvens:",
-                  list(Årlig="Årlig-year",
-                        Kvartalsvis="Kvartalsvis-quarter",
-                        Månedlig="Månedlig-month",
-                        Ukentlig="Ukentlig-week",
-                        Daglig="Daglig-DSTday"),
-                  selected = "Månedlig-month"),
-      #selectInput("subscriptionFileFormat", "Format:",
-      #            c("html", "pdf")),
-      actionButton(ns("subscribe"), "Bestill!")
+                 selectInput(ns("subscriptionRep"), "Rapport:",
+                             c("Kvartalsrapport")),
+                 selectInput(ns("subscriptionFreq"), "Frekvens:",
+                             list(Årlig="Årlig-year",
+                                   Kvartalsvis="Kvartalsvis-quarter",
+                                   Månedlig="Månedlig-month",
+                                   Ukentlig="Ukentlig-week",
+                                   Daglig="Daglig-DSTday"),
+                             selected = "Månedlig-month"),
+                 #selectInput("subscriptionFileFormat", "Format:",
+                 #            c("html", "pdf")),
+                 actionButton(ns("subscribe"), "Bestill!")
     ),
     mainPanel(
       uiOutput(outputId = ns('subscriptionContent'))
@@ -31,7 +32,13 @@ abonnement_UI <- function(id, BrValg){
 
 
 
-
+#' Server-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul abonnement
+#'
+#' @export
 abonnement <- function(input, output, session, reshID, userRole, hvd_session){
 
 

@@ -1,10 +1,11 @@
-# Modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# return Modul fordelingsfigur
-#
-indikatorfig_UI <- function(id, BrValg){
+#' UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
+indikatorfig_UI <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -53,8 +54,9 @@ indikatorfig_UI <- function(id, BrValg){
                              )
                  ),
                  uiOutput(outputId = ns('tilAar')),
-                 selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
-                             choices = BrValg$sykehus, multiple = TRUE),
+                 # selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
+                 #             choices = BrValg$sykehus, multiple = TRUE),
+                 uiOutput(outputId = ns('valgtShus_ui')),
                  sliderInput(ns("skriftStr"), "Skriftstørrelse sykehusnavn", min = 0.5, max = 1.8,
                              value = 1.3, step = 0.05, ticks = F),
                  selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
@@ -70,7 +72,7 @@ indikatorfig_UI <- function(id, BrValg){
                            uiOutput(ns("utvalg")),
                            # textOutput(ns("utvalg")),
                            br(),
-                           DTOutput(ns("tabell"))
+                           DT::DTOutput(ns("tabell"))
                            #          downloadButton(ns("lastNed"), "Last ned tabell")
                   )
       )
@@ -79,7 +81,15 @@ indikatorfig_UI <- function(id, BrValg){
 
 }
 
-indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+#' Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
+indikatorfig <- function(input, output, session, reshID, RegData,
+                         userRole, hvd_session, BrValg){
 
   RegData <- RegData[RegData$Op_gr %in% 1:7, ]
 
@@ -101,6 +111,12 @@ indikatorfig <- function(input, output, session, reshID, RegData, userRole, hvd_
                              sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
                   }, multiple = TRUE)
     }
+  })
+
+  output$valgtShus_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
+                choices = BrValg$sykehus, multiple = TRUE)
   })
 
   output$tilAar <- renderUI({

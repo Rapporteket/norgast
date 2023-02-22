@@ -1,10 +1,11 @@
-# Modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
-#
-# Kun til bruk i Shiny
-#
-# return Modul fordelingsfigur
-#
-fordelingsfig_UI <- function(id, BrValg){
+#' UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
+fordelingsfig_UI <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -12,28 +13,17 @@ fordelingsfig_UI <- function(id, BrValg){
       width = 3,
       id = ns("id_fordeling_panel"),
       # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
-      checkboxInput(inputId = ns("kun_ferdigstilte"), label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
-      selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                  choices = BrValg$varvalg),
-      # bsTooltip(id = ns("valgtVar"), title= 'Velg hvilken variabel du vil generere fordelingsfigur for.'),
+      checkboxInput(inputId = ns("kun_ferdigstilte"),
+                    label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)", value = TRUE),
+      uiOutput(outputId = ns('valgtVar_ui')),
       dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til", min = '2014-01-01',
                      max = Sys.Date(),
                      start  = lubridate::floor_date(lubridate::today() - lubridate::years(1), unit = "year"),
                      end = Sys.Date(), language = "nb", separator = " til "),
       selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
                   choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1, 'Egen avd.'=2)),
-      selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                  choices = BrValg$sykehus, multiple = TRUE),
-      selectInput(inputId = ns("tilgang_utvidet"),
-                  label = "Tilgang i abdomen (inkl. robotassistanse)",
-                  choices = BrValg$tilgang_utvidet, multiple = TRUE),
-      # selectInput(inputId = ns("tilgang"),
-      #             label = "Tilgang i abdomen (velg en eller flere)",
-      #             choices = BrValg$tilgang_valg, multiple = TRUE),
-      # selectInput(inputId = ns("robotassistanse"),
-      #             label = "Robotassistanse",
-      #             choices = c('Ikke valgt'=99, 'Ja'=1, 'Nei'=0),
-      #             multiple = FALSE),
+      uiOutput(outputId = ns('valgtShus_ui')),
+      uiOutput(outputId = ns('tilgang_utvidet_ui')),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                   max = 120, value = c(0, 120)),
       selectInput(inputId = ns("erMann"), label = "Kjønn",
@@ -47,14 +37,13 @@ fordelingsfig_UI <- function(id, BrValg){
       # shinyjs::hidden(
       #   div(
       #     id = ns("avansert"),
-      selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                  choices = BrValg$reseksjonsgrupper, multiple = TRUE),
+      uiOutput(outputId = ns('op_gruppe_ui')),
       uiOutput(outputId = ns('ncsp')),
-      selectInput(inputId = ns("BMI"), label = "BMI", choices = BrValg$bmi_valg, multiple = TRUE),
+      uiOutput(outputId = ns('BMI_ui')),
       sliderInput(inputId=ns("PRS"), label = "mE-PASS", min = 0, max = 2.2, value = c(0, 2.2), step = 0.05),
-      selectInput(inputId = ns("ASA"), label = "ASA-grad", choices = BrValg$ASA_valg, multiple = TRUE),
+      uiOutput(outputId = ns('ASA_ui')),
       selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score", choices = 0:2, multiple = TRUE),
-      selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score", choices = BrValg$whoEcog_valg, multiple = TRUE),
+      uiOutput(outputId = ns('whoEcog_ui')),
       selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling", multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose", choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
@@ -86,8 +75,14 @@ fordelingsfig_UI <- function(id, BrValg){
 
 
 
-
-fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd_session){
+#' Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#'
+#' Kun til bruk i Shiny
+#'
+#' @return Modul fordelingsfigur
+#'
+#' @export
+fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd_session, BrValg){
 
   # shinyjs::onclick("toggleAdvanced",
   #                  shinyjs::toggle(id = "avansert", anim = TRUE))
@@ -112,9 +107,57 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
     }
   })
 
+  output$valgtVar_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                choices = BrValg$varvalg)
+  })
+
+
+  output$valgtShus_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                choices = BrValg$sykehus, multiple = TRUE)
+  })
+
+  output$tilgang_utvidet_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("tilgang_utvidet"),
+                label = "Tilgang i abdomen (inkl. robotassistanse)",
+                choices = BrValg$tilgang_utvidet, multiple = TRUE)
+  })
+
+
+  output$op_gruppe_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                choices = BrValg$reseksjonsgrupper, multiple = TRUE)
+  })
+
+  output$BMI_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("BMI"), label = "BMI",
+                choices = BrValg$bmi_valg, multiple = TRUE)
+  })
+
+  output$ASA_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("ASA"), label = "ASA-grad",
+                choices = BrValg$ASA_valg, multiple = TRUE)
+  })
+
+  output$whoEcog_ui <- renderUI({
+    ns <- session$ns
+    selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
+                choices = BrValg$whoEcog_valg, multiple = TRUE)
+  })
+
+
 
   output$Figur1 <- renderPlot({
-    norgast::FigAndeler(RegData = RegData, valgtVar = input$valgtVar, minald=as.numeric(input$alder[1]),
+    norgast::FigAndeler(RegData = RegData,
+                        valgtVar = if (!is.null(input$valgtVar)) {input$valgtVar} else {'Alder'},
+                        minald=as.numeric(input$alder[1]),
                         maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
                         valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
                         op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
@@ -171,24 +214,24 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
     TabellData <- tabellReager()
     if (input$enhetsUtvalg == 1) {
       Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-        mutate(AndelRest= 100*AntRest/Nrest)
+        dplyr::mutate(Kategori = rownames(.)) %>%
+        dplyr::select(Kategori, everything()) %>%
+        dplyr::mutate(AndelHoved = 100*AntHoved/NHoved) %>%
+        dplyr::mutate(AndelRest= 100*AntRest/Nrest)
       Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
       Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1), row.names = F) %>%
-        kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
+        kableExtra::kable_styling("hover", full_width = F) %>%
+        kableExtra::add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
     } else {
       Tabell1 <- TabellData$Antall %>%
-        mutate(Kategori = rownames(.)) %>%
-        select(Kategori, everything()) %>%
-        mutate(AndelHoved = 100*AntHoved/NHoved)
+        dplyr::mutate(Kategori = rownames(.)) %>%
+        dplyr::select(Kategori, everything()) %>%
+        dplyr::mutate(AndelHoved = 100*AntHoved/NHoved)
       names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
       Tabell1 %>%
         knitr::kable("html", digits = c(0,0,0,1), row.names = F) %>%
-        kable_styling("hover", full_width = F)
+        kableExtra::kable_styling("hover", full_width = F)
     }
 
   }
@@ -202,16 +245,16 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
       TabellData <- tabellReager()
       if (input$enhetsUtvalg == 1) {
         Tabell1 <- TabellData$Antall %>%
-          mutate(Kategori = rownames(.)) %>%
-          select(Kategori, everything()) %>%
-          mutate(AndelHoved = 100*AntHoved/NHoved) %>%
-          mutate(AndelRest= 100*AntRest/Nrest)
+          dplyr::mutate(Kategori = rownames(.)) %>%
+          dplyr::select(Kategori, everything()) %>%
+          dplyr::mutate(AndelHoved = 100*AntHoved/NHoved) %>%
+          dplyr::mutate(AndelRest= 100*AntRest/Nrest)
         Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
       } else {
         Tabell1 <- TabellData$Antall %>%
-          mutate(Kategori = rownames(.)) %>%
-          select(Kategori, everything()) %>%
-          mutate(AndelHoved = 100*AntHoved/NHoved)
+          dplyr::mutate(Kategori = rownames(.)) %>%
+          dplyr::select(Kategori, everything()) %>%
+          dplyr::mutate(AndelHoved = 100*AntHoved/NHoved)
       }
       # write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
       write.csv3(Tabell1, file, row.names = F)
