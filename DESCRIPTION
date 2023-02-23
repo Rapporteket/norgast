@@ -27,7 +27,7 @@ Imports:
 Remotes:
   Rapporteket/rapbase@*release,
   Rapporteket/rapFigurer
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
