@@ -5,18 +5,18 @@
 
 norgastApp <- function() {
 
-  library("norgast")
-  library("tidyverse")
-  library("kableExtra")
-  library("DT")
-  library("shiny")
-  library("shinyjs")
-  library("shinyalert")
-  library("lubridate")
-  library("survival")
-  library("survminer")
-  library("ggplot2")
-  library("funnelR")
+  # library("norgast")
+  # library("tidyverse")
+  # library("kableExtra")
+  # library("DT")
+  # library("shiny")
+  # library("shinyjs")
+  # library("shinyalert")
+  # library("lubridate")
+  # library("survival")
+  # library("survminer")
+  # library("ggplot2")
+  # library("funnelR")
 
   # RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
   # skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
