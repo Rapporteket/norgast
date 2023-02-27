@@ -3,6 +3,27 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+###### DG-sanalyse 2022 - 18.03.2022###############################################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("~/mydata/NoRGast_koblingstabell_datadump_06.02.2023.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- RegData[RegData$Op_gr %in% 1:8 & RegData$Aar == 2022, ]
+
+
+RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
+                      "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon")]
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+# write.csv2(RegData, "/home/rstudio/delt_folder/aktivitetsdata_norgast_2021.csv",
+#            row.names = F, fileEncoding = 'Latin1')
+# write.csv2(fid, "/home/rstudio/delt_folder/kobling_norgast_2021.csv",
+#            row.names = F, fileEncoding = 'Latin1')
+
+
 ### Leveranse Lassen 2023-02-08 #####################################
 
 RegData <- rapbase::loadStagingData("norgast", "RegData")
