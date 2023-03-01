@@ -3,7 +3,120 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
-###### DG-sanalyse 2022 - 18.03.2022###############################################################
+##### Uttrekk Kolecystectomier OUS 2023 ########################################
+varnavn_kobl <- data.frame(
+  kol = c("mce.MCEID AS ForlopsID",
+          "mce.PATIENT_ID AS PasientId",
+          "mce.CENTREID AS AvdRESH",
+          "patient.SSN AS Fodselsnummer",
+          "patient.DECEASED AS Avdod",
+          "patient.DECEASED_DATE AS AvdodDato",
+          "centre.CENTRENAME AS SenterNavn",
+          "registration.PREVIOUS_WEIGHT AS Vekt6MndFoer",
+          "registration.PREVIOUS_WEIGHT_MISS AS Vekt6MndFoerUkjent",
+          "registration.ADMISSION_WEIGHT AS VektVedInnleggelse",
+          "registration.ADMISSION_WEIGHT_MISS AS VektVedInnleggelseUkjent",
+          "registration.HEIGHT AS Hoyde",
+          "registration.HEIGHT_MISS AS HoydeUkjent",
+          "registration.BMI AS BMI",
+          "registration.BMI_CATEGORY AS BMIKategori",
+          "registration.WEIGHTLOSS AS VekttapProsent",
+          "registration.DIABETES AS MedDiabetes",
+          "registration.CHEMOTHERAPY_ONLY AS KunCytostatika",
+          "registration.RADIATION_THERAPY_ONLY AS KunStraaleterapi",
+          "registration.CHEMORADIOTHERAPY AS KjemoRadioKombo",
+          "registration.WHO_ECOG_SCORE AS WHOECOG",
+          "registration.ALBUMIN AS Albumin",
+          "registration.CRP AS CRP",
+          "registration.GLASGOW_SCORE AS GlasgowScore",
+          "registration.MODIFIED_GLASGOW_SCORE AS ModGlasgowScore",
+          "registration.ASA AS ASA",
+          "registration.LUNG_DISEASE AS Lungesykdom",
+          "registration.HEART_DISEASE AS Hjertesykdom",
+          "registration.URGENCY AS Hastegrad",
+          "registration.ANESTHESIA_START AS AnestesiStartKl",
+          "registration.PRS_SCORE AS PRSScore",
+          "registration.OPERATION_DATE AS OpDato",
+          "registration.NCSP AS Hovedoperasjon",
+          "registration.ABLATION AS LeverAblasjon",
+          "registration.RECONSTRUCTION AS Rekonstruksjon",
+          "registration.RECONSTRUCTION_TYPE AS Rekonstruksjonstype",
+          "registration.ANASTOMOSIS_LEVEL AS Anastomoseniva",
+          "registration.ANASTOMOSIS AS NyAnastomose",
+          "registration.ANAL_GUARD_DISTANCE AS AvstandAnalVerge",
+          "registration.ANAL_GUARD_DISTANCE_MISS AS AvstandAnalVergeIkkeAkt",
+          "registration.TATME AS TaTME",
+          "registration.OSTOMY AS NyStomi",
+          "registration.ABDOMINAL_ACCESS AS Tilgang",
+          "registration.ROBOTASSISTANCE AS Robotassistanse",
+          "registration.THORAX_ACCESS AS ThoraxTilgang",
+          "registration.RELAPAROTOMY AS ReLapNarkose",
+          "registration.RELAPAROTOMY_YES AS ViktigsteFunn",
+          "registration.FINDINGS_SPESIFISER AS FunnSpesifiser",
+          "registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi",
+          "registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi",
+          "registration.PERCUTANEOUS_DRAINAGE AS PerkDrenasje",
+          "registration.HIGH_AMYLASE_CONCENTRATION AS HoyAmylaseKons",
+          "registration.LEAK_INTERVENTION AS EndoInterLekkasje",
+          "registration.BLEED_INTERVENTION AS EndoInterBlod",
+          "registration.ANGIO_INTERVENTION AS AngioInter",
+          "registration.LIQUID_DRAINAGE AS KunDrenasje",
+          "registration.SINGLE_ORGAN_FAILURE AS EttOrganSvikt",
+          "registration.MULTI_ORGAN_FAILURE AS MultiOrganSvikt",
+          "registration.IN_HOUSE_DEATH AS DodUnderOpphold",
+          "registration.IN_HOUSE_DEATH_DATE AS DodUnderOppholdDato",
+          "registration.ACCORDION_SCORE AS AccordionGrad",
+          "registration.DISCHARGE_DATE AS UtskrivelseDato",
+          "registration.BED_DAYS AS PostopLiggedogn",
+          "registration.ICD10 AS Hoveddiagnose",
+          "registration.DISCHARGE_TO AS UtskrevetTil",
+          "registration.STATUS AS RegistreringStatus",
+          "readmission.OWN_INSTITUTION AS ReinnlEgenInst",
+          "readmission.OTHER_INSTITUTIONS AS ReinnlAndreInst",
+          "readmission.CONTROL AS AktivKontroll",
+          "readmission.PHYSICAL_CONTROL AS FysiskKontroll",
+          "readmission.PHONE_CONTROL AS TelefonKontroll",
+          "readmission.RELAPAROTOMY AS OppfReLapNarkose",
+          "readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn",
+          "readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser",
+          "readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi",
+          "readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi",
+          "readmission.PERCUTANEOUS_DRAINAGE AS OppfPerkDrenasje",
+          "readmission.HIGH_AMYLASE_CONCENTRATION AS OppfHoyAmylaseKons",
+          "readmission.LEAK_INTERVENTION AS OppfEndoInterLekkasje",
+          "readmission.BLEED_INTERVENTION AS OppfEndoInterBlod",
+          "readmission.ANGIO_INTERVENTION AS OppfAngioInter",
+          "readmission.LIQUID_DRAINAGE AS OppfKunDrenasje",
+          "readmission.SINGLE_ORGAN_FAILURE AS OppfEttOrganSvikt",
+          "readmission.MULTI_ORGAN_FAILURE AS OppfMultiOrganSvikt",
+          "readmission.IN_HOUSE_DEATH AS OppfDodUnderOpphold",
+          "readmission.IN_HOUSE_DEATH_DATE AS OppfDodUnderOppholdDato",
+          "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
+          "readmission.STATUS AS OppfStatus")) %>%
+  tidyr::separate(col="kol", into=c("dbnavn", "rapporteket"), sep = " AS ") %>%
+  dplyr::mutate(dbnavn = toupper(dbnavn))
+  # dplyr::as_tibble() %>%
+  # tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
+
+utlevernavn <- readr::read_csv2("~/mydata/varnavn_utlevering_v2.csv")
+utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
+
+utlevernavn <- utlevernavn$variabel_id %>% unique()
+
+rappnavn_utlevering <- varnavn_kobl %>%
+  dplyr::filter(dbnavn %in% utlevernavn)
+
+# setdiff(utlevernavn, rappnavn_utlevering$dbnavn)
+
+utlevering <- RegData %>%
+  dplyr::select(c(rappnavn_utlevering$rapporteket, "PasientID", "PasientKjonn")) %>%
+  dplyr::filter()
+
+
+# setdiff(varnavn_kobl$rapporteket, names(RegData))
+# setdiff(names(RegData),varnavn_kobl$rapporteket)
+
+###### DG-sanalyse 2023 - dato uvisst ##########################################
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
 fid <- read.csv2("~/mydata/NoRGast_koblingstabell_datadump_06.02.2023.csv",
@@ -29,7 +142,7 @@ names(fid) <- c("PasientID", "Fnr")
 RegData <- rapbase::loadStagingData("norgast", "RegData")
 
 krissdata <- RegData %>% filter(HovedDato >= "2016-01-01" &
-                                HovedDato < "2023-01-01") %>%
+                                  HovedDato < "2023-01-01") %>%
   filter(SykehusNavn == "OUS-Rikshospitalet") %>%
   filter(substr(Hoveddiagnose, 1, 3) == "C22")
 
@@ -79,7 +192,7 @@ write.csv2(rater, "~/.ssh/norgast/rater_norgast_oktober2022_kunferdige.csv", row
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
 aux <- RegData[which(RegData$Aar >= 2020 & RegData$AvdRESH == 601225 &
-                     RegData$Malign == 1 & RegData$Op_gr == 1 &
+                       RegData$Malign == 1 & RegData$Op_gr == 1 &
                        RegData$Hastegrad == 1 & RegData$Robotassistanse == 1), ]
 # fid <- read.csv2("/home/rstudio/.ssh/NoRGast_koblingstabell_datadump_20.04.2022.csv",
 #                  colClasses = c("integer", "character"))
