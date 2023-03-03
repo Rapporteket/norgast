@@ -95,8 +95,8 @@ varnavn_kobl <- data.frame(
           "readmission.STATUS AS OppfStatus")) %>%
   tidyr::separate(col="kol", into=c("dbnavn", "rapporteket"), sep = " AS ") %>%
   dplyr::mutate(dbnavn = toupper(dbnavn))
-  # dplyr::as_tibble() %>%
-  # tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
+# dplyr::as_tibble() %>%
+# tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
 
 utlevernavn <- readr::read_csv2("~/mydata/varnavn_utlevering_v2.csv")
 utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
@@ -108,13 +108,17 @@ rappnavn_utlevering <- varnavn_kobl %>%
 
 # setdiff(utlevernavn, rappnavn_utlevering$dbnavn)
 
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+
 utlevering <- RegData %>%
-  dplyr::select(c(rappnavn_utlevering$rapporteket, "PasientID", "PasientKjonn")) %>%
-  dplyr::filter()
+  dplyr::filter(Aar == 2019 &
+                  SykehusNavn %in% c("OUS-Radiumhospitalet", "OUS-Rikshospitalet", "OUS-Ullevål") &
+                  ncsp_lowercase %in% c("jka20", "jka21", "jka96", "jka97")) %>%
+  dplyr::select(c(rappnavn_utlevering$rapporteket,
+                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn"))
 
-
-# setdiff(varnavn_kobl$rapporteket, names(RegData))
-# setdiff(names(RegData),varnavn_kobl$rapporteket)
+write.csv2(utlevering, "~/mydata/kolocytectomi_ous_2019.csv", row.names = F, fileEncoding = "Latin1")
 
 ###### DG-sanalyse 2023 - dato uvisst ##########################################
 RegData <- norgast::NorgastHentRegData()
