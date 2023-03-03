@@ -98,7 +98,7 @@ varnavn_kobl <- data.frame(
 # dplyr::as_tibble() %>%
 # tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
 
-utlevernavn <- readr::read_csv2("~/mydata/varnavn_utlevering_v2.csv")
+utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv")
 utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
 
 utlevernavn <- utlevernavn$variabel_id %>% unique()
@@ -116,9 +116,33 @@ utlevering <- RegData %>%
                   SykehusNavn %in% c("OUS-Radiumhospitalet", "OUS-Rikshospitalet", "OUS-Ullevål") &
                   ncsp_lowercase %in% c("jka20", "jka21", "jka96", "jka97")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn"))
+                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID"))
 
-write.csv2(utlevering, "~/mydata/kolocytectomi_ous_2019.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(utlevering, "~/mydata/norgast/kolocytectomi_ous_2019.csv", row.names = F, fileEncoding = "Latin1")
+
+##### v2: fra qreg ##################
+registration <- readr::read_csv2("~/mydata/norgast/NoRGast_registration_datadump_03.03.2023.csv")
+readmission <- readr::read_csv2("~/mydata/norgast/NoRGast_readmission_datadump_03.03.2023.csv")
+mce <- readr::read_csv2("~/mydata/norgast/NoRGast_mce_datadump_03.03.2023.csv")
+user <- readr::read_csv2("~/mydata/norgast/NoRGast_user_datadump_03.03.2023.csv")
+mce_patient <- readr::read_csv2("~/mydata/norgast/NoRGast_mce_patient_data_datadump_03.03.2023.csv")
+kobling <- readr::read_csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_03.03.2023.csv")
+
+varnavn <- tidyr::separate(data.frame(utlevernavn), col = utlevernavn, into=c("tabell", "varnavn"), sep = "\\.")
+
+# mce_patient <- mce_patient[, varnavn$varnavn[varnavn$tabell=="PATIENT"]]
+# registration <- registration[, varnavn$varnavn[varnavn$tabell=="REGISTRATION"]]
+# readmission <- readmission[, varnavn$varnavn[varnavn$tabell=="READMISSION"]]
+
+tmp <- merge(utlevering, registration[, c("MCEID", "NCSP_VERSION", "USERCOMMENT")],
+             by.x = "ForlopsID", by.y = "MCEID") %>%
+  merge(readmission[, c("MCEID", "USERCOMMENT")], by.x = "ForlopsID", by.y = "MCEID",
+        suffixes = c("", "_readm")) %>%
+  merge(kobling, by.x = "PasientID", by.y = "PID")
+
+
+write.csv2(tmp, "~/mydata/norgast/kolocytectomi_ous_2019_v2.csv", row.names = F, fileEncoding = "Latin1")
+
 
 ###### DG-sanalyse 2023 - dato uvisst ##########################################
 RegData <- norgast::NorgastHentRegData()
