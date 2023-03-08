@@ -3,7 +3,20 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
-##### Uttrekk Kolecystectomier OUS 2023 ########################################
+##### Legg til navn_i_rapportket i klokebok. ###################################
+klokebok1 <- readxl::read_xlsx("~/mydata/norgast/Klokeboken NORGAST 2023 Variabelutvalg.xlsx",
+                              sheet = 1) %>% select(-"navn_i_rapporteket")
+varnavn_kobl <- varnavn_kobl %>% dplyr::mutate(variabel_id = sub("\\.", "_", dbnavn)) %>%
+  mutate(navn_i_rapporteket = rapporteket) %>% select(-"rapporteket")
+
+klokebok <- merge(klokebok, varnavn_kobl[,c("variabel_id", "navn_i_rapporteket")], by = "variabel_id", all.x = T)
+klokebok <- klokebok[, c("skjemanavn", "navn_i_rapporteket", "ledetekst", "type", "listeverdier",
+                         "listetekst", "fysisk_feltnavn", "variabel_id", "hjelpetekst")]
+
+write.csv2(klokebok, "~/mydata/norgast/klokebok_m_rapnavn.csv", row.names = F,
+           fileEncoding = "Latin1")
+
+##### Uttrekk Søreide, pankreas 2016-2021, 08.03.2023 ##########################
 varnavn_kobl <- data.frame(
   kol = c("mce.MCEID AS ForlopsID",
           "mce.PATIENT_ID AS PasientId",
@@ -97,6 +110,32 @@ varnavn_kobl <- data.frame(
   dplyr::mutate(dbnavn = toupper(dbnavn))
 # dplyr::as_tibble() %>%
 # tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
+
+utlevernavn <- readr::read_csv2("~/mydata/norgast/utlevering_soreide.csv")
+utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
+
+utlevernavn <- utlevernavn$variabel_id %>% unique()
+rappnavn_utlevering <- varnavn_kobl %>%
+  dplyr::filter(dbnavn %in% utlevernavn)
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+kobling <- readr::read_csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_03.03.2023.csv")
+
+utlevering <- RegData %>%
+  dplyr::filter(Aar %in% 2016:2021 &
+                  ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
+  dplyr::select(c(rappnavn_utlevering$rapporteket,
+                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+  merge(kobling, by.x = "PasientID", by.y = "PID") %>%
+  mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
+  select(-"SSN")
+
+
+write.csv2(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas.csv", row.names = F, fileEncoding = "Latin1")
+
+##### Uttrekk Kolecystectomier OUS 2023 ########################################
+
 
 utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv")
 utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
