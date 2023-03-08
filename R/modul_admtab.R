@@ -284,8 +284,8 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
 
     if (input$adm_tidsenhet == 2) {
       req(input$datovalg_adm_tid_aar)
-      # print(input$datovalg_adm_tid_aar)
-      fraDato <- as.Date(input$datovalg_adm_tid_aar) %m-% years(input$ant_aar) %>% floor_date(unit="years")
+      tilDato <- as.Date(input$datovalg_adm_tid_aar)
+      fraDato <- lubridate::`%m-%`(tilDato, lubridate::years(input$ant_aar)) %>% lubridate::floor_date(unit="years")
       tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato",
                                                                                "OpprettetDato", "Sykehusnavn", "AvdRESH",
                                                                                "Op_gr", "Hovedoperasjon")],
