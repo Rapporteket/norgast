@@ -1,0 +1,935 @@
+\documentclass[norsk,a4paper]{article} % ,twoside
+\usepackage[norsk]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{subfig}
+\usepackage{pdfpages}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage[a4paper]{geometry}
+
+\title{Figurer og tabeller for årsrapport NoRGast 2022 - Kolon og rektum}
+\author{NoRGast}
+
+\renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
+\def\labelitemi{$\bullet$}
+\def\labelitemii{--}
+\def\labelitemiii{$\ast$}
+\def\labelitemiv{$\cdot$}
+
+%setter grå skrift fremfort sort
+\usepackage{xcolor}
+\usepackage{graphicx}
+\pagestyle{myheadings}
+\definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
+\definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
+
+<<'initOpts',include=FALSE>>=
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_knit$set(root.dir = './')
+@
+
+\begin{document}
+
+<<LastData, include=FALSE, cache=FALSE>>=
+library(norgast)
+library(tidyverse)
+options(dplyr.summarise.inform = FALSE)
+rm(list = ls())
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- NorgastPreprosess(RegData)
+RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
+
+gr <- c(1:6)
+grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           'Lever',"Pankreas")
+RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==7]<- 6
+RegData$Op_grAarsrapp[RegData$Op_grAarsrapp %in% c(8,99)]<- NA
+
+rap_aar <- 2022 # Året rapporten skal kjøres for
+ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
+
+RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
+
+reshID <- 0
+datoFra= paste0(rap_aar, '-01-01')
+datoTil= paste0(rap_aar, '-12-31')
+
+RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
+RegData <- RegData[RegData$Aar==rap_aar, ]
+
+DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+DG <- DG[!is.na(DG$AvdRESH), ]
+# DG <- DG[DG$n_norgast != 0, ]
+
+graaUt_kolon <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 1]
+graaUt_rektum <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 2]
+
+figstr <- 1
+tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
+@
+
+\maketitle
+
+
+\clearpage
+
+<<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+# grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           # 'Lever',"Pankreas")
+width=600
+height=700
+sideTxt='Sykehus'
+decreasing=F
+terskel=10
+minstekrav = NA
+maal = NA
+skriftStr=0.9
+pktStr=1.0
+legPlass='top'
+minstekravTxt='Akseptabelt'
+maalTxt='Mål'
+dg_tekst <- "Dekningsgrad < 60 %"
+graaUt=NA
+minald=0
+maxald=130
+erMann <- 99
+inkl_konf <- T
+elektiv=99
+datoFra <- '2015-01-01'
+tittel <- ''
+hentData <- F
+preprosess <- F
+BMI=''
+tilgang=''
+minPRS=0
+maxPRS=2.2
+ASA=''
+whoEcog= ''
+hastegrad <- ''
+modGlasgow <- ''
+ncsp=''
+forbehandling=''
+valgtShus=c('')
+# reseksjonsGr <- ''
+op_gruppe <- ''
+malign <- 99
+annet_format_ut <- T
+ut_format <- 'svg'
+
+figfolder <- "~/mydata/norgast/fig_aarsrapp2022/kolon/"
+if (!dir.exists(figfolder)) {
+  dir.create(figfolder)
+}
+@
+
+\section{Kolonreseksjoner}
+
+
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerKolon v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
+                       RegData$ReLapNarkose %in% c(0, 1) &
+                       RegData$Op_gr==1 & RegData$OppfStatus == 1), ]
+aux$Tilgang <- factor(aux$Tilgang, levels = 1:3, labels = c("Åpen", "Laparoskopisk", "Konvertert") )
+
+nytab <- aux %>% group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
+
+aux$Robotassistanse <- factor(aux$Robotassistanse, levels = 0:1,
+                              labels = c("\\quad \\textit{Standard}", "\\quad \\textit{Robotassistert}") )
+
+undergr_lap <- aux %>% filter(Tilgang=="Laparoskopisk") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr_konv <- aux %>% filter(Tilgang=="Konvertert") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr <- bind_rows(undergr_lap, undergr_konv) %>%
+  rename(Tilgang = Robotassistanse) %>%
+  mutate(Tilgang = as.character(Tilgang))
+
+nytab <- bind_rows(nytab, undergr)
+nytab <- nytab[c(1,2,5,6,3,7,8,4), ]
+
+nytab[, -(1:2)] <- nytab[, -(1:2)]/nytab$N*100
+
+Tabell <- nytab
+Tabell$N[c(3,4,6,7)] <- paste0("\\textit{", Tabell$N[c(3,4,6,7)], "}")
+
+print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)), align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+      floating=FALSE,
+      hline.after=NULL,
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+                                'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
+@
+\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+\end{minipage}
+\end{table}
+
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerKolon robotassistanse', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+aux <- RegData %>%
+  filter(Hastegrad_hybrid==1) %>%
+  filter(ReLapNarkose %in% c(0, 1)) %>%
+  filter(Op_gr==1) %>%
+  filter(OppfStatus == 1) %>%
+  filter(Tilgang %in% 2:3)
+
+aux$Tilgang <- factor(aux$Tilgang, levels = 2:3, labels = c("\\quad \\textit{Laparoskopisk}", "\\quad \\textit{Konvertert}") )
+
+nytab <- aux %>% group_by(Robotassistanse, Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
+
+
+ikkerobot <- aux %>% filter(Robotassistanse == 0) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Ikke-robot")
+
+robot <- aux %>% filter(Robotassistanse == 1) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Robotassistert")
+
+tab_4c <- dplyr::bind_rows(robot[c(3,1,2), ], ikkerobot[c(3,1,2), ])
+tab_4c <- dplyr::bind_rows(tab_4c, data.frame(Tilgang = "Totalt", t(colSums(tab_4c[c(1,4), -1]))))
+
+tab_4c[, -(1:2)] <- tab_4c[, -(1:2)]/tab_4c$N*100
+
+Tabell <- tab_4c
+Tabell$N[c(2,3,5,6)] <- paste0("\\textit{", Tabell$N[c(2,3,5,6)], "}")
+
+print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)), align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+      floating=FALSE,
+      hline.after=NULL,
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+                                'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
+@
+\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\end{minipage}
+\end{table}
+
+
+<<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+op_gruppe <- 1
+elektiv <- 1
+hastegrad_hybrid <- 1
+
+outfile <- 'ViktigsteFunn_kolon_elektiv.pdf'
+outfile <- paste0(figfolder, outfile)
+FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
+           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+}
+
+tittel <- ''
+
+outfile <- 'Tilgang_elektiv_malign.pdf'
+outfile <- paste0(figfolder, outfile)
+malign <- 1
+NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid, outfile=outfile, Ngrense=10, malign = malign, lavDG = graaUt_kolon, lavDGtekst = dg_tekst)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='Tilgang', op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid, outfile=outfile, Ngrense=10, malign = malign, lavDG = graaUt_kolon, lavDGtekst = dg_tekst)
+}
+
+outfile <- 'Tilgang_elektiv_malign_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'LapTilgang2'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+outfile <- 'Tilgang_elektiv_malign_ecog_0_1.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+
+
+outfile <- 'AccordionGrad_elektiv_benign.pdf'
+outfile <- paste0(figfolder, outfile)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1, outfile=outfile,
+                           Ngrense=10, malign = 0, lavDG = graaUt_kolon)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1, outfile=outfile, Ngrense=10, malign = 0,
+                             lavDG = graaUt_kolon)
+}
+
+outfile <- 'KumAcc_elektiv_benign_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'KumAcc'
+tittel <- ''
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                       lavDG = graaUt_kolon,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
+}
+
+outfile <- 'AccordionGrad_elektiv_malign.pdf'
+outfile <- paste0(figfolder, outfile)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1,
+                           outfile=outfile, Ngrense=10, malign = 1,
+                           lavDG = graaUt_kolon)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, hastegrad_hybrid=1,
+                             outfile=outfile, Ngrense=10, malign = 1,
+                             lavDG = graaUt_kolon)
+}
+
+outfile <- 'KumAcc_elektiv_malign_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'KumAcc'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                     hastegrad_hybrid=hastegrad_hybrid, malign=1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                       lavDG = graaUt_kolon,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                       hastegrad_hybrid=hastegrad_hybrid, malign=1)
+}
+
+outfile <- 'AccordionGrad_ohjelp.pdf'
+outfile <- paste0(figfolder, outfile)
+FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=0, outfile=outfile, reshID=reshID)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=0, outfile=outfile, reshID=reshID)
+}
+
+
+
+valgtVar <- 'ReLapNarkose'
+malign <- 1
+outfile <- 'ReLapNarkose_malign_ecog0_1_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+
+outfile <- 'konv_rate_malign_ecog0_1_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'konv_rate'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+
+valgtVar <- 'Anastomoselekkasje'
+outfile <- 'Anastomoselekkasje_malign_ecog0_1aar.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+
+outfile <- 'mortalitet90_kolon_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'mortalitet90'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                     hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                       graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                       hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+}
+
+outfile <- 'mortalitet90_kolon_aar_refpas.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'mortalitet90'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                     hastegrad_hybrid=1, malign=1, kun_ferdigstilte = F)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                     hastegrad_hybrid=1, malign=1, kun_ferdigstilte = F)
+}
+
+outfile <- 'hastegrad_ny_kolon_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'Hastegrad'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+}
+
+outfile <- 'ohjelp_kveld_kolon_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'ohjelp_kveld'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
+}
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ViktigsteFunn_kolon_elektiv.pdf}
+\caption{ViktigsteFunn\_kolon\_elektiv.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_elektiv_malign.pdf}
+\caption{Tilgang\_elektiv\_malign.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_elektiv_malign_aar.pdf}
+\caption{Tilgang\_elektiv\_malign\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_elektiv_malign_ecog_0_1.pdf}
+\caption{Tilgang\_elektiv\_malign\_ecog\_0\_1.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_elektiv_benign.pdf}
+\caption{AccordionGrad\_elektiv\_benign.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}KumAcc_elektiv_benign_aar.pdf}
+\caption{KumAcc\_elektiv\_benign\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_elektiv_malign.pdf} % 10
+\caption{AccordionGrad\_elektiv\_malign.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}KumAcc_elektiv_malign_aar.pdf} % 11
+\caption{KumAcc\_elektiv\_malign\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_ohjelp.pdf} % 12
+\caption{AccordionGrad\_ohjelp.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ReLapNarkose_malign_ecog0_1_aar.pdf}
+\caption{ReLapNarkose\_malign\_ecog0\_1\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}konv_rate_malign_ecog0_1_aar.pdf}
+\caption{konv\_rate\_malign\_ecog0\_1\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_malign_ecog0_1aar.pdf}
+\caption{Anastomoselekkasje\_malign\_ecog0\_1aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_kolon_aar.pdf}
+\caption{mortalitet90\_kolon\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_kolon_aar_refpas.pdf}
+\caption{mortalitet90\_kolon\_aar\_refpas.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}hastegrad_ny_kolon_aar.pdf}
+\caption{hastegrad\_ny\_kolon\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ohjelp_kveld_kolon_aar.pdf}
+\caption{ohjelp\_kveld\_kolon\_aar.pdf}
+\end{figure}
+
+\clearpage
+
+\section{Rektumreseksjoner}
+
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerRektum v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
+                       RegData$ReLapNarkose %in% c(0, 1) &
+                       RegData$Op_gr==2 & RegData$OppfStatus == 1), ]
+aux$Tilgang <- factor(aux$Tilgang, levels = 1:3, labels = c("Åpen", "Laparoskopisk", "Konvertert") )
+
+nytab <- aux %>% group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
+
+aux$Robotassistanse <- factor(aux$Robotassistanse, levels = 0:1,
+                              labels = c("\\quad \\textit{Standard}", "\\quad \\textit{Robotassistert}") )
+
+undergr_lap <- aux %>% filter(Tilgang=="Laparoskopisk") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr_konv <- aux %>% filter(Tilgang=="Konvertert") %>%
+  group_by(Robotassistanse) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T))
+
+undergr <- bind_rows(undergr_lap, undergr_konv) %>%
+  rename(Tilgang = Robotassistanse) %>%
+  mutate(Tilgang = as.character(Tilgang))
+
+nytab <- bind_rows(nytab, undergr)
+nytab <- nytab[c(1,2,5,6,3,7,8,4), ]
+
+nytab[, -(1:2)] <- nytab[, -(1:2)]/nytab$N*100
+
+Tabell <- nytab
+Tabell$N[c(3,4,6,7)] <- paste0("\\textit{", Tabell$N[c(3,4,6,7)], "}")
+
+print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)), align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+      floating=FALSE,
+      hline.after=NULL,
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+                                'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
+@
+\captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+\end{minipage}
+\end{table}
+
+
+\begin{table}[htb]
+\begin{minipage}{\textwidth}
+\centering
+<<'Tabell:ReoperasjonerRektum robotassistanse', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+aux <- RegData %>%
+  filter(Hastegrad_hybrid==1) %>%
+  filter(ReLapNarkose %in% c(0, 1)) %>%
+  filter(Op_gr==2) %>%
+  filter(OppfStatus == 1) %>%
+  filter(Tilgang %in% 2:3)
+
+aux$Tilgang <- factor(aux$Tilgang, levels = 2:3, labels = c("\\quad \\textit{Laparoskopisk}", "\\quad \\textit{Konvertert}") )
+
+nytab <- aux %>% group_by(Robotassistanse, Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals()
+
+ikkerobot <- aux %>% filter(Robotassistanse == 0) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Ikke-robot")
+
+robot <- aux %>% filter(Robotassistanse == 1) %>%
+  group_by(Tilgang) %>%
+  summarise(N = n(),
+            reop_rate = sum(ReLapNarkose),
+            anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+            dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+            bloedning = sum(ViktigsteFunn==3, na.rm = T),
+            saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+            annet = sum(ViktigsteFunn==5, na.rm = T),
+            ingen = sum(ViktigsteFunn==6, na.rm = T)) %>%
+  janitor::adorn_totals(name = "Robotassistert")
+
+tab_4c <- dplyr::bind_rows(robot[c(3,1,2), ], ikkerobot[c(3,1,2), ])
+tab_4c <- dplyr::bind_rows(tab_4c, data.frame(Tilgang = "Totalt", t(colSums(tab_4c[c(1,4), -1]))))
+
+tab_4c[, -(1:2)] <- tab_4c[, -(1:2)]/tab_4c$N*100
+
+Tabell <- tab_4c
+Tabell$N[c(2,3,5,6)] <- paste0("\\textit{", Tabell$N[c(2,3,5,6)], "}")
+
+print(xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)), align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+      floating=FALSE,
+      hline.after=NULL,
+      add.to.row=list(pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+                      command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for ulike årsaker (\\%)} \\\\\n',
+                                '\\cline{4-9} \n',
+                                '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+                                'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
+alle under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE, sanitize.text.function = function(x){x})
+@
+\captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\end{minipage}
+\end{table}
+
+
+
+
+<<'fig_rektum', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+OpGr <- c('Rekt.')
+# reseksjonsGr <- 'JGB'
+op_gruppe <- 2
+malign <- 99
+elektiv <- 99
+hastegrad_hybrid <- 99
+terskel <- 10
+
+outfile <- 'AvstandAnalVerge_kat_rekt.pdf'
+outfile <- paste0(figfolder, outfile)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AvstandAnalVerge_kat', op_gruppe=op_gruppe, outfile=outfile,
+                           Ngrense=terskel, lavDG = graaUt_rektum, lavDGtekst = dg_tekst)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AvstandAnalVerge_kat', op_gruppe=op_gruppe, outfile=outfile,
+                             Ngrense=terskel, lavDG = graaUt_rektum, lavDGtekst = dg_tekst)
+}
+
+valgtVar <- 'LapTilgang2'
+outfile <- 'Tilgang_rekt_malign_ecog_0_1.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+}
+
+
+valgtVar <- 'ReLapNarkose'
+outfile <- 'ReLapNarkose_rekt_malign_ecog_0_1.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+}
+
+valgtVar <- 'Anastomoselekkasje'
+outfile <- 'Anastomoselekkasje_rekt_malign_ecog_0_1.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+}
+
+outfile <- 'konv_rate_rektum_malign_ecog0_1.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'konv_rate'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+}
+
+outfile <- 'mortalitet90_rektum_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'mortalitet90'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                     lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                       lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+}
+
+outfile <- 'AccordionGrad_rekt.pdf'
+outfile <- paste0(figfolder, outfile)
+NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_rektum)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_rektum)
+}
+
+
+outfile <- 'KumAcc_rekt_aar.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'KumAcc'
+norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
+                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
+                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
+                       decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
+                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
+                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+}
+
+
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_rekt_malign_ecog_0_1.pdf}
+\caption{Tilgang\_rekt\_malign\_ecog\_0\_1.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ReLapNarkose_rekt_malign_ecog_0_1.pdf}
+\caption{ReLapNarkose\_rekt\_malign\_ecog\_0\_1.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_rekt_malign_ecog_0_1.pdf}
+\caption{Anastomoselekkasje\_rekt\_malign\_ecog\_0\_1.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}konv_rate_rektum_malign_ecog0_1.pdf}
+\caption{konv\_rate\_rektum\_malign\_ecog0\_1.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_rekt.pdf}
+\caption{AccordionGrad\_rekt.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}KumAcc_rekt_aar.pdf}
+\caption{KumAcc\_rekt\_aar.pdf}
+\end{figure}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_rektum_aar.pdf}
+\caption{mortalitet90\_rektum\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AvstandAnalVerge_kat_rekt.pdf}
+\caption{AvstandAnalVerge\_kat\_rekt.pdf}
+\end{figure}
+
+\end{document}

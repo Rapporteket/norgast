@@ -3,9 +3,133 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### Gjenskap tabeller til kreg fra 2022, 03.04.2023 ###########################
+# fra_krg <- read.csv2("/home/rstudio/.ssh/pancreas2021_norgast_koblet_KRG.csv",
+#                      colClasses = c("character", "Date", "numeric"))
+fra_krg <- readxl::read_xlsx("~/mydata/norgast/liste_norgast.xlsx")
+
+# fra_krg <- fra_krg[fra_krg$pdac_krg == 1, ]
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData <- RegData[RegData$Aar %in% 2022, ]
+fid <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_03.04.2023.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- merge(RegData, fid, by.x = "PasientID", by.y = "PID", all.x = T)
+kobletdata <- RegData[RegData$SSN %in% fra_krg$FNR, ]
+kobletdata <- kobletdata[kobletdata$Op_gr %in% 6:8, ]
+
+# kobletdata <- merge(fra_krg, RegData, by.x = c("fnr", "operasjonsdato"), by.y = c("SSN", "OperasjonsDato"))
+
+aggdata <- kobletdata %>% #dplyr::group_by(Sykehusnavn) %>%
+  dplyr::summarise(
+    N = n(),
+    gj.sn.alder = mean(Alder),
+    median.alder = median(Alder),
+    andel.kvinner = sum(erMann==0)/N*100,
+    med.bmi = median(BMI, na.rm = T),
+    andel.whipple = sum(Op_gr==6)/N*100,
+    andel.distal = sum(Op_gr==7)/N*100,
+    andel.annet = sum(Op_gr==8)/N*100,
+    andel.åpen.konv.distal = sum(Op_gr == 7 & Tilgang %in% c(1,3))/sum(Op_gr == 7)*100,
+    andel.åpen.konv.annet = sum(Op_gr == 8 & Tilgang %in% c(1,3))/sum(Op_gr == 8)*100,
+    andel.åpen.konv.begge = sum(Op_gr %in% 7:8 & Tilgang %in% c(1,3))/sum(Op_gr %in% 7:8)*100,
+    andel.lap.distal = sum(Op_gr == 7 & Tilgang == 2)/sum(Op_gr == 7)*100,
+    andel.lap.annet = sum(Op_gr == 8 & Tilgang == 2)/sum(Op_gr == 8)*100,
+    andel.lap.begge = sum(Op_gr %in% 7:8 & Tilgang == 2)/sum(Op_gr %in% 7:8)*100,
+    andel.portvene.whipple = sum(Op_gr == 6 & Rekonstruksjonstype %in% c(1,3))/sum(Op_gr==6)*100,
+    andel.arterie.whipple = sum(Op_gr == 6 & Rekonstruksjonstype %in% c(2,3))/sum(Op_gr==6)*100,
+    andel.accord_str_4.whipple = sum(Op_gr == 6 & KumAcc2 == 1)/sum(Op_gr==6)*100,
+    andel.accord_str_4.distal = sum(Op_gr == 7 & KumAcc2 == 1)/sum(Op_gr==7)*100,
+    andel.accord_str_4.annet = sum(Op_gr == 8 & KumAcc2 == 1)/sum(Op_gr==8)*100,
+    andel.accord_str_4.begge = sum(Op_gr %in% 7:8 & KumAcc2 == 1)/sum(Op_gr %in% 7:8)*100,
+    andel.relap.whipple = sum(Op_gr == 6 & ReLapNarkose == 1)/sum(Op_gr==6)*100,
+    andel.relap.distal = sum(Op_gr == 7 & ReLapNarkose == 1)/sum(Op_gr==7)*100,
+    andel.relap.annet = sum(Op_gr == 8 & ReLapNarkose == 1)/sum(Op_gr==8)*100,
+    andel.relap.begge = sum(Op_gr %in% 7:8 & ReLapNarkose == 1)/sum(Op_gr %in% 7:8)*100
+  )
+
+write.csv2(aggdata, "~/mydata/norgast/krg_pdac_2022.csv",
+           row.names = F, fileEncoding = 'Latin1')
+
+
+##### Beregn DG NoRGast 2022 ###################################################
+nprtall <- read.csv2("~/norgast/doc/frekvens_norgast.csv", fileEncoding = "Latin1")
+mapping_npr <- read.csv2('~/norgast/doc/Koblingstabell_AvdRESH_sh_standard.csv', fileEncoding = "Latin1")
+mapping_npr <- dplyr::bind_rows(mapping_npr,
+                                data.frame(AvdRESH = c(4216823),
+                                           sh = c(974747545),
+                                           sh_standard = c("Helse Møre og Romsdal, Volda")))
+
+nprtall <- merge(nprtall, data.frame(Op_gr = c(8,7,1,5,2,4,6,3),
+                                     hierarki = c("Andre_pankreas",
+                                                  "Distal_pankreas",
+                                                  "Kolon",
+                                                  "Lever",
+                                                  "Rektum",
+                                                  "Ventrikkel",
+                                                  "Whipple",
+                                                  "Øsofagus")),
+                 by = "hierarki", all.x = T)
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084
+RegData <- RegData %>%
+  dplyr::filter(Aar == 2022) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  merge(mapping_npr[, c("AvdRESH", "sh")], by = "AvdRESH", all.x = T)
+
+mapping_npr <- dplyr::bind_cols(
+  mapping_npr,
+  "Sykehusnavn"=RegData$SykehusNavn[match(mapping_npr$AvdRESH, RegData$AvdRESH)])
+
+norgasttall <- RegData %>% group_by(Op_gr, sh) %>%
+  summarise(N_norgast = n())
+
+samlet <- merge(nprtall, norgasttall, by = c("Op_gr", "sh"), all = T)
+samlet$N_norgast[is.na(samlet$N_norgast)] <- 0
+
+pr_shus <- samlet %>% group_by(sh) %>%
+  summarise(Sykehus = first(sh_standard),
+            n_norgast = sum(N_norgast),
+            n_npr = sum(n)) %>%
+  janitor::adorn_totals() %>%
+  mutate("DG" = n_norgast/n_npr*100)
+
+pr_opgr <- samlet %>% group_by(hierarki) %>%
+  summarise(n_norgast = sum(N_norgast),
+            n_npr = sum(n)) %>%
+  janitor::adorn_totals() %>%
+  mutate("DG" = n_norgast/n_npr*100)
+
+write.csv2(pr_shus, "~/mydata/dg_pr_shus.csv", row.names = F)
+write.csv2(pr_opgr, "~/mydata/dg_pr_opgr.csv", row.names = F)
+
+pr_shus_opgr <- samlet %>% group_by(sh, Op_gr) %>%
+  summarise(Sykehus = first(sh_standard),
+            n_norgast = sum(N_norgast),
+            n_npr = sum(n)) %>%
+  mutate("DG" = n_norgast/n_npr*100) %>%
+  merge(mapping_npr[,c("sh", "AvdRESH", "Sykehusnavn")], by = "sh", all.x = T)
+
+write.csv2(pr_shus_opgr, "~/mydata/norgast/dg_opgr_shus.csv", row.names = F)
+
+ventrikkel <- samlet %>% group_by(sh, hierarki) %>%
+  summarise(Sykehus = first(sh_standard),
+            n_norgast = sum(N_norgast),
+            n_npr = sum(n)) %>%
+  filter(hierarki == "Ventrikkel") %>%
+  janitor::adorn_totals() %>%
+  mutate("DG" = n_norgast/n_npr*100)
+
+write.csv2(ventrikkel, "~/mydata/ventrikkel.csv", row.names = F)
+
+
 ##### Legg til navn_i_rapportket i klokebok. ###################################
 klokebok1 <- readxl::read_xlsx("~/mydata/norgast/Klokeboken NORGAST 2023 Variabelutvalg.xlsx",
-                              sheet = 1) %>% select(-"navn_i_rapporteket")
+                               sheet = 1) %>% select(-"navn_i_rapporteket")
 varnavn_kobl <- varnavn_kobl %>% dplyr::mutate(variabel_id = sub("\\.", "_", dbnavn)) %>%
   mutate(navn_i_rapporteket = rapporteket) %>% select(-"rapporteket")
 
