@@ -3,6 +3,28 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### Sjarmoffansiv FHI Kolon 11.04.2023 ########################################
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData <- RegData %>%
+  dplyr::filter(Aar %in% 2016:2022) %>%
+  dplyr::filter(Op_gr == 1)
+grtxt <- c('Åpen', 'Laparoskopisk', 'Konvertert')
+RegData$Tilgang <- factor(RegData$Tilgang, levels=1:3, labels = grtxt)
+
+RegData %>% dplyr::group_by(Tilgang) %>%
+  dplyr::summarise("Antall kolonreseksjoner" = n(),
+                   "Dyp infeksjon" = sum(ViktigsteFunn == 2, na.rm = T)) %>%
+  write.csv2("~/mydata/norgast/FHI_kolon_dypinfeksjon_2016_2022.csv", row.names = F, fileEncoding = "Latin1")
+
+
+# RegData %>% dplyr::group_by(Aar, Tilgang) %>%
+#   dplyr::summarise("Antall kolonreseksjoner" = n(),
+#                    "Dyp infeksjon" = sum(ViktigsteFunn == 2, na.rm = T))
+
+
+
 #### Gjenskap tabeller til kreg fra 2022, 03.04.2023 ###########################
 # fra_krg <- read.csv2("/home/rstudio/.ssh/pancreas2021_norgast_koblet_KRG.csv",
 #                      colClasses = c("character", "Date", "numeric"))
