@@ -41,7 +41,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
   indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
   indRobot <- if (robotassiastanse %in% c(0,1)){which(RegData$Robotassistanse == robotassiastanse)} else {indRobot <- 1:Ninn}
-  indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1)} else {indFerdig <- 1:Ninn}
+  indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))} else {indFerdig <- 1:Ninn}
   indStomi <- if (ny_stomi %in% c(0,1)) {which(RegData$NyStomi == ny_stomi)} else {1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%

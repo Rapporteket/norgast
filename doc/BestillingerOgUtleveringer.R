@@ -3,6 +3,37 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### Morten Eriksen FHI Kolon 20.04.2023 ########################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+
+RegData <- RegData %>% filter(Op_gr %in% 1:8) %>%
+  filter(!is.na(KumAcc)) %>% filter(Aar %in% 2018:2022) %>%
+  filter(OppfStatus == 1 | is.na(OppfStatus))
+
+RegData$Avdeling <- "Resten"
+RegData$Avdeling[RegData$AvdRESH == 106168] <- "OUS-Ullevål"
+
+RegData %>%
+  group_by(Avdeling, Aar) %>%
+  summarise(Acc_3 = sum(AccordionGrad == 3),
+            Acc_4 = sum(AccordionGrad == 4),
+            Acc_5 = sum(AccordionGrad == 5),
+            Acc_6 = sum(AccordionGrad == 6),
+            N = n()
+  ) %>% write.csv2("~/mydata/norgast/norgast_kompl.csv", row.names = F, fileEncoding = "Latin1")
+
+RegData %>%
+  filter(WHOECOG %in% 0:1 & Hastegrad_hybrid == 1) %>%
+  group_by(Avdeling, Aar) %>%
+  summarise(Acc_3 = sum(AccordionGrad == 3),
+            Acc_4 = sum(AccordionGrad == 4),
+            Acc_5 = sum(AccordionGrad == 5),
+            Acc_6 = sum(AccordionGrad == 6),
+            N = n()
+  ) %>% write.csv2("~/mydata/norgast/norgast_kompl_index.csv", row.names = F, fileEncoding = "Latin1")
+
+
 #### Sjarmoffansiv FHI Kolon 11.04.2023 ########################################
 
 RegData <- norgast::NorgastHentRegData()

@@ -48,7 +48,8 @@ norgastIndikator_rapporteket(
   lavDGtekst = "Dekningsgrad < 60 \%",
   hastegrad_hybrid = 99,
   robotassiastanse = 99,
-  kun_ferdigstilte = TRUE
+  kun_ferdigstilte = TRUE,
+  prikktall = TRUE
 )
 }
 \arguments{

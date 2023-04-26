@@ -41,16 +41,8 @@ RegData <- norgast::NorgastHentRegData()
 RegData <- NorgastPreprosess(RegData)
 RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
 
-gr <- c(1:6)
-grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-           'Lever',"Pankreas")
-RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==7]<- 6
-RegData$Op_grAarsrapp[RegData$Op_grAarsrapp %in% c(8,99)]<- NA
-
 rap_aar <- 2022 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
-
-RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
 
 reshID <- 0
 datoFra= paste0(rap_aar, '-01-01')
@@ -76,8 +68,6 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-# grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-           # 'Lever',"Pankreas")
 width=600
 height=700
 sideTxt='Sykehus'
@@ -284,7 +274,7 @@ FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   FigAndeler(RegData, valgtVar='ViktigsteFunn', outfile=outfile, reshID=reshID,
-           enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
+             enhetsUtvalg=0, op_gruppe=op_gruppe, hastegrad_hybrid=hastegrad_hybrid)
 }
 
 tittel <- ''
@@ -301,29 +291,35 @@ if (annet_format_ut) {
 outfile <- 'Tilgang_elektiv_malign_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'LapTilgang2'
-norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = 60,
+  maal = 70, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+  lavDGtekst = dg_tekst, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = 60,
+    maal = 70, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+    lavDGtekst = dg_tekst, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 outfile <- 'Tilgang_elektiv_malign_ecog_0_1.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                             decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                               decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 
@@ -342,16 +338,16 @@ outfile <- paste0(figfolder, outfile)
 valgtVar <- 'KumAcc'
 tittel <- ''
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
+                             decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       lavDG = graaUt_kolon,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
+                               decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                               lavDG = graaUt_kolon,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=0)
 }
 
 outfile <- 'AccordionGrad_elektiv_malign.pdf'
@@ -370,18 +366,18 @@ outfile <- 'KumAcc_elektiv_malign_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'KumAcc'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=hastegrad_hybrid, malign=1)
+                             decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                             hastegrad_hybrid=hastegrad_hybrid, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       lavDG = graaUt_kolon,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                       hastegrad_hybrid=hastegrad_hybrid, malign=1)
+                               decreasing=decreasing, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass='topleft', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                               lavDG = graaUt_kolon,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                               hastegrad_hybrid=hastegrad_hybrid, malign=1)
 }
 
 outfile <- 'AccordionGrad_ohjelp.pdf'
@@ -399,113 +395,113 @@ malign <- 1
 outfile <- 'ReLapNarkose_malign_ecog0_1_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                             decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                               decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 outfile <- 'konv_rate_malign_ecog0_1_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'konv_rate'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                             decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                               decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 valgtVar <- 'Anastomoselekkasje'
 outfile <- 'Anastomoselekkasje_malign_ecog0_1aar.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                             decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                               decreasing=T, terskel=terskel, minstekrav = 6, maal = 4, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 outfile <- 'mortalitet90_kolon_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'mortalitet90'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+                             decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                             graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                             hastegrad_hybrid=99, malign=99, kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                       graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                       hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+                               decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                               graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                               hastegrad_hybrid=99, malign=99, kun_ferdigstilte = T)
 }
 
 outfile <- 'mortalitet90_kolon_aar_refpas.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'mortalitet90'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=1, malign=1, kun_ferdigstilte = F)
+                             decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                             graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                             hastegrad_hybrid=1, malign=1, kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-                     graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=1, malign=1, kun_ferdigstilte = F)
+                               decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr, whoEcog = c(0,1),
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+                               graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                               hastegrad_hybrid=1, malign=1, kun_ferdigstilte = T)
 }
 
 outfile <- 'hastegrad_ny_kolon_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'Hastegrad'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+                             decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
+                               decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad_hybrid=99, malign=99)
 }
 
 outfile <- 'ohjelp_kveld_kolon_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'ohjelp_kveld'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
+                             decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
+                               decreasing=F, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil, hastegrad=2, malign=99)
 }
 
 @
@@ -779,15 +775,15 @@ valgtVar <- 'LapTilgang2'
 outfile <- 'Tilgang_rekt_malign_ecog_0_1.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                             decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                               decreasing=decreasing, terskel=terskel, minstekrav = 60, maal = 70, skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
 
@@ -795,64 +791,64 @@ valgtVar <- 'ReLapNarkose'
 outfile <- 'ReLapNarkose_rekt_malign_ecog_0_1.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                             decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                               decreasing=T, terskel=terskel, minstekrav = NA, maal = 12, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
 valgtVar <- 'Anastomoselekkasje'
 outfile <- 'Anastomoselekkasje_rekt_malign_ecog_0_1.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                             decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                               decreasing=T, terskel=terskel, minstekrav = 7, maal = 5, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog = 0:1,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
 outfile <- 'konv_rate_rektum_malign_ecog0_1.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'konv_rate'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                             decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+                               decreasing=T, terskel=terskel, minstekrav = 15, maal = 10, skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, whoEcog= c('0', '1'),
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
 }
 
 outfile <- 'mortalitet90_rektum_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'mortalitet90'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                     lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+                             decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                             lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                             hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
-                       lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+                               decreasing=T, terskel=terskel, minstekrav = NA, maal = NA, skriftStr=skriftStr,
+                               lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                               hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)
 }
 
 outfile <- 'AccordionGrad_rekt.pdf'
@@ -868,15 +864,15 @@ outfile <- 'KumAcc_rekt_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'KumAcc'
 norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                     decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
-                     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                             decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
+                             pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
+                             inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
-                       decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
-                       pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
-                       inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+                               decreasing=decreasing, terskel=terskel, minstekrav = minstekrav, maal = maal, skriftStr=skriftStr,
+                               pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
+                               inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
 
 

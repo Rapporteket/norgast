@@ -40,16 +40,8 @@ RegData <- norgast::NorgastHentRegData()
 RegData <- NorgastPreprosess(RegData)
 RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
 
-gr <- c(1:6)
-grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-           'Lever',"Pankreas")
-RegData$Op_grAarsrapp[RegData$Op_grAarsrapp==7]<- 6
-RegData$Op_grAarsrapp[RegData$Op_grAarsrapp %in% c(8,99)]<- NA
-
 rap_aar <- 2022 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
-
-RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
 
 reshID <- 0
 datoFra= paste0(rap_aar, '-01-01')
@@ -81,8 +73,7 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \clearpage
 
 <<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
-             'Lever',"Pankreas")
+
 width=600
 height=700
 sideTxt='Sykehus'
@@ -255,7 +246,7 @@ norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, t
                      lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
@@ -263,7 +254,7 @@ if (annet_format_ut) {
                        lavDG = graaUt_lever, lavDGtekst = dg_tekst,
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)
 }
 @
 
@@ -420,7 +411,7 @@ norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, t
                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
                      graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                      inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+                     hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width, height=height,
@@ -428,7 +419,7 @@ if (annet_format_ut) {
                        pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
                        graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
                        inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)}
+                       hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = T)}
 
 outfile <- figfolder %>% paste0('AccordionGrad_whipple.pdf')
 NorgastFigAndelStabelGrVar(RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe, outfile=outfile, Ngrense=terskel, lavDG = graaUt_whipple)

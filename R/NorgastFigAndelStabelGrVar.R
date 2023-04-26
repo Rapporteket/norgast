@@ -110,7 +110,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
     utdata_andel <- utdata_antall
     utdata_andel <- utdata_andel %>% dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100))
-    AndelerGr[which(Ngr<Ngrense),] <- NA
+    AndelerGr[which(Ngr<Ngrense),] <- -1
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 
     dataAlle <- table(RegData$Variabel)/N*100
@@ -139,6 +139,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     }
 
     AndelerGr <- AndelerGr[sortInd, ]
+    AndelerGr[AndelerGr == -1] <- NA
     AndelerGr <- rbind(AndelerGr, rep(NA, N_kat))
     grtxt <- c(grtxt[sortInd], '(N)')
     Ngrtxt <- c(Ngrtxt[sortInd], NA)
