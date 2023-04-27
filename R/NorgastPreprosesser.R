@@ -107,7 +107,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
   RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" &
                                 (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
-                                 as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
+                                   as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
   RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" &
                                 (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <- 8 # Gallegang
 
@@ -119,6 +119,11 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$OppfStatus[RegData$OppfStatus=='Ukjent'] <- ''
   RegData$OppfStatus <- as.numeric(RegData$OppfStatus)
 
+  RegData$FerdigForlop <- 0
+  RegData$FerdigForlop[
+    RegData$RegistreringStatus == 1 &
+      (RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))] <- 1
+
   #### Inkluder ACCORDION SCORE fra oppfølgingsskjema
   RegData$AccordionGrad <- as.character(RegData$AccordionGrad)
   RegData$AccordionGrad[RegData$AccordionGrad=='Mindre enn 3'] <- '1'
@@ -129,7 +134,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$OppfAccordionGrad[RegData$OppfStatus!=1]<-NA
   RegData$AccordionGrad[!is.na(pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad))] <-
     pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad)[!is.na(pmax(RegData$AccordionGrad,
-                                                                                   RegData$OppfAccordionGrad))]
+                                                                       RegData$OppfAccordionGrad))]
 
   #### Definerer variabelen Saarruptur basert på funn ved reoperasjon under opphold eller v/ reinnleggelse innen 30 dager
   #### UTELUKKER LAPAROSKOPISKE INNGREP, PR. BESTILLING LINN.
@@ -159,7 +164,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$Hastegrad_hybrid <- 2 - RegData$Hastegrad# Definerer en hybridhastegrad som bruker gammel tidsbasert definisjon før
-                                                # 2018-04-18 og den nye direkteregistrerte etter det.
+  # 2018-04-18 og den nye direkteregistrerte etter det.
   RegData$Hastegrad_hybrid[RegData$HovedDato < '2018-04-18'] <- RegData$Hastegrad_tid[RegData$HovedDato < '2018-04-18']
 
   RegData$AvlastendeStomiRektum <- NA

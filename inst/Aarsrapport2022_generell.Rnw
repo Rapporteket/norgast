@@ -115,12 +115,10 @@ whoEcog= ''
 ncsp=''
 forbehandling=''
 valgtShus=c('')
-# reseksjonsGr <- ''
 op_gruppe <- ''
 malign <- 99
 annet_format_ut <- T
 ut_format <- 'svg'
-# figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/generell/"
 figfolder <- "~/mydata/norgast/fig_aarsrapp2022/generell/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
@@ -157,13 +155,13 @@ outfile <- paste0(figfolder, outfile)
 norgastFigAntRegTid(
   RegDataAll, outfile=outfile, datoFra='2014-01-01', tittel = "",
   datoTil=datoTil, kun_ferdigstilte = F, alletider = T, skriftStr=1.1, width=width,
-                      height=height)
+  height=height)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastFigAntRegTid(
     RegDataAll, outfile=outfile, datoFra='2014-01-01', tittel = "",
     datoTil=datoTil, kun_ferdigstilte = F, alletider = T, skriftStr=1.1, width=width,
-                      height=height)
+    height=height)
 }
 
 valgtVar <- 'Vekttap_registrert'
@@ -186,27 +184,6 @@ if (annet_format_ut) {
     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
     malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
 }
-
-# valgtVar <- 'AktivKontroll'
-# outfile <- 'AktivKontroll.pdf'
-# outfile <- paste0(figfolder, outfile)
-# norgastIndikator_rapporteket(
-#   RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
-#   tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
-#   minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
-#   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
-#   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-#   malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
-# if (annet_format_ut) {
-#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-#   norgastIndikator_rapporteket(
-#     RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
-#     tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
-#     minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
-#     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
-#     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-#     malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
-# }
 
 valgtVar <- 'AktivKontroll_v2'
 outfile <- 'AktivKontroll_v2.pdf'
@@ -249,12 +226,6 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Vekttap_registrert.pdf}
 \caption{Vekttap\_registrert.pdf}
 \end{figure}
-
-% \begin{figure}[ht]
-% \centering
-% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AktivKontroll.pdf}
-% \caption{AktivKontroll.pdf}
-% \end{figure}
 
 \begin{figure}[ht]
 \centering
@@ -301,32 +272,38 @@ if (annet_format_ut) {
 Tabell <- addmargins(table(RegDataAll$Sykehusnavn, RegDataAll$Aar))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
-Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
 
-print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Antall registreringer i NoRGast per avdeling. Alle inngrep.'),
-      include.rownames=TRUE,
-      include.colnames=TRUE,
-      add.to.row = list(pos=list(nrow(Tabell)-1),
-                        command=c('\\midrule\n')))
+print(xtable::xtable(
+  Tabell, digits=0,
+  align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall registreringer i NoRGast per avdeling. Alle inngrep.'),
+  include.rownames=TRUE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
 
-# write.csv2(Tabell, '~/norgast/inst/tabeller/ant_reg_alle.csv', row.names = T, fileEncoding = 'Latin1')
-write.csv2(Tabell, paste0(tabfolder, "ant_reg_alle.csv"), row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, paste0(tabfolder, "ant_reg_alle.csv"),
+           row.names = T, fileEncoding = 'Latin1')
 
-Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)], RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)],
+                           RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
-Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
 
-print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Antall registreringer i NoRGast per avdeling. Obligatoriske inngrep.'),
-      include.rownames=TRUE,
-      include.colnames=TRUE,
-      add.to.row = list(pos=list(nrow(Tabell)-1),
-                        command=c('\\midrule\n')))
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall registreringer i NoRGast per avdeling. Obligatoriske inngrep.'),
+  include.rownames=TRUE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
 
-# write.csv2(Tabell, '~/norgast/inst/tabeller/ant_reg_oblig.csv', row.names = T, fileEncoding = 'Latin1')
-write.csv2(Tabell, paste0(tabfolder, "ant_reg_oblig.csv"), row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, paste0(tabfolder, "ant_reg_oblig.csv"),
+           row.names = T, fileEncoding = 'Latin1')
 @
 
 
@@ -338,19 +315,21 @@ Tabell <- RegDataAll %>% filter(Aar == rap_aar) %>%
   table() %>% addmargins()
 colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
 rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
-Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
 
-print(xtable::xtable(Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
-                     caption=paste0('Antall registrerte obligatoriske prosedyrer i ',
-                                    rap_aar, ' fordelt på avd. og reseksjonsgruppe.'),
-                     label='tab:RegistrenrendeAvd'),
-      include.rownames=TRUE,
-      include.colnames=TRUE ,
-      add.to.row = list(pos=list(nrow(Tabell)-1),
-                        command=c('\\midrule\n')))
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
+  caption=paste0('Antall registrerte obligatoriske prosedyrer i ',
+                 rap_aar, ' fordelt på avd. og reseksjonsgruppe.'),
+  label='tab:RegistrenrendeAvd'),
+  include.rownames=TRUE,
+  include.colnames=TRUE ,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
 
-# write.csv2(Tabell, '~/norgast/inst/tabeller/RegistrenrendeAvd.csv', row.names = T, fileEncoding = 'Latin1')
-write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"), row.names = T, fileEncoding = 'Latin1')
+write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
+           row.names = T, fileEncoding = 'Latin1')
 @
 
 

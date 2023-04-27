@@ -109,6 +109,15 @@ write.csv2(aggdata, "~/mydata/norgast/krg_pdac_2022.csv",
 
 ##### Beregn DG NoRGast 2022 ###################################################
 nprtall <- read.csv2("~/norgast/doc/frekvens_norgast.csv", fileEncoding = "Latin1")
+# 974588951 Aker
+# 974589095 Ullevål
+nprtall$sh_standard[nprtall$sh == 974588951] <- "OUS, Ullevål"
+nprtall$sh[nprtall$sh == 974588951] <- 974589095
+nprtall <- nprtall %>% group_by(hierarki, sh) %>%
+  summarise(hf_standard = first(hf_standard),
+            sh_standard = first(sh_standard),
+            n = sum(n))
+
 mapping_npr <- read.csv2('~/norgast/doc/Koblingstabell_AvdRESH_sh_standard.csv', fileEncoding = "Latin1")
 mapping_npr <- dplyr::bind_rows(mapping_npr,
                                 data.frame(AvdRESH = c(4216823),
@@ -157,8 +166,8 @@ pr_opgr <- samlet %>% group_by(hierarki) %>%
   janitor::adorn_totals() %>%
   mutate("DG" = n_norgast/n_npr*100)
 
-write.csv2(pr_shus, "~/mydata/dg_pr_shus.csv", row.names = F)
-write.csv2(pr_opgr, "~/mydata/dg_pr_opgr.csv", row.names = F)
+write.csv2(pr_shus, "~/mydata/norgast/dg_pr_shus.csv", row.names = F)
+write.csv2(pr_opgr, "~/mydata/norgast/dg_pr_opgr.csv", row.names = F)
 
 pr_shus_opgr <- samlet %>% group_by(sh, Op_gr) %>%
   summarise(Sykehus = first(sh_standard),
