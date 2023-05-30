@@ -27,6 +27,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
   RegData <- RegData[RegData$Tilgang %in% 1:3, ] # Fjerner endoskopiske og "notes" inngrep.
+  RegData$DodUnderOpphold[which(RegData$OppfDodUnderOpphold == 1)] <- 1
 
   RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
   lowercase <- which(substr(RegData$Hovedoperasjon, 1, 5)!=toupper(substr(RegData$Hovedoperasjon, 1, 5))) # index til der NCSP-kode er i lowercase

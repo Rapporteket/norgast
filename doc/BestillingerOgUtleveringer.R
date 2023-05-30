@@ -3,6 +3,46 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### Kjerstin 30.05.2023 ########################################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+
+
+# Oppsum <-
+RegData %>%
+  filter(Op_gr %in% 1:8) %>%
+  filter(Aar == 2021) %>%
+  summarise(N = n(),
+            OpDoedTidUnder90 = sum(OpDoedTid <= 90, na.rm = T),
+            Acc6 = sum(AccordionGrad == 6),
+            OppholdOver30 = sum(as.numeric(PostopLiggedogn > 30), na.rm = T),
+            DoedUnderOpphold = sum(DodUnderOpphold),
+            EntenEller = sum(PostopLiggedogn > 30 | DodUnderOpphold),
+            OppfUferdig = sum(OppfStatus != 1 | is.na(OppfStatus)),
+            OppfNA = sum(is.na(OppfStatus)),
+            .by = Operasjonsgrupper) %>%
+  write.csv2("~/mydata/norgast/statusgreier.csv",
+             row.names = F, fileEncoding = "Latin1")
+
+
+# kolon <-
+RegData %>%
+  filter(Op_gr == 1) %>%
+  filter(Aar == 2021) %>%
+  filter(Hastegrad_hybrid == 0) %>%
+  summarise(N = n(),
+            OpDoedTidUnder90 = sum(OpDoedTid <= 90, na.rm = T),
+            Acc6 = sum(AccordionGrad == 6),
+            OppholdOver30 = sum(as.numeric(PostopLiggedogn > 30), na.rm = T),
+            DoedUnderOpphold = sum(DodUnderOpphold),
+            EntenEller = sum(PostopLiggedogn > 30 | DodUnderOpphold),
+            OppfUferdig = sum(OppfStatus != 1 | is.na(OppfStatus)),
+            OppfNA = sum(is.na(OppfStatus))) %>%
+  write.csv2("~/mydata/norgast/statusgreier_akuttkolon.csv",
+             row.names = F, fileEncoding = "Latin1")
+
+
+
 #### Morten Eriksen FHI Kolon 20.04.2023 ########################################
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
