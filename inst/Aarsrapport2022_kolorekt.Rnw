@@ -117,9 +117,9 @@ if (!dir.exists(figfolder)) {
 
 
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
-\centering
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
 <<'Tabell:ReoperasjonerKolon v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
                        RegData$ReLapNarkose %in% c(0, 1) &
@@ -176,28 +176,31 @@ nytab[, -(1:2)] <- nytab[, -(1:2)]/nytab$N*100
 Tabell <- nytab
 Tabell$N[c(3,4,6,7)] <- paste0("\\textit{", Tabell$N[c(3,4,6,7)], "}")
 
-print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
-                 align=c('l', 'l', rep('r', ncol(Tabell)-1))),
-  floating=FALSE,
-  hline.after=NULL,
-  add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-    command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
-              ulike årsaker (\\%)} \\\\\n',
-              '\\cline{4-9} \n',
-              '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
-              'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle
-              opererte, ikke alle under risiko.} & infeksjon & Blødning & Sårruptur
-              & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
-  include.colnames=FALSE, include.rownames=FALSE,
-  sanitize.text.function = function(x){x}
-)
-@
-\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+# print(
+#   xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
+#                  align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+#   floating=FALSE,
+#   hline.after=NULL,
+#   add.to.row=list(
+#     pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+#     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
+#               ulike årsaker (\\%)} \\\\\n',
+#               '\\cline{4-9} \n',
+#               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+#               'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle
+#               opererte, ikke alle under risiko.} & infeksjon & Blødning & Sårruptur
+#               & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
+#   include.colnames=FALSE, include.rownames=FALSE,
+#   sanitize.text.function = function(x){x}
+# )
 
+Tabell_ny <- Tabell
+@
+% \captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
+
+\addtolength{\hoffset}{-1.5cm}
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
@@ -260,13 +263,24 @@ tab_4c[, -(1:2)] <- tab_4c[, -(1:2)]/tab_4c$N*100
 Tabell <- tab_4c
 Tabell$N[c(2,3,5,6)] <- paste0("\\textit{", Tabell$N[c(2,3,5,6)], "}")
 
+Tabell_sml <- Tabell_ny[1, ] %>%
+  bind_rows(Tabell[7, ]) %>%
+  bind_rows(Tabell[1:3, ]) %>%
+  bind_rows(Tabell[4:6, ]) %>%
+  bind_rows(Tabell_ny[8, ])
+Tabell_sml$Tilgang <- c("\\textbf{Åpen}", "\\textbf{Laparoskopisk (ITT)}",
+                        "\\quad Robotassistert", "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Konvertert}", "\\quad Ikke-robot",
+                        "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Konvertert}", "\\textbf{Totalt}")
+
 print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
-                 align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+  xtable::xtable(Tabell_sml, digits=c(0,0,0,rep(1, ncol(Tabell_sml)-2)),
+                 align=c('l', 'l', rep('r', ncol(Tabell_sml)-1))),
   floating=FALSE,
   hline.after=NULL,
   add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+    pos=list(-1,0,0,0,0,0, nrow(Tabell_sml)),
     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
@@ -280,6 +294,7 @@ print(
 \end{minipage}
 \end{table}
 
+% \addtolength{\hoffset}{-1.5cm}
 
 <<'fig_kolon', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 op_gruppe <- 1
@@ -684,9 +699,9 @@ if (annet_format_ut) {
 \section{Rektumreseksjoner}
 
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
-\centering
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
 <<'Tabell:ReoperasjonerRektum v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
                        RegData$ReLapNarkose %in% c(0, 1) &
@@ -743,25 +758,27 @@ nytab[, -(1:2)] <- nytab[, -(1:2)]/nytab$N*100
 Tabell <- nytab
 Tabell$N[c(3,4,6,7)] <- paste0("\\textit{", Tabell$N[c(3,4,6,7)], "}")
 
-print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
-                 align=c('l', 'l', rep('r', ncol(Tabell)-1))),
-  floating=FALSE,
-  hline.after=NULL,
-  add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-    command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
-              ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
-              '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
-              'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle
-              opererte, ikke alle under risiko.} & infeksjon & Blødning & Sårruptur
-              & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
-  include.colnames=FALSE, include.rownames=FALSE,
-  sanitize.text.function = function(x){x})
+Tabell_ny <- Tabell
+
+# print(
+#   xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
+#                  align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+#   floating=FALSE,
+#   hline.after=NULL,
+#   add.to.row=list(
+#     pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+#     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
+#               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
+#               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+#               'Tilgang & N & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle
+#               opererte, ikke alle under risiko.} & infeksjon & Blødning & Sårruptur
+#               & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
+#   include.colnames=FALSE, include.rownames=FALSE,
+#   sanitize.text.function = function(x){x})
 @
-\captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+% \captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
 
 
 \begin{table}[htb]
@@ -823,13 +840,24 @@ tab_4c[, -(1:2)] <- tab_4c[, -(1:2)]/tab_4c$N*100
 Tabell <- tab_4c
 Tabell$N[c(2,3,5,6)] <- paste0("\\textit{", Tabell$N[c(2,3,5,6)], "}")
 
+Tabell_sml <- Tabell_ny[1, ] %>%
+  bind_rows(Tabell[7, ]) %>%
+  bind_rows(Tabell[1:3, ]) %>%
+  bind_rows(Tabell[4:6, ]) %>%
+  bind_rows(Tabell_ny[8, ])
+Tabell_sml$Tilgang <- c("\\textbf{Åpen}", "\\textbf{Laparoskopisk (ITT)}",
+                        "\\quad Robotassistert", "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Konvertert}", "\\quad Ikke-robot",
+                        "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Konvertert}", "\\textbf{Totalt}")
+
 print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2)),
-                 align=c('l', 'l', rep('r', ncol(Tabell)-1))),
+  xtable::xtable(Tabell_sml, digits=c(0,0,0,rep(1, ncol(Tabell_sml)-2)),
+                 align=c('l', 'l', rep('r', ncol(Tabell_sml)-1))),
   floating=FALSE,
   hline.after=NULL,
   add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+    pos=list(-1,0,0,0,0,0, nrow(Tabell_sml)),
     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',

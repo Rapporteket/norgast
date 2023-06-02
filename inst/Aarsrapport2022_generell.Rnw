@@ -332,6 +332,125 @@ write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
            row.names = T, fileEncoding = 'Latin1')
 @
 
+<<'fig:Robotkirurgi', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+gr <- c(1:6)
+grtxt <- c('Kolon','Rektum','Øsofagus','Ventrikkel',
+           'Lever',"Pankreas")
+RegData$Op_gr_ny <- RegData$Op_gr
+RegData$Op_gr_ny[RegData$Op_gr %in% 6:8]<- 6
+RegData$Op_gr_ny[!(RegData$Op_gr_ny %in% 1:6)]<- NA
+RegData$Op_gr_ny <- factor(RegData$Op_gr_ny, levels=gr, labels = grtxt)
+
+robotkir <- RegData %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+  dplyr::summarise(ant_rob_lap = sum(Tilgang_utvidet == 3),
+                   ant_rob_konv = sum(Tilgang_utvidet == 5),
+                   N = n(),
+                   andel_rob_lap = ant_rob_lap/N*100,
+                   andel_rob_konv = ant_rob_konv/N*100,
+                   .by = Op_gr_ny) %>%
+  dplyr::filter(ant_rob_lap + ant_rob_konv > 0) %>%
+  dplyr::arrange(desc(Op_gr_ny))
+
+
+
+plotmatrise <- as.matrix(robotkir[, c("andel_rob_lap", "andel_rob_konv")]) %>% t()
+grtxt <- paste0(robotkir$Op_gr_ny, " (N=", robotkir$N, ")")
+psttxt <-
+  xmax <- 1.15*max(colSums(plotmatrise))
+outfile <- "robot_lapstart.pdf"
+outfile <- paste0(figfolder, outfile)
+figinfo <- rapFigurer::figtype(outfile = outfile, fargepalett="BlaaOff")
+vmarg <- min(1,max(0, strwidth(grtxt, units='figure', cex=1)*0.75))
+par('fig'=c(vmarg, 1, 0, 1))
+farger <- figinfo$farger[c(3,1)]
+
+pos <- barplot(plotmatrise, beside = F, horiz = T,
+               col = farger,
+               border=NA, xlab="",
+               xlim = c(0, xmax))
+mtext(at=pos+0.00, text=grtxt, side=2, las=1, cex=1, adj=1, line=0.25)
+title(main = c("Andel robotassistanse blant operasjoner", "som er startet laparoskopisk"),
+      cex.main = 1.5)
+legend('bottomright', legend = c("Laparoskopisk", "Konvertert"), col = farger,
+       pch = 15, border = NA, bty='n')
+text(x = colSums(plotmatrise), y = pos,
+     labels = paste0(sprintf("%.1f" , colSums(plotmatrise)), " %"),
+     pos = 4, cex=0.7, xpd = T)
+if ( outfile != '') {dev.off()}
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}robot_lapstart.pdf}
+\caption{robot\_lapstart.pdf}
+\end{figure}
+
+<<'Tabell:Robotab', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+Tabell <- RegDataAll %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  # dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+  summarise(Robotassistert = sum(Robotassistanse),
+            N = n(),
+            .by = Sykehusnavn) %>%
+  dplyr::arrange(desc(Robotassistert)) %>%
+  dplyr::filter(Robotassistert > 0) %>%
+  janitor::adorn_totals()
+
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall robotassisterte operasjoner. N angir antall operasjoner
+  som er startet laparoskopisk'),
+  include.rownames=FALSE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+
+Tabell <- RegDataAll %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::mutate(Robotassistanse = ifelse(is.na(Robotassistanse), 0, Robotassistanse)) %>%
+  summarise(Åpen = sum(Tilgang == 1),
+            Laparoskopisk = sum(Tilgang == 2),
+            Konvertert = sum(Tilgang == 3),
+            N = n(),
+            .by = Robotassistanse) %>%
+  mutate(Robotassistanse = ifelse(Robotassistanse==1, "Ja", "Nei")) %>%
+  janitor::adorn_totals()
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Robotassistanse og tilgang blant obligatoriske operasjoner'),
+  include.rownames=FALSE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+
+
+Tabell <- RegDataAll %>%
+  filter(Aar %in% 2015:2022) %>%
+  filter(substr(Hoveddiagnose, 1, 3) %in% c("K50", "K51")) %>%
+  summarise(N=n(),
+            .by = c(Hoveddiagnose, Operasjonsgrupper)) %>%
+  tidyr::pivot_wider(names_from = Operasjonsgrupper, values_from = N,values_fill = 0) %>%
+  arrange(Hoveddiagnose) %>%
+  janitor::adorn_totals(where = c("row", "col"), name = c("Total", "Total")) %>%
+  write.csv2("~/norgast/doc/inflames.csv",
+             fileEncoding = 'Latin1')
+
+
+# write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
+#            row.names = T, fileEncoding = 'Latin1')
+@
+
 
 
 \end{document}
