@@ -26,6 +26,8 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y')) # RegData$OperasjonsDato$year + 1900
   RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
+  RegData$Mort90 <- 0
+  RegData$Mort90[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
   RegData <- RegData[RegData$Tilgang %in% 1:3, ] # Fjerner endoskopiske og "notes" inngrep.
   RegData$DodUnderOpphold[which(RegData$OppfDodUnderOpphold == 1)] <- 1
 

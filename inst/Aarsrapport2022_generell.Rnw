@@ -8,8 +8,8 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2022 - Generell del}
-\author{NoRGast}
+\title{Figurer og tabeller for årsrapport NORGAST 2022 - Generell del}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -278,7 +278,7 @@ Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
 print(xtable::xtable(
   Tabell, digits=0,
   align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  caption='Antall registreringer i NoRGast per avdeling. Alle inngrep.'),
+  caption='Antall registreringer i NORGAST per avdeling. Alle inngrep.'),
   include.rownames=TRUE,
   include.colnames=TRUE,
   add.to.row = list(pos=list(nrow(Tabell)-1),
@@ -296,7 +296,7 @@ Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
 
 print(xtable::xtable(
   Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  caption='Antall registreringer i NoRGast per avdeling. Obligatoriske inngrep.'),
+  caption='Antall registreringer i NORGAST per avdeling. Obligatoriske inngrep.'),
   include.rownames=TRUE,
   include.colnames=TRUE,
   add.to.row = list(pos=list(nrow(Tabell)-1),
@@ -393,20 +393,49 @@ if ( outfile != '') {dev.off()}
 <<'Tabell:Robotab', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 Tabell <- RegDataAll %>%
   dplyr::filter(Aar == rap_aar) %>%
-  # dplyr::filter(Op_gr %in% 1:8) %>%
   dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
   summarise(Robotassistert = sum(Robotassistanse),
             N = n(),
             .by = Sykehusnavn) %>%
-  dplyr::arrange(desc(Robotassistert)) %>%
-  dplyr::filter(Robotassistert > 0) %>%
+  dplyr::arrange(desc(Robotassistert))#
+ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
+           "Robotassistert" = 0,
+           "N" = sum(Tabell$N[Tabell$Robotassistert == 0]))
+Tabell <- Tabell %>%
+  dplyr::bind_rows(ikkerobot) %>%
+  dplyr::filter(Robotassistert > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+  janitor::adorn_totals()
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall robotassisterte operasjoner. N angir antall operasjoner
+  som er startet laparoskopisk.'),
+  include.rownames=FALSE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+Tabell <- RegDataAll %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+  summarise(Robotassistert = sum(Robotassistanse),
+            N = n(),
+            .by = Sykehusnavn) %>%
+  dplyr::arrange(desc(Robotassistert))#
+ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
+           "Robotassistert" = 0,
+           "N" = sum(Tabell$N[Tabell$Robotassistert == 0]))
+Tabell <- Tabell %>%
+  dplyr::bind_rows(ikkerobot) %>%
+  dplyr::filter(Robotassistert > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
   janitor::adorn_totals()
 
 
 print(xtable::xtable(
   Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  caption='Antall robotassisterte operasjoner. N angir antall operasjoner
-  som er startet laparoskopisk'),
+  caption='Antall robotassisterte operasjoner blant obligatoriske operasjoner.
+  N angir antall operasjoner som er startet laparoskopisk.'),
   include.rownames=FALSE,
   include.colnames=TRUE,
   add.to.row = list(pos=list(nrow(Tabell)-1),
@@ -427,13 +456,11 @@ Tabell <- RegDataAll %>%
 
 print(xtable::xtable(
   Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  caption='Robotassistanse og tilgang blant obligatoriske operasjoner'),
+  caption='Robotassistanse og tilgang blant obligatoriske operasjoner.'),
   include.rownames=FALSE,
   include.colnames=TRUE,
   add.to.row = list(pos=list(nrow(Tabell)-1),
                     command=c('\\midrule\n')))
-
-
 
 Tabell <- RegDataAll %>%
   filter(Aar %in% 2015:2022) %>%

@@ -99,11 +99,15 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in%
-                                                                                                                 as.numeric(input$op_gruppe)])), 1, 5),
-                                                                     sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
-                  }, multiple = TRUE)
+      selectInput(
+        inputId = ns("ncsp_verdi"),
+        label = "NCSP koder (velg en eller flere)",
+        choices = if (!is.null(input$op_gruppe)) {
+          setNames(substr(sort(unique(RegData$Hovedoperasjon[
+            RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
+            sort(unique(RegData$Hovedoperasjon[
+              RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+        }, multiple = TRUE)
     }
   })
 

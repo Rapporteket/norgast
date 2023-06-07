@@ -8,8 +8,8 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2022 - Kolon og rektum}
-\author{NoRGast}
+\title{Figurer og tabeller for årsrapport NORGAST 2022 - Kolon og rektum}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -204,6 +204,7 @@ Tabell_ny <- Tabell
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
+\begin{small}
 \centering
 <<'Tabell:ReoperasjonerKolon robotassistanse', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 aux <- RegData %>%
@@ -269,9 +270,9 @@ Tabell_sml <- Tabell_ny[1, ] %>%
   bind_rows(Tabell[4:6, ]) %>%
   bind_rows(Tabell_ny[8, ])
 Tabell_sml$Tilgang <- c("\\textbf{Åpen}", "\\textbf{Laparoskopisk (ITT)}",
-                        "\\quad Robotassistert", "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad Robotassistert", "\\quad \\quad \\textit{Fullført laparoskopisk}",
                         "\\quad \\quad \\textit{Konvertert}", "\\quad Ikke-robot",
-                        "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Fullført laparoskopisk}",
                         "\\quad \\quad \\textit{Konvertert}", "\\textbf{Totalt}")
 
 print(
@@ -291,6 +292,7 @@ print(
   sanitize.text.function = function(x){x})
 @
 \captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\end{small}
 \end{minipage}
 \end{table}
 
@@ -783,6 +785,7 @@ Tabell_ny <- Tabell
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
+\begin{small}
 \centering
 <<'Tabell:ReoperasjonerRektum robotassistanse', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 aux <- RegData %>%
@@ -846,9 +849,9 @@ Tabell_sml <- Tabell_ny[1, ] %>%
   bind_rows(Tabell[4:6, ]) %>%
   bind_rows(Tabell_ny[8, ])
 Tabell_sml$Tilgang <- c("\\textbf{Åpen}", "\\textbf{Laparoskopisk (ITT)}",
-                        "\\quad Robotassistert", "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad Robotassistert", "\\quad \\quad \\textit{Fullført laparoskopisk}",
                         "\\quad \\quad \\textit{Konvertert}", "\\quad Ikke-robot",
-                        "\\quad \\quad \\textit{Laparoskopisk}",
+                        "\\quad \\quad \\textit{Fullført laparoskopisk}",
                         "\\quad \\quad \\textit{Konvertert}", "\\textbf{Totalt}")
 
 print(
@@ -868,6 +871,7 @@ print(
   sanitize.text.function = function(x){x})
 @
 \captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\end{small}
 \end{minipage}
 \end{table}
 
