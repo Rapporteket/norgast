@@ -1,4 +1,5 @@
 ## Install
+
 The current package can be fetched directly from your R session. If not already
 present, first install the devtools-package from your R terminal:
 
