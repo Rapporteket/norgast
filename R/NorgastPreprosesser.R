@@ -233,7 +233,8 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
   RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
                                       labels = c("0-5.9 cm", "6.0-10.9 cm", "11.0-15.9 cm"), include.lowest = T)
-  # RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- NA
+  levels(RegData$AvstandAnalVerge_kat) <- c(levels(RegData$AvstandAnalVerge_kat), "Ikke målt")
+  RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- "Ikke målt"
 
   return(invisible(RegData))
 

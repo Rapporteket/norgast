@@ -23,7 +23,8 @@ Imports:
   survminer,
   shinyWidgets,
   funnelR,
-  tsibble
+  tsibble,
+  latex2exp
 Remotes:
   Rapporteket/rapbase@*release,
   Rapporteket/rapFigurer
