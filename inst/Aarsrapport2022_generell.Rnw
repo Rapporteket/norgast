@@ -394,20 +394,23 @@ if ( outfile != '') {dev.off()}
 Tabell <- RegDataAll %>%
   dplyr::filter(Aar == rap_aar) %>%
   dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
-  summarise(Robotassistert = sum(Robotassistanse),
+  summarise(Antall = sum(Robotassistanse),
             N = n(),
             .by = Sykehusnavn) %>%
-  dplyr::arrange(desc(Robotassistert))#
+  dplyr::arrange(desc(Antall))#
 ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
-           "Robotassistert" = 0,
-           "N" = sum(Tabell$N[Tabell$Robotassistert == 0]))
+           "Antall" = 0,
+           "N" = sum(Tabell$N[Tabell$Antall == 0]))
 Tabell <- Tabell %>%
   dplyr::bind_rows(ikkerobot) %>%
-  dplyr::filter(Robotassistert > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
-  janitor::adorn_totals()
+  dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+  janitor::adorn_totals() %>%
+  mutate(Andel = Antall/N*100) %>%
+  select(Sykehusnavn, Antall, Andel, N) %>%
+  rename("Andel (%)" = Andel)
 
 print(xtable::xtable(
-  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  Tabell, digits=c(0,0,0,1,0), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
   caption='Antall robotassisterte operasjoner. N angir antall operasjoner
   som er startet laparoskopisk.'),
   include.rownames=FALSE,
@@ -419,21 +422,24 @@ Tabell <- RegDataAll %>%
   dplyr::filter(Aar == rap_aar) %>%
   dplyr::filter(Op_gr %in% 1:8) %>%
   dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
-  summarise(Robotassistert = sum(Robotassistanse),
+  summarise(Antall = sum(Robotassistanse),
             N = n(),
             .by = Sykehusnavn) %>%
-  dplyr::arrange(desc(Robotassistert))#
+  dplyr::arrange(desc(Antall))#
 ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
-           "Robotassistert" = 0,
-           "N" = sum(Tabell$N[Tabell$Robotassistert == 0]))
+           "Antall" = 0,
+           "N" = sum(Tabell$N[Tabell$Antall == 0]))
 Tabell <- Tabell %>%
   dplyr::bind_rows(ikkerobot) %>%
-  dplyr::filter(Robotassistert > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
-  janitor::adorn_totals()
+  dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+  janitor::adorn_totals() %>%
+  mutate(Andel = Antall/N*100) %>%
+  select(Sykehusnavn, Antall, Andel, N) %>%
+  rename("Andel (%)" = Andel)
 
 
 print(xtable::xtable(
-  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  Tabell, digits=c(0,0,0,1,0), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
   caption='Antall robotassisterte operasjoner blant obligatoriske operasjoner.
   N angir antall operasjoner som er startet laparoskopisk.'),
   include.rownames=FALSE,

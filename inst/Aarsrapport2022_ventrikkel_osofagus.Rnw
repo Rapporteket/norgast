@@ -568,7 +568,7 @@ norgastIndikator_rapporteket(
   skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+  datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
   kun_ferdigstilte = F)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -578,7 +578,7 @@ if (annet_format_ut) {
     skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+    datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
     kun_ferdigstilte = F)
 }
 @

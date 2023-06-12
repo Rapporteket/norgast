@@ -879,8 +879,6 @@ print(
 
 
 <<'fig_rektum', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-OpGr <- c('Rekt.')
-# reseksjonsGr <- 'JGB'
 op_gruppe <- 2
 malign <- 99
 elektiv <- 99

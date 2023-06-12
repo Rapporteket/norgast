@@ -195,7 +195,10 @@ norgastIndikator_rapporteket <-
     }
 
     axis(1,cex.axis=0.9)
-    mtext( rownames(andeler), side=2, line=0.2, las=1, at=ypos, col=1, cex=cexgr)
+    grtxt_bold <- rownames(andeler)
+    grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')] <-
+      paste0("$\\textbf{", grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')], "}")
+    mtext(latex2exp::TeX(grtxt_bold), side=2, line=0.2, las=1, at=ypos, col=1, cex=cexgr)
     antAar <- dim(andeler)[2]
 
     if (dim(andeler)[2]==2) {
