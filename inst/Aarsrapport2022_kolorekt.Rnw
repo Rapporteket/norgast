@@ -291,7 +291,7 @@ print(
   include.colnames=FALSE, include.rownames=FALSE,
   sanitize.text.function = function(x){x})
 @
-\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\captionof{table}{Kolonreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi. ITT = Intention to treat.}
 \end{small}
 \end{minipage}
 \end{table}
@@ -870,7 +870,7 @@ print(
   include.colnames=FALSE, include.rownames=FALSE,
   sanitize.text.function = function(x){x})
 @
-\captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi.}
+\captionof{table}{Rektumreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter robotassistert og ikke-robotassistert laparoskopi. ITT = Intention to treat.}
 \end{small}
 \end{minipage}
 \end{table}
