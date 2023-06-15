@@ -91,7 +91,7 @@ indikatorfig_UI <- function(id){
 indikatorfig <- function(input, output, session, reshID, RegData,
                          userRole, hvd_session, BrValg){
 
-  RegData <- RegData[RegData$Op_gr %in% 1:7, ]
+  RegData <- RegData[RegData$Op_gr %in% 1:8, ]
 
   observeEvent(input$reset_input, {
     shinyjs::reset("id_indikator_panel")

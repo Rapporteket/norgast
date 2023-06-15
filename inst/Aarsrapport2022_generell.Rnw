@@ -382,6 +382,25 @@ text(x = colSums(plotmatrise), y = pos,
      pos = 4, cex=0.7, xpd = T)
 if ( outfile != '') {dev.off()}
 
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  figinfo <- rapFigurer::figtype(outfile = outfile, fargepalett="BlaaOff")
+  par('fig'=c(vmarg, 1, 0, 1))
+  pos <- barplot(plotmatrise, beside = F, horiz = T,
+                 col = farger,
+                 border=NA, xlab="",
+                 xlim = c(0, xmax))
+  mtext(at=pos+0.00, text=grtxt, side=2, las=1, cex=1, adj=1, line=0.25)
+  title(main = c("Andel robotassistanse blant operasjoner", "som er startet laparoskopisk"),
+        cex.main = 1.5)
+  legend('bottomright', legend = c("Laparoskopisk", "Konvertert"), col = farger,
+         pch = 15, border = NA, bty='n')
+  text(x = colSums(plotmatrise), y = pos,
+       labels = paste0(sprintf("%.1f" , colSums(plotmatrise)), " %"),
+       pos = 4, cex=0.7, xpd = T)
+  if ( outfile != '') {dev.off()}
+}
+
 @
 
 \begin{figure}[ht]
@@ -399,8 +418,8 @@ Tabell <- RegDataAll %>%
             .by = Sykehusnavn) %>%
   dplyr::arrange(desc(Antall))#
 ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
-           "Antall" = 0,
-           "N" = sum(Tabell$N[Tabell$Antall == 0]))
+                        "Antall" = 0,
+                        "N" = sum(Tabell$N[Tabell$Antall == 0]))
 Tabell <- Tabell %>%
   dplyr::bind_rows(ikkerobot) %>%
   dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
@@ -427,8 +446,8 @@ Tabell <- RegDataAll %>%
             .by = Sykehusnavn) %>%
   dplyr::arrange(desc(Antall))#
 ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
-           "Antall" = 0,
-           "N" = sum(Tabell$N[Tabell$Antall == 0]))
+                        "Antall" = 0,
+                        "N" = sum(Tabell$N[Tabell$Antall == 0]))
 Tabell <- Tabell %>%
   dplyr::bind_rows(ikkerobot) %>%
   dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%

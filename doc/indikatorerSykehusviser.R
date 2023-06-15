@@ -4,30 +4,45 @@ rm(list = ls())
 
 rap_aar <- 2022
 
+# RegData <-  norgast::NorgastHentRegData()
+# skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
+# skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+# RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+# skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+# RegData <- RegData[which(RegData$RegistreringStatus==1),]
+# RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+# RegData <- RegData[RegData$Aar <= rap_aar, ]
+
 RegData <-  norgast::NorgastHentRegData()
-skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
-skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
-RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
-skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
-RegData <- RegData[which(RegData$RegistreringStatus==1),]
-RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
-RegData <- RegData[RegData$Aar <= rap_aar, ]
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
 
-enhetsliste <- RegDataOblig[match(unique(RegDataOblig$AvdRESH), RegDataOblig$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+enhetsliste <- RegDataOblig[match(unique(RegDataOblig$AvdRESH),
+                                  RegDataOblig$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
-# OBS, OUS er foreløpig registrert under en felles resh. Her benytter vi Rikshospitalet. AHUS mappes til AHUS NORDBYHAGEN SOMATIKK?
-
-map_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 974632535, 974795787, 974705788, 974633574, 974795639,
-                                          974724960, 974795361, 993467049, 974631326, 974749025, 974706490, 974703300, 974633752,
-                                          874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
-                                          974724774, 974631091, 974795477, 974329506, 974316285, 974753898, 974631407, 974795558,
-                                          974795574, 874716782, 974707152, 974589095, 974754118),
-                             resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
-                                      4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
-                                      101823, 102037, 701402, 100354, 102145,4211928, 100170,4212917, 4204084, 700840, 700841,
-                                      103312, 4205289, 106168, 4207594))
+map_resh_orgnr <- data.frame(
+  orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
+               974795787, 974705788, 974633574, 974795639,
+               974724960, 974795361, 993467049, 974631326,
+               974749025, 974706490, 974703300, 974633752,
+               874632562, 974743272, 974795515, 974116804,
+               974747138, 974745569, 974795833, 974633191,
+               974724774, 974631091, 974795477, 974329506,
+               974316285, 974753898, 974631407, 974795558,
+               974795574, 874716782, 974707152, 974589095,
+               974754118, 974747545),
+  resh = c(100353,4204126, 700922, 108355,
+           601225, 103091, 100100, 601231,
+           108354, 706264, 700413, 4204082,
+           107440, 108162, 114271,4209222,
+           108357, 102939, 102141, 107505,
+           708761,4204500, 101823, 102037,
+           701402, 100354, 102145,4211928,
+           100170,4212917, 4204084, 700840,
+           700841, 103312, 4205289, 106168,
+           4207594, 4216823))
 
 minald=0
 maxald=130
@@ -41,10 +56,8 @@ ASA=''
 whoEcog= ''
 ncsp=''
 forbehandling=''
-valgtShus=c('')
 op_gruppe <- ''
 malign <- 99
-
 hastegrad_hybrid=1
 tilgang = c('1', '3')
 valgtVar <- 'Saarruptur'
@@ -314,12 +327,12 @@ dg_kobl_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 9
                                               874632562, 974743272, 974795515, 974116804, 974747138, 974745569, 974795833, 974633191,
                                               974724774, 974631091, 974795477, 974329506, 974316285, 974631407, 974795558,
                                               974795574, 874716782, 974707152, 974631776, 974744570, 974747545, 974753898, 974795558,
-                                              974795574, 974754118, 974589095, 974754118),
+                                              974795574, 974754118, 974589095, 974754118, 974747545),
                                  resh = c(100353,4204126, 700922, 108355, 601225, 103091, 100100, 601231, 108354, 706264, 700413,
                                           4204082, 107440, 108162, 114271,4209222, 108357, 102939, 102141, 107505, 708761,4204500,
                                           101823, 102037, 701402, 100354, 102145,4211928, 100170, 4204084, 700840, 700841,
                                           103312,4205289, 974631776, 974744570, 974747545, 974753898, 974795558, 974795574, 4212917,
-                                          106168, 4207594))
+                                          106168, 4207594, 4216823))
 
 # dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
 #                          sheet = "Total DG per SH")
@@ -436,6 +449,52 @@ dg_kobl_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 9
 
 dg_samlet <- read.csv2("~/mydata/norgast/dg_norgast.csv")
 dg_samlet <- dg_samlet %>% dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
+
+DG_2022 <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+
+DG_tot_2022 <- DG_2022 %>%
+  summarise(n_norgast = sum(n_norgast),
+            n_npr = sum(n_npr),
+            DG = n_norgast/n_npr*100,
+            AvdRESH = first(AvdRESH),
+            Sykehusnavn = first(Sykehusnavn),
+            .by = sh) %>%
+  mutate(Op_gr = 7) %>%
+  select(sh, n_norgast, n_npr, Op_gr)
+
+DG_pankreas <- DG_2022 %>%
+  filter(Op_gr %in% 6:8) %>%
+  summarise(n_norgast = sum(n_norgast),
+            n_npr = sum(n_npr),
+            DG = n_norgast/n_npr*100,
+            AvdRESH = first(AvdRESH),
+            Sykehusnavn = first(Sykehusnavn),
+            .by = sh) %>%
+  mutate(Op_gr = 6) %>%
+  select(sh, n_norgast, n_npr, Op_gr)
+
+DG_2022 <- DG_2022 %>%
+  filter(Op_gr %in% 1:5) %>%
+  select(sh, n_norgast, n_npr, Op_gr) %>%
+  dplyr::bind_rows(DG_pankreas) %>%
+  dplyr::bind_rows(DG_tot_2022) %>%
+  mutate(context = "caregiver",
+         year = 2022) %>%
+  rename(orgnr = sh,
+         var = n_norgast,
+         denominator = n_npr) %>%
+  mutate(ind_id = case_when(Op_gr == 1 ~ "norgast_dg_tykktarm",
+                            Op_gr == 2 ~ "norgast_dg_endetarm",
+                            Op_gr == 3 ~ "norgast_dg_spiseroer",
+                            Op_gr == 4 ~ "norgast_dg_magesekk",
+                            Op_gr == 5 ~ "norgast_dg_lever",
+                            Op_gr == 6 ~ "norgast_dg_pankreas",
+                            Op_gr == 7 ~ "norgast_dg_total")) %>%
+  select(-Op_gr)
+
+dg_samlet <- bind_rows(dg_samlet, DG_2022)
+dg_samlet$var[which(dg_samlet$var > dg_samlet$denominator)] <-
+  dg_samlet$denominator[which(dg_samlet$var > dg_samlet$denominator)]
 
 indikator <- bind_rows(indikator, dg_samlet)
 
