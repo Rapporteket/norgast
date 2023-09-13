@@ -338,6 +338,8 @@ varnavn_kobl <- data.frame(
 # tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
 
 utlevernavn <- readr::read_csv2("~/mydata/norgast/utlevering_soreide.csv")
+utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv",
+                                locale = locale(encoding = "Latin1"))
 utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
 
 utlevernavn <- utlevernavn$variabel_id %>% unique()
@@ -363,7 +365,9 @@ write.csv2(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas.csv", row.na
 ##### Uttrekk Kolecystectomier OUS 2023 ########################################
 
 
-utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv")
+# utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv")
+utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv",
+                                locale = locale(encoding = "Latin1"))
 utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
 
 utlevernavn <- utlevernavn$variabel_id %>% unique()
