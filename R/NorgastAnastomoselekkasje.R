@@ -25,7 +25,7 @@ grtxt <- c('Kolonreseksjoner, ny anastomose', 'Kolonreseksjoner, øvrige', "Rekt
 RegData$variabel <- 0
 RegData$variabel[RegData$ViktigsteFunn==1] <- 1
 
-NorgastUtvalg <- NorgastLibUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
+NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
                                   erMann=erMann, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
 RegData <- NorgastUtvalg$RegData
 utvalgTxt <- NorgastUtvalg$utvalgTxt
