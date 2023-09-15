@@ -32,7 +32,8 @@ NorgastUtvalg(
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
   tilgang_utvidet = "",
-  ny_stomi = 99
+  ny_stomi = 99,
+  accordion = ""
 )
 }
 \arguments{

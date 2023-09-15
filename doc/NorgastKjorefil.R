@@ -2,6 +2,23 @@ setwd('C:/GIT/norgast/doc/')
 library(norgast)
 rm(list=ls())
 
+
+
+utdata <- NorgastBeregnAndeler(RegData, valgtVar='Alder', datoFra='2014-01-01', datoTil='2050-12-31',
+    minald=0, maxald=120, erMann=99, hastegrad = 99,
+    reshID=601225, enhetsUtvalg=1, malign=99,
+    elektiv=99, BMI='', tilgang='', valgtShus='', minPRS=0,
+    maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
+    op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99,
+    robotassiastanse=99, kun_ferdigstilte=TRUE, tilgang_utvidet='',
+    ny_stomi=99, accordion = '')
+
+NorgastPlotAndeler(utdata$PlotParams, outfile='', utvalgTxt=utdata$utvalgTxt,
+                   Andeler=utdata$Andeler, Antall=utdata$Antall,
+                   fargepalett=utdata$fargepalett, enhetsUtvalg=utdata$enhetsUtvalg,
+                   shtxt=utdata$shtxt)
+
+
 # Les inn data
 
 RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
