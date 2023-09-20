@@ -32,12 +32,13 @@ datakval_ui <- function(id){
 #'
 #' @export
 datakval_server <- function(input, output, session, reshID,
-                            userRole, RegData, hvd_session) {
+                            userRole, RegData, SkjemaOversikt, hvd_session) {
 
 
   output$dobbeltreg <-
     DT::renderDataTable(
-      norgast::dobbelreg(RegData,
+      norgast::dobbelreg(RegData=RegData,
+                         skjemaoversikt=SkjemaOversikt,
                          usrRole = userRole,
                          reshID = reshID),
       options = list(pageLength = 40), rownames = FALSE)
@@ -47,7 +48,8 @@ datakval_server <- function(input, output, session, reshID,
       paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
     },
     content = function(file, filename){
-      write.csv2(norgast::dobbelreg(RegData, usrRole = userRole, reshID = reshID),
+      write.csv2(norgast::dobbelreg(RegData, skjemaoversikt=SkjemaOversikt,
+                                    usrRole = userRole, reshID = reshID),
                  file, row.names = F, na = '', fileEncoding = "Latin1")
     })
 

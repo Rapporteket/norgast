@@ -68,7 +68,7 @@ fiksNULL <- function(x, erstatt='') {
 #' @return En dataramme med utvalgte variabler for potensielt dobbeltregistrerte forløp
 #'
 #' @export
-dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
+dobbelreg <- function(RegData, skjemaoversikt, usrRole = 'LU', reshID) {
   flere_sammedato <- RegData %>%
     dplyr::group_by(PasientID, HovedDato) %>%
     dplyr::summarise(Op_pr_dag = dplyr::n())
@@ -80,12 +80,22 @@ dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
                                           "AvdRESH", "Sykehusnavn","Hovedoperasjon",
                                           "Operasjonsgrupper", "Hoveddiagnose",
                                           "OppfStatus")]
+  skjemaoversikt <- skjemaoversikt %>%
+    dplyr::summarise(OpprettetAv = paste(unique(OpprettetAv), collapse = ", "),
+                     SistLagretAv = paste(unique(SistLagretAv), collapse = ", "),
+                     .by = ForlopsID) %>%
+    dplyr::filter(ForlopsID %in% flere_sammedato$ForlopsID)
+  flere_sammedato <- merge(flere_sammedato, skjemaoversikt, by = "ForlopsID")
   flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
   flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
   flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
   flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
-  if (usrRole != 'SC') {flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]}
+  if (usrRole != 'SC') {
+    flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]
+    flere_sammedato <- flere_sammedato %>%
+      dplyr::select(-c(OpprettetAv, SistLagretAv))
+    }
   return(flere_sammedato)
 }
 

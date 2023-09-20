@@ -115,7 +115,8 @@ appServer <- function(input, output, session) {
 
   shiny::callModule(norgast::datakval_server, "datakval_id",
                     reshID = reshID, userRole = userRole,
-                    RegData = RegData, hvd_session = session)
+                    RegData = RegData, SkjemaOversikt = skjemaoversikt,
+                    hvd_session = session)
 
   ##############################################################################
   ################ Subscription, Dispatchment and Stats ########################
