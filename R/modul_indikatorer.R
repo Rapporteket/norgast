@@ -800,8 +800,8 @@ indikatorfig <- function(input, output, session, reshID, RegData,
     names(ant_tilfeller) <- paste0("Antall_", names(ant_tilfeller))
     names(N) <- paste0("N_", names(N))
     aux <- dplyr::bind_cols(ant_tilfeller, N, andeler) %>%
-      mutate(Avdeling = rownames(.)) %>%
-      select(Avdeling, everything())
+      dplyr::mutate(Avdeling = rownames(.)) %>%
+      dplyr::select(Avdeling, dplyr::everything())
 
     sketch = htmltools::withTags(table(
       class = 'display yohannes',

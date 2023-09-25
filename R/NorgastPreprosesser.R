@@ -127,6 +127,14 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$FerdigForlop[
     RegData$RegistreringStatus == 1 &
       (RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))] <- 1
+  RegData$FerdigForlop_v2 <- 0
+  RegData$FerdigForlop_v2[
+    RegData$RegistreringStatus == 1 &
+      (RegData$OppfStatus == 1 |
+         (is.na(RegData$OppfStatus) & RegData$DodUnderOpphold==1) |
+         (is.na(RegData$OppfStatus) & RegData$PostopLiggedogn>=30) |
+         (is.na(RegData$OppfStatus) & RegData$OpDoedTid<40))] <- 1
+
 
   #### Inkluder ACCORDION SCORE fra oppfølgingsskjema
   RegData$AccordionGrad <- as.character(RegData$AccordionGrad)
