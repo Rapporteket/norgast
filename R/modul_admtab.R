@@ -270,6 +270,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
       tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
       if (!is.null(input$op_gruppe)) {tmp <- tmp[which(tmp$Op_gr %in% as.numeric(input$op_gruppe)), ]}
       if (!is.null(input$ncsp_verdi)) {tmp <- tmp[which(substr(tmp$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
+      if (!is.null(input$valgtShus)) {tmp <- tmp[tmp$AvdRESH %in% as.numeric(input$valgtShus), ]}
 
       aux <- tmp
       aux$mnd <- factor(format(aux$HovedDato, format='%b-%y'), levels = format(seq(fraDato, tilDato, by="month"), "%b-%y"))
@@ -302,8 +303,9 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
       tmp$HovedDato[is.na(tmp$HovedDato)] <- as.Date(tmp$OpprettetDato[is.na(tmp$HovedDato)])
       if (!is.null(input$op_gruppe)) {tmp <- tmp[which(tmp$Op_gr %in% as.numeric(input$op_gruppe)), ]}
       if (!is.null(input$ncsp_verdi)) {tmp <- tmp[which(substr(tmp$Hovedoperasjon, 1, 5) %in% input$ncsp_verdi), ]}
-      aux <- tmp
+      if (!is.null(input$valgtShus)) {tmp <- tmp[tmp$AvdRESH %in% as.numeric(input$valgtShus), ]}
 
+      aux <- tmp
       aux$mnd <- factor(format(aux$HovedDato, format='%Y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_aar), by="year"), "%Y"))
 
       ant_skjema <- switch (req(input$regstatus_tid),

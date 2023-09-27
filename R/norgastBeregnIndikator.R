@@ -31,15 +31,15 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
 
 
 
-"norgast2"] <- "norgast_avdoede_spiseroer"
-"norgast3"] <- "norgast_avdoede_magesekk"
-"norgast4"] <- "norgast_avdoede_bukspytt_tolv"
-"norgast5"] <- "norgast_avdoede_lever"
-"norgast6"] <- "norgast_lekkasje_tykktarm"
-"norgast7"] <- "norgast_lekkasje_endetarm"
-"norgast8"] <- "norgast_kikkhullsteknikk_lever"
-"norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
-"norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
+# "norgast2"] <- "norgast_avdoede_spiseroer"
+# "norgast3"] <- "norgast_avdoede_magesekk"
+# "norgast4"] <- "norgast_avdoede_bukspytt_tolv"
+# "norgast5"] <- "norgast_avdoede_lever"
+# "norgast6"] <- "norgast_lekkasje_tykktarm"
+# "norgast7"] <- "norgast_lekkasje_endetarm"
+# "norgast8"] <- "norgast_kikkhullsteknikk_lever"
+# "norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
+# "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
 
 
 
