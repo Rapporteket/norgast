@@ -54,8 +54,6 @@ indikatorfig_UI <- function(id){
                              )
                  ),
                  uiOutput(outputId = ns('tilAar')),
-                 # selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
-                 #             choices = BrValg$sykehus, multiple = TRUE),
                  uiOutput(outputId = ns('valgtShus_ui')),
                  sliderInput(ns("skriftStr"), "Skriftstørrelse sykehusnavn", min = 0.5, max = 1.8,
                              value = 1.3, step = 0.05, ticks = F),

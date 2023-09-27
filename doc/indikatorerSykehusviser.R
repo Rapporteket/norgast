@@ -32,7 +32,7 @@ map_resh_orgnr <- data.frame(
                974724774, 974631091, 974795477, 974329506,
                974316285, 974753898, 974631407, 974795558,
                974795574, 874716782, 974707152, 974589095,
-               974754118, 974747545),
+               974754118, 974747545, 983974732),
   resh = c(100353,4204126, 700922, 108355,
            601225, 103091, 100100, 601231,
            108354, 706264, 700413, 4204082,
@@ -42,7 +42,7 @@ map_resh_orgnr <- data.frame(
            701402, 100354, 102145,4211928,
            100170,4212917, 4204084, 700840,
            700841, 103312, 4205289, 106168,
-           4207594, 4216823))
+           4207594, 4216823, 100315))
 
 minald=0
 maxald=130
@@ -316,6 +316,32 @@ indikator$ind_id[indikator$ind_id == "norgast8"] <- "norgast_kikkhullsteknikk_le
 indikator$ind_id[indikator$ind_id == "norgast9"] <- "norgast_kikkhullsteknikk_tykktarm"
 indikator$ind_id[indikator$ind_id == "norgast10"] <- "norgast_kikkhullsteknikk_endetarm"
 indikator$context <- "caregiver"
+
+
+ind <- c("norgast_saarruptur", "norgast_aktivkontroll", "norgast_vekt_reg",
+         "norgast_avdoede_spiseroer", "norgast_avdoede_magesekk",
+         "norgast_avdoede_bukspytt_tolv", "norgast_avdoede_lever",
+         "norgast_lekkasje_tykktarm", "norgast_lekkasje_endetarm",
+         "norgast_kikkhullsteknikk_endetarm", "norgast_kikkhullsteknikk_tykktarm",
+         "norgast_kikkhullsteknikk_lever")
+ind_ny <- indikator[0,]
+
+for (ind_id in ind) {
+  tmp <- norgastBeregnIndikator(RegDataOblig, ind_id)
+  ind_ny <- dplyr::bind_rows(ind_ny, tmp)
+}
+
+# tmp1 <-ind_ny %>% summarise(ant=sum(var),
+#                             N=n(),
+#                             .by = c(year, orgnr, ind_id))
+#
+# tmp2 <- indikator %>% summarise(ant=sum(var),
+#                                 N=n(),
+#                                 .by = c(year, orgnr, ind_id))
+#
+# samlign <- merge(tmp1, tmp2, by = c("year", "orgnr", "ind_id")) %>%
+#   filter(ant.x!=ant.y | N.x!=N.y)
+
 
 # write.csv2(indikator, "~/.ssh/norgast/norgast_indikator_2022_08_04.csv", row.names = F, fileEncoding = 'UTF-8')
 
