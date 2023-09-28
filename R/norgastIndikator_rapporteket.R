@@ -99,7 +99,8 @@ norgastIndikator_rapporteket <-
     pst_txt_prikk <- c(NA, pst_txt_prikk, NA, NA)
 
 
-    FigTypUt <- rapFigurer::figtype(outfile=outfile, width=width, height=height, pointsizePDF=11, fargepalett='BlaaOff')
+    FigTypUt <- rapFigurer::figtype(outfile=outfile, width=width, height=height,
+                                    pointsizePDF=11, fargepalett='BlaaOff')
     farger <- FigTypUt$farger
     soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
     soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]

@@ -30,7 +30,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
              700841, 103312, 4205289, 106168,
              4207594, 4216823, 100315))
   map_resh_orgnr$Sykehus <- RegData$Sykehusnavn[match(map_resh_orgnr$resh,
-                                          RegData$AvdRESH)]
+                                                      RegData$AvdRESH)]
 
 
   if (ind_id == "norgast_saarruptur") {
@@ -266,14 +266,195 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
 }
 
 
-norgastPlotIndikator <- function(Indikator, tittel="") {
+norgastPlotIndikator <- function(Indikator, tittel="", inkl_konf = TRUE,
+                                 decreasing=FALSE, terskel=10, lavDG='',
+                                 lavDGtekst='Dekningsgrad < 60 %',
+                                 width=800, height=700, outfile="",
+                                 graaUt=NA, skriftStr=1.3, utvalgTxt="",
+                                 minstekrav = NA, maal = NA, pktStr=1.4,
+                                 legPlass='top', minstekravTxt='Akseptabelt',
+                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE) {
 
-  tabell <- Indikator %>%
+
+  tittel="Testtittel"; inkl_konf = TRUE;
+  decreasing=FALSE; terskel=10
+  lavDG=''; lavDGtekst='Dekningsgrad < 60 %'
+  width=800; height=700; outfile=""
+  graaUt=NA; skriftStr=1.3; utvalgTxt= "" #c("Utvalget er blbla", "Hastegrad")
+  minstekrav = 40; maal = 60; pktStr=1.4
+  legPlass='top'; minstekravTxt='Akseptabelt'
+  maalTxt='Mål'; maalretn='hoy'; prikktall=TRUE
+
+  tabell1 <- Indikator %>%
     dplyr::filter(year %in% (max(year)-2):max(year)) %>%
     dplyr::summarise(antall = sum(var),
                      N = dplyr::n(),
-                     .by = c(Sykehus, year))
+                     .by = c(Sykehus)) %>%
+    janitor::adorn_totals(name = "Norge") %>%
+    dplyr::mutate(andel=antall/N*100)
+  tabell2 <- Indikator %>%
+    dplyr::filter(year %in% max(year)) %>%
+    dplyr::summarise(antall = sum(var),
+                     N = dplyr::n(),
+                     .by = c(Sykehus)) %>%
+    janitor::adorn_totals(name = "Norge") %>%
+    dplyr::mutate(andel=antall/N*100)
 
+  tabell <- merge(tabell2, tabell1, by = "Sykehus", suffixes = c("", "_saml"),
+                  all.y = T)
+  tabell[is.na(tabell)] <- 0
+  rownames(tabell) <- tabell$Sykehus
+  AntTilfeller <- tabell[ , c("antall", "antall_saml")]
+  names(AntTilfeller) <- c(max(Indikator$year), paste0(max(Indikator$year)-2, "-", max(Indikator$year)) )
+  N <- tabell[ , c("N", "N_saml")]
+  names(N) <- names(AntTilfeller)
+  andeler <- tabell[ , c("andel", "andel_saml")]
+  names(andeler) <- names(AntTilfeller)
+
+  tittel <- c(tittel, 'inkl. 95% konf. int.')
+
+  if (!decreasing) {
+    andeler[N < terskel] <- -1
+  } else {
+    andeler[N < terskel] <- max(andeler[, dim(andeler)[2]])+1
+  }
+  andeler[rownames(andeler) %in% lavDG, ] <- NA
+  rekkefolge <- order(andeler[[dim(andeler)[2]]], decreasing = decreasing, na.last = F)
+
+  andeler <- andeler[rekkefolge, ]
+  N <- N[rekkefolge, ]
+  andeler[N < terskel] <- NA
+  andeler[N[, dim(andeler)[2]]<terskel, 1:2] <- NA
+  KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]], N[, dim(andeler)[2]])*100
+  KI[, is.na(andeler[, dim(andeler)[2]])] <- NA
+  pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
+  pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
+  pst_txt[rownames(andeler) %in% lavDG] <- lavDGtekst
+  pst_txt <- c(NA, pst_txt, NA, NA)
+  pst_txt_prikk <- paste0(sprintf('%.0f', andeler[, 1]), ' %')
+  pst_txt_prikk[N[, 1]<terskel] <- NA
+  pst_txt_prikk[rownames(andeler) %in% lavDG] <- NA
+  pst_txt_prikk <- c(NA, pst_txt_prikk, NA, NA)
+
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, width=width, height=height,
+                                  pointsizePDF=11, fargepalett='BlaaOff')
+  farger <- FigTypUt$farger
+  soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
+  soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]
+  if (!is.na(graaUt[1])) {soyleFarger[which(rownames(andeler) %in% graaUt)] <- 'gray88'}
+  soyleFarger <- c(NA, soyleFarger)
+
+  oldpar_mar <- par()$mar
+  oldpar_fig <- par()$fig
+  oldpar_oma <- par()$oma
+
+  cexgr <- skriftStr
+  rownames(andeler) <- paste0(rownames(andeler), ' (', N[, dim(N)[2]], ')')
+  andeler <- rbind(andeler, c(NA,NA))
+  rownames(andeler)[dim(andeler)[1]] <- paste0('(N, ', names(andeler)[dim(andeler)[2]], ')')
+  KI <- cbind(c(NA, NA), KI, c(NA, NA))
+
+  vmarg <- max(0, strwidth(rownames(andeler), units='figure', cex=cexgr)*0.75)
+  par('fig'=c(vmarg, 1, 0, 1))
+  # par('mar'=c(5.1, 4.1, 5.1, 9.1))
+  par('oma'=c(0,1,length(utvalgTxt),0))
+
+  par('mar'=c(5.1, 4.1, 5.1, 2.1))
+  xmax <- min(max(KI, max(andeler, na.rm = T), na.rm = T)*1.15,100)
+  andeler <- rbind(c(NA,NA), andeler, c(NA,NA))
+  rownames(andeler)[dim(andeler)[1]] <- '  '
+  rownames(andeler)[1] <- ' '
+
+  ypos <- barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
+                   xlim=c(0,xmax),
+                   names.arg=rep('',dim(andeler)[1]),
+                   horiz=T, axes=F, space=c(0,0.3),
+                   col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
+
+  fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
+
+  if (maal > minstekrav & !is.na(maal) & !is.na(minstekrav)) {
+    rect(xleft=minstekrav, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+  if (maal < minstekrav & !is.na(maal) & !is.na(minstekrav)) {
+    rect(xleft=maal, ybottom=1, xright=minstekrav, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+  if (!is.na(maal) & is.na(minstekrav) & maalretn=='lav') {
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+  if (!is.na(maal) & is.na(minstekrav) & maalretn=='hoy') {
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+
+  barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
+           names.arg=rep('',dim(andeler)[1]),
+           horiz=T, axes=F, space=c(0,0.3),
+           col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
+
+  # title(main = tittel, outer=T)
+  title(main = tittel)
+  ypos <- as.numeric(ypos) #as.vector(ypos)
+  yposOver <- max(ypos)-2 + 0.5*diff(ypos)[1]
+  if (!is.na(minstekrav)) {
+    lines(x=rep(minstekrav, 2), y=c(-1, yposOver), col=fargerMaalNiva[2], lwd=2)
+    par(xpd=TRUE)
+    text(x=minstekrav, y=yposOver, labels = minstekravTxt,
+         pos = 4, cex=cexgr*0.65, srt = 90)
+    par(xpd=FALSE)
+  }
+  if (!is.na(maal)) {
+    lines(x=rep(maal, 2), y=c(-1, yposOver), col=fargerMaalNiva[1], lwd=2)
+    barplot( t(andeler[, dim(andeler)[2]]), beside=T, las=1,
+             names.arg=rep('',dim(andeler)[1]),
+             horiz=T, axes=F, space=c(0,0.3),
+             col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
+    par(xpd=TRUE)
+    text(x=maal, y=yposOver, labels = maalTxt, pos = 4, cex=cexgr*0.65, srt = 90) #paste0(maalTxt,maal,'%')
+    par(xpd=FALSE)
+  }
+  arrows(x0 = KI[1,], y0 = ypos, x1 = KI[2,], y1 = ypos,
+         length=0.5/max(ypos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
+  legend('bottom', cex=0.9*cexgr, bty='n',
+         lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
+         legend=paste0('Konfidensintervall ', names(N)[dim(N)[2]]))
+
+  axis(1,cex.axis=0.9)
+  grtxt_bold <- rownames(andeler)
+  grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')] <-
+    paste0("$\\textbf{", grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')], "}")
+  mtext(latex2exp::TeX(grtxt_bold), side=2, line=0.2, las=1, at=ypos, col=1, cex=cexgr)
+  antAar <- dim(andeler)[2]
+
+  par(xpd=TRUE)
+  points(y=ypos, x=andeler[,1],cex=pktStr, pch= 19)
+  par(xpd=FALSE)
+
+  if (legPlass=='nede'){
+    legend('bottomright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',
+           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+           legend=names(N), ncol = 1)}
+  if (legPlass=='top'){
+    legend('top', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+           legend=names(N), ncol = dim(andeler)[2])}
+  if (legPlass=='topleft'){
+    legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+           legend=names(N), ncol = dim(andeler)[2])}
+  if (legPlass=='topright'){
+    legend('topright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
+           lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+           legend=names(N), ncol = dim(andeler)[2])}
+
+  text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
+  if (prikktall) {text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)}
+
+  #Tekst som angir hvilket utvalg som er gjort
+  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=(length(utvalgTxt)-1):0, outer=TRUE)
+
+  par('mar'= oldpar_mar)
+  par('fig'= oldpar_fig)
+  par('oma'= oldpar_oma)
+
+  if ( outfile != '') {dev.off()}
 
 }
 
