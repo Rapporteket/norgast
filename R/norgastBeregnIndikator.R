@@ -51,6 +51,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     terskel=10
     minstekrav = 4
     maal = 3
+    tittel <- "Andel med sårruptur"
+    utvalgTxt <- c("Hastegrad: Elektiv", "Tilgang: Åpen, Konvertert")
   }
 
   if (ind_id == "norgast_aktivkontroll") {
@@ -71,6 +73,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     terskel <- 10
     minstekrav <- 70
     maal <- 90
+    tittel <- "Andel med aktiv kontroll"
+    utvalgTxt <- c("Hastegrad: Elektiv")
   }
 
   if (ind_id == "norgast_vekt_reg") {
@@ -90,6 +94,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     minstekrav <- 80
     maal <- 90
     decreasing <- F
+    tittel <- "Andel med premorbid vekttap registrert"
+    utvalgTxt <- c("Hastegrad: Elektiv")
   }
 
 
@@ -109,6 +115,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     terskel=10
     minstekrav = 8
     maal = 5
+    tittel <- "Andel avdøde innen 90 dager etter operasjon"
+    utvalgTxt <- "Operasjonsgruppe: Øsofagusreseksjoner"
   }
 
   if (ind_id == "norgast_avdoede_magesekk") {
@@ -123,7 +131,12 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = Mort90) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=T
+    terskel=5
+    minstekrav = 8
+    maal = 5
+    tittel <- "Andel avdøde innen 90 dager etter operasjon"
+    utvalgTxt <- "Operasjonsgruppe: Ventrikkelreseksjoner"
   }
 
   if (ind_id == "norgast_avdoede_bukspytt_tolv") {
@@ -138,7 +151,12 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = Mort90) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=T
+    terskel=10
+    minstekrav = 8
+    maal = 5
+    tittel <- "Andel avdøde innen 90 dager etter operasjon"
+    utvalgTxt <- "Operasjonsgruppe: Whipples operasjon"
   }
 
   if (ind_id == "norgast_avdoede_lever") {
@@ -153,7 +171,12 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = Mort90) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=T
+    terskel=10
+    minstekrav = 5
+    maal = 3
+    tittel <- "Andel avdøde innen 90 dager etter operasjon"
+    utvalgTxt <- "Operasjonsgruppe: Leverreseksjoner"
   }
 
   if (ind_id == "norgast_lekkasje_tykktarm") {
@@ -171,7 +194,13 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = Anastomoselekkasje) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=T
+    terskel=10
+    minstekrav = 6
+    maal = 4
+    tittel <- "Andel anastomoselekkasjer, ny anastomose"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
   if (ind_id == "norgast_lekkasje_endetarm") {
@@ -189,7 +218,13 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = Anastomoselekkasje) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=T
+    terskel=10
+    minstekrav = 7
+    maal = 5
+    tittel <- "Andel anastomoselekkasjer, ny anastomose"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
   if (ind_id == "norgast_kikkhullsteknikk_endetarm") {
@@ -207,26 +242,15 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = LapTilgang2) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=F
+    terskel=10
+    minstekrav = 60
+    maal = 70
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
-  if (ind_id == "norgast_kikkhullsteknikk_endetarm") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 2, # Rektum
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "norgast_kikkhullsteknikk_endetarm",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = LapTilgang2) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
-  }
 
   if (ind_id == "norgast_kikkhullsteknikk_tykktarm") {
     Indikator <- RegData %>%
@@ -243,7 +267,13 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = LapTilgang2) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=F
+    terskel=10
+    minstekrav = 60
+    maal = 70
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
   if (ind_id == "norgast_kikkhullsteknikk_lever") {
@@ -258,33 +288,16 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     var = LapTilgang2) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-
+    decreasing=F
+    terskel=10
+    minstekrav = 30
+    maal = 30
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Leverreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
   Indikator$Sykehus <- map_resh_orgnr$Sykehus[match(Indikator$orgnr, map_resh_orgnr$orgnr_sh)]
-  return(invisible(Indikator))
-}
-
-
-norgastPlotIndikator <- function(Indikator, tittel="", inkl_konf = TRUE,
-                                 decreasing=FALSE, terskel=10, lavDG='',
-                                 lavDGtekst='Dekningsgrad < 60 %',
-                                 width=800, height=700, outfile="",
-                                 graaUt=NA, skriftStr=1.3, utvalgTxt="",
-                                 minstekrav = NA, maal = NA, pktStr=1.4,
-                                 legPlass='top', minstekravTxt='Akseptabelt',
-                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE) {
-
-
-  tittel="Testtittel"; inkl_konf = TRUE;
-  decreasing=FALSE; terskel=10
-  lavDG=''; lavDGtekst='Dekningsgrad < 60 %'
-  width=800; height=700; outfile=""
-  graaUt=NA; skriftStr=1.3; utvalgTxt= "" #c("Utvalget er blbla", "Hastegrad")
-  minstekrav = 40; maal = 60; pktStr=1.4
-  legPlass='top'; minstekravTxt='Akseptabelt'
-  maalTxt='Mål'; maalretn='hoy'; prikktall=TRUE
-
   tabell1 <- Indikator %>%
     dplyr::filter(year %in% (max(year)-2):max(year)) %>%
     dplyr::summarise(antall = sum(var),
@@ -310,6 +323,33 @@ norgastPlotIndikator <- function(Indikator, tittel="", inkl_konf = TRUE,
   names(N) <- names(AntTilfeller)
   andeler <- tabell[ , c("andel", "andel_saml")]
   names(andeler) <- names(AntTilfeller)
+
+  utdata <- list(Indikator=Indikator, tittel=tittel, utvalgTxt=utvalgTxt,
+                 minstekrav=minstekrav, maal=maal, decreasing=decreasing,
+                 terskel=terskel, tabell=tabell, AntTilfeller=AntTilfeller,
+                 N=N, andeler=andeler)
+  return(invisible(utdata))
+}
+
+
+
+#' Plot NORGAST sine indikatorer
+#'
+#' Denne funksjonen plotter NORGAST sine offisielle kvalitetsindikatorer
+#' basert på beregningene i norgastBeregnIndikator
+#'
+#' @param Indikator indikatordata som beregnet i norgastBeregnIndikator
+#' @param tittel Tittel på plot
+#'
+#' @export
+norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
+                                 decreasing=FALSE, terskel=10, lavDG='',
+                                 lavDGtekst='Dekningsgrad < 60 %',
+                                 width=800, height=700, outfile="",
+                                 graaUt=NA, skriftStr=1.3, utvalgTxt="",
+                                 minstekrav = NA, maal = NA, pktStr=1.4,
+                                 legPlass='top', minstekravTxt='Akseptabelt',
+                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE) {
 
   tittel <- c(tittel, 'inkl. 95% konf. int.')
 
@@ -450,9 +490,9 @@ norgastPlotIndikator <- function(Indikator, tittel="", inkl_konf = TRUE,
   #Tekst som angir hvilket utvalg som er gjort
   mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=(length(utvalgTxt)-1):0, outer=TRUE)
 
-  par('mar'= oldpar_mar)
-  par('fig'= oldpar_fig)
-  par('oma'= oldpar_oma)
+  # par('mar'= oldpar_mar)
+  # par('fig'= oldpar_fig)
+  # par('oma'= oldpar_oma)
 
   if ( outfile != '') {dev.off()}
 

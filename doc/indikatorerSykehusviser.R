@@ -331,19 +331,19 @@ for (ind_id in ind) {
   ind_ny <- dplyr::bind_rows(ind_ny, tmp)
 }
 
-# tmp1 <-ind_ny %>% summarise(ant=sum(var),
-#                             N=n(),
-#                             .by = c(year, orgnr, ind_id))
-#
-# tmp2 <- indikator %>% summarise(ant=sum(var),
-#                                 N=n(),
-#                                 .by = c(year, orgnr, ind_id))
-#
-# samlign <- merge(tmp1, tmp2, by = c("year", "orgnr", "ind_id")) %>%
-#   filter(ant.x!=ant.y | N.x!=N.y)
+
+indikatordata <- norgastBeregnIndikator(RegDataOblig, "norgast_vekt_reg")
 
 
-# write.csv2(indikator, "~/.ssh/norgast/norgast_indikator_2022_08_04.csv", row.names = F, fileEncoding = 'UTF-8')
+norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                     N = indikatordata$N,
+                     andeler = indikatordata$andeler,
+                     decreasing = indikatordata$decreasing,
+                     terskel = indikatordata$terskel,
+                     minstekrav = indikatordata$minstekrav,
+                     maal = indikatordata$maal,
+                     utvalgTxt = indikatordata$utvalgTxt,
+                     tittel = indikatordata$tittel)
 
 
 ### Tilbered dekningsgrad for sykehusviser
