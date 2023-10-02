@@ -227,6 +227,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                    "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
+
   if (ind_id == "norgast_kikkhullsteknikk_endetarm") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 2, # Rektum
@@ -345,8 +346,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
 norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
                                  decreasing=FALSE, terskel=10, lavDG='',
                                  lavDGtekst='Dekningsgrad < 60 %',
-                                 width=800, height=700, outfile="",
-                                 graaUt=NA, skriftStr=1.3, utvalgTxt="",
+                                 width=600, height=700, outfile="",
+                                 graaUt=NA, skriftStr=1.2, utvalgTxt="",
                                  minstekrav = NA, maal = NA, pktStr=1.4,
                                  legPlass='top', minstekravTxt='Akseptabelt',
                                  maalTxt='Mål', maalretn='hoy', prikktall=TRUE) {
