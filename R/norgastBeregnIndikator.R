@@ -34,27 +34,25 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
 
   maalretn <- 'hoy'
 
-
-  if (ind_id == "norgast_saarruptur") {
+  if (ind_id == "norgast_vekt_reg") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 1:8, # Kun obligatoriske
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    Hastegrad_hybrid==1, # Kun elektive
-                    Tilgang %in% c(1, 3),
-                    Saarruptur %in% c(0,1)) %>%
-      dplyr::mutate(context = "caregiver",
+                    Hastegrad_hybrid==1) %>%
+      dplyr::mutate(var = ifelse(is.na(VekttapProsent), 0, 1),
+                    context = "caregiver",
                     denominator = 1,
-                    ind_id = "norgast_saarruptur",
+                    ind_id = "norgast_vekt_reg",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = Saarruptur) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::rename(year = Aar) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = 4
-    maal = 3
-    tittel <- "Andel med sårruptur"
-    utvalgTxt <- c("Hastegrad: Elektiv", "Tilgang: Åpen, Konvertert")
+    terskel <- 10
+    minstekrav <- 80
+    maal <- 90
+    decreasing <- F
+    tittel <- "Andel med premorbid vekttap registrert"
+    utvalgTxt <- c("Hastegrad: Elektiv")
   }
 
   if (ind_id == "norgast_aktivkontroll") {
@@ -79,25 +77,231 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     utvalgTxt <- c("Hastegrad: Elektiv")
   }
 
-  if (ind_id == "norgast_vekt_reg") {
+
+  if (ind_id == "norgast_saarruptur") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 1:8, # Kun obligatoriske
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    Hastegrad_hybrid==1) %>%
-      dplyr::mutate(var = ifelse(is.na(VekttapProsent), 0, 1),
-                    context = "caregiver",
+                    Hastegrad_hybrid==1, # Kun elektive
+                    Tilgang %in% c(1, 3),
+                    Saarruptur %in% c(0,1)) %>%
+      dplyr::mutate(context = "caregiver",
                     denominator = 1,
-                    ind_id = "norgast_vekt_reg",
+                    ind_id = "norgast_saarruptur",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::rename(year = Aar) %>%
+      dplyr::rename(year = Aar,
+                    var = Saarruptur) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    terskel <- 10
-    minstekrav <- 80
-    maal <- 90
-    decreasing <- F
-    tittel <- "Andel med premorbid vekttap registrert"
-    utvalgTxt <- c("Hastegrad: Elektiv")
+    decreasing=T
+    terskel=10
+    minstekrav = 4
+    maal = 3
+    tittel <- "Andel med sårruptur"
+    utvalgTxt <- c("Hastegrad: Elektiv", "Tilgang: Åpen, Konvertert")
+  }
+
+  if (ind_id == "norgast_lekkasje_tykktarm") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 1, # Kolon
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_lekkasje_tykktarm",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = Anastomoselekkasje) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 6
+    maal = 4
+    tittel <- "Andel anastomoselekkasjer, ny anastomose"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+
+  if (ind_id == "relap_kolon") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 1, # Kolon
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "relap_kolon",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = ReLapNarkose) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = NA
+    maal = 12
+    maalretn <- "lav"
+    tittel <- "Andel relaparotomi/laparoskopi"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+  if (ind_id == "konv_rate_kolon") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 1, # Kolon
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1,
+                    Tilgang %in% 2:3) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "konv_rate_kolon",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
+                    var = case_when(
+                      Tilgang == 2 ~ 0,
+                      Tilgang == 3 ~ 1
+                    )) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 15
+    maal = 10
+    tittel <- "Andel laparoskopiske inngrep konvertert til åpen kirurgi"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+  if (ind_id == "norgast_kikkhullsteknikk_tykktarm") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 1, # Kolon
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_kikkhullsteknikk_tykktarm",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = LapTilgang2) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=F
+    terskel=10
+    minstekrav = 60
+    maal = 70
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+  if (ind_id == "norgast_lekkasje_endetarm") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 2, # Rektum
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_lekkasje_endetarm",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = Anastomoselekkasje) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 7
+    maal = 5
+    tittel <- "Andel anastomoselekkasjer, ny anastomose"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+  if (ind_id == "relap_rektum") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 2, #  rektum
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "relap_rektum",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = ReLapNarkose) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = NA
+    maal = 12
+    maalretn <- "lav"
+    tittel <- "Andel relaparotomi/laparoskopi"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+
+  if (ind_id == "konv_rate_rektum") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 2, # Rektum
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1,
+                    Tilgang %in% 2:3) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "konv_rate_rektum",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
+                    var = case_when(
+                      Tilgang == 2 ~ 0,
+                      Tilgang == 3 ~ 1
+                    )) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 15
+    maal = 10
+    tittel <- "Andel laparoskopiske inngrep konvertert til åpen kirurgi"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
+  }
+
+  if (ind_id == "norgast_kikkhullsteknikk_endetarm") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 2, # Rektum
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    WHOECOG %in% 0:1,
+                    Malign == 1,
+                    Hastegrad_hybrid == 1) %>%
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_kikkhullsteknikk_endetarm",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = LapTilgang2) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=F
+    terskel=10
+    minstekrav = 60
+    maal = 70
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
+                   "Hastegrad: Elektiv", "Diagnose: Malign")
   }
 
 
@@ -144,6 +348,28 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     utvalgTxt <- c("Operasjonsgruppe: Øsofagusreseksjoner", "Hastegrad: Elektiv")
   }
 
+  if (ind_id == "norgast_avdoede_magesekk") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 4, # mage
+                    Hastegrad_hybrid==1,
+                    OppfStatus == 1 | is.na(OppfStatus)) %>% # Kun ferdige
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_avdoede_magesekk",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = Mort90) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 8
+    maal = 5
+    tittel <- "Andel avdøde innen 90 dager etter operasjon"
+    utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner", "Hastegrad: Elektiv")
+  }
+
+
   if (ind_id == "anastomoselekk_ventrikkel") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 4, # mage
@@ -166,25 +392,30 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner", "Hastegrad: Elektiv")
   }
 
-  if (ind_id == "norgast_avdoede_magesekk") {
+
+  if (ind_id == "relap_ventrikkel") {
     Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 4, # mage
-                    OppfStatus == 1 | is.na(OppfStatus)) %>% # Kun ferdige
+      dplyr::filter(Op_gr %in% 4, #  ventrikkel
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    Hastegrad_hybrid == 1) %>%
       dplyr::mutate(context = "caregiver",
                     denominator = 1,
-                    ind_id = "norgast_avdoede_magesekk",
+                    ind_id = "relap_ventrikkel",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
       dplyr::rename(year = Aar,
-                    var = Mort90) %>%
+                    var = ReLapNarkose) %>%
       dplyr::filter(!is.na(var)) %>%
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
     decreasing=T
     terskel=10
-    minstekrav = 8
-    maal = 5
-    tittel <- "Andel avdøde innen 90 dager etter operasjon"
-    utvalgTxt <- "Operasjonsgruppe: Ventrikkelreseksjoner"
+    minstekrav = NA
+    maal = 15
+    maalretn <- "lav"
+    tittel <- "Andel relaparotomi/laparoskopi"
+    utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner",
+                   "Hastegrad: Elektiv")
   }
+
 
   if (ind_id == "norgast_avdoede_bukspytt_tolv") {
     Indikator <- RegData %>%
@@ -254,6 +485,52 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                    "Hastegrad: Elektiv")
   }
 
+  if (ind_id == "CR_POPF_distal") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 7, # distale pankreas
+                    Hastegrad_hybrid==1,
+                    OppfStatus == 1 | is.na(OppfStatus)) %>% # Kun ferdige
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "CR_POPF_whipple",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
+                    var = ifelse((ReLapNarkose==1 & ViktigsteFunn %in% 1:2) |
+                                   (ReLapNarkose==1 & (EndoInterBlod | EndoInterLekkasje)) |
+                                   (PerkDrenasje==1 & HoyAmylaseKons==1), 1, 0)) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=T
+    terskel=10
+    minstekrav = 35
+    maal = 25
+    tittel <- "Klinisk relevant postoperativ pankreasfistel"
+    utvalgTxt <- c("Operasjonsgruppe: Distale pankreasreseksjoner", "Hastegrad: Elektiv")
+  }
+
+
+  if (ind_id == "kikkhullsteknikk_distal") {
+    Indikator <- RegData %>%
+      dplyr::filter(Op_gr %in% 7, # Distale pankreas
+                    Hastegrad_hybrid == 1,
+                    OppfStatus == 1 | is.na(OppfStatus)) %>% # Kun ferdige
+      dplyr::mutate(context = "caregiver",
+                    denominator = 1,
+                    ind_id = "kikkhullsteknikk_distal",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
+      dplyr::rename(year = Aar,
+                    var = LapTilgang2) %>%
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    decreasing=F
+    terskel=10
+    minstekrav = NA
+    maal = 35
+    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
+    utvalgTxt <- c("Operasjonsgruppe: Distale pankreasreseksjoner",
+                   "Hastegrad: Elektiv")
+  }
+
   if (ind_id == "norgast_avdoede_lever") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 5, # lever
@@ -275,218 +552,14 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     utvalgTxt <- "Operasjonsgruppe: Leverreseksjoner"
   }
 
-  if (ind_id == "norgast_lekkasje_tykktarm") {
+  if (ind_id == "relap_lever") {
     Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 1, # Kolon
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "norgast_lekkasje_tykktarm",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = Anastomoselekkasje) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = 6
-    maal = 4
-    tittel <- "Andel anastomoselekkasjer, ny anastomose"
-    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "norgast_lekkasje_endetarm") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 2, # Rektum
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "norgast_lekkasje_endetarm",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = Anastomoselekkasje) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = 7
-    maal = 5
-    tittel <- "Andel anastomoselekkasjer, ny anastomose"
-    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-
-  if (ind_id == "norgast_kikkhullsteknikk_endetarm") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 2, # Rektum
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "norgast_kikkhullsteknikk_endetarm",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = LapTilgang2) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=F
-    terskel=10
-    minstekrav = 60
-    maal = 70
-    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
-    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-
-  if (ind_id == "norgast_kikkhullsteknikk_tykktarm") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 1, # Kolon
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "norgast_kikkhullsteknikk_tykktarm",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = LapTilgang2) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=F
-    terskel=10
-    minstekrav = 60
-    maal = 70
-    tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
-    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "konv_rate_kolon") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 1, # Kolon
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1,
-                    Tilgang %in% 2:3) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "konv_rate_kolon",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
-                    var = case_when(
-                      Tilgang == 2 ~ 0,
-                      Tilgang == 3 ~ 1
-                    )) %>%
-      dplyr::rename(year = Aar) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = 15
-    maal = 10
-    tittel <- "Andel laparoskopiske inngrep konvertert til åpen kirurgi"
-    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "relap_kolon") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 1, # Kolon
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "relap_kolon",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = ReLapNarkose) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = NA
-    maal = 12
-    maalretn <- "lav"
-    tittel <- "Andel relaparotomi/laparoskopi"
-    utvalgTxt <- c("Operasjonsgruppe: Kolonreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "konv_rate_rektum") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 2, # Rektum
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1,
-                    Tilgang %in% 2:3) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "konv_rate_rektum",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
-                    var = case_when(
-                      Tilgang == 2 ~ 0,
-                      Tilgang == 3 ~ 1
-                    )) %>%
-      dplyr::rename(year = Aar) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = 15
-    maal = 10
-    tittel <- "Andel laparoskopiske inngrep konvertert til åpen kirurgi"
-    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "relap_rektum") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 2, #  rektum
-                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    WHOECOG %in% 0:1,
-                    Malign == 1,
-                    Hastegrad_hybrid == 1) %>%
-      dplyr::mutate(context = "caregiver",
-                    denominator = 1,
-                    ind_id = "relap_rektum",
-                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
-      dplyr::rename(year = Aar,
-                    var = ReLapNarkose) %>%
-      dplyr::filter(!is.na(var)) %>%
-      dplyr::select(context, orgnr, year, var, denominator, ind_id)
-    decreasing=T
-    terskel=10
-    minstekrav = NA
-    maal = 12
-    maalretn <- "lav"
-    tittel <- "Andel relaparotomi/laparoskopi"
-    utvalgTxt <- c("Operasjonsgruppe: Rektumreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
-  }
-
-  if (ind_id == "relap_ventrikkel") {
-    Indikator <- RegData %>%
-      dplyr::filter(Op_gr %in% 4, #  ventrikkel
+      dplyr::filter(Op_gr %in% 5, #  lever
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
                     Hastegrad_hybrid == 1) %>%
       dplyr::mutate(context = "caregiver",
                     denominator = 1,
-                    ind_id = "relap_ventrikkel",
+                    ind_id = "relap_lever",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) %>%
       dplyr::rename(year = Aar,
                     var = ReLapNarkose) %>%
@@ -498,15 +571,14 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     maal = 15
     maalretn <- "lav"
     tittel <- "Andel relaparotomi/laparoskopi"
-    utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner",
+    utvalgTxt <- c("Operasjonsgruppe: Leverreseksjoner",
                    "Hastegrad: Elektiv")
   }
-
-
 
   if (ind_id == "norgast_kikkhullsteknikk_lever") {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 5, # Lever
+                    Hastegrad_hybrid == 1,
                     OppfStatus == 1 | is.na(OppfStatus)) %>% # Kun ferdige
       dplyr::mutate(context = "caregiver",
                     denominator = 1,
@@ -518,14 +590,12 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
       dplyr::select(context, orgnr, year, var, denominator, ind_id)
     decreasing=F
     terskel=10
-    minstekrav = 30
+    minstekrav = NA
     maal = 30
     tittel <- "Andel laparoskopi (konverterte inngrep inkludert)"
-    utvalgTxt <- c("Operasjonsgruppe: Leverreseksjoner", "WHO ECOG score: 0, 1",
-                   "Hastegrad: Elektiv", "Diagnose: Malign")
+    utvalgTxt <- c("Operasjonsgruppe: Leverreseksjoner",
+                   "Hastegrad: Elektiv")
   }
-
-
 
 
   Indikator$Sykehus <- map_resh_orgnr$Sykehus[match(Indikator$orgnr, map_resh_orgnr$orgnr_sh)]

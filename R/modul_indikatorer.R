@@ -1,4 +1,4 @@
-#' UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for iindikatorfigurer i NoRGast sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -12,56 +12,37 @@ indikatorfig_UI <- function(id){
     sidebarPanel(
       width = 3,
       id = ns("id_indikator_panel"),
-      selectInput(inputId = ns("valgtVar2"), label = "Velg indikator",
-                  choices = c("Generell: Premorbid vekttap registrert" = "norgast_vekt_reg",
-                              "Generell: Aktiv kontroll" = "norgast_aktivkontroll",
-                              "Generell: Sårruptur" = "norgast_saarruptur",
-                              "Kolon: Anastomoselekkasje" = "norgast_lekkasje_tykktarm",
-                              "Kolon: Laparoskopi" = "norgast_kikkhullsteknikk_tykktarm",
-                              "Kolon: Konverteringsrate" = "konv_rate_kolon",
-                              "Kolon: Reoperasjon" = "relap_kolon",
-                              "Rektum: Anastomoselekkasje" = "norgast_lekkasje_endetarm",
-                              "Rektum: Laparoskopi" = "norgast_kikkhullsteknikk_endetarm",
-                              "Rektum: Konverteringsrate" = "konv_rate_rektum",
-                              "Rektum: Reoperasjon" = "relap_rektum",
-                              "Øsofagus: 90-dagers dødelighet" = "norgast_avdoede_spiseroer",
-                              "Øsofagus: Anastomoselekkasje" = "anastomoselekk_osofagus",
-                              "Ventrikkel: 90-dagers dødelighet" = "norgast_avdoede_magesekk",
-                              "Ventrikkel: Anastomoselekkasje" = "anastomoselekk_ventrikkel",
-                              "Ventrikkel: Reoperasjon" = "relap_ventrikkel",
-                              "Whipple: 90-dagers dødelighet" = "norgast_avdoede_bukspytt_tolv",
-                              "Whipple: Postoperativ pankreasfistel" = "CR_POPF_whipple",
-                              "Whipple: Reoperasjon" = "relap_whipple",
-                              "Lever: 90-dagers dødelighet" = "norgast_avdoede_lever",
-
-                              "Lever: Laparoskopi" = "norgast_kikkhullsteknikk_lever")
+      selectInput(
+        inputId = ns("valgtVar2"), label = "Velg indikator",
+        choices = c("Generell: Premorbid vekttap registrert" = "norgast_vekt_reg",
+                    "Generell: Aktiv kontroll" = "norgast_aktivkontroll",
+                    "Generell: Sårruptur" = "norgast_saarruptur",
+                    "Kolon: Anastomoselekkasje" = "norgast_lekkasje_tykktarm",
+                    "Kolon: Reoperasjon" = "relap_kolon",
+                    "Kolon: Laparoskopi" = "norgast_kikkhullsteknikk_tykktarm",
+                    "Kolon: Konverteringsrate" = "konv_rate_kolon",
+                    "Rektum: Anastomoselekkasje" = "norgast_lekkasje_endetarm",
+                    "Rektum: Reoperasjon" = "relap_rektum",
+                    "Rektum: Konverteringsrate" = "konv_rate_rektum",
+                    "Rektum: Laparoskopi" = "norgast_kikkhullsteknikk_endetarm",
+                    "Øsofagus: 90-dagers dødelighet" = "norgast_avdoede_spiseroer",
+                    "Øsofagus: Anastomoselekkasje" = "anastomoselekk_osofagus",
+                    "Ventrikkel: 90-dagers dødelighet" = "norgast_avdoede_magesekk",
+                    "Ventrikkel: Anastomoselekkasje" = "anastomoselekk_ventrikkel",
+                    "Ventrikkel: Reoperasjon" = "relap_ventrikkel",
+                    "Whipple: 90-dagers dødelighet" = "norgast_avdoede_bukspytt_tolv",
+                    "Whipple: Postoperativ pankreasfistel" = "CR_POPF_whipple",
+                    "Whipple: Reoperasjon" = "relap_whipple",
+                    "Distal pankreas: Postoperativ pankreasfistel" = "CR_POPF_distal",
+                    "Distal pankreas: Laparoskopi" = "kikkhullsteknikk_distal",
+                    "Lever: 90-dagers dødelighet" = "norgast_avdoede_lever",
+                    "Lever: Reoperasjon" = "relap_lever",
+                    "Lever: Laparoskopi" = "norgast_kikkhullsteknikk_lever")
       ),
-
-      # "Lever: Laparoskopi" = "Tilgang_lever_aar",
-      # "Lever: Relaparotomi/-laparoskopi" = "ReLapNarkose_lever_aar",
-      # "Lever: 90-dagers dødelighet" = "mortalitet90_lever_aar",
-      # "Whipple: Vene- eller arterierekonstruksjon" = "Rekonstruksjon_whipple_aar",
-      # "Whipple: Relaparotomi/-laparoskopi" = "ReLapNarkose_whipple",
-      # "Whipple: Accordion score ≥ 3" = "AccordionGrad_whipple_aar",
-      # "Whipple: 90-dagers dødelighet" = "mortalitet90_whipple_aar",
-      # "Whipple: Postoperativ pankreasfistel" = "CR_POPF_whipple_aar",
-      # "Andre pankreas: Laparoskopi" = "Tilgang_ovrigpankreas_aar",
-      # "Andre pankreas: Vene- eller arterierekonstruksjon" = "Rekonstruksjon_ovrigpankreas_aar",
-      # "Andre pankreas Postoperativ pankreasfistel" = "CR_POPF_ovrigpankreas_aar",
-      # "Whipple: Accordion score ≥ 3" = "AccordionGrad_ovrigpankreas_aar",
-      # "Øsofagus: Accordion score ≥ 3" = "AccordionGrad_osofagus_aar",
-      # "Øsofagus: Relaparotomi/-laparoskopi" = "ReLapNarkose_osofagus_aar",
-      # "Øsofagus: 90-dagers dødelighet" = "mortalitet90_osofagus_aar",
-      # "Øsofagus: Anastomoselekkasje" = "Anastomoselekk_osofagus_aar",
-      # "Ventrikkel: Laparoskopi" = "Tilgang_ventrikkel_aar_v2",
-      # "Ventrikkel: Accordion score ≥ 3" = "AccordionGrad_ventrikkel_aar",
-      # "Ventrikkel: Relaparotomi/-laparoskopi" = "ReLapNarkose_ventrikkel_aar",
-      # "Ventrikkel: 90-dagers dødelighet" = "mortalitet90_ventrikkel_aar"
-
-
       uiOutput(outputId = ns('tilAar_ui')),
       uiOutput(outputId = ns('valgtShus_ui')),
-      sliderInput(ns("skriftStr"), "Skriftstørrelse sykehusnavn", min = 0.5, max = 1.8,
+      sliderInput(ns("skriftStr"), "Skriftstørrelse sykehusnavn",
+                  min = 0.5, max = 1.8,
                   value = 1.2, step = 0.05, ticks = F),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                   choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
@@ -75,10 +56,8 @@ indikatorfig_UI <- function(id){
                            downloadButton(ns("lastNedBilde"), "Last ned figur")),
                   tabPanel("Tabell", value = "tab",
                            uiOutput(ns("utvalg")),
-                           # textOutput(ns("utvalg")),
                            br(),
                            DT::DTOutput(ns("tabell"))
-                           #          downloadButton(ns("lastNed"), "Last ned tabell")
                   )
       )
     )
@@ -86,7 +65,7 @@ indikatorfig_UI <- function(id){
 
 }
 
-#' Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for indikatorfigurer i NoRGast sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
