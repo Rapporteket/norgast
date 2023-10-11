@@ -2,13 +2,13 @@
 % Please edit documentation in R/norgastApp.R
 \name{norgastApp}
 \alias{norgastApp}
-\title{Run the NoRGast Shiny Application}
+\title{Run the NORGAST Shiny Application}
 \usage{
 norgastApp()
 }
 \value{
-An object representing the NoRGast app
+An object representing the NORGAST app
 }
 \description{
-Run the NoRGast Shiny Application
+Run the NORGAST Shiny Application
 }

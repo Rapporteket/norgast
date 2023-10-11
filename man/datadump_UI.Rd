@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_datadump.R
 \name{datadump_UI}
 \alias{datadump_UI}
-\title{UI-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for datadump-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 datadump_UI(id)
 }

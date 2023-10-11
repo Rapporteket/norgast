@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_indikatorer.R
 \name{indikatorfig}
 \alias{indikatorfig}
-\title{Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for indikatorfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
 indikatorfig(
   input,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_sammenlign_utvalg_tid.R
 \name{saml_andeler}
 \alias{saml_andeler}
-\title{Server-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for sammenligning av andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 saml_andeler(
   input,

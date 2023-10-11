@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_traktplot.R
 \name{traktplot}
 \alias{traktplot}
-\title{UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for sykehusvise andeler sammen med traktplot i NORGAST sin shiny-app på Rapporteket}
 \usage{
 traktplot(input, output, session, reshID, RegData, hvd_session, BrValg)
 }

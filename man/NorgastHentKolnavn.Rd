@@ -2,7 +2,7 @@
 % Please edit documentation in R/NorgastHentKolnavn.R
 \name{NorgastHentKolnavn}
 \alias{NorgastHentKolnavn}
-\title{Hent navnene til variablene i datadump NoRGast}
+\title{Hent navnene til variablene i datadump NORGAST}
 \usage{
 NorgastHentKolnavn(tabellnavn = "AlleVarNum")
 }
@@ -10,5 +10,5 @@ NorgastHentKolnavn(tabellnavn = "AlleVarNum")
 kolnavn dataframe
 }
 \description{
-Hent navnene til variablene i datadump NoRGast
+Hent navnene til variablene i datadump NORGAST
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_sykehusvisning.R
 \name{sykehusvisning_UI}
 \alias{sykehusvisning_UI}
-\title{UI-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for sykehusvise andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 sykehusvisning_UI(id)
 }

@@ -2,10 +2,10 @@
 % Please edit documentation in R/modul_startside.R
 \name{startside_UI}
 \alias{startside_UI}
-\title{UI-del av startside for NoRGast sin Rapporteket-app}
+\title{UI-del av startside for NORGAST sin Rapporteket-app}
 \usage{
 startside_UI(id)
 }
 \description{
-UI-del av startside for NoRGast sin Rapporteket-app
+UI-del av startside for NORGAST sin Rapporteket-app
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/NorgastHentSkjemaOversikt.R
 \name{NorgastHentSkjemaOversikt}
 \alias{NorgastHentSkjemaOversikt}
-\title{Provide SkjemaOversikt for NoRGast}
+\title{Provide SkjemaOversikt for NORGAST}
 \usage{
 NorgastHentSkjemaOversikt()
 }
@@ -10,5 +10,5 @@ NorgastHentSkjemaOversikt()
 SkjemaOversikt data frame
 }
 \description{
-Provides SkjemaOversikt for NoRGast data staging
+Provides SkjemaOversikt for NORGAST data staging
 }

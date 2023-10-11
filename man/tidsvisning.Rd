@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_tidsvisning.R
 \name{tidsvisning}
 \alias{tidsvisning}
-\title{Server-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for tidsvisning andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 tidsvisning(
   input,

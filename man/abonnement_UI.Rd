@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_abonnement.R
 \name{abonnement_UI}
 \alias{abonnement_UI}
-\title{UI-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket}
+\title{UI-del av modul for abonnement i NORGAST sin shiny-app på Rapporteket}
 \usage{
 abonnement_UI(id, BrValg)
 }

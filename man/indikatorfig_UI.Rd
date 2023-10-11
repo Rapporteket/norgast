@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_indikatorer.R
 \name{indikatorfig_UI}
 \alias{indikatorfig_UI}
-\title{UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for iindikatorfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
 indikatorfig_UI(id)
 }

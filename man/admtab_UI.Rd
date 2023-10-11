@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_admtab.R
 \name{admtab_UI}
 \alias{admtab_UI}
-\title{UI-modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 admtab_UI(id)
 }

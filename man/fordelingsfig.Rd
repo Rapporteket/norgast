@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_fordelingsfig.R
 \name{fordelingsfig}
 \alias{fordelingsfig}
-\title{Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for fordelingsfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
 fordelingsfig(
   input,

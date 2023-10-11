@@ -2,7 +2,7 @@
 % Please edit documentation in R/NorgastPreprosesser.R
 \name{NorgastPreprosess}
 \alias{NorgastPreprosess}
-\title{Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
+\title{Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NORGAST
 og rensker opp i andre.}
 \usage{
 NorgastPreprosess(RegData, behold_kladd = FALSE)

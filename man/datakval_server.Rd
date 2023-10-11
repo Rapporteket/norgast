@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_datakvalitet.R
 \name{datakval_server}
 \alias{datakval_server}
-\title{Server-modul for datakvalitetstabeller-fane i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for datakvalitetstabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 datakval_server(
   input,

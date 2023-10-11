@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_sammenlign_utvalg_tid.R
 \name{saml_andeler_UI}
 \alias{saml_andeler_UI}
-\title{UI-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for sammenligning av andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 saml_andeler_UI(id)
 }

@@ -5,17 +5,19 @@
 \title{Plot NORGAST sine indikatorer}
 \usage{
 norgastPlotIndikator(
-  Indikator,
+  AntTilfeller,
+  N,
+  andeler,
   tittel = "",
   decreasing = FALSE,
   terskel = 10,
   lavDG = "",
   lavDGtekst = "Dekningsgrad < 60 \%",
-  width = 800,
+  width = 600,
   height = 700,
   outfile = "",
   graaUt = NA,
-  skriftStr = 1.3,
+  skriftStr = 1.2,
   utvalgTxt = "",
   minstekrav = NA,
   maal = NA,
@@ -28,9 +30,9 @@ norgastPlotIndikator(
 )
 }
 \arguments{
-\item{Indikator}{indikatordata som beregnet i norgastBeregnIndikator}
-
 \item{tittel}{Tittel på plot}
+
+\item{Indikator}{indikatordata som beregnet i norgastBeregnIndikator}
 }
 \description{
 Denne funksjonen plotter NORGAST sine offisielle kvalitetsindikatorer

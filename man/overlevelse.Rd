@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_overlevelse.R
 \name{overlevelse}
 \alias{overlevelse}
-\title{Server-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for overlevelesesfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
 overlevelse(
   input,

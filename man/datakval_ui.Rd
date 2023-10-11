@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_datakvalitet.R
 \name{datakval_ui}
 \alias{datakval_ui}
-\title{UI-modul for datakvalitetstabeller-fane i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for datakvalitetstabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 datakval_ui(id)
 }

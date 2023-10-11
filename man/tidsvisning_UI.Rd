@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_tidsvisning.R
 \name{tidsvisning_UI}
 \alias{tidsvisning_UI}
-\title{UI-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for tidsvisning andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 tidsvisning_UI(id)
 }

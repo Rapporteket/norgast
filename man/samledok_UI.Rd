@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_samledok.R
 \name{samledok_UI}
 \alias{samledok_UI}
-\title{UI-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for Samledokumenter-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 samledok_UI(id)
 }

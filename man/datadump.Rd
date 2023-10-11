@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_datadump.R
 \name{datadump}
 \alias{datadump}
-\title{Server-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for datadump-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 datadump(
   input,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_sykehusvisning.R
 \name{sykehusvisning}
 \alias{sykehusvisning}
-\title{Server-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for sykehusvise andeler i NORGAST sin shiny-app på Rapporteket}
 \usage{
 sykehusvisning(input, output, session, reshID, RegData, hvd_session, BrValg)
 }

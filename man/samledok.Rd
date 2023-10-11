@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_samledok.R
 \name{samledok}
 \alias{samledok}
-\title{Server-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket}
+\title{Server-modul for Samledokumenter-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 samledok(
   input,

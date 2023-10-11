@@ -2,7 +2,7 @@
 % Please edit documentation in R/NorgastHentData.R
 \name{NorgastHentRegData}
 \alias{NorgastHentRegData}
-\title{Provide global dataframe for NoRGast}
+\title{Provide global dataframe for NORGAST}
 \usage{
 NorgastHentRegData(datoFra = "2014-01-01", datoTil = "2099-01-01")
 }
@@ -15,5 +15,5 @@ NorgastHentRegData(datoFra = "2014-01-01", datoTil = "2099-01-01")
 RegData data frame
 }
 \description{
-Provides NoRGast data from staging
+Provides NORGAST data from staging
 }

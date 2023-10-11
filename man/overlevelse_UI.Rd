@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_overlevelse.R
 \name{overlevelse_UI}
 \alias{overlevelse_UI}
-\title{UI-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket}
+\title{UI-modul for overlevelesesfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
 overlevelse_UI(id)
 }

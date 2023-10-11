@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_admtab.R
 \name{admtab}
 \alias{admtab}
-\title{Serverdel av modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket}
+\title{Serverdel av modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
 admtab(
   input,

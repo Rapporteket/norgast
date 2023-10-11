@@ -2,7 +2,7 @@
 % Please edit documentation in R/modul_abonnement.R
 \name{abonnement}
 \alias{abonnement}
-\title{Server-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket}
+\title{Server-del av modul for abonnement i NORGAST sin shiny-app på Rapporteket}
 \usage{
 abonnement(input, output, session, reshID, userRole, hvd_session)
 }

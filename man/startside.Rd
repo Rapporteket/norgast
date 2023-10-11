@@ -2,10 +2,10 @@
 % Please edit documentation in R/modul_startside.R
 \name{startside}
 \alias{startside}
-\title{Server-del av startside for NoRGast sin Rapporteket-app}
+\title{Server-del av startside for NORGAST sin Rapporteket-app}
 \usage{
 startside(input, output, session, usrRole)
 }
 \description{
-Server-del av startside for NoRGast sin Rapporteket-app
+Server-del av startside for NORGAST sin Rapporteket-app
 }
