@@ -1,4 +1,4 @@
-#' UI-modul for datakvalitetstabeller-fane i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for datakvalitetstabeller-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -24,7 +24,7 @@ datakval_ui <- function(id){
   )
 }
 
-#' Server-modul for datakvalitetstabeller-fane i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for datakvalitetstabeller-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -59,7 +59,7 @@ datakval_server <- function(input, output, session, reshID,
         "lastNed_dobbeltreg",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: nedlasting tabell over potensielle duplikater"
+          msg = "NORGAST: nedlasting tabell over potensielle duplikater"
         )
       )
     }

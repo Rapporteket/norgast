@@ -1,4 +1,4 @@
-#' Hent navnene til variablene i datadump NoRGast
+#' Hent navnene til variablene i datadump NORGAST
 #'
 #' @inheritParams FigAndeler
 #'

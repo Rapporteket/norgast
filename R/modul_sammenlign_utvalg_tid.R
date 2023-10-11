@@ -1,4 +1,4 @@
-#' UI-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for sammenligning av andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -184,7 +184,7 @@ saml_andeler_UI <- function(id){
 
 }
 
-#' Server-modul for sammenligning av andeler i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for sammenligning av andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -561,7 +561,7 @@ saml_andeler <- function(input, output, session, reshID, RegData,
         "goButton",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: Sammenlignede andeler, variabel - ", input$valgtVar)
+          msg = paste0("NORGAST: Sammenlignede andeler, variabel - ", input$valgtVar)
         )
       )
 
@@ -569,7 +569,7 @@ saml_andeler <- function(input, output, session, reshID, RegData,
         "lastNedBilde",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: Laster ned figur sammenlignede andeler, variabel - ", input$valgtVar)
+          msg = paste0("NORGAST: Laster ned figur sammenlignede andeler, variabel - ", input$valgtVar)
         )
       )
 
@@ -577,7 +577,7 @@ saml_andeler <- function(input, output, session, reshID, RegData,
         "lastNed_tabell",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: Laster ned tabell sammenlignede andeler, variabel - ", input$valgtVar)
+          msg = paste0("NORGAST: Laster ned tabell sammenlignede andeler, variabel - ", input$valgtVar)
         )
       )
     }

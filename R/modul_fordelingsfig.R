@@ -1,4 +1,4 @@
-#' UI-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for fordelingsfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -89,7 +89,7 @@ fordelingsfig_UI <- function(id){
 
 
 
-#' Server-modul for fordelingsfigurer i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for fordelingsfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -283,12 +283,12 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
     if (rapbase::isRapContext()) {
       if (req(input$tab) == "fig") {
         mld_fordeling <- paste0(
-          "NoRGast: Figur - fordeling, variabel - ",
+          "NORGAST: Figur - fordeling, variabel - ",
           input$valgtVar)
       }
       if (req(input$tab) == "tab") {
         mld_fordeling <- paste(
-          "NoRGast: tabell - fordeling. variabel - ",
+          "NORGAST: tabell - fordeling. variabel - ",
           input$valgtVar)
       }
       rapbase::repLogger(
@@ -300,7 +300,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting figur - fordeling. variabel -",
+            "NORGAST: nedlasting figur - fordeling. variabel -",
             input$valgtVar
           )
         )
@@ -310,7 +310,7 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting tabell - fordeling. variabel -",
+            "NORGAST: nedlasting tabell - fordeling. variabel -",
             input$valgtVar
           )
         )

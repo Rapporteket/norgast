@@ -6,7 +6,7 @@
 appUi <- function() {
 
   shiny::addResourcePath('rap', system.file('www', package='rapbase'))
-  regTitle = "NoRGast"
+  regTitle = "NORGAST"
 
   # Define UI for application
   ui <- shiny::navbarPage(

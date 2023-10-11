@@ -1,6 +1,6 @@
-#' Run the NoRGast Shiny Application
+#' Run the NORGAST Shiny Application
 #'
-#' @return An object representing the NoRGast app
+#' @return An object representing the NORGAST app
 #' @export
 
 norgastApp <- function() {

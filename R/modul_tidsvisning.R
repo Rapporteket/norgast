@@ -1,4 +1,4 @@
-#' UI-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for tidsvisning andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -83,7 +83,7 @@ tidsvisning_UI <- function(id){
   )
 }
 
-#' Server-modul for tidsvisning andeler i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for tidsvisning andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -326,12 +326,12 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole,
     if (rapbase::isRapContext()) {
       if (req(input$tab) == "fig") {
         mld_fordeling <- paste0(
-          "NoRGast: Figur - tidsvisning, variabel - ",
+          "NORGAST: Figur - tidsvisning, variabel - ",
           input$valgtVar)
       }
       if (req(input$tab) == "tab") {
         mld_fordeling <- paste(
-          "NoRGast: tabell - tidsvisning variabel - ",
+          "NORGAST: tabell - tidsvisning variabel - ",
           input$valgtVar)
       }
       rapbase::repLogger(
@@ -343,7 +343,7 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting figur - tidsvisning, variabel -",
+            "NORGAST: nedlasting figur - tidsvisning, variabel -",
             input$valgtVar
           )
         )
@@ -353,7 +353,7 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting tabell - tidsvisning, variabel -",
+            "NORGAST: nedlasting tabell - tidsvisning, variabel -",
             input$valgtVar
           )
         )

@@ -1,4 +1,4 @@
-#' UI-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket
+#' UI-del av modul for abonnement i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -32,7 +32,7 @@ abonnement_UI <- function(id, BrValg){
 
 
 
-#' Server-del av modul for abonnement i NoRGast sin shiny-app på Rapporteket
+#' Server-del av modul for abonnement i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -113,7 +113,7 @@ abonnement <- function(input, output, session, reshID, userRole, hvd_session){
         rapbase::repLogger(
           session = hvd_session,
           msg = paste0(
-            "NoRGast: abonnement bestilt: ",
+            "NORGAST: abonnement bestilt: ",
             input$subscriptionRep
           )
         )

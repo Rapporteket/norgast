@@ -1,4 +1,4 @@
-#' Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
+#' Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NORGAST
 #' og rensker opp i andre.
 #'
 #' Må ha tilgang til filen Helligdager2008-2022.csv

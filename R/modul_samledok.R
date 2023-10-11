@@ -1,4 +1,4 @@
-#' UI-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for Samledokumenter-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -50,7 +50,7 @@ samledok_UI <- function(id){
   )
 }
 
-#' Server-modul for Samledokumenter-fane i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for Samledokumenter-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -153,7 +153,7 @@ samledok <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_saml",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: samledokument nedlastet"
+          msg = "NORGAST: samledokument nedlastet"
         )
       )
 
@@ -161,14 +161,14 @@ samledok <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_saml_land",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: samledokument med nasjonale talll nedlastet"
+          msg = "NORGAST: samledokument med nasjonale talll nedlastet"
         )
       )
       shinyjs::onclick(
         "lastNed_kvartal",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: Kvartalsrapport nedlastet"
+          msg = "NORGAST: Kvartalsrapport nedlastet"
         )
       )
     }

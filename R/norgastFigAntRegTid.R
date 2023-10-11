@@ -23,7 +23,7 @@ norgastFigAntRegTid <- function(
     ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, alletider=FALSE)
 {
   if (tittel[1] == '') {
-    tittel <- 'Registrerende avdelinger i NoRGast'
+    tittel <- 'Registrerende avdelinger i NORGAST'
   }
 
   if (alletider) {

@@ -1,4 +1,4 @@
-#' UI-del av startside for NoRGast sin Rapporteket-app
+#' UI-del av startside for NORGAST sin Rapporteket-app
 #'
 #' @export
 startside_UI <- function(id){
@@ -7,11 +7,11 @@ startside_UI <- function(id){
     div(class = "container",
         div(class = "panel panel-default",
             div(class = "panel-heading" , style = "background-color : #E0E0E0 ",
-                h2('Velkommen til Rapporteket - NoRGast', align='center')),
+                h2('Velkommen til Rapporteket - NORGAST', align='center')),
             div(class = "panel-body",style = "background-color:#F0F0F0",
                 div(class="panel-text",
                     br(),
-                    h4('Du er nå inne på Rapporteket for NoRGast, registerets resultattjeneste.
+                    h4('Du er nå inne på Rapporteket for NORGAST, registerets resultattjeneste.
                 Disse sidene inneholder en samling av figurer og tabeller som viser resultater fra registeret.
                        På hver av sidene kan man gjøre utvalg i menyene til venstre. Alle resultater er basert
                        på ferdigstilte registreringer. Merk at data er hentet direkte fra registerets database.
@@ -43,7 +43,7 @@ startside_UI <- function(id){
                         shinyjs::hidden(h4(id = ns("SC3"), tags$b('Utsending '), 'lar SC-bruker bestille rapporter på vegne
                                            av andre avdelinger og til valgte e-postadresser.')),
                         shinyjs::hidden(h4(id = ns("SC4"), tags$b('Eksport '), 'lar et celebert utvalg brukere laste ned
-                        NoRGast-databasen kryptert med sin offentlige ssh-nøkkel. Kan kun leses vha. av vedkommendes private ssh-nøkkel.'))
+                        NORGAST-databasen kryptert med sin offentlige ssh-nøkkel. Kan kun leses vha. av vedkommendes private ssh-nøkkel.'))
                     ),
                     br(),
                     br(),
@@ -51,10 +51,10 @@ startside_UI <- function(id){
                         fixedRow(
                           column(width = 4, offset = 1,
                                  h4('Oversikt over registerets kvalitetsindikatorer og resultater finner du på www.kvalitetsregistre.no:', #helpText
-                                    a("NoRGast", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
+                                    a("NORGAST", href="https://www.kvalitetsregistre.no/registers/545/resultater"),
                                     target="_blank", align='center')),
                           column(width = 4,offset = 2,
-                                 h4('Mer informasjon om registeret finnes på NoRGast sin hjemmeside: ', align='center',
+                                 h4('Mer informasjon om registeret finnes på NORGAST sin hjemmeside: ', align='center',
                                     a("www.norgast.no", href="http://www.norgast.no", target="_blank"))
                           )
                         )
@@ -65,7 +65,7 @@ startside_UI <- function(id){
   )
 }
 
-#' Server-del av startside for NoRGast sin Rapporteket-app
+#' Server-del av startside for NORGAST sin Rapporteket-app
 #'
 #' @export
 startside <- function(input, output,session, usrRole){

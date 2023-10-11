@@ -1,6 +1,6 @@
-#' Provide global dataframe for NoRGast
+#' Provide global dataframe for NORGAST
 #'
-#' Provides NoRGast data from staging
+#' Provides NORGAST data from staging
 #'
 #' @inheritParams FigAndeler
 #'

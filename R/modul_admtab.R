@@ -1,4 +1,4 @@
-#' UI-modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -48,7 +48,7 @@ admtab_UI <- function(id){
       tabPanel(
         "Antall skjema", value = "id_ant_skjema",
         h4(tags$b(tags$u('Denne tabellen gir en avdelingsvis oversikt over
-                         innregistreringer i NoRGast:'))),
+                         innregistreringer i NORGAST:'))),
         h4(tags$b('Ferdige forløp '), 'viser antall forløp med ferdigstilt
            basisregistrering og oppfølging.'),
         h4(tags$b('Oppfølging i kladd '), 'viser antall forløp med ferdigstilt
@@ -73,7 +73,7 @@ admtab_UI <- function(id){
   )
 }
 
-#' Serverdel av modul for Administrative tabeller-fane i NoRGast sin shiny-app på Rapporteket
+#' Serverdel av modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -346,12 +346,12 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
     if (rapbase::isRapContext()) {
       if (req(input$admtabeller) == "id_ant_skjema") {
         mld_adm1 <- paste0(
-          "NoRGast: Admin. tabell: Antall skjema, dato ",
+          "NORGAST: Admin. tabell: Antall skjema, dato ",
           input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
       }
       if (req(input$admtabeller) == "id_ant_tid") {
         mld_adm1 <- paste0(
-          "NoRGast: Admin. tabell: Antall skjema pr ",
+          "NORGAST: Admin. tabell: Antall skjema pr ",
           c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
           c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
             'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])
@@ -365,7 +365,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_adm1",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting tabell: Antall skjema, dato ",
+          msg = paste0("NORGAST: nedlasting tabell: Antall skjema, dato ",
                        input$datovalg_adm[1], ' til ', input$datovalg_adm[2])
         )
       )
@@ -373,7 +373,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_adm2",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting tabell: Antall skjema pr ",
+          msg = paste0("NORGAST: nedlasting tabell: Antall skjema pr ",
                        c('måned', 'år')[as.numeric(input$adm_tidsenhet)], ". ",
                        c('Ferdige forløp', 'Oppfølging i kladd', 'Ferdig basisreg. oppfølging mangler',
                          'Basisreg. i kladd')[as.numeric(input$regstatus_tid)])

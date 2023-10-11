@@ -1,4 +1,4 @@
-#' UI-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for overlevelesesfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -172,7 +172,7 @@ overlevelse_UI <- function(id){
 }
 
 
-#' Server-modul for overlevelesesfigurer i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for overlevelesesfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -501,21 +501,21 @@ overlevelse <- function(input, output, session, reshID, RegData,
     if (rapbase::isRapContext()) {
       # rapbase::repLogger(
       #   session = hvd_session,
-      #   msg = "NoRGast: KM-overlevelseskurve."
+      #   msg = "NORGAST: KM-overlevelseskurve."
       # )
 
       shinyjs::onclick(
         "goButton",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: KM-overlevelseskurve."
+          msg = "NORGAST: KM-overlevelseskurve."
         )
       )
       shinyjs::onclick(
         "lastNedBilde",
         rapbase::repLogger(
           session = hvd_session,
-          msg = "NoRGast: Laster ned KM-overlevelseskurve."
+          msg = "NORGAST: Laster ned KM-overlevelseskurve."
         )
       )
     }

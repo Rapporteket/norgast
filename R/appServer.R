@@ -19,7 +19,7 @@ appServer <- function(input, output, session) {
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
   if (rapbase::isRapContext()) {
-    rapbase::appLogger(session = session, msg = 'Starter NoRGast')
+    rapbase::appLogger(session = session, msg = 'Starter NORGAST')
     reshID <- rapbase::getUserReshId(session)
     userRole <- rapbase::getUserRole(session)
   } else {
@@ -125,7 +125,7 @@ appServer <- function(input, output, session) {
   orgs <- as.list(BrValg$sykehus)
   reports <- list(
     Kvartalsrapport = list(
-      synopsis = "NoRGast: Kvartalsrapport",
+      synopsis = "NORGAST: Kvartalsrapport",
       fun = "abonnement_kvartal_norgast",
       paramNames = c("baseName", "reshID"),
       paramValues = c("NorgastKvartalsrapport_abonnement", reshID)

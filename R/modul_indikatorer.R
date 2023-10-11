@@ -1,4 +1,4 @@
-#' UI-modul for iindikatorfigurer i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for iindikatorfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -65,7 +65,7 @@ indikatorfig_UI <- function(id){
 
 }
 
-#' Server-modul for indikatorfigurer i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for indikatorfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -209,12 +209,12 @@ indikatorfig <- function(input, output, session, reshID, RegData,
     if (rapbase::isRapContext()) {
       if (req(input$tab) == "fig") {
         mld_fordeling <- paste0(
-          "NoRGast: Indikatorfigur, variabel - ",
+          "NORGAST: Indikatorfigur, variabel - ",
           input$valgtVar)
       }
       if (req(input$tab) == "tab") {
         mld_fordeling <- paste(
-          "NoRGast: Indikatortabell, variabel - ",
+          "NORGAST: Indikatortabell, variabel - ",
           input$valgtVar)
       }
       rapbase::repLogger(
@@ -226,7 +226,7 @@ indikatorfig <- function(input, output, session, reshID, RegData,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting indikatorfigur, variabel -",
+            "NORGAST: nedlasting indikatorfigur, variabel -",
             input$valgtVar
           )
         )

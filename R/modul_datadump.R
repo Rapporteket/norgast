@@ -1,4 +1,4 @@
-#' UI-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for datadump-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -36,7 +36,7 @@ datadump_UI <- function(id){
           "Rådata", value = "datadump_raa",
           h2('Datadump med rådata', align='center'),
           br(),
-          h4('Her kan du laste ned forskjellige varianter av datadump for NoRGast.
+          h4('Her kan du laste ned forskjellige varianter av datadump for NORGAST.
           LU-brukere kan kun laste ned data for egen avdeling. Merk at også
              registreringer i kladd er inkludert i datadump.'),
           br(),
@@ -53,7 +53,7 @@ datadump_UI <- function(id){
         ),
         tabPanel(
           "Prosessert data", value = "datadump_pros",
-          h2('Datadump prosessert - NoRGast', align='center'),
+          h2('Datadump prosessert - NORGAST', align='center'),
           br(),
           h4('Her kan du laste ned datadump basert på prosessert og koblet data
           som brukes på Rapporteket. Du kan velge hvilke variabler du vil
@@ -66,7 +66,7 @@ datadump_UI <- function(id){
   )
 }
 
-#' Server-modul for datadump-fane i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for datadump-fane i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -143,7 +143,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole,
 
   output$lastNed_dump <- downloadHandler(
     filename = function(){
-      paste0('Datadump_NoRGast', Sys.time(), '.csv')
+      paste0('Datadump_NORGAST', Sys.time(), '.csv')
     },
     content = function(file){
       dumpdata <- RegData[RegData$HovedDato >= input$datovalg[1] &
@@ -164,7 +164,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole,
 
   output$lastNed_dump_raa <- downloadHandler(
     filename = function(){
-      paste0(input$dumptype, '_NoRGast', Sys.time(), '.csv')
+      paste0(input$dumptype, '_NORGAST', Sys.time(), '.csv')
     },
     content = function(file){
       if (rapbase::isRapContext()) {
@@ -198,7 +198,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_dump",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting prosessert datadump")
+          msg = paste0("NORGAST: nedlasting prosessert datadump")
         )
       )
 
@@ -206,7 +206,7 @@ datadump <- function(input, output, session, reshID, RegData, userRole,
         "lastNed_dump_raa",
         rapbase::repLogger(
           session = hvd_session,
-          msg = paste0("NoRGast: nedlasting ", input$dumptype)
+          msg = paste0("NORGAST: nedlasting ", input$dumptype)
         )
       )
     }

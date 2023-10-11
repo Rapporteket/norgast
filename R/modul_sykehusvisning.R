@@ -1,4 +1,4 @@
-#' UI-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for sykehusvise andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -92,7 +92,7 @@ sykehusvisning_UI <- function(id){
   )
 }
 
-#' Server-modul for sykehusvise andeler i NoRGast sin shiny-app på Rapporteket
+#' Server-modul for sykehusvise andeler i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -588,32 +588,32 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
     if (rapbase::isRapContext()) {
       if (req(input$tabs_sykehusvisning) == "fig_andel") {
         mld_fordeling <- paste0(
-          "NoRGast: Figur - sykehusvisning andeler, variabel - ",
+          "NORGAST: Figur - sykehusvisning andeler, variabel - ",
           input$valgtVar)
       }
       if (req(input$tabs_sykehusvisning) == "tab_andel") {
         mld_fordeling <- paste(
-          "NoRGast: tabell - sykehusvisning andeler. variabel - ",
+          "NORGAST: tabell - sykehusvisning andeler. variabel - ",
           input$valgtVar)
       }
       if (req(input$tabs_sykehusvisning) == "fig_andel_stabel") {
         mld_fordeling <- paste0(
-          "NoRGast: Figur - sykehusvisning stablede andeler, variabel - ",
+          "NORGAST: Figur - sykehusvisning stablede andeler, variabel - ",
           input$valgtVar_andel_stabel)
       }
       if (req(input$tabs_sykehusvisning) == "tab_andel_stabel") {
         mld_fordeling <- paste(
-          "NoRGast: tabell - sykehusvisning stablede andeler. variabel - ",
+          "NORGAST: tabell - sykehusvisning stablede andeler. variabel - ",
           input$valgtVar_andel_stabel)
       }
       if (req(input$tabs_sykehusvisning) == "fig_gjsn") {
         mld_fordeling <- paste0(
-          "NoRGast: Figur - sykehusvisning gj.snitt, variabel - ",
+          "NORGAST: Figur - sykehusvisning gj.snitt, variabel - ",
           input$valgtVar_gjsn)
       }
       if (req(input$tabs_sykehusvisning) == "tab_gjsn") {
         mld_fordeling <- paste(
-          "NoRGast: tabell - sykehusvisning gj.snitt. variabel - ",
+          "NORGAST: tabell - sykehusvisning gj.snitt. variabel - ",
           input$valgtVar_gjsn)
       }
       rapbase::repLogger(
@@ -625,7 +625,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting figur - sykehusvisning andel. variabel -",
+            "NORGAST: nedlasting figur - sykehusvisning andel. variabel -",
             input$valgtVar
           )
         )
@@ -635,7 +635,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting tabell - sykehusvisning andel. variabel -",
+            "NORGAST: nedlasting tabell - sykehusvisning andel. variabel -",
             input$valgtVar
           )
         )
@@ -645,7 +645,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting figur - sykehusvisning gj.snitt. variabel -",
+            "NORGAST: nedlasting figur - sykehusvisning gj.snitt. variabel -",
             input$valgtVar_gjsn
           )
         )
@@ -655,7 +655,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
+            "NORGAST: nedlasting tabell - sykehusvisning gj.snitt. variabel -",
             input$valgtVar_gjsn
           )
         )
@@ -665,7 +665,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting figur - sykehusvisning stablet andel. variabel -",
+            "NORGAST: nedlasting figur - sykehusvisning stablet andel. variabel -",
             input$valgtVar_andel_stabel
           )
         )
@@ -675,7 +675,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         rapbase::repLogger(
           session = hvd_session,
           msg = paste(
-            "NoRGast: nedlasting tabell - sykehusvisning stablet andel. variabel -",
+            "NORGAST: nedlasting tabell - sykehusvisning stablet andel. variabel -",
             input$valgtVar_andel_stabel
           )
         )

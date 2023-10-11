@@ -1,4 +1,4 @@
-#' UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for sykehusvise andeler sammen med traktplot i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -84,7 +84,7 @@ traktplot_UI <- function(id){
   )
 }
 
-#' UI-modul for sykehusvise andeler sammen med traktplot i NoRGast sin shiny-app på Rapporteket
+#' UI-modul for sykehusvise andeler sammen med traktplot i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -377,7 +377,7 @@ traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrVa
       rapbase::repLogger(
         session = hvd_session,
         msg = paste(
-          "NoRGast: Traktplott, variabel -",
+          "NORGAST: Traktplott, variabel -",
           input$valgtVar
         )
       )
