@@ -8,8 +8,8 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2021 - Ventrikkel og øsofagus}
-\author{NoRGast}
+\title{Figurer og tabeller for årsrapport NORGAST 2021 - Ventrikkel og øsofagus}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}

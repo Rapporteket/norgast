@@ -16,8 +16,8 @@
 \newif\ifwhipple
 \newif\ifpankreas
 
-\title{Resultater fra NoRGast}
-\author{NoRGast}
+\title{Resultater fra NORGAST}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -101,7 +101,7 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \color{lysblaa}
 \begin{flushleft}
 \Huge
-\textbf{NoRGast}\\
+\textbf{NORGAST}\\
 \vspace{0.3cm}
 \LARGE
 Norsk Register for Gastrokirurgi
@@ -204,7 +204,7 @@ plotTabell <- t(as.matrix(Tabell))
 Tabell <- addmargins(Tabell, 1)
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'r', rep('r', ncol(Tabell)-1)),
-                     caption='Kvartalsvis oversikt over registreringer av obligatoriske reseksjoner i NoRGast',
+                     caption='Kvartalsvis oversikt over registreringer av obligatoriske reseksjoner i NORGAST',
                      label='tab:Registreringer:oblig'),
       include.rownames=TRUE,
       include.colnames=TRUE,
@@ -225,7 +225,7 @@ Tabell2 <- as.data.frame(Tabell2[order(Tabell2[, dim(Tabell2)[2]], decreasing = 
 names(Tabell2) <- 'Antall'
 
 print(xtable::xtable(Tabell2, digits=0, align=c('l', 'r', rep('r', ncol(Tabell2)-1)),
-                     caption='Registreringer av ikke-obligatoriske reseksjoner i NoRGast siste (avsluttede) kvartal',
+                     caption='Registreringer av ikke-obligatoriske reseksjoner i NORGAST siste (avsluttede) kvartal',
                      label='tab:Registreringer:ikkeoblig'),
       include.rownames=TRUE,
       include.colnames=TRUE) # , add.to.row = list(pos=list(nrow(Tabell)-1), command=c('\\midrule\n'))

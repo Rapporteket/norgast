@@ -8,8 +8,8 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NoRGast 2021 - Generell del}
-\author{NoRGast}
+\title{Figurer og tabeller for årsrapport NORGAST 2021 - Generell del}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -259,7 +259,7 @@ rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
 Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Antall registreringer i NoRGast per avdeling. Alle inngrep.'),
+                     caption='Antall registreringer i NORGAST per avdeling. Alle inngrep.'),
       include.rownames=TRUE,
       include.colnames=TRUE,
       add.to.row = list(pos=list(nrow(Tabell)-1),
@@ -273,7 +273,7 @@ rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
 Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Antall registreringer i NoRGast per avdeling. Obligatoriske inngrep.'),
+                     caption='Antall registreringer i NORGAST per avdeling. Obligatoriske inngrep.'),
       include.rownames=TRUE,
       include.colnames=TRUE,
       add.to.row = list(pos=list(nrow(Tabell)-1),
