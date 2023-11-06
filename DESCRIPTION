@@ -1,11 +1,11 @@
 Package: norgast
 Type: Package
-Title: Resultatrapporter for NoRGast
-Version: 2.3.0
+Title: Resultatrapporter for NORGAST
+Version: 2.3.2
 Date: 2015-12-17
 Author: Kevin Thon
 Maintainer: Kevin Thon <kevin.thon@skde.no>
-Description: Pakke for generering av resultatrapporter for NoRGast.
+Description: Pakke for generering av resultatrapporter for NORGAST.
 License: GPL2
 LazyData: TRUE
 Encoding: UTF-8
@@ -17,15 +17,18 @@ Imports:
   tidyverse,
   kableExtra,
   shinyjs,
-  rapFigurer,
   rapbase,
+  rapFigurer,
   survival,
+  survminer,
   shinyWidgets,
   funnelR,
-  tsibble
+  tsibble,
+  latex2exp
 Remotes:
-  Rapporteket/rapbase@*release
-RoxygenNote: 7.1.2
+  Rapporteket/rapbase@*release,
+  Rapporteket/rapFigurer
+RoxygenNote: 7.2.3
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

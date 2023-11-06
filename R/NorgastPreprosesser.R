@@ -1,4 +1,4 @@
-#' Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NoRGast
+#' Denne funksjonen definerer en del nye (sammensatte) variabler relevante for rapporter i NORGAST
 #' og rensker opp i andre.
 #'
 #' Må ha tilgang til filen Helligdager2008-2022.csv
@@ -12,9 +12,10 @@
 NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
-  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  RegData$Sykehusnavn <- trimws(RegData$SykehusNavn)
   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
-  names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
+  RegData$erMann <- as.numeric(RegData$erMann)
+  # names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
   # RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
@@ -26,7 +27,10 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y')) # RegData$OperasjonsDato$year + 1900
   RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
+  RegData$Mort90 <- 0
+  RegData$Mort90[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
   RegData <- RegData[RegData$Tilgang %in% 1:3, ] # Fjerner endoskopiske og "notes" inngrep.
+  RegData$DodUnderOpphold[which(RegData$OppfDodUnderOpphold == 1)] <- 1
 
   RegData$ncsp_lowercase <- substr(tolower(RegData$Hovedoperasjon), 1, 5)
   lowercase <- which(substr(RegData$Hovedoperasjon, 1, 5)!=toupper(substr(RegData$Hovedoperasjon, 1, 5))) # index til der NCSP-kode er i lowercase
@@ -107,7 +111,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
   RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" &
                                 (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
-                                 as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
+                                   as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
   RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" &
                                 (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <- 8 # Gallegang
 
@@ -119,6 +123,19 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$OppfStatus[RegData$OppfStatus=='Ukjent'] <- ''
   RegData$OppfStatus <- as.numeric(RegData$OppfStatus)
 
+  RegData$FerdigForlop <- 0
+  RegData$FerdigForlop[
+    RegData$RegistreringStatus == 1 &
+      (RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))] <- 1
+  RegData$FerdigForlop_v2 <- 0
+  RegData$FerdigForlop_v2[
+    RegData$RegistreringStatus == 1 &
+      (RegData$OppfStatus == 1 |
+         (is.na(RegData$OppfStatus) & RegData$DodUnderOpphold==1) |
+         (is.na(RegData$OppfStatus) & RegData$PostopLiggedogn>=30) |
+         (is.na(RegData$OppfStatus) & RegData$OpDoedTid<40))] <- 1
+
+
   #### Inkluder ACCORDION SCORE fra oppfølgingsskjema
   RegData$AccordionGrad <- as.character(RegData$AccordionGrad)
   RegData$AccordionGrad[RegData$AccordionGrad=='Mindre enn 3'] <- '1'
@@ -129,7 +146,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$OppfAccordionGrad[RegData$OppfStatus!=1]<-NA
   RegData$AccordionGrad[!is.na(pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad))] <-
     pmax(RegData$AccordionGrad, RegData$OppfAccordionGrad)[!is.na(pmax(RegData$AccordionGrad,
-                                                                                   RegData$OppfAccordionGrad))]
+                                                                       RegData$OppfAccordionGrad))]
 
   #### Definerer variabelen Saarruptur basert på funn ved reoperasjon under opphold eller v/ reinnleggelse innen 30 dager
   #### UTELUKKER LAPAROSKOPISKE INNGREP, PR. BESTILLING LINN.
@@ -159,7 +176,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$Hastegrad_hybrid <- 2 - RegData$Hastegrad# Definerer en hybridhastegrad som bruker gammel tidsbasert definisjon før
-                                                # 2018-04-18 og den nye direkteregistrerte etter det.
+  # 2018-04-18 og den nye direkteregistrerte etter det.
   RegData$Hastegrad_hybrid[RegData$HovedDato < '2018-04-18'] <- RegData$Hastegrad_tid[RegData$HovedDato < '2018-04-18']
 
   RegData$AvlastendeStomiRektum <- NA
@@ -225,7 +242,8 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
   RegData$AvstandAnalVerge_kat <- cut(RegData$AvstandAnalVerge, breaks = c(0,5,10,15.9),
                                       labels = c("0-5.9 cm", "6.0-10.9 cm", "11.0-15.9 cm"), include.lowest = T)
-  # RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- NA
+  levels(RegData$AvstandAnalVerge_kat) <- c(levels(RegData$AvstandAnalVerge_kat), "Ikke målt")
+  RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- "Ikke målt"
 
   return(invisible(RegData))
 

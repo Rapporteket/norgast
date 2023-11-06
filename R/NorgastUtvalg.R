@@ -14,7 +14,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                           forbehandling='', malign=99, fargepalett='BlaaRapp',
                           op_gruppe='', ncsp='', icd='', hastegrad_hybrid=99,
                           dagtid=99, robotassiastanse=99, kun_ferdigstilte=TRUE,
-                          tilgang_utvidet='', ny_stomi=99)
+                          tilgang_utvidet='', ny_stomi=99, accordion='')
 {
   # Definerer intersect-operator
   "%i%" <- intersect
@@ -41,13 +41,14 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
   indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
   indRobot <- if (robotassiastanse %in% c(0,1)){which(RegData$Robotassistanse == robotassiastanse)} else {indRobot <- 1:Ninn}
-  indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1)} else {indFerdig <- 1:Ninn}
+  indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))} else {indFerdig <- 1:Ninn}
   indStomi <- if (ny_stomi %in% c(0,1)) {which(RegData$NyStomi == ny_stomi)} else {1:Ninn}
+  indAccordion <- if (accordion[1] != '') {which(RegData$AccordionGrad %in% as.numeric(accordion))} else {1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i%
     indICD %i% indGlasgow %i% indHast2 %i% indDag %i% indRobot %i% indFerdig %i% indTilgangUtvidet %i%
-    indStomi
+    indStomi %i% indAccordion
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -84,6 +85,8 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                  if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))},
                  if (robotassiastanse %in% c(0,1)){paste0('Minimalinvasiv: ', c('Konv. laparoskopi', 'Robotassistert')[robotassiastanse+1])},
                  if (ny_stomi %in% c(0,1)){paste0('Ny stomi: ', c('Nei', 'Ja')[ny_stomi+1])},
+                 if (accordion[1] != '') {paste0('AccordionGrad: ',
+                                                 paste(c("<3", "", 3:6)[sort(as.numeric(accordion))], collapse=','))},
                  if (!kun_ferdigstilte){'Ikke-ferdigstilte oppfølginger inkludert: Ja'}
   )
 

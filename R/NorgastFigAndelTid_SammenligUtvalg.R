@@ -16,8 +16,13 @@
 #'
 #' @export
 #'
-NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='', tidsenhet='Aar', inkl_konf=FALSE,
-                                               datoFra="2014-01-01", datoTil=today(), fra0 = FALSE, inkl_tall=FALSE) {
+NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='',
+                                               tidsenhet='Aar',
+                                               inkl_konf=FALSE,
+                                               datoFra="2014-01-01",
+                                               datoTil=lubridate::today(),
+                                               fra0 = FALSE,
+                                               inkl_tall=FALSE) {
 
   # outfile=''; tidsenhet='Aar'; inkl_konf=FALSE
   # datoFra="2014-01-01"; datoTil=today(); fra0 = FALSE
@@ -42,17 +47,17 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='', tidsenhet
 
   VarTxt <- plotdata$PlotParams$VarTxt
 
-  oppsum <- RegData %>% group_by(TidsEnhet, Utvalg) %>%
-    summarise(antall = sum(Variabel),
-              N = n(),
+  oppsum <- RegData %>% dplyr::group_by(TidsEnhet, Utvalg) %>%
+    dplyr::summarise(antall = sum(Variabel),
+              N = dplyr::n(),
               andel = antall/N*100)
 
   ## debug
   # print(oppsum)
 
-  andeler <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = andel)
-  antall <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = antall, values_fill = 0)
-  N <- pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = N, values_fill = 0)
+  andeler <- tidyr::pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = andel)
+  antall <- tidyr::pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = antall, values_fill = 0)
+  N <- tidyr::pivot_wider(oppsum, id_cols = TidsEnhet, names_from = Utvalg, values_from = N, values_fill = 0)
 
   # print(antall)
   # print(N)

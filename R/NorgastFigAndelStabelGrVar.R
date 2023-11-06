@@ -104,13 +104,13 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     N_kat <- nlevels(RegData$Variabel)
     AndelerGr <- ftable(RegData[ ,c(grVar, 'Variabel')])/rep(Ngr, N_kat)*100
     utdata_antall <- RegData[ ,c(grVar, 'Variabel')] %>% table() %>%
-      addmargins(2) %>% as_tibble() %>% spread(key = Variabel, value = n)
+      addmargins(2) %>% dplyr::as_tibble() %>% tidyr::spread(key = Variabel, value = n)
     if (!(valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje'))) {
       names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
     utdata_andel <- utdata_antall
-    utdata_andel <- utdata_andel %>% mutate_at(2:(N_kat+1), funs(. / Sum * 100))
-    AndelerGr[which(Ngr<Ngrense),] <- NA
+    utdata_andel <- utdata_andel %>% dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100))
+    AndelerGr[which(Ngr<Ngrense),] <- -1
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 
     dataAlle <- table(RegData$Variabel)/N*100
@@ -139,8 +139,13 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     }
 
     AndelerGr <- AndelerGr[sortInd, ]
+    AndelerGr[AndelerGr == -1] <- NA
     AndelerGr <- rbind(AndelerGr, rep(NA, N_kat))
     grtxt <- c(grtxt[sortInd], '(N)')
+    grtxt_bold <- grtxt
+    grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')] <-
+      paste0("$\\textbf{", grtxt_bold[which(substr(grtxt_bold, 1, 5) =='Norge')], "}")
+
     Ngrtxt <- c(Ngrtxt[sortInd], NA)
 
     xmax <- max(rowSums(AndelerGr), na.rm = T)
@@ -171,7 +176,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     legend('top', legendTxt, ncol=2, fill=farger[1:N_kat], border=farger[1:N_kat],
            bty='n', cex=0.7*skriftStr, xpd = T, title = legendTitle)
 
-    mtext(at=pos, grtxt, side=2, las=1, cex=1*skriftStr, adj=1, line=0.25)	#Sykehusnavn
+    mtext(at=pos, latex2exp::TeX(grtxt_bold), side=2, las=1, cex=1*skriftStr, adj=1, line=0.25)	#Sykehusnavn
     text(x=0.005*xmax, y=pos, Ngrtxt, las=1, cex=0.8*skriftStr, adj=0, lwd=3)	#, col=farger[4]	c(Ngrtxt[sortInd],''),
     x_pos_landet <- cumsum(c(0, landet[which(substr(grtxt, 1, 5) =='Norge'), ])[1:N_kat]) +
       landet[which(substr(grtxt, 1, 5) =='Norge'), ]/2

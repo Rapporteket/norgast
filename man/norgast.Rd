@@ -3,9 +3,9 @@
 \docType{package}
 \name{norgast}
 \alias{norgast}
-\title{All R resources needed for NoRGast on Rapporteket}
+\title{All R resources needed for NORGAST on Rapporteket}
 \description{
-An implemetation of all R related resources for NoRGast on
+An implemetation of all R related resources for NORGAST on
 Rapporteket, including R-functions for analysis and plotting,
 noweb-files and even artwork needed for producing R-dependent reports
 }

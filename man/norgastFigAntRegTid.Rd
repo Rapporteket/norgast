@@ -41,7 +41,8 @@ norgastFigAntRegTid(
   op_gruppe = "",
   ncsp = "",
   robotassiastanse = 99,
-  kun_ferdigstilte = TRUE
+  kun_ferdigstilte = TRUE,
+  alletider = FALSE
 )
 }
 \arguments{

@@ -28,7 +28,7 @@ write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
 #' @export
 abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukernavn='Pjotr') {
 
-  # rapbase::autLogger(user = brukernavn, registryName = 'NoRGast',
+  # rapbase::autLogger(user = brukernavn, registryName = 'NORGAST',
   #                   reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
 
   src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
@@ -47,7 +47,7 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
 
   file.copy(pdfFile, utfil)
 
-  # rapbase::subLogger(author = brukernavn, registryName = 'NoRGast',
+  # rapbase::subLogger(author = brukernavn, registryName = 'NORGAST',
   #                   reshId = reshID[[1]], msg = paste("Sendt: ", utfil))
 
   return(utfil)
@@ -68,8 +68,10 @@ fiksNULL <- function(x, erstatt='') {
 #' @return En dataramme med utvalgte variabler for potensielt dobbeltregistrerte forløp
 #'
 #' @export
-dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
-  flere_sammedato <- RegData %>% dplyr::group_by(PasientID, HovedDato) %>% dplyr::summarise(Op_pr_dag = n())
+dobbelreg <- function(RegData, skjemaoversikt, usrRole = 'LU', reshID) {
+  flere_sammedato <- RegData %>%
+    dplyr::group_by(PasientID, HovedDato) %>%
+    dplyr::summarise(Op_pr_dag = dplyr::n())
   flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
 
   flere_sammedato <- merge(flere_sammedato, RegData,
@@ -78,12 +80,24 @@ dobbelreg <- function(RegData, usrRole = 'LU', reshID) {
                                           "AvdRESH", "Sykehusnavn","Hovedoperasjon",
                                           "Operasjonsgrupper", "Hoveddiagnose",
                                           "OppfStatus")]
+  skjemaoversikt <- skjemaoversikt %>%
+    dplyr::summarise(OpprettetAv = paste(unique(OpprettetAv), collapse = ", "),
+                     SistLagretAv = paste(unique(SistLagretAv), collapse = ", "),
+                     .by = ForlopsID) %>%
+    dplyr::filter(ForlopsID %in% flere_sammedato$ForlopsID)
+  flere_sammedato <- merge(flere_sammedato, skjemaoversikt, by = "ForlopsID")
   flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
   flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
   flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
-  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
-  if (usrRole != 'SC') {flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]}
+  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID, decreasing = T), ]
+  if (usrRole != 'SC') {
+    flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]
+    # flere_sammedato <- flere_sammedato %>%
+    #   dplyr::select(-c(OpprettetAv, SistLagretAv)) # Kommenteres inn når brukernavn er ordnet
+  }
+  flere_sammedato <- flere_sammedato %>%
+    dplyr::select(-c(OpprettetAv, SistLagretAv)) # Foreløpig variant i påvente av at brukernavn fikses
   return(flere_sammedato)
 }
 

@@ -1,6 +1,6 @@
-#' Provide SkjemaOversikt for NoRGast
+#' Provide SkjemaOversikt for NORGAST
 #'
-#' Provides SkjemaOversikt for NoRGast data staging
+#' Provides SkjemaOversikt for NORGAST data staging
 #'
 #' @return SkjemaOversikt data frame
 #' @export

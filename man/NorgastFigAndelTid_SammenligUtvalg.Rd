@@ -10,7 +10,7 @@ NorgastFigAndelTid_SammenligUtvalg(
   tidsenhet = "Aar",
   inkl_konf = FALSE,
   datoFra = "2014-01-01",
-  datoTil = today(),
+  datoTil = lubridate::today(),
   fra0 = FALSE,
   inkl_tall = FALSE
 )

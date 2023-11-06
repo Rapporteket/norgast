@@ -15,8 +15,8 @@
 % \newif\iflever
 % \newif\ifwhipple
 
-\title{Resultater fra NoRGast}
-\author{NoRGast}
+\title{Resultater fra NORGAST}
+\author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
 \def\labelitemi{$\bullet$}
@@ -83,7 +83,7 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \color{lysblaa}
 \begin{flushleft}
 \Huge
-\textbf{NoRGast}\\
+\textbf{NORGAST}\\
 \vspace{0.3cm}
 \LARGE
 Norsk Register for Gastrokirurgi
@@ -164,7 +164,7 @@ Templatversjon II, 2016
 \clearpage
 
 \section{Bakgrunn}
-Norsk Register for Gastrokirurgi (NoRGast) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NoRGast er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
+Norsk Register for Gastrokirurgi (NORGAST) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NORGAST er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
 
 Registeret har nødvendig konsesjon og er samtykkebasert. Databehandlings-ansvaret ligger hos UNN-HF ved direktøren.
 
@@ -177,7 +177,7 @@ Registerløsningen er utviklet av Torkil Grindstein ved HN-IKT, analysene er gjo
 \newpage
 
 \section{Innledning}
-Dette er en samlerapport for NoRGast som gir nasjonale tall og dekker registrerte operasjoner i tidsrommet \Sexpr{datoFra} til \Sexpr{datoTil}. Gjennom hele rapporten er operasjonene delt inn i seks hovedoperasjonsgrupper. NCSP-kodene som utgjør de forskjellige operasjonsgruppene er som følger:
+Dette er en samlerapport for NORGAST som gir nasjonale tall og dekker registrerte operasjoner i tidsrommet \Sexpr{datoFra} til \Sexpr{datoTil}. Gjennom hele rapporten er operasjonene delt inn i seks hovedoperasjonsgrupper. NCSP-kodene som utgjør de forskjellige operasjonsgruppene er som følger:
 \begin{itemize}
 \item \textbf{Kolonreseksjoner}: JFB20-64 + JFH**
 \item \textbf{Rektumreseksjoner}: JGB**
@@ -225,7 +225,7 @@ rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
 Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]], decreasing = TRUE), dim(Tabell)[1]), ]
 
 print(xtable::xtable(Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-                     caption='Liste over avdelinger som registrerer pasienter i NoRGast.',
+                     caption='Liste over avdelinger som registrerer pasienter i NORGAST.',
                      label='tab:RegistrenrendeAvd'),
       include.rownames=TRUE,
       include.colnames=TRUE,

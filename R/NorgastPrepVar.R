@@ -30,7 +30,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
   }
 
   if (valgtVar=='Sykehusnavn') {
-    tittel <- 'Registrerende avdelinger i NoRGast'
+    tittel <- 'Registrerende avdelinger i NORGAST'
     RegData$Variabel <- as.character(RegData$Variabel)
     aux <- sort(table(RegData$Variabel), decreasing = T)
     grtxt <- names(aux)
@@ -45,8 +45,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='mortalitet90') {
     tittel <- 'Avdød innen 90 dager etter operasjon'
-    RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
-    RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
+    # RegData <- RegData[order(RegData$OperasjonsDato, decreasing = F), ]   # Sorter slik at man velger eldste operasjon når flere
+    # RegData <- RegData[match(unique(RegData$PasientID), RegData$PasientID), ]
     RegData$Variabel <- 0
     RegData$Variabel[which(RegData$OpDoedTid <= 90 & RegData$OpDoedTid >= 0)] <- 1
     grtxt <- c('Nei', 'Ja')
