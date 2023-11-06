@@ -90,12 +90,14 @@ dobbelreg <- function(RegData, skjemaoversikt, usrRole = 'LU', reshID) {
   flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
   flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
-  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID), ]
+  flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato, flere_sammedato$PasientID, decreasing = T), ]
   if (usrRole != 'SC') {
     flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]
-    flere_sammedato <- flere_sammedato %>%
-      dplyr::select(-c(OpprettetAv, SistLagretAv))
-    }
+    # flere_sammedato <- flere_sammedato %>%
+    #   dplyr::select(-c(OpprettetAv, SistLagretAv)) # Kommenteres inn når brukernavn er ordnet
+  }
+  flere_sammedato <- flere_sammedato %>%
+    dplyr::select(-c(OpprettetAv, SistLagretAv)) # Foreløpig variant i påvente av at brukernavn fikses
   return(flere_sammedato)
 }
 
