@@ -180,7 +180,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
 
     if (input$kun_oblig) {
       # tmp <- tmp[tmp$ForlopsID %in% RegData$ForlopsID[RegData$Op_gr %in% 1:7], ]
-      tmp <- tmp[tmp$Op_gr %in% 1:7, ]
+      tmp <- tmp[tmp$Op_gr %in% 1:8, ]
     }
 
     tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
@@ -262,7 +262,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
                    by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
       if (input$kun_oblig) {
-        tmp <- tmp[tmp$Op_gr %in% 1:7, ]
+        tmp <- tmp[tmp$Op_gr %in% 1:8, ]
       }
 
       tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
@@ -295,7 +295,7 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
 
       if (input$kun_oblig) {
         # tmp <- tmp[tmp$ForlopsID %in% RegData$ForlopsID[RegData$Op_gr %in% 1:7], ]
-        tmp <- tmp[tmp$Op_gr %in% 1:7, ]
+        tmp <- tmp[tmp$Op_gr %in% 1:8, ]
       }
 
       tmp$SkjemaStatus[tmp$SkjemaStatus==-1] <- 0
