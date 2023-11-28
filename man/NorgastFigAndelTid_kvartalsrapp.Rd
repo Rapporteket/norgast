@@ -32,7 +32,8 @@ NorgastFigAndelTid_kvartalsrapp(
   op_gruppe = "",
   ncsp = "",
   robotassiastanse = 99,
-  kun_ferdigstilte = TRUE
+  kun_ferdigstilte = TRUE,
+  accordion = ""
 )
 }
 \arguments{

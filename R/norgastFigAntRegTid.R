@@ -20,7 +20,8 @@ norgastFigAntRegTid <- function(
     datoFra='2014-01-01', datoTil='2050-12-31', minald=0, maxald=130, erMann=99,
     outfile='', preprosess=F, malign=99, elektiv=99, BMI='', tilgang='', minPRS=0,
     maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-    ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, alletider=FALSE)
+    ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, alletider=FALSE,
+    accordion='')
 {
   if (tittel[1] == '') {
     tittel <- 'Registrerende avdelinger i NORGAST'
@@ -33,7 +34,7 @@ norgastFigAntRegTid <- function(
       BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
       ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
       op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse,
-      kun_ferdigstilte=kun_ferdigstilte)
+      kun_ferdigstilte=kun_ferdigstilte, accordion=accordion)
     RegData <- NorgastUtvalg$RegData
     utvalgTxt <- NorgastUtvalg$utvalgTxt
     NutvTxt <- length(utvalgTxt)
@@ -79,7 +80,7 @@ norgastFigAntRegTid <- function(
       BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
       ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
       op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse,
-      kun_ferdigstilte=kun_ferdigstilte)
+      kun_ferdigstilte=kun_ferdigstilte, accordion=accordion)
     RegData <- NorgastUtvalg$RegData
     utvalgTxt <- NorgastUtvalg$utvalgTxt
     NutvTxt <- length(utvalgTxt)

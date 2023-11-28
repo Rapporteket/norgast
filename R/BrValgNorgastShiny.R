@@ -9,11 +9,11 @@ BrValgNorgastShiny <- function(RegData) {
   varvalg <- c('Alder', 'BMI_kodet', 'Vektendring', 'Op_gr', 'AccordionGrad', 'Forbehandling',
                'WHOECOG', 'ASA', 'Hastegrad_tid', 'Hastegrad', 'erMann', 'MedDiabetes', 'PRSScore', 'Robotassistanse',
                'Tilgang', 'NyAnastomose', 'ModGlasgowScore', 'ReLapNarkose', 'Anastomoselekkasje',
-               'mortalitet90', 'Saarruptur')
+               'mortalitet90', 'Saarruptur', 'ViktigsteFunn')
   names(varvalg) <- c('Alder', 'BMI', 'Vektendring', 'Operasjonsgrupper', 'Komplikasjoner', 'Forbehandling',
                       'WHO-ECOG', 'ASA-grad', 'Tidspunkt for operasjonsstart', 'Hastegrad',  'Kjønn', 'Diabetes', 'mE-PASS', 'Robotassistanse',
                       'Tilgang i abdomen', 'Ny anastomose', 'Glasgow score', 'Relaparotomi', 'Anastomoselekkasje',
-                      '90-dagers mortalitet', 'Sårruptur')
+                      '90-dagers mortalitet', 'Sårruptur', 'Viktigste funn')
 
   aux<-c('Anastomoselekkasje', 'Anastomoselekkasje', '90-dagers mortalitet', 'mortalitet90',
          'Relaparotomi', 'ReLapNarkose', 'Robotassistanse', 'Robotassistanse', 'Sårruptur',

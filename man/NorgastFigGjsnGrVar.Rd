@@ -33,7 +33,8 @@ NorgastFigGjsnGrVar(
   modGlasgow = "",
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
-  tilgang_utvidet = ""
+  tilgang_utvidet = "",
+  accordion = ""
 )
 }
 \arguments{

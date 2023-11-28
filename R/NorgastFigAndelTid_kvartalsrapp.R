@@ -24,7 +24,7 @@ NorgastFigAndelTid_kvartalsrapp <- function(RegData=0, valgtVar='ReLapNarkose', 
                                             elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0,
                                             maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                                             tidsenhet='Aar', op_gruppe='', ncsp='', robotassiastanse=99,
-                                            kun_ferdigstilte=TRUE)
+                                            kun_ferdigstilte=TRUE, accordion='')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -47,7 +47,8 @@ NorgastFigAndelTid_kvartalsrapp <- function(RegData=0, valgtVar='ReLapNarkose', 
                                  maxald=maxald, erMann=erMann, elektiv=elektiv,
                                  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS,
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                 op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte)
+                                 op_gruppe=op_gruppe, ncsp=ncsp, robotassiastanse=robotassiastanse,
+                                 kun_ferdigstilte=kun_ferdigstilte, accordion=accordion)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 
