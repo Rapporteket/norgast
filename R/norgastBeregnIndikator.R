@@ -740,7 +740,7 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
            col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
 
   # title(main = tittel, outer=T)
-  title(main = tittel)
+  title(main = tittel, xpd=TRUE)
   ypos <- as.numeric(ypos) #as.vector(ypos)
   yposOver <- max(ypos)-2 + 0.5*diff(ypos)[1]
   if (!is.na(minstekrav)) {
