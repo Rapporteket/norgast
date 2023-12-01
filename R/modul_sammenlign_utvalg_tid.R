@@ -51,6 +51,9 @@ saml_andeler_UI <- function(id){
            selectInput(inputId = ns("malign"), label = "Diagnose",
                        choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
            uiOutput(outputId = ns('icd')),
+           selectInput(inputId = ns("accordion"), label = "Accordiongrad",
+                       multiple = TRUE,
+                       choices = c('<3'=1, '3'=3, '4'=4, '5'=5, '6'=6)),
            tags$hr(),
            actionButton(ns("reset_input"), "Nullstill valg")
     ),
@@ -178,6 +181,9 @@ saml_andeler_UI <- function(id){
       selectInput(inputId = ns("malign2"), label = "Diagnose",
                   choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
       uiOutput(outputId = ns('icd2')),
+      selectInput(inputId = ns("accordion2"), label = "Accordiongrad",
+                  multiple = TRUE,
+                  choices = c('<3'=1, '3'=3, '4'=4, '5'=5, '6'=6)),
       tags$hr(),
       actionButton(ns("reset_input2"), "Nullstill valg"))
   )
@@ -355,24 +361,27 @@ saml_andeler <- function(input, output, session, reshID, RegData,
                                  valgtVar=if (!is.null(input$valgtVar)) {input$valgtVar} else {'Anastomoselekkasje'})
     RegData <- PlotParams$RegData
 
-    Utvalg1 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                            minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
-                                            erMann = as.numeric(input$erMann), kun_ferdigstilte = input$kun_ferdigstilte,
-                                            elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
-                                            hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-                                            BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-                                            valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
-                                            op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                                            ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                                            # tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
-                                            tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
-                                            minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
-                                            ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
-                                            modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
-                                            whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-                                            forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
-                                            malign = as.numeric(input$malign),
-                                            icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''}))
+    Utvalg1 <- shiny::isolate(
+      NorgastUtvalg(
+        RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+        minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
+        erMann = as.numeric(input$erMann), kun_ferdigstilte = input$kun_ferdigstilte,
+        elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+        BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
+        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+        op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+        ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+        # tilgang = if (!is.null(input$tilgang)) {input$tilgang} else {''},
+        tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
+        minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
+        ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
+        modGlasgow = if (!is.null(input$modGlasgow)) {input$modGlasgow} else {''},
+        whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
+        forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
+        malign = as.numeric(input$malign),
+        icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''},
+        accordion = if (!is.null(input$accordion)) {input$accordion} else {''}))
     Utvalg1data <- Utvalg1$RegData
     if (dim(Utvalg1data)[1] > 0) {
       shiny::isolate(if (!is.null(input$valgtShus)) {
@@ -385,24 +394,27 @@ saml_andeler <- function(input, output, session, reshID, RegData,
       Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
       Utvalg1data <- Utvalg1data[match(unique(Utvalg1data$PasientID), Utvalg1data$PasientID), ]   # første operasjon i utvalget
     }
-    Utvalg2 <- shiny::isolate(NorgastUtvalg(RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-                                            minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]),
-                                            erMann = as.numeric(input$erMann2), kun_ferdigstilte = input$kun_ferdigstilte,
-                                            elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
-                                            hastegrad_hybrid = as.numeric(input$hastegrad_hybrid2),
-                                            BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
-                                            valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
-                                            op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
-                                            ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
-                                            # tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
-                                            tilgang_utvidet = if (!is.null(input$tilgang_utvidet2)) {input$tilgang_utvidet2} else {''},
-                                            minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
-                                            ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
-                                            modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
-                                            whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
-                                            forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
-                                            malign = as.numeric(input$malign2),
-                                            icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''}))
+    Utvalg2 <- shiny::isolate(
+      NorgastUtvalg(
+        RegData = RegData, datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+        minald=as.numeric(input$alder2[1]), maxald=as.numeric(input$alder2[2]),
+        erMann = as.numeric(input$erMann2), kun_ferdigstilte = input$kun_ferdigstilte,
+        elektiv = as.numeric(input$elektiv2), hastegrad = as.numeric(input$hastegrad2),
+        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid2),
+        BMI = if (!is.null(input$BMI2)) {input$BMI2} else {''},
+        valgtShus = if (!is.null(input$valgtShus2)) {input$valgtShus2} else {''},
+        op_gruppe = if (!is.null(input$op_gruppe2)) {input$op_gruppe2} else {''},
+        ncsp = if (!is.null(input$ncsp_verdi2)) {input$ncsp_verdi2} else {''},
+        # tilgang = if (!is.null(input$tilgang2)) {input$tilgang2} else {''},
+        tilgang_utvidet = if (!is.null(input$tilgang_utvidet2)) {input$tilgang_utvidet2} else {''},
+        minPRS = as.numeric(input$PRS2[1]), maxPRS = as.numeric(input$PRS2[2]),
+        ASA = if (!is.null(input$ASA2)) {input$ASA2} else {''},
+        modGlasgow = if (!is.null(input$modGlasgow2)) {input$modGlasgow2} else {''},
+        whoEcog = if (!is.null(input$whoEcog2)) {input$whoEcog2} else {''},
+        forbehandling = if (!is.null(input$forbehandling2)) {input$forbehandling2} else {''},
+        malign = as.numeric(input$malign2),
+        icd = if (!is.null(input$icd_verdi2)) {input$icd_verdi2} else {''},
+        accordion = if (!is.null(input$accordion2)) {input$accordion2} else {''}))
     Utvalg2data <- Utvalg2$RegData
     if (dim(Utvalg2data)[1] > 0) {
       shiny::isolate(if (!is.null(input$valgtShus2)) {
@@ -495,23 +507,23 @@ saml_andeler <- function(input, output, session, reshID, RegData,
                                                                   fra0 = input$fra0, inkl_tall=input$inkl_tall))
     if (is.na(utdata$Konf$Utvalg2[1])){
       Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$andeler$TidsEnhet,
-                           Antall = utdata$antall[["1"]],
-                           N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
-                           KI_ovre = utdata$Konf$Utvalg1[2,])
+                                  Antall = utdata$antall[["1"]],
+                                  N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
+                                  KI_ovre = utdata$Konf$Utvalg1[2,])
       Tabell_tid %>%
         knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
         kableExtra::kable_styling("hover", full_width = F)
     } else {
       Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$andeler$TidsEnhet, Antall = utdata$antall[["1"]],
-                           N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
-                           Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
-                           N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
-                           Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
+                                  N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
+                                  Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
+                                  N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
+                                  Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
       names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
                              'KI_nedre', 'KI_ovre')
       Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
         kableExtra::kable_styling("hover", full_width = F) %>%
-        add_header_above(c(" ", "Utvalg 1" = 5, "Utvalg 2" = 5))
+        kableExtra::add_header_above(c(" ", "Utvalg 1" = 5, "Utvalg 2" = 5))
     }
   }
 
@@ -526,15 +538,15 @@ saml_andeler <- function(input, output, session, reshID, RegData,
                                                                     fra0 = input$fra0, inkl_tall=input$inkl_tall))
       if (is.na(utdata$Konf$Utvalg2)[1]){
         Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$andeler$TidsEnhet,
-                             Antall = utdata$antall[["1"]],
-                             N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
-                             KI_ovre = utdata$Konf$Utvalg1[2,])
+                                    Antall = utdata$antall[["1"]],
+                                    N = utdata$N[["1"]], 'Andel (%)'= utdata$andeler[["1"]], KI_nedre = utdata$Konf$Utvalg1[1,],
+                                    KI_ovre = utdata$Konf$Utvalg1[2,])
       } else {
         Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$andeler$TidsEnhet, Antall = utdata$antall[["1"]],
-                             N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
-                             Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
-                             N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
-                             Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
+                                    N = utdata$N[["1"]], Andel = utdata$andeler[["1"]], Konf.int.nedre = utdata$Konf$Utvalg1[1,],
+                                    Konf.int.ovre = utdata$Konf$Utvalg1[2,], Antall2 = utdata$antall[["2"]],
+                                    N2 = utdata$N[["2"]], Andel2 = utdata$andeler[["2"]], Konf.int.nedre2 = utdata$Konf$Utvalg2[1,],
+                                    Konf.int.ovre2 = utdata$Konf$Utvalg2[2,])
         names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
                                'KI_nedre', 'KI_ovre')
       }

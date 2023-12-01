@@ -650,7 +650,8 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
                                  graaUt=NA, skriftStr=1.2, utvalgTxt="",
                                  minstekrav = NA, maal = NA, pktStr=1.4,
                                  legPlass='top', minstekravTxt='Akseptabelt',
-                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE) {
+                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE,
+                                 pst_kolonne = T) {
 
   tittel <- c(tittel, 'inkl. 95% konf. int.')
 
@@ -701,6 +702,8 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
   par('oma'=c(0,1,length(utvalgTxt),0))
 
   par('mar'=c(5.1, 4.1, 5.1, 2.1))
+  if (pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 9.1)) }
+
   xmax <- min(max(KI, max(andeler, na.rm = T), na.rm = T)*1.15,100)
   andeler <- rbind(c(NA,NA), andeler, c(NA,NA))
   rownames(andeler)[dim(andeler)[1]] <- '  '
@@ -715,15 +718,21 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
   fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
 
   if (maal > minstekrav & !is.na(maal) & !is.na(minstekrav)) {
-    rect(xleft=minstekrav, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=minstekrav, ybottom=1, xright=maal, ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[2], border = NA)
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[1], border = NA)}
   if (maal < minstekrav & !is.na(maal) & !is.na(minstekrav)) {
-    rect(xleft=maal, ybottom=1, xright=minstekrav, ytop=max(ypos)-1.6, col = fargerMaalNiva[2], border = NA)
-    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=maal, ybottom=1, xright=minstekrav, ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[2], border = NA)
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[1], border = NA)}
   if (!is.na(maal) & is.na(minstekrav) & maalretn=='lav') {
-    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=0, ybottom=1, xright=maal, ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[1], border = NA)}
   if (!is.na(maal) & is.na(minstekrav) & maalretn=='hoy') {
-    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6, col = fargerMaalNiva[1], border = NA)}
+    rect(xleft=maal, ybottom=1, xright=min(xmax, 100), ytop=max(ypos)-1.6,
+         col = fargerMaalNiva[1], border = NA)}
 
   barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
            names.arg=rep('',dim(andeler)[1]),
@@ -785,8 +794,17 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
            lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
            legend=names(N), ncol = dim(andeler)[2])}
 
-  text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
-  if (prikktall) {text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)}
+  if (prikktall) {
+    text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
+    text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)
+    }
+
+  if (pst_kolonne) {
+    mtext( pst_txt_prikk, side=4, line=3.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+    mtext( pst_txt, side=4, line=7.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+    mtext( names(N)[1], side=4, line=3.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+    mtext( names(N)[2], side=4, line=7.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+  }
 
   #Tekst som angir hvilket utvalg som er gjort
   mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=(length(utvalgTxt)-1):0, outer=TRUE)
