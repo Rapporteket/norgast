@@ -11,14 +11,16 @@
 #' @export
 #'
 
-NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', datoFra='2014-01-01', datoTil='2050-12-31',
-                                       minald=0, maxald=130, erMann=99, outfile='', hastegrad_hybrid=99,
-                                       preprosess=F, malign=99, Ngrense=30, lavDG='',
-                                       lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
-                                       elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
-                                       maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
-                                       ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1,
-                                       tilgang_utvidet='', accordion='')
+NorgastFigAndelStabelGrVar <- function(
+    RegData=0, valgtVar='ModGlasgowScore',
+    datoFra='2014-01-01', datoTil='2050-12-31',
+    minald=0, maxald=130, erMann=99, outfile='', hastegrad_hybrid=99,
+    preprosess=F, malign=99, Ngrense=30, lavDG='',
+    lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
+    elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
+    maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
+    ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1,
+    tilgang_utvidet='', accordion='', snufarger = TRUE)
 
 {
 
@@ -64,6 +66,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
   if 	( max(Ngr) < Ngrense)	{#Dvs. hvis ALLE er mindre enn grensa.
     FigTypUt <- rapFigurer::figtype(outfile, fargepalett = 'BlaaOffAlle')
     farger <- FigTypUt$farger
+
     plot.new()
     if (dim(RegData)[1]>0) {
       tekst <- paste('Færre enn ', Ngrense, ' registreringer ved hvert av sykehusene', sep='')
@@ -153,6 +156,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
 
     FigTypUt <- rapFigurer::figtype(outfile, height=3*800, fargepalett=NorgastUtvalg$fargepalett)	#res=96,
     farger <- FigTypUt$farger
+    if (snufarger) {farger <- rev(farger)}
     if (length(legendTxt)==5) {farger <- c('#4D4D4D' ,farger)}
 
     landet <- AndelerGr
@@ -190,7 +194,7 @@ NorgastFigAndelStabelGrVar <- function(RegData=0, valgtVar='ModGlasgowScore', da
     # mtext('(Tall på søylene angir antall registreringer)', las=1, side=1, line=3)
 
     #Tekst som angir hvilket utvalg som er gjort
-    mtext(utvalgTxt, side=3, las=1, cex=0.7*skriftStr, adj=0, col=farger[1], line=c(3+0.8*((NutvTxt-1):0)))
+    mtext(utvalgTxt, side=3, las=1, cex=0.7*skriftStr, adj=0, col=farger[length(farger)], line=c(3+0.8*((NutvTxt-1):0)))
 
 
     par('fig'=c(0, 1, 0, 1))
