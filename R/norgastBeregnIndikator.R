@@ -60,8 +60,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
       dplyr::filter(Op_gr %in% 1:8, # Kun obligatoriske
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
                     Hastegrad_hybrid==1) %>%
-      dplyr::mutate(var = case_when(TelefonKontroll==1 | FysiskKontroll==1 ~ 1,
-                                    TelefonKontroll==0 & FysiskKontroll==0 ~ 0),
+      dplyr::mutate(var = dplyr::case_when(TelefonKontroll==1 | FysiskKontroll==1 ~ 1,
+                                           TelefonKontroll==0 & FysiskKontroll==0 ~ 0),
                     context = "caregiver",
                     denominator = 1,
                     ind_id = "norgast_aktivkontroll",
@@ -162,7 +162,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     denominator = 1,
                     ind_id = "konv_rate_kolon",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
-                    var = case_when(
+                    var = dplyr::case_when(
                       Tilgang == 2 ~ 0,
                       Tilgang == 3 ~ 1
                     )) %>%
@@ -264,7 +264,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     denominator = 1,
                     ind_id = "konv_rate_rektum",
                     orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)],
-                    var = case_when(
+                    var = dplyr::case_when(
                       Tilgang == 2 ~ 0,
                       Tilgang == 3 ~ 1
                     )) %>%
@@ -797,7 +797,7 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
   if (prikktall) {
     text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
     text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)
-    }
+  }
 
   if (pst_kolonne) {
     mtext( pst_txt_prikk, side=4, line=3.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)

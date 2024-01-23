@@ -1,4 +1,4 @@
-#' UI-modul for iindikatorfigurer i NORGAST sin shiny-app på Rapporteket
+#' UI-modul for indikatorfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
