@@ -105,10 +105,10 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
     shinyjs::reset("id_fordeling_panel")
   })
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus')
-    })
+  # observe(
+  #   if (userRole != 'SC') {
+  #     shinyjs::hide(id = 'valgtShus')
+  #   })
 
   output$ncsp <- renderUI({
     ns <- session$ns
@@ -134,8 +134,10 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
 
   output$valgtShus_ui <- renderUI({
     ns <- session$ns
+    if (userRole == 'SC') {
     selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                 choices = BrValg$sykehus, multiple = TRUE)
+    }
   })
 
   output$tilgang_utvidet_ui <- renderUI({

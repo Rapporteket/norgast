@@ -212,28 +212,6 @@ if (annet_format_ut) {
     outfile=outfile, Ngrense=terskel, lavDG = graaUt_lever)
 }
 
-outfile <- figfolder %>% paste0('AccordionGrad_lever_aar.pdf')
-valgtVar <- 'KumAcc'
-norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-  lavDG = graaUt_lever, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    lavDG = graaUt_lever, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-}
-
-
-
 outfile <- figfolder %>% paste0('Tilgang_lever_aar.pdf')
 valgtVar <- 'LapTilgang2'
 norgastIndikator_rapporteket(
@@ -307,12 +285,6 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_lever.pdf}
 \caption{AccordionGrad\_lever.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_lever_aar.pdf}
-\caption{AccordionGrad\_lever\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
@@ -503,24 +475,6 @@ if (annet_format_ut) {
     RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe,
     outfile=outfile, Ngrense=terskel, lavDG = graaUt_whipple)
 }
-
-outfile <- figfolder %>% paste0('AccordionGrad_whipple_aar.pdf')
-valgtVar <- 'KumAcc'
-norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-}
 @
 
 \begin{figure}[ht]
@@ -539,12 +493,6 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_whipple.pdf}
 \caption{AccordionGrad\_whipple.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_whipple_aar.pdf}
-\caption{AccordionGrad\_whipple\_aar.pdf}
 \end{figure}
 
 \begin{figure}[ht]
@@ -642,7 +590,7 @@ print(
 
 
 <<'fig_ovrigpankreas', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
-op_gruppe <- c(7,8)
+op_gruppe <- 7
 
 outfile <- figfolder %>% paste0('Tilgang_ovrigpankreas_aar.pdf')
 valgtVar <- 'LapTilgang2'
@@ -719,27 +667,6 @@ if (annet_format_ut) {
     RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe,
     outfile=outfile, Ngrense=terskel, lavDG = graaUt_pankreas)
 }
-
-outfile <- figfolder %>% paste0('AccordionGrad_ovrigpankreas_aar.pdf')
-valgtVar <- 'KumAcc'
-norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-  lavDG = graaUt_pankreas, inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    lavDG = graaUt_pankreas, inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
-}
-
 @
 
 \begin{figure}[ht]
@@ -765,14 +692,6 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_ovrigpankreas.pdf}
 \caption{AccordionGrad\_ovrigpankreas.pdf}
 \end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_ovrigpankreas_aar.pdf}
-\caption{AccordionGrad\_ovrigpankreas\_aar.pdf}
-\end{figure}
-
-
 
 
 \end{document}

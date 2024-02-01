@@ -125,8 +125,10 @@ tidsvisning <- function(input, output, session, reshID, RegData, userRole,
 
   output$valgtShus_ui <- renderUI({
     ns <- session$ns
+    if (userRole == 'SC') {
     selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                 choices = BrValg$sykehus, multiple = TRUE)
+    }
   })
 
   output$valgtVar_ui <- renderUI({

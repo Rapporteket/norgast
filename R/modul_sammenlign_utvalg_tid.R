@@ -207,11 +207,11 @@ saml_andeler <- function(input, output, session, reshID, RegData,
     shinyjs::reset("id_overlevelse_panel2")
   })
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus')
-      shinyjs::hide(id = 'valgtShus2')
-    })
+  # observe(
+  #   if (userRole != 'SC') {
+  #     shinyjs::hide(id = 'valgtShus')
+  #     shinyjs::hide(id = 'valgtShus2')
+  #   })
 
   observe(
     if (userRole == 'SC') {
@@ -246,14 +246,18 @@ saml_andeler <- function(input, output, session, reshID, RegData,
 
   output$valgtShus_ui <- renderUI({
     ns <- session$ns
+    if (userRole == 'SC') {
     selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                 choices = BrValg$sykehus, multiple = TRUE)
+    }
   })
 
   output$valgtShus2_ui <- renderUI({
     ns <- session$ns
+    if (userRole == 'SC') {
     selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                 choices = BrValg$sykehus, multiple = TRUE)
+    }
   })
 
   output$valgtVar_ui <- renderUI({

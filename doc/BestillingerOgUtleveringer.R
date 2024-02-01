@@ -3,6 +3,21 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### FLORENCE 26.01.2024 #######################################################
+kobling_krg <- read.csv2("~/mydata/norgast/Nøkkel_NORGAST.csv",
+                         colClasses = c("character", "integer"))
+kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_26.01.2024.csv",
+                           colClasses = c("integer", "character")) %>%
+  merge(kobling_krg, by.x = "SSN", by.y = "FNR")
+RegData <- norgast::NorgastHentRegData()
+varnavn <- readxl::read_xlsx("~/mydata/norgast/Klokeboken_med_RAPPORTEKNAVN_FLORENCE.xlsx",
+                                 sheet = 1) %>%
+  dplyr::filter(`Til Florence prosjektet` == "Ja")
+varnavn <- unique(varnavn$navn_i_rapporteket)
+RegData <- RegData %>% dplyr::select(c(varnavn, "PasientID")) %>%
+  dplyr::filter(PasientID %in% kobling_hnikt$PID.x)
+
+
 #### KRG 07.12.2023 ############################################################
 kobling_krg <- haven::read_dta("~/mydata/norgast/nøkkeltilnorgast.dta")
 kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_07.12.2023.csv",
