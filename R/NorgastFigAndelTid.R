@@ -25,7 +25,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=F,
                                tidsenhet='Aar', op_gruppe='', ncsp='', hastegrad = 99, hastegrad_hybrid = 99,
                                robotassiastanse=99, kun_ferdigstilte=TRUE,
-                               tilgang_utvidet='')
+                               tilgang_utvidet='', accordion='')
 {
 
   ## Hvis spørring skjer fra R på server. ######################
@@ -50,7 +50,7 @@ NorgastFigAndelTid <- function(RegData=0, valgtVar='ReLapNarkose', datoFra='2014
                                  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                  op_gruppe=op_gruppe, ncsp=ncsp, hastegrad = hastegrad, hastegrad_hybrid = hastegrad_hybrid,
                                  robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-                                 tilgang_utvidet=tilgang_utvidet)
+                                 tilgang_utvidet=tilgang_utvidet, accordion=accordion)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

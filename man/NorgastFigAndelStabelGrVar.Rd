@@ -36,7 +36,8 @@ NorgastFigAndelStabelGrVar(
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
   skriftStr = 1,
-  tilgang_utvidet = ""
+  tilgang_utvidet = "",
+  accordion = ""
 )
 }
 \arguments{

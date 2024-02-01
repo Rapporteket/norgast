@@ -42,7 +42,8 @@ norgastFigAndelGrVarTid(
   op_gruppe = "",
   ncsp = "",
   robotassiastanse = 99,
-  kun_ferdigstilte = FALSE
+  kun_ferdigstilte = FALSE,
+  accordion = ""
 )
 }
 \arguments{

@@ -2,13 +2,14 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-rap_aar <- 2022
+rap_aar <- 2023
 
 RegData <-  norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
 # RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
+RegDataOblig <- RegDataOblig %>% filter(OpDato < "2023-07-01") ## Ad hoc, desemberpublisering
 
 ind <- c("norgast_saarruptur", "norgast_aktivkontroll", "norgast_vekt_reg",
          "norgast_avdoede_spiseroer", "norgast_avdoede_magesekk",
@@ -22,21 +23,6 @@ indikator <- norgastBeregnIndikator(RegDataOblig, ind[1])$Indikator
 for (ind_id in ind[-1]) {
   indikator <- dplyr::bind_rows(indikator, norgastBeregnIndikator(RegDataOblig, ind_id)$Indikator)
 }
-
-
-indikatordata <- norgastBeregnIndikator(RegDataOblig, "norgast_vekt_reg")
-
-
-norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
-                     N = indikatordata$N,
-                     andeler = indikatordata$andeler,
-                     decreasing = indikatordata$decreasing,
-                     terskel = indikatordata$terskel,
-                     minstekrav = indikatordata$minstekrav,
-                     maal = indikatordata$maal,
-                     utvalgTxt = indikatordata$utvalgTxt,
-                     tittel = indikatordata$tittel)
-
 
 ### Tilbered dekningsgrad for sykehusviser
 
@@ -52,118 +38,7 @@ dg_kobl_resh_orgnr <- data.frame(orgnr_sh = c(974733013, 974631407, 974557746, 9
                                           103312,4205289, 974631776, 974744570, 974747545, 974753898, 974795558, 974795574, 4212917,
                                           106168, 4207594, 4216823))
 
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "Total DG per SH")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[which(dg$Sykehus=="Levanger")] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_total"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- dg
-#
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG Tykktarm")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_tykktarm"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG_Lever")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_lever"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG_Pankreas")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_pankreas"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG_Endetarm")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_endetarm"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG_Magesekk")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_magesekk"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# dg <- readxl::read_excel("~/.ssh/norgast/DG_Norgast.xlsx",
-#                          sheet = "DG_Spiseroer")
-# dg$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(dg$ReshID, dg_kobl_resh_orgnr$resh)]
-# # dg$orgnr[dg$Sykehus=="Levanger"] <- 974754118
-# dg <- dg[,c(10,6,2,3)]
-# dg <- dg[!is.na(dg$orgnr), ]
-# dg$ind_id <- "norgast_dg_spiseroer"
-# names(dg)[2:4] <- c("year",	"var", "denominator")
-# dg_samlet <- bind_rows(dg_samlet, dg)
-#
-# # Legg til 2021
-# mapping_npr <- read.csv2('~/.ssh/Sykehus/Koblingstabell_AvdRESH_sh_standard.csv', fileEncoding = "Latin1")
-# DG <- read.csv2('~/.ssh/Sykehus/Alle_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_total"
-# DG_samlet <- DG
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Kolon_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_tykktarm"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Rektum_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_endetarm"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Lever_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_lever"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Ventrikkel_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_magesekk"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Whipple_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_pankreas"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG <- read.csv2('~/.ssh/Sykehus/Øsofagus_sh.csv', fileEncoding = "Latin1")
-# DG$ind_id <- "norgast_dg_spiseroer"
-# DG_samlet <- bind_rows(DG_samlet, DG)
-#
-# DG_samlet$AvdRESH <- mapping_npr$AvdRESH[match(DG_samlet$sh_standard, mapping_npr$sh_standard)]
-# DG_samlet <- DG_samlet[!is.na(DG_samlet$AvdRESH), ]
-# DG_samlet$orgnr <- dg_kobl_resh_orgnr$orgnr_sh[match(DG_samlet$AvdRESH, dg_kobl_resh_orgnr$resh)]
-# DG_samlet$year <- 2021
-# DG_samlet$var <- DG_samlet$Begge + DG_samlet$Kun_norgast
-# DG_samlet$denominator <- DG_samlet$Total
-#
-# DG_samlet <- DG_samlet[,c("orgnr", "year", "var", "denominator", "ind_id")]
-# dg_samlet <- bind_rows(DG_samlet, dg_samlet)
-# dg_samlet$context <- "caregiver"
-# dg_samlet$var <- round(dg_samlet$var)
+
 
 dg_samlet <- read.csv2("~/mydata/norgast/dg_norgast.csv")
 dg_samlet <- dg_samlet %>% dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
@@ -218,15 +93,4 @@ indikator <- bind_rows(indikator, dg_samlet)
 
 write.csv2(indikator, paste0("~/mydata/norgast/norgast_indikator_", lubridate::today(), ".csv"),
            row.names = F, fileEncoding = 'UTF-8')
-
-# slett_resident <- indikator[match(unique(indikator$ind_id), indikator$ind_id), ]
-# slett_resident$context <- "resident"
-# slett_resident$var <- 0
-# slett_resident$denominator <- 1
-#
-# write.csv2(slett_resident, "~/.ssh/norgast/norgast_slett_resident_2022_09_06.csv", row.names = F, fileEncoding = 'UTF-8')
-
-# write.csv2(dg_samlet[dg_samlet$year <= rap_aar, ], "~/.ssh/norgast/norgast_dg.csv", row.names = F, fileEncoding = 'UTF-8')
-#
-# ind_info <- readxl::read_xlsx("~/.ssh/norgast/Indikatorbeskrivelse publisering SKDE_KH.xlsx", sheet = 2)
 

@@ -34,7 +34,7 @@ admtab_UI <- function(id){
           inputId = ns("regstatus_tid"),
           label = "Skjemastatus",
           choices = c('Ferdige forløp'=1, 'Oppfølging i kladd'=2,
-                      'Ferdig basisreg. oppfølging mangler'=3,
+                      # 'Ferdig basisreg. oppfølging mangler'=3,
                       'Basisreg. i kladd'=4))),
       checkboxInput(inputId = ns("kun_oblig"),
                     label = "Inkluder kun obligatoriske reseksjoner",
@@ -53,9 +53,9 @@ admtab_UI <- function(id){
            basisregistrering og oppfølging.'),
         h4(tags$b('Oppfølging i kladd '), 'viser antall forløp med ferdigstilt
            basisregistrering og oppfølging i kladd.'),
-        h4(tags$b('Ferdig basisreg. oppfølging mangler '), 'viser antall forløp
-           med ferdigstilt basisregistrering og ikke påbegynt eller slettet
-           oppfølging'),
+        # h4(tags$b('Ferdig basisreg. oppfølging mangler '), 'viser antall forløp
+        #    med ferdigstilt basisregistrering og ikke påbegynt eller slettet
+        #    oppfølging'),
         h4(tags$b('Basisreg. i kladd '), 'viser antallet basisregistreringer
            i kladd.'),
         br(),
@@ -174,8 +174,12 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
   antskjema <- function() {
     # req(input$admtabeller == "id_ant_skjema")
 
-    tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH", "Op_gr", "Hovedoperasjon")],
-                 skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus")],
+    tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering',
+                                c("ForlopsID", "SkjemaStatus", "HovedDato",
+                                  "OpprettetDato", "Sykehusnavn", "AvdRESH",
+                                  "Op_gr", "Hovedoperasjon")],
+                 skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl',
+                                c("ForlopsID", "SkjemaStatus")],
                  by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
     if (input$kun_oblig) {
@@ -197,20 +201,20 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
       dplyr::group_by(Sykehusnavn) %>%
       dplyr::summarise(
         'Ferdige forløp' = sum(SkjemaStatus==1 &
-                                 SkjemaStatus_oppf==1, na.rm = T),
+                                 (SkjemaStatus_oppf==1 | is.na(SkjemaStatus_oppf)), na.rm = T),
         'Oppfølging i kladd' = sum(SkjemaStatus==1 &
                                      SkjemaStatus_oppf==0, na.rm = T),
-        'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 &
-                                                      is.na(SkjemaStatus_oppf), na.rm = T),
+        # 'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 &
+        #                                               is.na(SkjemaStatus_oppf), na.rm = T),
         'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
         'N' = dplyr::n())
     aux2 <- tmp %>%
       dplyr::filter(HovedDato >= input$datovalg_adm[1] &
                       HovedDato <= input$datovalg_adm[2]) %>%
       dplyr::summarise(
-        'Ferdige forløp' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==1, na.rm = T),
+        'Ferdige forløp' = sum(SkjemaStatus==1 & (SkjemaStatus_oppf==1 | is.na(SkjemaStatus_oppf)), na.rm = T),
         'Oppfølging i kladd' = sum(SkjemaStatus==1 & SkjemaStatus_oppf==0, na.rm = T),
-        'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
+        # 'Ferdig basisreg. oppfølging mangler' = sum(SkjemaStatus==1 & is.na(SkjemaStatus_oppf), na.rm = T),
         'Basisreg i kladd' = sum(SkjemaStatus==0, na.rm = T),
         'N' = dplyr::n())
 
@@ -275,11 +279,24 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
       aux <- tmp
       aux$mnd <- factor(format(aux$HovedDato, format='%b-%y'), levels = format(seq(fraDato, tilDato, by="month"), "%b-%y"))
 
-      ant_skjema <- switch (req(input$regstatus_tid),
-                            '1' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==1) , c('Sykehusnavn', 'mnd')]))),
-                            '2' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) , c('Sykehusnavn', 'mnd')]))),
-                            '3' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) , c('Sykehusnavn', 'mnd')]))),
-                            '4' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
+      ant_skjema <- switch (
+        req(input$regstatus_tid),
+        '1' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & (aux$SkjemaStatus_oppf==1 |
+                                                     is.na(aux$SkjemaStatus_oppf))) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '2' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '3' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '4' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
       ) %>% dplyr::as_tibble(rownames = 'Sykehusnavn')
     }
 
@@ -308,11 +325,24 @@ admtab <- function(input, output, session, reshID, RegData, userRole,
       aux <- tmp
       aux$mnd <- factor(format(aux$HovedDato, format='%Y'), levels = format(seq(as.Date(fraDato),as.Date(input$datovalg_adm_tid_aar), by="year"), "%Y"))
 
-      ant_skjema <- switch (req(input$regstatus_tid),
-                            '1' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==1) , c('Sykehusnavn', 'mnd')]))),
-                            '2' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) , c('Sykehusnavn', 'mnd')]))),
-                            '3' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) , c('Sykehusnavn', 'mnd')]))),
-                            '4' = as.data.frame.matrix(addmargins(table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
+      ant_skjema <- switch (
+        req(input$regstatus_tid),
+        '1' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & (aux$SkjemaStatus_oppf==1 |
+                                                     is.na(aux$SkjemaStatus_oppf))) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '2' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & aux$SkjemaStatus_oppf==0) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '3' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==1 & is.na(aux$SkjemaStatus_oppf)) ,
+                      c('Sykehusnavn', 'mnd')]))),
+        '4' = as.data.frame.matrix(
+          addmargins(
+            table(aux[which(aux$SkjemaStatus==0) , c('Sykehusnavn', 'mnd')])))
       ) %>% dplyr::as_tibble(rownames = 'Sykehusnavn')
     }
 

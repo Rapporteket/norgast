@@ -1,4 +1,4 @@
-#' UI-modul for iindikatorfigurer i NORGAST sin shiny-app på Rapporteket
+#' UI-modul for indikatorfigurer i NORGAST sin shiny-app på Rapporteket
 #'
 #' Kun til bruk i Shiny
 #'
@@ -44,6 +44,7 @@ indikatorfig_UI <- function(id){
       sliderInput(ns("skriftStr"), "Skriftstørrelse sykehusnavn",
                   min = 0.5, max = 1.8,
                   value = 1.2, step = 0.05, ticks = F),
+      checkboxInput(ns("pst_kolonne"), "Prosenttall i kolonner", value = FALSE),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                   choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
       tags$hr(),
@@ -121,7 +122,9 @@ indikatorfig <- function(input, output, session, reshID, RegData,
                          tittel = indikatordata()$tittel,
                          skriftStr = input$skriftStr,
                          lavDG = input$valgtShus,
-                         maalretn = indikatordata()$maalretn)
+                         maalretn = indikatordata()$maalretn,
+                         prikktall = !input$pst_kolonne,
+                         pst_kolonne = input$pst_kolonne)
   }, width = 600, height = 700)
 
 
@@ -201,6 +204,9 @@ indikatorfig <- function(input, output, session, reshID, RegData,
                            tittel = indikatordata()$tittel,
                            skriftStr = input$skriftStr,
                            lavDG = input$valgtShus,
+                           maalretn = indikatordata()$maalretn,
+                           prikktall = !input$pst_kolonne,
+                           pst_kolonne = input$pst_kolonne,
                            outfile = file)
     }
   )

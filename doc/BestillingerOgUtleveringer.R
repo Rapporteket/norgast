@@ -3,6 +3,45 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+#### FLORENCE 26.01.2024 #######################################################
+kobling_krg <- read.csv2("~/mydata/norgast/Nøkkel_NORGAST.csv",
+                         colClasses = c("character", "integer"))
+kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_26.01.2024.csv",
+                           colClasses = c("integer", "character")) %>%
+  merge(kobling_krg, by.x = "SSN", by.y = "FNR")
+RegData <- norgast::NorgastHentRegData()
+varnavn <- readxl::read_xlsx("~/mydata/norgast/Klokeboken_med_RAPPORTEKNAVN_FLORENCE.xlsx",
+                                 sheet = 1) %>%
+  dplyr::filter(`Til Florence prosjektet` == "Ja")
+varnavn <- unique(varnavn$navn_i_rapporteket)
+RegData <- RegData %>% dplyr::select(c(varnavn, "PasientID")) %>%
+  dplyr::filter(PasientID %in% kobling_hnikt$PID.x)
+
+
+#### KRG 07.12.2023 ############################################################
+kobling_krg <- haven::read_dta("~/mydata/norgast/nøkkeltilnorgast.dta")
+kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_07.12.2023.csv",
+                 colClasses = c("integer", "character"))
+
+felles  <- merge(kobling_krg, kobling_hnikt, by.x = "FNR", by.y = "SSN",
+                 suffixes = c("", "_hnikt")) %>%
+  dplyr::select(-FNR)
+
+RegData <- norgast::NorgastHentRegData() %>%
+  norgast::NorgastPreprosess() %>%
+  dplyr::filter(OperasjonsDato >= "2019-01-01" & OperasjonsDato < "2023-01-01") %>%
+  merge(felles, by.x = "PasientId", by.y = "PID_hnikt") %>%
+  dplyr::select(PID, OperasjonsDato, BMI, ASA, Vekt6MndFoer, Hoyde,
+                VektVedInnleggelse, WHOECOG, MedDiabetes, Albumin, CRP,
+                Hjertesykdom, Lungesykdom, Hovedoperasjon, PostopLiggedogn,
+                UtskrevetTil)
+
+write.csv2(RegData, "~/mydata/norgast/pdac_20231211.csv", row.names = FALSE,
+           fileEncoding = "Latin1")
+
+
+
+
 #### Kjerstin 30.05.2023 ########################################################
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)

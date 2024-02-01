@@ -58,6 +58,9 @@ sykehusvisning_UI <- function(id){
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2, 'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose",
                   choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+      selectInput(inputId = ns("accordion"), label = "Accordiongrad",
+                  multiple = TRUE,
+                  choices = c('<3'=1, '3'=3, '4'=4, '5'=5, '6'=6)),
       selectInput(inputId = ns("bildeformat"), label = "Velg bildeformat",
                   choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
       tags$hr(),
@@ -133,11 +136,12 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
   output$ncsp <- renderUI({
     ns <- session$ns
     if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {
-                    setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
-                             sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
-                  }, multiple = TRUE)
+      selectInput(
+        inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
+        choices = if (!is.null(input$op_gruppe)) {
+          setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
+                   sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+        }, multiple = TRUE)
     }
   })
 
@@ -158,8 +162,6 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
     selectInput(inputId = ns("valgtVar_andel_stabel"), label = "Velg variabel",
                 choices = BrValg$varvalg_andel_stabel)
   })
-
-
 
   output$op_gruppe_ui <- renderUI({
     ns <- session$ns
@@ -193,9 +195,6 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
   })
 
 
-
-
-
   ############### Andeler #######################################################
 
   output$fig_andel_grvar <- renderPlot({
@@ -224,7 +223,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   }, width = 700, height = 700)
 
   tabellReagerSykehusAndel <- reactive({
@@ -254,7 +254,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   })
 
   output$utvalg_sykehus_andel <- renderUI({
@@ -267,9 +268,9 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
   output$Tabell_sykehus_andel <- function() {
     utdata <- tabellReagerSykehusAndel()
     Tabell <- dplyr::tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar,
-                     'Antall totalt'=utdata$Ngr,
-                     'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
-                     KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
+                            'Antall totalt'=utdata$Ngr,
+                            'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
+                            KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
     Tabell[utdata$Andeler==-0.001, 2:6] <- NA
     Tabell <- Tabell[dim(Tabell)[1]:1, ]
     Tabell %>% knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
@@ -283,9 +284,9 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
     content = function(file){
       utdata <- tabellReagerSykehusAndel()
       Tabell <- dplyr::tibble(Avdeling = names(utdata$Nvar), Antall=utdata$Nvar,
-                       'Antall totalt'=utdata$Ngr,
-                       'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
-                       KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
+                              'Antall totalt'=utdata$Ngr,
+                              'Andel (%)' = as.numeric(utdata$Nvar/utdata$Ngr*100),
+                              KI_nedre=utdata$KI[1,], KI_ovre=utdata$KI[2,])
       Tabell[utdata$Andeler==-0.001, 2:6] <- NA
       Tabell <- Tabell[dim(Tabell)[1]:1, ]
       write.csv3(Tabell, file, row.names = F, na = '')
@@ -324,7 +325,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         outfile = file,
         hastegrad = as.numeric(input$hastegrad),
         kun_ferdigstilte = input$kun_ferdigstilte,
-        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+        accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
     }
   )
 
@@ -335,7 +337,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       RegData,
       valgtVar = if (!is.null(input$valgtVar_andel_stabel)) {
         input$valgtVar_andel_stabel
-        } else {'ModGlasgowScore'},
+      } else {'ModGlasgowScore'},
       datoFra = input$datovalg[1],
       datoTil = input$datovalg[2],
       minald=as.numeric(input$alder[1]),
@@ -356,7 +358,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   }, width = 700, height = 700)
 
 
@@ -385,7 +388,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   })
 
   output$utvalg_sykehus_andel_stabel <- renderUI({
@@ -398,7 +402,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
   output$Tabell_sykehus_andel_stabel <- function() {
     TabellData <- tabellReagerSykehusAndelStabel()
     Tabell <- dplyr::bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
-                        .name_repair = "minimal")
+                               .name_repair = "minimal")
     names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
 
     Tabell %>% knitr::kable("html", digits = c(rep(0, dim(Tabell)[2]/2 + 1), rep(1, dim(Tabell)[2]/2 - 1))) %>%
@@ -415,7 +419,7 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
     content = function(file){
       TabellData <- tabellReagerSykehusAndelStabel()
       Tabell <- dplyr::bind_cols(TabellData$antall, TabellData$andeler[, 2:(dim(TabellData$andeler)[2]-1)],
-                          .name_repair = "minimal")
+                                 .name_repair = "minimal")
       names(Tabell)[dim(Tabell)[2]/2 + 1] <- 'N'
       write.csv3(Tabell, file, row.names = F, na = '')
     }
@@ -455,7 +459,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         outfile = file,
         hastegrad = as.numeric(input$hastegrad),
         kun_ferdigstilte = input$kun_ferdigstilte,
-        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+        accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
     }
   )
 
@@ -488,7 +493,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   }, width = 700, height = 700)
 
   tabellReagerSykehusGjsn <- reactive({
@@ -517,7 +523,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
       ncsp = fiksNULL(input$ncsp_verdi),
       hastegrad = as.numeric(input$hastegrad),
       kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
   })
 
   output$utvalg_sykehus_gjsn <- renderUI({
@@ -580,7 +587,8 @@ sykehusvisning <- function(input, output, session, reshID, RegData, hvd_session,
         ncsp = fiksNULL(input$ncsp_verdi),
         kun_ferdigstilte = input$kun_ferdigstilte,
         outfile = file,
-        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid))
+        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+        accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
     }
   )
 
