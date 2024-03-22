@@ -107,7 +107,7 @@ malign <- 99
 annet_format_ut <- T
 ut_format <- 'svg'
 
-figfolder <- "~/mydata/norgast/fig_aarsrapp2022/kolon/"
+figfolder <- "~/mydata/norgast/fig_aarsrapp2023/kolon/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
@@ -410,7 +410,7 @@ if (annet_format_ut) {
 valgtVar <- 'Anastomoselekkasje'
 outfile <- 'Anastomoselekkasje_malign_ecog0_1aar.pdf'
 outfile <- paste0(figfolder, outfile)
-norgastIndikator_rapporteket(
+utdata_kolon_anastomoselekk_refpas <- norgastIndikator_rapporteket(
   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
   height=height, decreasing=T, terskel=terskel, minstekrav = 6, maal = 4,
   skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
@@ -431,7 +431,7 @@ if (annet_format_ut) {
 outfile <- 'mortalitet90_kolon_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'mortalitet90'
-norgastIndikator_rapporteket(
+utdata_kolon_mort <- norgastIndikator_rapporteket(
   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
   height=height, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
@@ -903,29 +903,62 @@ if (annet_format_ut) {
     Ngrense=terskel, lavDG = graaUt_rektum)
 }
 
-
-outfile <- 'KumAcc_rekt_aar.pdf'
+RegDataAll$NyStomi <- factor(RegDataAll$NyStomi, levels = 0:1, labels = c("Ny stomi: nei", "Ny stomi: ja"))
+outfile <- 'KumAcc_rekt_gruppert_gruppertnystomi.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'KumAcc'
-norgastIndikator_rapporteket(
+norgastIndikator_gruppert(
   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
-  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
+  norgastIndikator_gruppert(
     RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_rektum,
-    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+    height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi")
 }
 
 
+
+RegDataAll$AvstandAnalVerge_kat2 <-
+  cut(RegDataAll$AvstandAnalVerge, breaks = c(0,11,15.9),
+      labels = c("0-11.9 cm", "12.0-15.9 cm"), include.lowest = T)
+outfile <- 'avlastende_stomi_gruppert_analverge.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'AvlastendeStomiRektum'
+# valgtVar <- 'NyStomi'
+norgastIndikator_gruppert(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_gruppert(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1,ny_anastomose=1,
+    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2")
+}
+
+# RegData$NyAnastomose
+# RegData$NyStomi
+# RegData$AvstandAnalVerge_kat
 
 @
 
@@ -961,10 +994,9 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}KumAcc_rekt_aar.pdf}
-\caption{KumAcc\_rekt\_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}KumAcc_rekt_gruppert_gruppertnystomi.pdf}
+\caption{KumAcc\_rekt\_gruppert\_gruppertnystomi.pdf}
 \end{figure}
-
 
 \begin{figure}[ht]
 \centering
@@ -977,5 +1009,12 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AvstandAnalVerge_kat_rekt.pdf}
 \caption{AvstandAnalVerge\_kat\_rekt.pdf}
 \end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}avlastende_stomi_gruppert_analverge.pdf}
+\caption{avlastende\_stomi\_gruppert\_analverge.pdf}
+\end{figure}
+
 
 \end{document}

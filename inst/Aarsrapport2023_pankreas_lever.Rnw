@@ -113,8 +113,7 @@ op_gruppe <- ''
 malign <- 99
 annet_format_ut <- T
 ut_format <- 'svg'
-# figfolder <- "/home/rstudio/norgast/inst/fig_aarsrapp2021/pankreas_lever/"
-figfolder <- "~/mydata/norgast/fig_aarsrapp2022/pankreas_lever/"
+figfolder <- "~/mydata/norgast/fig_aarsrapp2023/pankreas_lever/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
@@ -123,35 +122,35 @@ if (!dir.exists(figfolder)) {
 
 \section{Leverreseksjoner}
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
-\centering
-<<'Tabell:ReoperasjonerLever', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
-                                     datoFra=datoFra, datoTil=datoTil, minald=0,
-                                     maxald=130, erMann=99, enhetsUtvalg=0,
-                                     Terskel=Terskel, reshID=reshID)
-Tabell <- TabellData_landet$Tabell2
-Tabell <- Tabell[c(5), ]
-print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
-  floating=FALSE,
-  hline.after=NULL,
-  align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-    command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
-              ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
-              '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
-              'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
-              er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
-              & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
-  include.colnames=FALSE, include.rownames=FALSE)
-@
-\captionof{table}{Leverreseksjoner. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerLever', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Terskel<-20
+% TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
+%                                      datoFra=datoFra, datoTil=datoTil, minald=0,
+%                                      maxald=130, erMann=99, enhetsUtvalg=0,
+%                                      Terskel=Terskel, reshID=reshID)
+% Tabell <- TabellData_landet$Tabell2
+% Tabell <- Tabell[c(5), ]
+% print(
+%   xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
+%   floating=FALSE,
+%   hline.after=NULL,
+%   align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%   add.to.row=list(
+%     pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
+%               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
+%               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+%               'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
+%               er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
+%               & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
+%   include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Leverreseksjoner. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
@@ -304,35 +303,35 @@ if (annet_format_ut) {
 
 \section{Whipples operasjon}
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
-\centering
-<<'Tabell:ReoperasjonerWhipple', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
-                                     datoFra=datoFra, datoTil=datoTil, minald=0,
-                                     maxald=130, erMann=99, enhetsUtvalg=0,
-                                     Terskel=Terskel, reshID=reshID)
-Tabell <- TabellData_landet$Tabell2
-Tabell <- Tabell[c(6), ]
-print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
-  floating=FALSE,
-  hline.after=NULL,
-  align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-    command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
-              ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
-              '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
-              'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
-              er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
-              & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
-  include.colnames=FALSE, include.rownames=FALSE)
-@
-\captionof{table}{Whipples operasjon. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerWhipple', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Terskel<-20
+% TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
+%                                      datoFra=datoFra, datoTil=datoTil, minald=0,
+%                                      maxald=130, erMann=99, enhetsUtvalg=0,
+%                                      Terskel=Terskel, reshID=reshID)
+% Tabell <- TabellData_landet$Tabell2
+% Tabell <- Tabell[c(6), ]
+% print(
+%   xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
+%   floating=FALSE,
+%   hline.after=NULL,
+%   align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%   add.to.row=list(
+%     pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
+%               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
+%               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+%               'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
+%               er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
+%               & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
+%   include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Whipples operasjon. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
@@ -509,39 +508,39 @@ if (annet_format_ut) {
 
 \clearpage
 
-\section{Øvrige pankreasreseksjoner}
+\section{Distale pankreasreseksjoner}
 
 \addtolength{\hoffset}{-1.5cm}
 
-\begin{table}[htb]
-\begin{minipage}{\textwidth}
-\centering
-<<'Tabell:ReoperasjonerPankreas', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
-                                     datoFra=datoFra, datoTil=datoTil, minald=0,
-                                     maxald=130, erMann=99, enhetsUtvalg=0,
-                                     Terskel=Terskel, reshID=reshID)
-Tabell <- TabellData_landet$Tabell2
-Tabell <- Tabell[c(7,8), ]
-print(
-  xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
-  floating=FALSE,
-  hline.after=NULL,
-  align=c('l', 'l', rep('r', ncol(Tabell)-1)),
-  add.to.row=list(
-    pos=list(-1,0,0,0,0,0, nrow(Tabell)),
-    command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
-              ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
-              '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
-              'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
-              er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
-              & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
-  include.colnames=FALSE, include.rownames=FALSE)
-@
-\captionof{table}{Øvrige pankreasreseksjoner. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
-\end{minipage}
-\end{table}
+% \begin{table}[htb]
+% \begin{minipage}{\textwidth}
+% \centering
+% <<'Tabell:ReoperasjonerPankreas', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+% Terskel<-20
+% TabellData_landet <- NorgastTabeller(RegData=RegData[RegData$FerdigForlop == 1, ],
+%                                      datoFra=datoFra, datoTil=datoTil, minald=0,
+%                                      maxald=130, erMann=99, enhetsUtvalg=0,
+%                                      Terskel=Terskel, reshID=reshID)
+% Tabell <- TabellData_landet$Tabell2
+% Tabell <- Tabell[c(7,8), ]
+% print(
+%   xtable::xtable(Tabell, digits=c(0,0,0,rep(1, ncol(Tabell)-2))),
+%   floating=FALSE,
+%   hline.after=NULL,
+%   align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+%   add.to.row=list(
+%     pos=list(-1,0,0,0,0,0, nrow(Tabell)),
+%     command=c('\\toprule\n', '& & & \\multicolumn{4}{c}{Reoperasjonsrate for
+%               ulike årsaker (\\%)} \\\\\n', '\\cline{4-9} \n',
+%               '& & Reoperasjons- & Anastomose- & Dyp &&&&  \\\\\n',
+%               'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette
+%               er av alle opererte, ikke alle under risiko.} & infeksjon & Blødning
+%               & Sårruptur & Annet & Ingen \\\\\n','\\midrule\n','\\bottomrule\n')),
+%   include.colnames=FALSE, include.rownames=FALSE)
+% @
+% \captionof{table}{Øvrige pankreasreseksjoner. Reoperasjoner \Sexpr{rap_aar}. Gjelder \textbf{hele landet}.}
+% \end{minipage}
+% \end{table}
 
 \begin{table}[htb]
 \begin{minipage}{\textwidth}
@@ -549,7 +548,7 @@ print(
 <<'Tabell:ReoperasjonerOvrigPankreas v3', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 aux <- RegData[which(RegData$Hastegrad_hybrid==1 &
                        RegData$ReLapNarkose %in% c(0, 1) &
-                       RegData$Op_gr %in% 7:8 & RegData$FerdigForlop == 1), ]
+                       RegData$Op_gr %in% 7 & RegData$FerdigForlop == 1), ]
 aux$Tilgang <- factor(aux$Tilgang, levels = 1:3,
                       labels = c("Åpen", "Laparoskopisk", "Konvertert") )
 
@@ -583,7 +582,7 @@ print(
   include.colnames=FALSE, include.rownames=FALSE,
   sanitize.text.function = function(x){x})
 @
-\captionof{table}{Øvrige pankreasreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
+\captionof{table}{Distale pankreasreseksjoner. Elektive operasjoner. Reoperasjoner \Sexpr{rap_aar} etter Tilgang. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 

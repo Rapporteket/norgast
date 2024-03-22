@@ -33,7 +33,8 @@ NorgastUtvalg(
   kun_ferdigstilte = TRUE,
   tilgang_utvidet = "",
   ny_stomi = 99,
-  accordion = ""
+  accordion = "",
+  ny_anastomose = 99
 )
 }
 \arguments{
