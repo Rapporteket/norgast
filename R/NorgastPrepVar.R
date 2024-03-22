@@ -25,7 +25,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
                       'erMann', 'PRSScore', 'NyAnastomose','Anastomoselekkasje',
                       'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2',
                       'KumAcc', 'MissingVekt', 'Sykehusnavn', 'Malign',
-                      'Saarruptur', 'Rekonstruksjon')) {
+                      'Saarruptur', 'Rekonstruksjon', 'NyStomi')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -497,8 +497,19 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     inkl_konf <- 0
   }
 
+  if (valgtVar=='NyStomi') {
+    tittel <- 'Ny stomi'
+    VarTxt <- 'nye stomier'
+    grtxt <- c('Nei','Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+    inkl_konf <- 0
+  }
+
   if (valgtVar=='AvlastendeStomiRektum') {
     tittel <- 'Stomi ved rektumreseksjon med ny anastomose'
+    VarTxt <- 'stomi ved rektumreseksjon med ny anastomose'
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)

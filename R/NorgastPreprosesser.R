@@ -180,11 +180,14 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Hastegrad_hybrid[RegData$HovedDato < '2018-04-18'] <- RegData$Hastegrad_tid[RegData$HovedDato < '2018-04-18']
 
   RegData$AvlastendeStomiRektum <- NA
-  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1), which(RegData$Op_gr==2)),
-                                          which(as.numeric(RegData$NyStomi)==0))] <- 0
-  RegData$AvlastendeStomiRektum[union(which(is.na(RegData$NyAnastomose)), which(is.na(RegData$NyStomi)))] <- NA
-  RegData$AvlastendeStomiRektum[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1),
-                                                    which(as.numeric(RegData$NyStomi)==1)),which(RegData$Op_gr==2))] <- 1
+  RegData$AvlastendeStomiRektum[
+    intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1), which(RegData$Op_gr==2)),
+              which(as.numeric(RegData$NyStomi)==0))] <- 0
+  RegData$AvlastendeStomiRektum[
+    union(which(is.na(RegData$NyAnastomose)), which(is.na(RegData$NyStomi)))] <- NA
+  RegData$AvlastendeStomiRektum[
+    intersect(intersect(which(as.numeric(RegData$NyAnastomose)==1),
+                        which(as.numeric(RegData$NyStomi)==1)),which(RegData$Op_gr==2))] <- 1
 
   RegData$PermanentStomiColorektal <- NA
   RegData$PermanentStomiColorektal[intersect(union(which(as.numeric(RegData$NyAnastomose)==1), which(as.numeric(RegData$NyStomi)==0)),
