@@ -20,7 +20,7 @@ norgastIndikator_rapporteket <-
            hastegrad=99, BMI='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '',
            forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99,
-           robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE)
+           robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, pst_kolonne=FALSE)
   {
     ## Hvis spørring skjer fra R på server. ######################
     if(hentData){
@@ -124,11 +124,13 @@ norgastIndikator_rapporteket <-
 
     vmarg <- max(0, strwidth(rownames(andeler), units='figure', cex=cexgr)*0.75)
     par('fig'=c(vmarg, 1, 0, 1))
-    par('mar'=c(5.1, 4.1, 5.1, 9.1))
+    # par('mar'=c(5.1, 4.1, 5.1, 9.1))
+    if (pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 9.1)) }
     par('oma'=c(0,1,NutvTxt,0))
 
     if (inkl_konf) {
       par('mar'=c(5.1, 4.1, 5.1, 2.1))
+      if (pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 9.1)) }
       xmax <- min(max(KI, max(andeler, na.rm = T), na.rm = T)*1.15,100)
     } else {
       xmax <- min(100, 1.15*max(andeler, na.rm = T))
@@ -167,7 +169,7 @@ norgastIndikator_rapporteket <-
              col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
 
     # title(main = tittel, outer=T)
-    title(main = tittel)
+    title(main = tittel, xpd = TRUE)
     ypos <- as.numeric(ypos) #as.vector(ypos)
     yposOver <- max(ypos)-2 + 0.5*diff(ypos)[1]
     if (!is.na(minstekrav)) {
@@ -266,8 +268,17 @@ norgastIndikator_rapporteket <-
     }
     # mtext(sideTxt, WEST<-2, line=-1, cex=cexgr, outer=TRUE)
     #mtext(sideTxt, line=-1, cex=cexgr, outer=F)#WEST<-2,
-    text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
-    if (prikktall) {text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)}
+
+    if (prikktall) {
+      text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
+      text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)}
+
+    if (pst_kolonne) {
+      mtext( pst_txt_prikk, side=4, line=3.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+      mtext( pst_txt, side=4, line=7.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+      mtext( names(N)[1], side=4, line=3.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( names(N)[2], side=4, line=7.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+    }
 
     #Tekst som angir hvilket utvalg som er gjort
     # mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[1], line=c(5+0.8*((length(utvalgTxt)-1):0)))
@@ -308,7 +319,7 @@ norgastIndikator_gruppert <-
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, inset = 0,
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, inkl_N = FALSE,
            Grvar1 = "Sykehusnavn", Grvar2 = "Malign", ltop=2, lbunn=1,rotermaaltxt=45,
-           ny_anastomose=99)
+           ny_anastomose=99, pst_kolonne=TRUE)
   {
     # RegData<-RegDataAll %>% filter(Op_gr==4); valgtVar<-"LapTilgang2"; tittel=''; width=800; height=700;
     # sideTxt='Boområde/opptaksområde'; decreasing=F; terskel=5; minstekrav = NA;
@@ -319,9 +330,9 @@ norgastIndikator_gruppert <-
     # forbehandling=''; dagtid =99; hentData=0; op_gruppe=''; ncsp=''; maalretn='hoy';
     # lavDG=''; lavDGtekst='Dekningsgrad < 60 %'; hastegrad_hybrid=99;
     # robotassiastanse=99; kun_ferdigstilte=TRUE; prikktall=TRUE;
-    # Grvar1 = "Sykehusnavn"; Grvar2 = "Robot"; ltop=2; lbunn=1; inset=0;
-    # Grvar2 = "maligndiag"; prikktall = FALSE; inkl_N = FALSE; valgtVar = "mortalitet90"
-    # minstekrav = 8; maal = 5; rotermaaltxt=45; lavDG=graaUt_ventrikkel;
+    # Grvar1 = "Sykehusnavn"; Grvar2 = "Malign"; ltop=2; lbunn=1; inset=0; #Grvar2 = "maligndiag";
+    # prikktall = FALSE; inkl_N = FALSE; valgtVar = "mortalitet90"; ny_anastomose=99;
+    # minstekrav = 8; maal = 5; rotermaaltxt=45; lavDG=graaUt_ventrikkel;pst_kolonne=T
     # RegData$Malign<-factor(RegData$Malign, levels = 0:1, labels = c("Benign", "Malign"))
     # RegData[,Grvar2] <- as.factor(RegData[,Grvar2])
 
@@ -482,7 +493,8 @@ norgastIndikator_gruppert <-
     par('oma'=c(0,1,NutvTxt,0))
 
     if (inkl_konf) {
-      par('mar'=c(5.1, 4.1, 5.1, 2.1))
+      # par('mar'=c(5.1, 4.1, 5.1, 2.1))
+      if (!pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 2.1)) }
       xmax <- min(max(KInew, max(andeler[, 3:4], na.rm = T), na.rm = T)*1.15,100)
     } else {
       xmax <- min(100, 1.15*max(andeler[, 3:4], na.rm = T))
@@ -597,12 +609,21 @@ norgastIndikator_gruppert <-
       filter(tekst == dg_tekst) %>% select(ypos, tekst) %>%
       bind_rows(aux)
 
-    text(x=0, y=aux2$ypos, labels = aux2$tekst, cex=0.75, pos=4)
-    if (prikktall) {text(x=c(rep(NA,lbunn*ngrvar2level), andeler[[3]],
-                             rep(NA,ltop*ngrvar2level)), y=ypos,
-                         labels = c(rep(NA,lbunn*ngrvar2level),
-                                    pst_txt_prikk, rep(NA,ltop*ngrvar2level)),
-                         cex=0.75, pos=4, xpd = T)}
+    if (pst_kolonne) {
+      mtext( aux2$tekst, side=4, line=7.5, las=1, at=aux2$ypos, col=1, cex=cexgr*0.75, adj = 1)
+      mtext( c(rep(NA,lbunn*ngrvar2level),
+               pst_txt_prikk, rep(NA,ltop*ngrvar2level)), side=4, line=3.5, las=1,
+             at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+      mtext( names(andeler)[3], side=4, line=3.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( names(andeler)[4], side=4, line=7.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+    } else {
+      text(x=0, y=aux2$ypos, labels = aux2$tekst, cex=0.75, pos=4)
+      if (prikktall) {text(x=c(rep(NA,lbunn*ngrvar2level), andeler[[3]],
+                               rep(NA,ltop*ngrvar2level)), y=ypos,
+                           labels = c(rep(NA,lbunn*ngrvar2level),
+                                      pst_txt_prikk, rep(NA,ltop*ngrvar2level)),
+                           cex=0.75, pos=4, xpd = T)}
+    }
 
     #Tekst som angir hvilket utvalg som er gjort
     mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4], line=(NutvTxt-1):0, outer=TRUE)

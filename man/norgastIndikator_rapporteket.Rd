@@ -49,7 +49,8 @@ norgastIndikator_rapporteket(
   hastegrad_hybrid = 99,
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
-  prikktall = TRUE
+  prikktall = TRUE,
+  pst_kolonne = FALSE
 )
 }
 \arguments{

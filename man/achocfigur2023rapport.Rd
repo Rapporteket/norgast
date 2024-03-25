@@ -5,10 +5,12 @@
 \title{Adhocfunksjon for årsrapportfigur}
 \usage{
 achocfigur2023rapport(
-  RegData,
-  datoFra = "2023-01-01",
-  datoTil = "2023-12-31",
-  outfile = ""
+  valgtVar = "Malign",
+  tittel = "Testtittel",
+  Grvar1 = "Op_gr",
+  Grvar2 = "Tilgang_utvidet",
+  outfile = "",
+  ...
 )
 }
 \description{

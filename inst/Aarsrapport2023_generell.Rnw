@@ -243,7 +243,8 @@ norgastIndikator_rapporteket(
   terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
   legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
   inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+  hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+  pst_kolonne = TRUE, prikktall = FALSE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -252,7 +253,8 @@ if (annet_format_ut) {
     terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
     legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+    hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+    pst_kolonne = TRUE, prikktall = FALSE)
 }
 @
 
@@ -504,19 +506,86 @@ Tabell <- RegDataAll %>%
 
 <<'fig:Robotkirurgi forts', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
-outfile <- 'kumacc_opgr_tilgang.pdf'
+aux <- RegDataAll %>%
+  dplyr::mutate(Op_gr = factor(Op_gr, levels = 1:5,
+                               labels = c("Kolon", "Rektum", "Øsofagus",
+                                          "Ventrikkel", "Lever")),
+                Tilgang_utvidet = dplyr::case_when(
+                  Tilgang_utvidet == 4 ~ 2,
+                  Tilgang_utvidet == 5 ~ 3,
+                  Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
+                ),
+                Tilgang_utvidet = factor(
+                  Tilgang_utvidet, levels = 1:3,
+                  labels = c("Åpen",
+                             "Laparoskopisk",
+                             "Robotassistert")),
+                Robot = factor(Robotassistanse, levels = c(1,0),
+                               labels = c("Robot", "Ikke-robot")))
+
+outfile <- 'mort90_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
-norgast::achocfigur2023rapport(RegDataAll, outfile = outfile)
+norgast::achocfigur2023rapport(valgtVar="Mort90", outfile = outfile,
+                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                               tittel = "Andel døde innen 90 dager etter operasjon",
+                               RegData = aux, datoFra="2023-01-01",
+                               datoTil="2023-12-31", kun_ferdigstilte=FALSE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgast::achocfigur2023rapport(RegDataAll, outfile = outfile)}
+  norgast::achocfigur2023rapport(valgtVar="Mort90", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel døde innen 90 dager etter operasjon",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31", kun_ferdigstilte=FALSE)}
+
+outfile <- 'kumacc_opgr_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+norgast::achocfigur2023rapport(valgtVar="KumAcc", outfile = outfile,
+                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                               tittel = "Andel komplikasjoner (Accordion >=3)",
+                               RegData = aux, datoFra="2023-01-01",
+                               datoTil="2023-12-31")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::achocfigur2023rapport(valgtVar="KumAcc", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel komplikasjoner (Accordion >=3)",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31")}
+
+outfile <- 'malign_opgr_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel malign kirurgi",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = "Andel malign kirurgi",
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31")}
 
 @
 
 \begin{figure}[ht]
 \centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mort90_opgr_tilgang.pdf}
+\caption{mort90\_opgr\_tilgang.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}kumacc_opgr_tilgang.pdf}
 \caption{kumacc\_opgr\_tilgang.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}malign_opgr_tilgang.pdf}
+\caption{malign\_opgr\_tilgang.pdf}
 \end{figure}
 
 

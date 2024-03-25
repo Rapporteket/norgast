@@ -88,7 +88,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     grtxt <- c('Laparoskopisk', 'Konvertert')
     RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
     retn <- 'V'
-    VarTxt <- 'laparoskopiske inngrep konvertert til åpen kirurgi'
+    VarTxt <- 'laparoskopiske inngrep konv. til åpen kirurgi'
     # incl_pst <- T
     if (enhetsUtvalg==1) {stabel=T}
   }

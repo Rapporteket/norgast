@@ -416,7 +416,8 @@ utdata_kolon_anastomoselekk_refpas <- norgastIndikator_rapporteket(
   skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
   pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+  prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -425,7 +426,8 @@ if (annet_format_ut) {
     skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign)
+    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+    prikktall = FALSE, pst_kolonne = TRUE)
 }
 
 outfile <- 'mortalitet90_kolon_aar.pdf'
@@ -437,7 +439,8 @@ utdata_kolon_mort <- norgastIndikator_rapporteket(
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
   maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
   inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+  hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F,
+  prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -446,7 +449,8 @@ if (annet_format_ut) {
     skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
     maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F)
+    hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F,
+    prikktall = FALSE, pst_kolonne = TRUE)
 }
 
 outfile <- 'mortalitet90_kolon_aar_refpas.pdf'
@@ -835,7 +839,8 @@ norgastIndikator_rapporteket(
   skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
   pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, whoEcog = 0:1, inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1,
+  prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -844,7 +849,8 @@ if (annet_format_ut) {
     skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, whoEcog = 0:1, inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1,
+    prikktall = FALSE, pst_kolonne = TRUE)
 }
 
 outfile <- 'konv_rate_rektum_malign_ecog0_1.pdf'
@@ -856,7 +862,8 @@ norgastIndikator_rapporteket(
   skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
   pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1,
+  prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -865,7 +872,8 @@ if (annet_format_ut) {
     skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
     pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1)
+    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=1,
+    prikktall = FALSE, pst_kolonne = TRUE)
 }
 
 outfile <- 'mortalitet90_rektum_aar.pdf'
@@ -878,7 +886,7 @@ norgastIndikator_rapporteket(
   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
-  kun_ferdigstilte = F, prikktall = FALSE)
+  kun_ferdigstilte = F, prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -888,7 +896,7 @@ if (annet_format_ut) {
     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=malign,
-    kun_ferdigstilte = F, prikktall = FALSE)
+    kun_ferdigstilte = F, prikktall = FALSE, pst_kolonne = TRUE)
 }
 
 outfile <- 'AccordionGrad_rekt.pdf'
