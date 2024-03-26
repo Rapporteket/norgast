@@ -410,23 +410,23 @@ if (annet_format_ut) {
 \end{figure}
 
 <<'Tabell:Robotab', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
-Tabell <- RegDataAll %>%
-  dplyr::filter(Aar == rap_aar) %>%
-  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
-  summarise(Antall = sum(Robotassistanse),
-            N = n(),
-            .by = Sykehusnavn) %>%
-  dplyr::arrange(desc(Antall))#
-ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
-                        "Antall" = 0,
-                        "N" = sum(Tabell$N[Tabell$Antall == 0]))
-Tabell <- Tabell %>%
-  dplyr::bind_rows(ikkerobot) %>%
-  dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
-  janitor::adorn_totals() %>%
-  mutate(Andel = Antall/N*100) %>%
-  select(Sykehusnavn, Antall, Andel, N) %>%
-  rename("Andel (%)" = Andel)
+# Tabell <- RegDataAll %>%
+#   dplyr::filter(Aar == rap_aar) %>%
+#   dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+#   summarise(Antall = sum(Robotassistanse),
+#             N = n(),
+#             .by = Sykehusnavn) %>%
+#   dplyr::arrange(desc(Antall))#
+# ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
+#                         "Antall" = 0,
+#                         "N" = sum(Tabell$N[Tabell$Antall == 0]))
+# Tabell <- Tabell %>%
+#   dplyr::bind_rows(ikkerobot) %>%
+#   dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+#   janitor::adorn_totals() %>%
+#   mutate(Andel = Antall/N*100) %>%
+#   select(Sykehusnavn, Antall, Andel, N) %>%
+#   rename("Andel (%)" = Andel)
 
 # print(xtable::xtable(
 #   Tabell, digits=c(0,0,0,1,0), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
@@ -556,17 +556,17 @@ if (annet_format_ut) {
 outfile <- 'malign_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
 norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
-                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                                 tittel = "Andel malign kirurgi",
-                                 RegData = aux, datoFra="2023-01-01",
-                                 datoTil="2023-12-31")
+                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                               tittel = "Andel malign kirurgi",
+                               RegData = aux, datoFra="2023-01-01",
+                               datoTil="2023-12-31")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
-                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                                   tittel = "Andel malign kirurgi",
-                                   RegData = aux, datoFra="2023-01-01",
-                                   datoTil="2023-12-31")}
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel malign kirurgi",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31")}
 
 @
 
@@ -587,6 +587,75 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}malign_opgr_tilgang.pdf}
 \caption{malign\_opgr\_tilgang.pdf}
 \end{figure}
+
+
+<<'fig:Robotkirurgi tidsutvikling', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+library(ggrepel)
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5,
+                Op_gr %in% 1:8) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Sykehusnavn, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Sykehusnavn = "Nasjonalt")) %>%
+  mutate(andel_rob = ant_rob/N*100)# %>%
+
+tmp <- spagetti %>% filter(max(andel_rob)>0, .by = Sykehusnavn)
+
+spagetti <- spagetti %>%
+  filter(andel_rob[Aar==rap_aar]!=0, .by = Sykehusnavn) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Sykehusnavn, NA))
+
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Sykehusnavn,
+                     color = factor(Sykehusnavn))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Sykehusnavn=="Nasjonalt"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Sykehusnavn, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  # geom_text(data = spagetti %>% filter(Aar == rap_aar),
+  #           aes(label = Sykehusnavn,
+  #               x = Aar + 0.8,
+  #               y = andel_rob,
+  #               color = Sykehusnavn,
+  #               size = 1)) +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+1.5), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant \n laparoskopiske inngrep")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")
+
+
+ggsave(paste0(figfolder, "spaghetti.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti.svg"), width = 9, height = 7)
+
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti.pdf}
+\caption{spaghetti.pdf. Nasjonal linje i sort er andelen robotassistanse blant
+alle laparoskopiske  obligatoriske reseksjoner registrert i NORGAST, også fra
+sykehus som ikke gjør robotkirurgi og dermed ikke er representert med linje i
+figuren. Følgende sykehus har registrert minst én robotkirurgi men er ikke
+inkludert i figuren siden de ikke har registrert noen i \Sexpr{rap_aar}:
+\Sexpr{paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")}.}
+\end{figure}
+
 
 
 \end{document}

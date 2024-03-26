@@ -58,6 +58,13 @@ DG <- DG[!is.na(DG$AvdRESH), ]
 graaUt_kolon <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 1]
 graaUt_rektum <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 2]
 
+############# OBS: MIDLERTIDIG ############################################
+############# OBS: MIDLERTIDIG ############################################
+graaUt_kolon <- graaUt_kolon[!(graaUt_kolon %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
+graaUt_rektum <- graaUt_rektum[!(graaUt_rektum %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
+############# OBS: MIDLERTIDIG ############################################
+############# OBS: MIDLERTIDIG ############################################
+
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 @
