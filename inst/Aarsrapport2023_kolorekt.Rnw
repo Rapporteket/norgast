@@ -971,6 +971,64 @@ if (annet_format_ut) {
     kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2")
 }
 
+aux <- RegDataAll %>%
+  dplyr::filter(Op_gr == 2,
+                Robotassistanse %in% 0:1) %>%
+  dplyr::mutate(Tilgang_utvidet = dplyr::case_when(
+                  Tilgang_utvidet == 4 ~ 2,
+                  Tilgang_utvidet == 5 ~ 3,
+                  Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
+                ),
+                Tilgang_utvidet = factor(
+                  Tilgang_utvidet, levels = 2:3,
+                  labels = c("Laparoskopisk",
+                             "Robotassistert")),
+                Robot = factor(Robotassistanse, levels = c(1,0),
+                               labels = c("Robot", "Ikke-robot")),
+                robot_nystomi = dplyr::case_when(
+                  Tilgang_utvidet == "Laparoskopisk" & NyStomi == "Ny stomi: nei" ~ "Lap.u.stomi",
+                  Tilgang_utvidet == "Laparoskopisk" & NyStomi == "Ny stomi: ja" ~ "Lap.m.stomi",
+                  Tilgang_utvidet == "Robotassistert" & NyStomi == "Ny stomi: nei" ~ "Robot.u.stomi",
+                  Tilgang_utvidet == "Robotassistert" & NyStomi == "Ny stomi: ja" ~ "Robot.m.stomi",
+                )
+  )
+# aux <- RegDataAll %>%
+#   dplyr::mutate(Tilgang_utvidet = dplyr::case_when(
+#                   Tilgang_utvidet == 4 ~ 2,
+#                   Tilgang_utvidet == 5 ~ 3,
+#                   Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
+#                 ),
+#                 Tilgang_utvidet = factor(
+#                   Tilgang_utvidet, levels = 1:3,
+#                   labels = c("Åpen",
+#                              "Laparoskopisk",
+#                              "Robotassistert")),
+#                 Robot = factor(Robotassistanse, levels = c(1,0),
+#                                labels = c("Robot", "Ikke-robot")))
+
+outfile <- 'anastomoselekk_gruppert_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'Anastomoselekkasje'
+norgastIndikator_gruppert(
+  RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+  skriftStr=.7, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+  graaUt=graaUt, inkl_konf=FALSE, op_gruppe=op_gruppe, datoFra=datoFra,
+  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "robot_nystomi")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_gruppert(
+    RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst,
+    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1,ny_anastomose=1,
+    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "robot_nystomi")
+}
+
 # RegData$NyAnastomose
 # RegData$NyStomi
 # RegData$AvstandAnalVerge_kat
@@ -1029,6 +1087,12 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}avlastende_stomi_gruppert_analverge.pdf}
 \caption{avlastende\_stomi\_gruppert\_analverge.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_tilgang.pdf}
+\caption{anastomoselekk\_gruppert\_tilgang.pdf}
 \end{figure}
 
 
