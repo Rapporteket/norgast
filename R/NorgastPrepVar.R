@@ -57,6 +57,18 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='Mort90') {
+    tittel <- 'Avdød innen 90 dager etter operasjon'
+    RegData$Variabel <- RegData$Mort90
+    RegData <- RegData[!is.na(RegData$Mort90), ]
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    retn <- 'V'
+    VarTxt <- 'avdøde innen 90 dager etter operasjon'
+
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='laerebok') {
     tittel <- c('Lærebokforløp')
     # Referansepasient:
@@ -171,8 +183,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='KumAcc') {
     # tittel <- c('Accordion score \u2265 3')
-    tittel <- c('Accordion score >= 3')
-    VarTxt <- 'med accordion score >= 3'
+    tittel <- c('Accordion score \u2265 3')
+    VarTxt <- 'med accordion score \u2265 3'
     grtxt <- c('Nei', 'Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
@@ -181,8 +193,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
   if (valgtVar=='KumAcc2') {
     # tittel <- c('Accordion score \u2265 3')
-    tittel <- c('Accordion score >= 4')
-    VarTxt <- 'med accordion score >= 4'
+    tittel <- c('Accordion score \u2265 4')
+    VarTxt <- 'med accordion score \u2265 4'
     grtxt <- c('Nei', 'Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
@@ -218,7 +230,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$Variabel <- as.numeric(RegData$Variabel)
     gr <- c(-100, -10, -5, -2, 2, 5, 10, 200)
     RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
-    grtxt <- c('<-10','[-10,-5)', '[-5,-2)', '[-2,2)', '[2,5)', '[5,10)','>=10')
+    grtxt <- c('<-10','[-10,-5)', '[-5,-2)', '[-2,2)', '[2,5)', '[5,10)','\u2265 10')
     subtxt <- 'Vektendring %'
   }
 

@@ -15,8 +15,8 @@ NorgastFigAndelStabelGrVar <- function(
     RegData=0, valgtVar='ModGlasgowScore',
     datoFra='2014-01-01', datoTil='2050-12-31',
     minald=0, maxald=130, erMann=99, outfile='', hastegrad_hybrid=99,
-    preprosess=F, malign=99, Ngrense=30, lavDG='',
-    lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99,
+    preprosess=F, malign=99, Ngrense=30, lavDG='', ny_anastomose = 99,
+    lavDGtekst='Dekningsgrad < 60 %', hastegrad = 99, icd_kode='',
     elektiv=99, BMI='', tilgang='', valgtShus=c(''), minPRS=0, modGlasgow='',
     maxPRS=2.2, ASA='', whoEcog= '', forbehandling='', hentData=0, op_gruppe='',
     ncsp='', robotassiastanse=99, kun_ferdigstilte=TRUE, skriftStr=1,
@@ -50,12 +50,16 @@ NorgastFigAndelStabelGrVar <- function(
 
   if (valgtVar == 'Tilgang') {RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
 
-  NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                 maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad, hastegrad_hybrid=hastegrad_hybrid,
-                                 BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, modGlasgow=modGlasgow,
-                                 ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign, op_gruppe=op_gruppe, ncsp=ncsp,
-                                 robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-                                 tilgang_utvidet=tilgang_utvidet, accordion=accordion)
+  NorgastUtvalg <- NorgastUtvalg(
+    RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+    maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+    hastegrad_hybrid=hastegrad_hybrid, ny_anastomose = ny_anastomose,
+    BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS,
+    maxPRS=maxPRS, modGlasgow=modGlasgow,
+    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+    op_gruppe=op_gruppe, ncsp=ncsp,
+    robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+    tilgang_utvidet=tilgang_utvidet, accordion=accordion, icd_kode=icd_kode)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

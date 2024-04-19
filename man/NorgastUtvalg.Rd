@@ -27,6 +27,7 @@ NorgastUtvalg(
   op_gruppe = "",
   ncsp = "",
   icd = "",
+  icd_kode = "",
   hastegrad_hybrid = 99,
   dagtid = 99,
   robotassiastanse = 99,

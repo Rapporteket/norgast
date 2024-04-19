@@ -13,6 +13,7 @@ norgastIndikator_gruppert(
   decreasing = F,
   terskel = 10,
   minstekrav = NA,
+  ny_stomi = 99,
   maal = NA,
   skriftStr = 1.3,
   pktStr = 1.4,

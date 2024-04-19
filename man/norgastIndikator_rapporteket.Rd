@@ -47,10 +47,12 @@ norgastIndikator_rapporteket(
   lavDG = "",
   lavDGtekst = "Dekningsgrad < 60 \%",
   hastegrad_hybrid = 99,
+  icd_kode = "",
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,
   prikktall = TRUE,
-  pst_kolonne = FALSE
+  pst_kolonne = FALSE,
+  ny_anastomose = 99
 )
 }
 \arguments{

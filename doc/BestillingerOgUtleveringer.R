@@ -3,6 +3,42 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+
+##### Uttrekk fnr Kristoffer 05.04.2024 ##########################
+allevarnum <- read.csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv",
+                               fileEncoding = "Latin1")
+forlop <- read.csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv",
+                    fileEncoding = "Latin1")
+kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
+                                   colClasses = c("integer", "character"))
+
+pid <- merge(allevarnum, forlop, by = "ForlopsID") %>%
+  dplyr::filter(substr(SykehusNavn, 1,3) == "OUS",
+                tolower(substr(Hovedoperasjon, 1,3)) == "jjb",
+                tolower(substr(Hoveddiagnose, 1,4)) == "c221",
+                OpDato >= "2019-01-01") %>%
+  dplyr::filter(OpDato == first(OpDato), .by = PasientID) %>%
+  dplyr::select(ForlopsID, PasientID) %>%
+  merge(kobling_hnikt, by.x = "PasientID", by.y = "PID") %>%
+  dplyr::select(SSN)
+
+openxlsx::write.xlsx(pid, "~/mydata/norgast/pas_ous_jjb.xlsx")
+
+##### Uttrekk alder Kristoffer 03.04.2024 ##########################
+
+forlop <- readr::read_csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv")
+allevarnum <- readr::read_csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv")
+alderfil <- readxl::read_xlsx("~/mydata/norgast/Alder ved operasjonstidspunkt.xlsx",
+                             sheet = 1)
+
+# forlop$alder <- lubridate::interval(forlop$Fodselsdato, forlop$HovedDato) / lubridate::years(1)
+
+tmp <-merge(alderfil, forlop[,c("ForlopsID", "PasientAlder")], by = "ForlopsID")
+tmp$`Alder på operasjonstidspunkt` <- floor(tmp$PasientAlder)
+
+openxlsx::write.xlsx(tmp[,c("ForlopsID", "Alder på operasjonstidspunkt")],
+                     "~/mydata/norgast/AlderOptid.xlsx")
+
 ##### Uttrekk Søreide, pankreas 2016-2022, 11.03.2024 ##########################
 varnavn_kobl <- data.frame(
   kol = c("mce.MCEID AS ForlopsID",

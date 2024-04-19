@@ -427,28 +427,28 @@ if (annet_format_ut) {
     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
     hastegrad_hybrid=hastegrad_hybrid, malign=malign)
 }
-
-outfile <- paste0(figfolder, 'Tilgang_ventrikkel_aar_robot.pdf')
-valgtVar <- 'LapTilgang2'
-norgastIndikator_gruppert(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-  lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
-  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar2 = "Robot")
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
-    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar2 = "Robot")
-}
+#
+# outfile <- paste0(figfolder, 'Tilgang_ventrikkel_aar_robot.pdf')
+# valgtVar <- 'LapTilgang2'
+# norgastIndikator_gruppert(
+#   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#   height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+#   maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+#   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+#   lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+#   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+#   hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar2 = "Robot")
+# if (annet_format_ut) {
+#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+#   norgastIndikator_gruppert(
+#     RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#     height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+#     maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+#     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+#     lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+#     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+#     hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar2 = "Robot")
+# }
 
 
 outfile <- paste0(figfolder, 'AccordionGrad_ventrikkel.pdf')
@@ -484,28 +484,49 @@ if (annet_format_ut) {
     datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign)
 }
 RegDataAll$maligndiag <- factor(RegDataAll$Malign, levels = 0:1, labels = c("Benign", "Malign"))
-outfile <- paste0(figfolder, 'ReLapNarkose_ventrikkel_aar_gruppertmalign.pdf')
-valgtVar <- 'ReLapNarkose'
-norgastIndikator_gruppert(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 15,
-  skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, maalretn = 'lav', inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-  Grvar2 = "maligndiag", prikktall = FALSE, inkl_N = FALSE)
+# outfile <- paste0(figfolder, 'ReLapNarkose_ventrikkel_aar_gruppertmalign.pdf')
+# valgtVar <- 'ReLapNarkose'
+# norgastIndikator_gruppert(
+#   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#   height=height, decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 15,
+#   skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
+#   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+#   graaUt=graaUt, maalretn = 'lav', inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+#   datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
+#   Grvar2 = "maligndiag", prikktall = FALSE, inkl_N = FALSE)
+# if (annet_format_ut) {
+#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+#   norgastIndikator_gruppert(
+#     RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#     height=height, decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 15,
+#     skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
+#     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+#     graaUt=graaUt, maalretn = 'lav', inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+#     datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
+#     Grvar2 = "maligndiag", prikktall = FALSE, inkl_N = FALSE)
+# }
+
+outfile <- "ReLapNarkose_ventrikkel_gruppertmalign_nasjonal.pdf"
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_nasjonal(
+  RegDataAll, valgtVar = "ReLapNarkose", outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar = "maligndiag")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=T, terskel=terskel, minstekrav = minstekrav, maal = 15,
-    skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, maalretn = 'lav', inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-    Grvar2 = "maligndiag", prikktall = FALSE, inkl_N = FALSE)
+  norgastIndikator_nasjonal(
+    RegDataAll, valgtVar = "ReLapNarkose", outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=hastegrad_hybrid, malign=malign, Grvar = "maligndiag")
 }
-
 
 
 outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_aar.pdf')
@@ -531,52 +552,70 @@ if (annet_format_ut) {
 }
 
 
-outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_aar_gruppertmalign.pdf')
-valgtVar <- 'mortalitet90'
-norgastIndikator_gruppert(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
-  skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-  pktStr=pktStr, legPlass="topright", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-  datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-  kun_ferdigstilte = F, Grvar2 = "maligndiag", prikktall = FALSE, inkl_N = F,
-  rotermaaltxt=90)
+outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_gruppertmalign_nasjonal.pdf')
+norgastIndikator_nasjonal(
+  RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=1, malign=malign, Grvar = "maligndiag", kun_ferdigstilte = FALSE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
-    skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-    pktStr=pktStr, legPlass="topright", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-    datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-    kun_ferdigstilte = F, Grvar2 = "maligndiag", prikktall = T,
-    inkl_N = FALSE, rotermaaltxt=90)
+  norgastIndikator_nasjonal(
+    RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=1, malign=malign, Grvar = "maligndiag", kun_ferdigstilte = FALSE)
 }
 
-outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_aar_gruppertrobot.pdf')
-valgtVar <- 'mortalitet90'
-norgastIndikator_gruppert(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
-  skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-  pktStr=pktStr, legPlass="topleft", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-  datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-  kun_ferdigstilte = F, Grvar2 = "Robot", prikktall = FALSE, inkl_N = F,
-  rotermaaltxt=45)
+# outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_aar_gruppertrobot.pdf')
+# valgtVar <- 'mortalitet90'
+# norgastIndikator_gruppert(
+#   RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#   height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
+#   skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
+#   pktStr=pktStr, legPlass="topleft", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+#   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+#   datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
+#   kun_ferdigstilte = F, Grvar2 = "Robot", prikktall = FALSE, inkl_N = F,
+#   rotermaaltxt=45)
+# if (annet_format_ut) {
+#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+#   norgastIndikator_gruppert(
+#     RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+#     height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
+#     skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
+#     pktStr=pktStr, legPlass="topright", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+#     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
+#     datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
+#     kun_ferdigstilte = F, Grvar2 = "Robot", prikktall = FALSE,
+#     inkl_N = F, rotermaaltxt=45)
+# }
+
+outfile <- paste0(figfolder, 'mortalitet90_ventrikkel_gruppertrobot_nasjonal.pdf')
+norgastIndikator_nasjonal(
+  RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=1, malign=1, Grvar = "Robot", kun_ferdigstilte = FALSE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=T, terskel=terskel, minstekrav = 8, maal = 5,
-    skriftStr=skriftStr, lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst,
-    pktStr=pktStr, legPlass="topright", minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
-    datoTil=datoTil, hastegrad_hybrid=1, malign=malign,
-    kun_ferdigstilte = F, Grvar2 = "Robot", prikktall = FALSE,
-    inkl_N = F, rotermaaltxt=45)
+  norgastIndikator_nasjonal(
+    RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=1, malign=1, Grvar = "Robot", kun_ferdigstilte = FALSE)
 }
 
 @
@@ -585,12 +624,6 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_ventrikkel_aar.pdf}
 \caption{Tilgang\_ventrikkel\_aar.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Tilgang_ventrikkel_aar_robot.pdf}
-\caption{Tilgang\_ventrikkel\_aar\_robot.pdf}
 \end{figure}
 
 \begin{figure}[ht]
@@ -611,10 +644,16 @@ if (annet_format_ut) {
 \caption{ReLapNarkose\_ventrikkel\_aar.pdf}
 \end{figure}
 
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ReLapNarkose_ventrikkel_aar_gruppertmalign.pdf}
+% \caption{ReLapNarkose\_ventrikkel\_aar\_gruppertmalign.pdf}
+% \end{figure}
+
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ReLapNarkose_ventrikkel_aar_gruppertmalign.pdf}
-\caption{ReLapNarkose\_ventrikkel\_aar\_gruppertmalign.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}ReLapNarkose_ventrikkel_gruppertmalign_nasjonal.pdf}
+\caption{ReLapNarkose\_ventrikkel\_gruppertmalign\_nasjonal.pdf}
 \end{figure}
 
 \begin{figure}[ht]
@@ -625,15 +664,16 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_ventrikkel_aar_gruppertmalign.pdf}
-\caption{mortalitet90\_ventrikkel\_aar\_gruppertmalign.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_ventrikkel_gruppertmalign_nasjonal.pdf}
+\caption{mortalitet90\_ventrikkel\_gruppertmalign\_nasjonal.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_ventrikkel_aar_gruppertrobot.pdf}
-\caption{mortalitet90\_ventrikkel\_aar\_gruppertrobot.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_ventrikkel_gruppertrobot_nasjonal.pdf}
+\caption{mortalitet90\_ventrikkel\_gruppertrobot\_nasjonal.pdf}
 \end{figure}
+
 
 \clearpage
 

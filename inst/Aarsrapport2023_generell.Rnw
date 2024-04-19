@@ -507,9 +507,10 @@ Tabell <- RegDataAll %>%
 <<'fig:Robotkirurgi forts', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
 
 aux <- RegDataAll %>%
-  dplyr::mutate(Op_gr = factor(Op_gr, levels = 1:5,
+  dplyr::mutate(Op_gr = ifelse(Op_gr %in% 7:8, 6, Op_gr),
+                Op_gr = factor(Op_gr, levels = 1:6,
                                labels = c("Kolon", "Rektum", "Øsofagus",
-                                          "Ventrikkel", "Lever")),
+                                          "Ventrikkel", "Lever", "Pankreas")),
                 Tilgang_utvidet = dplyr::case_when(
                   Tilgang_utvidet == 4 ~ 2,
                   Tilgang_utvidet == 5 ~ 3,
@@ -525,48 +526,50 @@ aux <- RegDataAll %>%
 
 outfile <- 'mort90_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
-norgast::achocfigur2023rapport(valgtVar="Mort90", outfile = outfile,
-                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                               tittel = "Andel døde innen 90 dager etter operasjon",
-                               RegData = aux, datoFra="2023-01-01",
-                               datoTil="2023-12-31", kun_ferdigstilte=FALSE)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgast::achocfigur2023rapport(valgtVar="Mort90", outfile = outfile,
+norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
                                  Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
                                  tittel = "Andel døde innen 90 dager etter operasjon",
                                  RegData = aux, datoFra="2023-01-01",
-                                 datoTil="2023-12-31", kun_ferdigstilte=FALSE)}
+                                 datoTil="2023-12-31", kun_ferdigstilte=FALSE,
+                                 hastegrad=1, malign=1, whoEcog=0:1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = "Andel døde innen 90 dager etter operasjon",
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31", kun_ferdigstilte=FALSE,
+                                   hastegrad=1, malign=1, whoEcog=0:1)}
 
 outfile <- 'kumacc_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
-norgast::achocfigur2023rapport(valgtVar="KumAcc", outfile = outfile,
-                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                               tittel = "Andel komplikasjoner (Accordion >=3)",
-                               RegData = aux, datoFra="2023-01-01",
-                               datoTil="2023-12-31")
+norgast::norgastAndelGruppert2Gr(valgtVar="KumAcc", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel komplikasjoner (Accordion \u2265 3)",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31", hastegrad=1, malign=1, whoEcog=0:1)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgast::achocfigur2023rapport(valgtVar="KumAcc", outfile = outfile,
-                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                                 tittel = "Andel komplikasjoner (Accordion >=3)",
-                                 RegData = aux, datoFra="2023-01-01",
-                                 datoTil="2023-12-31")}
+  norgast::norgastAndelGruppert2Gr(valgtVar="KumAcc", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = "Andel komplikasjoner (Accordion \u2265 3)",
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31", hastegrad=1, malign=1, whoEcog=0:1)}
 
 outfile <- 'malign_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
-norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
-                               Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
-                               tittel = "Andel malign kirurgi",
-                               RegData = aux, datoFra="2023-01-01",
-                               datoTil="2023-12-31")
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgast::achocfigur2023rapport(valgtVar="Malign", outfile = outfile,
+norgast::norgastAndelGruppert2Gr(valgtVar="Malign", outfile = outfile,
                                  Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
                                  tittel = "Andel malign kirurgi",
                                  RegData = aux, datoFra="2023-01-01",
-                                 datoTil="2023-12-31")}
+                                 datoTil="2023-12-31")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="Malign", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = c("Andel malign kirurgi","innen hver tilgangstype"),
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31")}
 
 @
 
@@ -610,10 +613,11 @@ spagetti <- spagetti %>%
   filter(andel_rob[Aar==rap_aar]!=0, .by = Sykehusnavn) %>%
   mutate(name_lab = ifelse(Aar==rap_aar, Sykehusnavn, NA))
 
+ekskluderte_shus <- paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")
 
 ggplot(spagetti,
        aes(Aar, andel_rob, group = Sykehusnavn,
-                     color = factor(Sykehusnavn))) +
+           color = factor(Sykehusnavn))) +
   geom_line() +
   geom_line(data = spagetti %>% filter(Sykehusnavn=="Nasjonalt"),
             size = 1.5, color = "black") +
@@ -623,12 +627,6 @@ ggplot(spagetti,
                   direction = "y",
                   size = 4,
                   segment.linetype = "dotted") +
-  # geom_text(data = spagetti %>% filter(Aar == rap_aar),
-  #           aes(label = Sykehusnavn,
-  #               x = Aar + 0.8,
-  #               y = andel_rob,
-  #               color = Sykehusnavn,
-  #               size = 1)) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(limits = c(2014, rap_aar+1.5), breaks = unique(aux$Aar)) +
   guides(color="none") +
@@ -636,12 +634,81 @@ ggplot(spagetti,
   ggtitle(c("Andel robotkirugi blant \n laparoskopiske inngrep")) +
   theme(plot.title = element_text(size = 16, hjust = 0.5))
 
-paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")
-
-
 ggsave(paste0(figfolder, "spaghetti.pdf"), width = 9, height = 7)
 ggsave(paste0(figfolder, "spaghetti.svg"), width = 9, height = 7)
 
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5,
+                Op_gr %in% 1:8) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Operasjonsgrupper, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Operasjonsgrupper = "Samlet")) %>%
+  mutate(andel_rob = ant_rob/N*100) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Operasjonsgrupper, NA))
+
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Operasjonsgrupper,
+           color = factor(Operasjonsgrupper))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Operasjonsgrupper=="Samlet"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Operasjonsgrupper, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+3.0), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant \n laparoskopiske inngrep")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+ggsave(paste0(figfolder, "spaghetti_opgr.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti_opgr.svg"), width = 9, height = 7)
+
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  mutate(Robotassistanse = ifelse(is.na(Robotassistanse), 0, Robotassistanse)) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Operasjonsgrupper, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Operasjonsgrupper = "Samlet")) %>%
+  mutate(andel_rob = ant_rob/N*100) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Operasjonsgrupper, NA))
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Operasjonsgrupper,
+           color = factor(Operasjonsgrupper))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Operasjonsgrupper=="Samlet"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Operasjonsgrupper, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+3.0), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant alle inngrep \n (inkludert åpne)")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+ggsave(paste0(figfolder, "spaghetti_opgr_alle.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti_opgr_alle.svg"), width = 9, height = 7)
 
 @
 
@@ -653,9 +720,19 @@ alle laparoskopiske  obligatoriske reseksjoner registrert i NORGAST, også fra
 sykehus som ikke gjør robotkirurgi og dermed ikke er representert med linje i
 figuren. Følgende sykehus har registrert minst én robotkirurgi men er ikke
 inkludert i figuren siden de ikke har registrert noen i \Sexpr{rap_aar}:
-\Sexpr{paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")}.}
+\Sexpr{ekskluderte_shus}.}
 \end{figure}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti_opgr.pdf}
+\caption{spaghetti\_opgr.pdf}
+\end{figure}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti_opgr_alle.pdf}
+\caption{spaghetti\_opgr\_alle.pdf}
+\end{figure}
 
 \end{document}
