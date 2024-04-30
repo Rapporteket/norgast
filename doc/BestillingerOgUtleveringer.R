@@ -4,13 +4,36 @@ library(tidyverse)
 rm(list=ls())
 
 
+###### DG-analysetall NPR  2024-04-30 ##########################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- RegData[RegData$Op_gr %in% 1:8 & RegData$Aar == 2023, ]
+
+
+RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
+                  "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon",
+                  "Tilgang", "Robotassistanse")]
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+write.csv2(RegData, "~/mydata/norgast/aktivitetsdata_norgast_2023.csv",
+           row.names = F, fileEncoding = 'Latin1')
+write.csv2(fid, "~/mydata/norgast/kobling_norgast_2023.csv",
+           row.names = F, fileEncoding = 'Latin1')
+
+
+
 ##### Uttrekk fnr Kristoffer 05.04.2024 ##########################
 allevarnum <- read.csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv",
-                               fileEncoding = "Latin1")
+                        fileEncoding = "Latin1")
 forlop <- read.csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv",
                     fileEncoding = "Latin1")
 kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
-                                   colClasses = c("integer", "character"))
+                           colClasses = c("integer", "character"))
 
 pid <- merge(allevarnum, forlop, by = "ForlopsID") %>%
   dplyr::filter(substr(SykehusNavn, 1,3) == "OUS",
@@ -29,7 +52,7 @@ openxlsx::write.xlsx(pid, "~/mydata/norgast/pas_ous_jjb.xlsx")
 forlop <- readr::read_csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv")
 allevarnum <- readr::read_csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv")
 alderfil <- readxl::read_xlsx("~/mydata/norgast/Alder ved operasjonstidspunkt.xlsx",
-                             sheet = 1)
+                              sheet = 1)
 
 # forlop$alder <- lubridate::interval(forlop$Fodselsdato, forlop$HovedDato) / lubridate::years(1)
 

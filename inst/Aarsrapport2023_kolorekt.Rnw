@@ -345,20 +345,6 @@ if (annet_format_ut) {
     hastegrad_hybrid=1, outfile=outfile, Ngrense=10, malign = 0, lavDG = graaUt_kolon)
 }
 
-outfile <- 'AccordionGrad_utvalg_torunn_ecog01.pdf'
-outfile <- paste0(figfolder, outfile)
-NorgastFigAndelStabelGrVar(
-  RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=c(1,11),
-  hastegrad=1, outfile=outfile, Ngrense=10, malign = 0, lavDG = graaUt_kolon,
-  icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
-               "K515", "K518", "K519"), whoEcog = c(0, 1))
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  NorgastFigAndelStabelGrVar(
-    RegData, valgtVar='AccordionGrad_drenasje', op_gruppe=op_gruppe,
-    hastegrad_hybrid=1, outfile=outfile, Ngrense=10, malign = 0, lavDG = graaUt_kolon)
-}
-
 outfile <- 'AccordionGrad_elektiv_malign.pdf'
 outfile <- paste0(figfolder, outfile)
 NorgastFigAndelStabelGrVar(
@@ -383,7 +369,7 @@ if (annet_format_ut) {
     hastegrad_hybrid=0, outfile=outfile, reshID=reshID)
 }
 
-outfile <- 'AccordionGrad_benign_torunn.pdf'
+outfile <- 'AccordionGrad_benign_elektiv.pdf'
 outfile <- paste0(figfolder, outfile)
 FigAndeler(
   RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe,
@@ -395,6 +381,22 @@ if (annet_format_ut) {
   FigAndeler(
     RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe,
     hastegrad=1, outfile=outfile, reshID=reshID,
+    icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
+                 "K515", "K518", "K519"), whoEcog = c(0, 1))
+}
+
+outfile <- 'AccordionGrad_benign_akutt.pdf'
+outfile <- paste0(figfolder, outfile)
+FigAndeler(
+  RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe,
+  hastegrad=2, outfile=outfile, reshID=reshID,
+  icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
+               "K515", "K518", "K519"), whoEcog = c(0, 1))
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(
+    RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=op_gruppe,
+    hastegrad=2, outfile=outfile, reshID=reshID,
     icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
                  "K515", "K518", "K519"), whoEcog = c(0, 1))
 }
@@ -466,33 +468,6 @@ if (annet_format_ut) {
     prikktall = FALSE, pst_kolonne = TRUE)
 }
 
-valgtVar <- 'Anastomoselekkasje'
-outfile <- 'Anastomoselekkasje_benign_torunn.pdf'
-outfile <- paste0(figfolder, outfile)
-norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=T, terskel=terskel, minstekrav = 6, maal = 4,
-  skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-  pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-  datoFra=datoFra, datoTil=datoTil, hastegrad=1, malign=0,
-  prikktall = FALSE, pst_kolonne = TRUE,
-  icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
-               "K515", "K518", "K519"))
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=T, terskel=terskel, minstekrav = 6, maal = 4,
-    skriftStr=skriftStr, maalretn='lav', lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-    pktStr=pktStr, legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, whoEcog= c('0', '1'), inkl_konf=inkl_konf, op_gruppe=op_gruppe,
-    datoFra=datoFra, datoTil=datoTil, hastegrad=1, malign=0,
-    prikktall = FALSE, pst_kolonne = TRUE,
-    icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
-                 "K515", "K518", "K519"))
-}
-
 RegDataAll$UK_MC <- NA
 RegDataAll <- RegDataAll %>% dplyr::mutate(
   UK_MC = case_when(
@@ -501,29 +476,6 @@ RegDataAll <- RegDataAll %>% dplyr::mutate(
     sub("(\\w+).*", "\\1", RegDataAll$Hoveddiagnose2) %in%
       c("K511", "K512", "K513", "K514", "K515", "K518", "K519") ~ "Ulcerøs kolitt"),
   UK_MC = as.factor(UK_MC))
-
-outfile <- "Anastomoselekkasje_benign_torunn_gruppert_kolitt.pdf"
-outfile <- paste0(figfolder, outfile)
-norgastIndikator_nasjonal(
-  RegData = RegDataAll, valgtVar = "Anastomoselekkasje", outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-  lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
-  hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_nasjonal(
-    RegData = RegDataAll, valgtVar = "Anastomoselekkasje", outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
-    hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
-}
-
 
 
 outfile <- 'mortalitet90_kolon_aar.pdf'
@@ -612,30 +564,6 @@ if (annet_format_ut) {
     hastegrad=2, malign=99)
 }
 
-outfile <- 'nystomi_benign_kolon_torunn.pdf'
-outfile <- paste0(figfolder, outfile)
-valgtVar <- 'NyStomi'
-norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=F, terskel=terskel, minstekrav = NA, maal = NA,
-  skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
-  maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil,
-  hastegrad_hybrid=99, malign=0, hastegrad = 1, whoEcog = c(0,1),
-  icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
-               "K515", "K518", "K519"))
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=F, terskel=terskel, minstekrav = NA, maal = NA,
-    skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
-    maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
-    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil,
-    hastegrad_hybrid=99, malign=0, hastegrad = 1, whoEcog = c(0,1),
-    icd_kode = c("K500", "K501", "K508", "K509", "K511", "K512", "K513", "K514",
-                 "K515", "K518", "K519"))
-}
 
 outfile <- "nystomi_benign_torunn_gruppert_kolitt.pdf"
 outfile <- paste0(figfolder, outfile)
@@ -645,7 +573,7 @@ norgastIndikator_nasjonal(
   maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
   lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
-  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
   hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -655,31 +583,69 @@ if (annet_format_ut) {
     maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
     lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
-    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
     hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
 }
 
-outfile <- "nystomi_benign_nyanastomose_torunn_gruppert_kolitt.pdf"
+# outfile <- "nystomi_benign_nyanastomose_torunn_gruppert_kolitt.pdf"
+# outfile <- paste0(figfolder, outfile)
+# norgastIndikator_nasjonal(
+#   RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
+#   height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+#   maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+#   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+#   lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
+#   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
+#   hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
+# if (annet_format_ut) {
+#   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+#   norgastIndikator_nasjonal(
+#     RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
+#     height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+#     maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+#     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+#     lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
+#     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
+#     hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
+# }
+
+RegDataAll$hgrad = factor(RegDataAll$Hastegrad, levels = 1:2, labels = c("Elektiv", "Akutt"))
+outfile <- "nystomi_benign_nyanastomose_torunn_gruppert_kolitt_hastegrad.pdf"
 outfile <- paste0(figfolder, outfile)
-norgastIndikator_nasjonal(
-  RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-  lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
-  hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
+norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
+                                 Grvar1 = "UK_MC", Grvar2 = "hgrad",
+                                 tittel = "Andel nye stomier",
+                                 RegData = RegDataAll, datoFra="2021-01-01",
+                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                 malign=0, ytxt = "Diagnose")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_nasjonal(
-    RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, whoEcog = 0:1,
-    hastegrad=1, malign=0, Grvar = "UK_MC", kun_ferdigstilte = T)
+  norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
+                                   Grvar1 = "UK_MC", Grvar2 = "hgrad",
+                                   tittel = "Andel nye stomier",
+                                   RegData = RegDataAll, datoFra="2021-01-01",
+                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                   malign=0, ytxt = "Diagnose")
 }
+
+outfile <- "anastomoselekkasje_benign_torunn_gruppert_kolitt_hastegrad.pdf"
+outfile <- paste0(figfolder, outfile)
+norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
+                                 Grvar1 = "UK_MC", Grvar2 = "hgrad",
+                                 tittel = "Andel anastomoselekkasjer",
+                                 RegData = RegDataAll, datoFra="2021-01-01",
+                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                 malign=0, ytxt = "Diagnose")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
+                                   Grvar1 = "UK_MC", Grvar2 = "hgrad",
+                                   tittel = "Andel anastomoselekkasjer",
+                                   RegData = RegDataAll, datoFra="2021-01-01",
+                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                   malign=0, ytxt = "Diagnose")
+}
+
 @
 
 \begin{figure}[ht]
@@ -696,14 +662,14 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_utvalg_torunn_ecog01.pdf}
-\caption{AccordionGrad\_utvalg\_torunn\_ecog01.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_benign_elektiv.pdf}
+\caption{AccordionGrad\_benign\_elektiv.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_benign_torunn.pdf}
-\caption{AccordionGrad\_benign\_torunn.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_benign_akutt.pdf}
+\caption{AccordionGrad\_benign\_akutt.pdf}
 \end{figure}
 
 \begin{figure}[ht]
@@ -736,17 +702,12 @@ if (annet_format_ut) {
 \caption{Anastomoselekkasje\_malign\_ecog0\_1aar.pdf}
 \end{figure}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_benign_torunn.pdf}
-\caption{Anastomoselekkasje\_benign\_torunn.pdf}
-\end{figure}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_benign_torunn_gruppert_kolitt.pdf}
-\caption{Anastomoselekkasje\_benign\_torunn\_gruppert\_kolitt.pdf}
-\end{figure}
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_benign_torunn_gruppert_kolitt.pdf}
+% \caption{Anastomoselekkasje\_benign\_torunn\_gruppert\_kolitt.pdf}
+% \end{figure}
 
 \begin{figure}[ht]
 \centering
@@ -774,20 +735,20 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}nystomi_benign_kolon_torunn.pdf}
-\caption{nystomi\_benign\_kolon\_torunn.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}nystomi_benign_torunn_gruppert_kolitt.pdf}
 \caption{nystomi\_benign\_torunn\_gruppert\_kolitt.pdf}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}nystomi_benign_nyanastomose_torunn_gruppert_kolitt.pdf}
-\caption{nystomi\_benign\_nyanastomose\_torunn\_gruppert\_kolitt.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}nystomi_benign_nyanastomose_torunn_gruppert_kolitt_hastegrad.pdf}
+\caption{nystomi\_benign\_nyanastomose\_torunn\_gruppert\_kolitt\_hastegrad.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekkasje_benign_torunn_gruppert_kolitt_hastegrad.pdf}
+\caption{anastomoselekkasje\_benign\_torunn\_gruppert\_kolitt\_hastegrad.pdf}
 \end{figure}
 
 \clearpage
@@ -1295,12 +1256,12 @@ norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
-                                 Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "Robot",
-                                 tittel = "Andel nye stomier",
-                                 RegData = aux, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=2,
-                                 malign=1, ytxt = "Avstand analkanten",
-                                 hastegrad = 1, whoEcog = 0:1, ny_anastomose =1)
+                                   Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "Robot",
+                                   tittel = "Andel nye stomier",
+                                   RegData = aux, datoFra="2021-01-01",
+                                   datoTil="2023-12-31",op_gruppe=2,
+                                   malign=1, ytxt = "Avstand analkanten",
+                                   hastegrad = 1, whoEcog = 0:1, ny_anastomose =1)
 }
 
 # norgastIndikator_nasjonal(
