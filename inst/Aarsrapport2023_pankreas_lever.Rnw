@@ -452,7 +452,8 @@ norgastIndikator_rapporteket(
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
   maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
   inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+  hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F,
+  desimaler_pst = 1, pst_kolonne = T, prikktall = F)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
@@ -461,7 +462,8 @@ if (annet_format_ut) {
     skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
     maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_whipple, lavDGtekst = dg_tekst,
     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F)
+    hastegrad_hybrid=hastegrad_hybrid, malign=malign, kun_ferdigstilte = F,
+    desimaler_pst = 1, pst_kolonne = T, prikktall = F)
 }
 
 outfile <- figfolder %>% paste0('AccordionGrad_whipple.pdf')

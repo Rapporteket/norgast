@@ -29,6 +29,7 @@ NorgastUtvalg(
   icd = "",
   icd_kode = "",
   hastegrad_hybrid = 99,
+  kun_oblig = FALSE,
   dagtid = 99,
   robotassiastanse = 99,
   kun_ferdigstilte = TRUE,

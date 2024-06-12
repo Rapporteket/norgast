@@ -322,7 +322,7 @@ NorgastBeregnAndeler  <- function(
     maxPRS=2.2, ASA='', whoEcog= '', forbehandling='',
     op_gruppe='', ncsp='', modGlasgow = '', hastegrad_hybrid=99,
     robotassiastanse=99, kun_ferdigstilte=TRUE, tilgang_utvidet='',
-    ny_stomi=99, accordion = '', icd = '')
+    ny_stomi=99, accordion = '', icd = '', kun_oblig = FALSE)
 
 {
   ## Gjør utvalg basert på brukervalg (LibUtvalg)
@@ -333,7 +333,8 @@ NorgastBeregnAndeler  <- function(
     ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
     op_gruppe=op_gruppe, ncsp=ncsp, modGlasgow=modGlasgow, hastegrad_hybrid=hastegrad_hybrid,
     robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-    tilgang_utvidet=tilgang_utvidet, ny_stomi=ny_stomi, accordion=accordion, icd=icd)
+    tilgang_utvidet=tilgang_utvidet, ny_stomi=ny_stomi, accordion=accordion,
+    icd=icd, kun_oblig=kun_oblig)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
 

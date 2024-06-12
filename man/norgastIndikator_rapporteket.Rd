@@ -52,7 +52,9 @@ norgastIndikator_rapporteket(
   kun_ferdigstilte = TRUE,
   prikktall = TRUE,
   pst_kolonne = FALSE,
-  ny_anastomose = 99
+  ny_anastomose = 99,
+  desimaler_pst = 0,
+  kun_oblig = FALSE
 )
 }
 \arguments{

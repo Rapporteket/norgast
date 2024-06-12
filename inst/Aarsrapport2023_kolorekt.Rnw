@@ -49,21 +49,60 @@ datoFra= paste0(rap_aar, '-01-01')
 datoTil= paste0(rap_aar, '-12-31')
 
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
-RegData <- RegData[RegData$Aar==rap_aar, ]
+RegDataAll$AvstandAnalVerge_kat2 <-
+  cut(RegDataAll$AvstandAnalVerge, breaks = c(0,11,15.9),
+      labels = c("0-11.9 cm", "12.0-15.9 cm"), include.lowest = T)
 
-DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
-DG <- DG[!is.na(DG$AvdRESH), ]
-# DG <- DG[DG$n_norgast != 0, ]
+RegDataAll <- RegDataAll %>%
+  dplyr::mutate(Tilgang_utvidet2 = Tilgang_utvidet,
+                Tilgang_utvidet2 =  dplyr::case_when(
+                  Tilgang_utvidet2 == 4 ~ 2,
+                  Tilgang_utvidet2 == 5 ~ 3,
+                  Tilgang_utvidet2 %in% 1:3 ~ Tilgang_utvidet2
+                ),
+                Tilgang_utvidet2 = factor(
+                  Tilgang_utvidet2, levels = 2:3,
+                  labels = c("Laparoskopisk",
+                             "Robotassistert")),
+                Robot = factor(Robotassistanse, levels = c(1,0),
+                               labels = c("Robot", "Ikke-robot")),
+                robot_nystomi = dplyr::case_when(
+                  Tilgang_utvidet2 == "Laparoskopisk" & NyStomi == 0 ~ "Lap.u.stomi",
+                  Tilgang_utvidet2 == "Laparoskopisk" & NyStomi == 1 ~ "Lap.m.stomi",
+                  Tilgang_utvidet2 == "Robotassistert" & NyStomi == 0 ~ "Robot.u.stomi",
+                  Tilgang_utvidet2 == "Robotassistert" & NyStomi == 1 ~ "Robot.m.stomi",
+                ),
+                robot_nystomi = as.factor(robot_nystomi)
+  )
+RegData <- RegDataAll[RegDataAll$Aar==rap_aar, ]
 
-graaUt_kolon <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 1]
-graaUt_rektum <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 2]
+# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+# DG <- DG[!is.na(DG$AvdRESH), ]
+# # DG <- DG[DG$n_norgast != 0, ]
+#
+# graaUt_kolon <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 1]
+# graaUt_rektum <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 2]
+#
+# ############# OBS: MIDLERTIDIG ############################################
+# ############# OBS: MIDLERTIDIG ############################################
+# graaUt_kolon <- graaUt_kolon[!(graaUt_kolon %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
+# graaUt_rektum <- graaUt_rektum[!(graaUt_rektum %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
+# ############# OBS: MIDLERTIDIG ############################################
+# ############# OBS: MIDLERTIDIG ############################################
 
-############# OBS: MIDLERTIDIG ############################################
-############# OBS: MIDLERTIDIG ############################################
-graaUt_kolon <- graaUt_kolon[!(graaUt_kolon %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
-graaUt_rektum <- graaUt_rektum[!(graaUt_rektum %in% c("OUS-Radiumhospitalet", "Sykehuset Levanger"))]
-############# OBS: MIDLERTIDIG ############################################
-############# OBS: MIDLERTIDIG ############################################
+sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+
+DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Kolon_sh.csv') %>%
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+  dplyr::filter(!is.na(Sykehusnavn))
+graaUt_kolon <- DG$Sykehusnavn[DG$DG_norgast < 70 &
+                                 DG$Sykehusnavn != "OUS-Radiumhospitalet"] ## OBS:Spesialtilpasning Radium!!!
+
+DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Rektum_sh.csv') %>%
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+  dplyr::filter(!is.na(Sykehusnavn))
+graaUt_rektum <- DG$Sykehusnavn[DG$DG_norgast < 70]
+
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -478,7 +517,7 @@ RegDataAll <- RegDataAll %>% dplyr::mutate(
   UK_MC = as.factor(UK_MC))
 
 
-outfile <- 'mortalitet90_kolon_aar.pdf'
+outfile <- 'mortalitet90_kolon_aar_elektiv.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'mortalitet90'
 utdata_kolon_mort <- norgastIndikator_rapporteket(
@@ -487,7 +526,7 @@ utdata_kolon_mort <- norgastIndikator_rapporteket(
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
   maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
   inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-  hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F,
+  hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F, hastegrad = 1,
   prikktall = FALSE, pst_kolonne = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -497,9 +536,33 @@ if (annet_format_ut) {
     skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
     maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
     inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
-    hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F,
+    hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F, hastegrad = 1,
     prikktall = FALSE, pst_kolonne = TRUE)
 }
+
+outfile <- 'mortalitet90_kolon_aar_akutt.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'mortalitet90'
+utdata_kolon_mort <- norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+  skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
+  maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F, hastegrad = 2,
+  prikktall = FALSE, pst_kolonne = TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+    skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
+    maalTxt=maalTxt, graaUt=graaUt, lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=99, malign=99, kun_ferdigstilte = F, hastegrad = 2,
+    prikktall = FALSE, pst_kolonne = TRUE)
+}
+
 
 outfile <- 'mortalitet90_kolon_aar_refpas.pdf'
 outfile <- paste0(figfolder, outfile)
@@ -616,7 +679,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                  Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                  tittel = "Andel nye stomier",
                                  RegData = RegDataAll, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 99,
                                  malign=0, ytxt = "Diagnose")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -624,7 +687,7 @@ if (annet_format_ut) {
                                    Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                    tittel = "Andel nye stomier",
                                    RegData = RegDataAll, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 99,
                                    malign=0, ytxt = "Diagnose")
 }
 
@@ -711,9 +774,16 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_kolon_aar.pdf}
-\caption{mortalitet90\_kolon\_aar.pdf}
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_kolon_aar_elektiv.pdf}
+\caption{mortalitet90\_kolon\_aar\_elektiv.pdf}
 \end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_kolon_aar_akutt.pdf}
+\caption{mortalitet90\_kolon\_aar\_akutt.pdf}
+\end{figure}
+
 
 \begin{figure}[ht]
 \centering
@@ -1104,9 +1174,9 @@ if (annet_format_ut) {
 
 
 
-RegDataAll$AvstandAnalVerge_kat2 <-
-  cut(RegDataAll$AvstandAnalVerge, breaks = c(0,11,15.9),
-      labels = c("0-11.9 cm", "12.0-15.9 cm"), include.lowest = T)
+# RegDataAll$AvstandAnalVerge_kat2 <-
+#   cut(RegDataAll$AvstandAnalVerge, breaks = c(0,11,15.9),
+#       labels = c("0-11.9 cm", "12.0-15.9 cm"), include.lowest = T)
 outfile <- 'avlastende_stomi_gruppert_analverge.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'AvlastendeStomiRektum'
@@ -1157,26 +1227,26 @@ if (annet_format_ut) {
 
 aux <- RegDataAll %>%
   dplyr::filter(Op_gr == 2,
-                Robotassistanse %in% 0:1) %>%
-  dplyr::mutate(Tilgang_utvidet = dplyr::case_when(
-    Tilgang_utvidet == 4 ~ 2,
-    Tilgang_utvidet == 5 ~ 3,
-    Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
-  ),
-  Tilgang_utvidet = factor(
-    Tilgang_utvidet, levels = 2:3,
-    labels = c("Laparoskopisk",
-               "Robotassistert")),
-  Robot = factor(Robotassistanse, levels = c(1,0),
-                 labels = c("Robot", "Ikke-robot")),
-  robot_nystomi = dplyr::case_when(
-    Tilgang_utvidet == "Laparoskopisk" & NyStomi == 0 ~ "Lap.u.stomi",
-    Tilgang_utvidet == "Laparoskopisk" & NyStomi == 1 ~ "Lap.m.stomi",
-    Tilgang_utvidet == "Robotassistert" & NyStomi == 0 ~ "Robot.u.stomi",
-    Tilgang_utvidet == "Robotassistert" & NyStomi == 1 ~ "Robot.m.stomi",
-  ),
-  robot_nystomi = as.factor(robot_nystomi)
-  )
+                Robotassistanse %in% 0:1) #%>%
+#   dplyr::mutate(Tilgang_utvidet = dplyr::case_when(
+#     Tilgang_utvidet == 4 ~ 2,
+#     Tilgang_utvidet == 5 ~ 3,
+#     Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
+#   ),
+#   Tilgang_utvidet = factor(
+#     Tilgang_utvidet, levels = 2:3,
+#     labels = c("Laparoskopisk",
+#                "Robotassistert")),
+#   Robot = factor(Robotassistanse, levels = c(1,0),
+#                  labels = c("Robot", "Ikke-robot")),
+#   robot_nystomi = dplyr::case_when(
+#     Tilgang_utvidet == "Laparoskopisk" & NyStomi == 0 ~ "Lap.u.stomi",
+#     Tilgang_utvidet == "Laparoskopisk" & NyStomi == 1 ~ "Lap.m.stomi",
+#     Tilgang_utvidet == "Robotassistert" & NyStomi == 0 ~ "Robot.u.stomi",
+#     Tilgang_utvidet == "Robotassistert" & NyStomi == 1 ~ "Robot.m.stomi",
+#   ),
+#   robot_nystomi = as.factor(robot_nystomi)
+#   )
 
 outfile <- 'anastomoselekk_gruppert_stomi_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
@@ -1210,7 +1280,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfil
                                  RegData = aux, datoFra="2021-01-01",
                                  datoTil="2023-12-31",op_gruppe=2,
                                  malign=1, ytxt = "Avstand analkanten",
-                                 hastegrad = 1, whoEcog = 0:1)
+                                 hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
@@ -1219,30 +1289,9 @@ if (annet_format_ut) {
                                    RegData = aux, datoFra="2021-01-01",
                                    datoTil="2023-12-31",op_gruppe=2,
                                    malign=1, ytxt = "Avstand analkanten",
-                                   hastegrad = 1, whoEcog = 0:1)
+                                   hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
 
-
-# outfile <- "nystomi_gr_avstand_analkant_nasjonal.pdf"
-# outfile <- paste0(figfolder, outfile)
-# norgastIndikator_nasjonal(
-#   RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-#   height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-#   maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-#   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-#   lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-#   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, #whoEcog = 0:1,
-#   hastegrad=hastegrad, malign=1, Grvar = "AvstandAnalVerge_kat2", kun_ferdigstilte = T)
-# if (annet_format_ut) {
-#   norgastIndikator_nasjonal(
-#     RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-#     height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-#     maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-#     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-#     lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-#     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, #whoEcog = 0:1,
-#     hastegrad=hastegrad, malign=1, Grvar = "AvstandAnalVerge_kat2", kun_ferdigstilte = T)
-# }
 
 outfile <- "nystomi_gr_avstand_analkant_nasjonal.pdf"
 outfile <- paste0(figfolder, outfile)
@@ -1252,7 +1301,8 @@ norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                  RegData = aux, datoFra="2021-01-01",
                                  datoTil="2023-12-31",op_gruppe=2,
                                  malign=1, ytxt = "Avstand analkanten",
-                                 hastegrad = 1, whoEcog = 0:1, ny_anastomose =1)
+                                 hastegrad = 1, whoEcog = 0:1,
+                                 ny_anastomose =1, inkl_konf = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
@@ -1261,123 +1311,9 @@ if (annet_format_ut) {
                                    RegData = aux, datoFra="2021-01-01",
                                    datoTil="2023-12-31",op_gruppe=2,
                                    malign=1, ytxt = "Avstand analkanten",
-                                   hastegrad = 1, whoEcog = 0:1, ny_anastomose =1)
+                                   hastegrad = 1, whoEcog = 0:1,
+                                   ny_anastomose =1, inkl_konf = TRUE)
 }
-
-# norgastIndikator_nasjonal(
-#   RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-#   height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-#   maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-#   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-#   lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-#   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, #whoEcog = 0:1,
-#   hastegrad=hastegrad, malign=1, Grvar = "AvstandAnalVerge_kat2", kun_ferdigstilte = T)
-# if (annet_format_ut) {
-#   norgastIndikator_nasjonal(
-#     RegData = RegDataAll, valgtVar = "NyStomi", outfile=outfile, tittel=tittel, width=width,
-#     height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
-#     maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
-#     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-#     lavDGtekst = dg_tekst, inkl_konf=inkl_konf, ny_anastomose = 1,
-#     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, #whoEcog = 0:1,
-#     hastegrad=hastegrad, malign=1, Grvar = "AvstandAnalVerge_kat2", kun_ferdigstilte = T)
-# }
-
-
-outfile <- 'anastomoselekk_gruppert_stomi_m_robot.pdf'
-outfile <- paste0(figfolder, outfile)
-valgtVar <- 'Anastomoselekkasje'
-norgastIndikator_gruppert(
-  RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 1,
-  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 1,
-    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
-}
-
-outfile <- 'anastomoselekk_gruppert_stomi_u_robot.pdf'
-outfile <- paste0(figfolder, outfile)
-valgtVar <- 'Anastomoselekkasje'
-norgastIndikator_gruppert(
-  RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 0,
-  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 0,
-    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
-}
-
-outfile <- 'anastomoselekk_gruppert_robot_u_stomi.pdf'
-outfile <- paste0(figfolder, outfile)
-valgtVar <- 'Anastomoselekkasje'
-norgastIndikator_gruppert(
-  RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 0,
-  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,hastegrad = 1,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 0,
-    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
-}
-
-outfile <- 'anastomoselekk_gruppert_robot_m_stomi.pdf'
-outfile <- paste0(figfolder, outfile)
-valgtVar <- 'Anastomoselekkasje'
-norgastIndikator_gruppert(
-  RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-  skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 1,
-  pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-  graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-  datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
-if (annet_format_ut) {
-  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastIndikator_gruppert(
-    RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
-    skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 1,
-    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
-    graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
-    datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
-}
-
-
-
 
 @
 
@@ -1390,20 +1326,22 @@ outfile <- paste0(figfolder, outfile)
 # outfile <- ""
 aux$AvstandAnalVerge_fakt <- factor(aux$AvstandAnalVerge, levels = 0:20)
 Grvar1 <- "AvstandAnalVerge_fakt"
-Grvar2 <- "Tilgang_utvidet"
+Grvar2 <- "Tilgang_utvidet2"
 
 norgastFordelingOpGruppert(RegData = aux, outfile = outfile,
                            datoFra = paste0(rap_aar-2, "-01-01"),
                            datoTil = paste0(rap_aar, "-12-31"),
                            op_gruppe = 2, malign = 1,
-                           hastegrad = 1, whoEcog = 0:1)
+                           hastegrad = 1, whoEcog = 0:1,
+                           Grvar2 = "Tilgang_utvidet2")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastFordelingOpGruppert(RegData = aux, outfile = outfile,
                              datoFra = paste0(rap_aar-2, "-01-01"),
                              datoTil = paste0(rap_aar, "-12-31"),
                              op_gruppe = 2, malign = 1,
-                             hastegrad = 1, whoEcog = 0:1)
+                             hastegrad = 1, whoEcog = 0:1,
+                             Grvar2 = "Tilgang_utvidet2")
 }
 
 
@@ -1483,33 +1421,131 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_stomi_m_robot.pdf}
-\caption{anastomoselekk\_gruppert\_stomi\_m\_robot.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_stomi_u_robot.pdf}
-\caption{anastomoselekk\_gruppert\_stomi\_u\_robot.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_robot_m_stomi.pdf}
-\caption{anastomoselekk\_gruppert\_robot\_m\_stomi.pdf}
-\end{figure}
-
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_robot_u_stomi.pdf}
-\caption{anastomoselekk\_gruppert\_robot\_u\_stomi.pdf}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}fordeling_operasjoner_robot_analverge_nasjonal.pdf}
 \caption{fordeling\_operasjoner\_robot\_analverge\_nasjonal.pdf}
 \end{figure}
 
 \end{document}
+
+
+
+
+
+%
+% # outfile <- 'anastomoselekk_gruppert_stomi_m_robot.pdf'
+% # outfile <- paste0(figfolder, outfile)
+% # valgtVar <- 'Anastomoselekkasje'
+% # norgastIndikator_gruppert(
+% #   RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #   height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #   skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 1,
+% #   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #   kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
+% # if (annet_format_ut) {
+% #   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+% #   norgastIndikator_gruppert(
+% #     RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #     height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #     skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 1,
+% #     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #     kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
+% # }
+%
+% # outfile <- 'anastomoselekk_gruppert_stomi_u_robot.pdf'
+% # outfile <- paste0(figfolder, outfile)
+% # valgtVar <- 'Anastomoselekkasje'
+% # norgastIndikator_gruppert(
+% #   RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #   height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #   skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 0,
+% #   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #   kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
+% # if (annet_format_ut) {
+% #   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+% #   norgastIndikator_gruppert(
+% #     RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #     height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #     skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, robotassiastanse = 0,
+% #     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #     kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "NyStomi_faktor", whoEcog = 0:1)
+% # }
+%
+% # outfile <- 'anastomoselekk_gruppert_robot_u_stomi.pdf'
+% # outfile <- paste0(figfolder, outfile)
+% # valgtVar <- 'Anastomoselekkasje'
+% # norgastIndikator_gruppert(
+% #   RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #   height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #   skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 0,
+% #   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,hastegrad = 1,
+% #   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #   kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
+% # if (annet_format_ut) {
+% #   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+% #   norgastIndikator_gruppert(
+% #     RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #     height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #     skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 0,
+% #     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #     kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
+% # }
+%
+% # outfile <- 'anastomoselekk_gruppert_robot_m_stomi.pdf'
+% # outfile <- paste0(figfolder, outfile)
+% # valgtVar <- 'Anastomoselekkasje'
+% # norgastIndikator_gruppert(
+% #   RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #   height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #   skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 1,
+% #   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #   kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
+% # if (annet_format_ut) {
+% #   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+% #   norgastIndikator_gruppert(
+% #     RegData=aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+% #     height=900, decreasing=T, terskel=terskel, minstekrav = NA, maal = NA,
+% #     skriftStr=skriftStr, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, ny_stomi = 1,
+% #     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+% #     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, hastegrad = 1,
+% #     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
+% #     kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "Tilgang_utvidet", whoEcog = 0:1)
+% # }
+
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_stomi_m_robot.pdf}
+% \caption{anastomoselekk\_gruppert\_stomi\_m\_robot.pdf}
+% \end{figure}
+%
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_stomi_u_robot.pdf}
+% \caption{anastomoselekk\_gruppert\_stomi\_u\_robot.pdf}
+% \end{figure}
+%
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_robot_m_stomi.pdf}
+% \caption{anastomoselekk\_gruppert\_robot\_m\_stomi.pdf}
+% \end{figure}
+%
+%
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_gruppert_robot_u_stomi.pdf}
+% \caption{anastomoselekk\_gruppert\_robot\_u\_stomi.pdf}
+% \end{figure}
+

@@ -60,17 +60,23 @@ RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 ################################################################################
 # RegData <- RegData[RegData$Aar==rap_aar, ]
 
-DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
-DG <- DG %>% group_by(sh) %>%
-  summarise(n_norgast = sum(n_norgast),
-            n_npr = sum(n_npr),
-            DG = n_norgast/n_npr*100,
-            AvdRESH = first(AvdRESH),
-            Sykehusnavn = first(Sykehusnavn))
-DG <- DG[!is.na(DG$AvdRESH), ]
-DG <- DG[DG$n_norgast != 0, ]
+# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+# DG <- DG %>% group_by(sh) %>%
+#   summarise(n_norgast = sum(n_norgast),
+#             n_npr = sum(n_npr),
+#             DG = n_norgast/n_npr*100,
+#             AvdRESH = first(AvdRESH),
+#             Sykehusnavn = first(Sykehusnavn))
+# DG <- DG[!is.na(DG$AvdRESH), ]
+# DG <- DG[DG$n_norgast != 0, ]
+#
+# graaUt_alle <- DG$Sykehusnavn[DG$DG< 60]
+sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
-graaUt_alle <- DG$Sykehusnavn[DG$DG< 60]
+DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Alle_sh.csv') %>%
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+  dplyr::filter(!is.na(Sykehusnavn))
+graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < 70]
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -166,42 +172,42 @@ valgtVar <- 'Vekttap_registrert'
 outfile <- 'Vekttap_registrert.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(
-  RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
   tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
   minstekrav = 80, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
-    RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
     tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
     minstekrav = 80, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
 }
 
 valgtVar <- 'AktivKontroll_v2'
 outfile <- 'AktivKontroll_v2.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(
-  RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
   tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
   minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
   op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
-    RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
     tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
     minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
     op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
-    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst)
+    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
 }
 
 
@@ -238,23 +244,23 @@ valgtVar <- 'Saarruptur'
 outfile <- 'Saarruptur_utvalg.pdf'
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(
-  RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
   tittel=tittel, tilgang = c('1', '3'), width=width, height=height, decreasing=T,
   terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
   legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
   inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
   hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
-  pst_kolonne = TRUE, prikktall = FALSE)
+  pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
-    RegDataAll[RegDataAll$Op_gr %in% 1:8, ], valgtVar = valgtVar, outfile=outfile,
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
     tittel=tittel, tilgang = c('1', '3'), width=width, height=height, decreasing=T,
     terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
     legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
-    inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    inkl_konf=inkl_konf, op_gruppe=1:8, datoFra=datoFra, datoTil=datoTil,
     hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
-    pst_kolonne = TRUE, prikktall = FALSE)
+    pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
 }
 @
 
@@ -531,7 +537,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
                                  tittel = "Andel døde innen 90 dager etter operasjon",
                                  RegData = aux, datoFra="2023-01-01",
                                  datoTil="2023-12-31", kun_ferdigstilte=FALSE,
-                                 hastegrad=1, malign=1, whoEcog=0:1)
+                                 hastegrad=1, malign=1, whoEcog=0:1, inkl_konf = FALSE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
@@ -539,7 +545,7 @@ if (annet_format_ut) {
                                    tittel = "Andel døde innen 90 dager etter operasjon",
                                    RegData = aux, datoFra="2023-01-01",
                                    datoTil="2023-12-31", kun_ferdigstilte=FALSE,
-                                   hastegrad=1, malign=1, whoEcog=0:1)}
+                                   hastegrad=1, malign=1, whoEcog=0:1, inkl_konf = FALSE)}
 
 outfile <- 'kumacc_opgr_tilgang.pdf'
 outfile <- paste0(figfolder, outfile)
@@ -712,6 +718,9 @@ ggsave(paste0(figfolder, "spaghetti_opgr_alle.svg"), width = 9, height = 7)
 
 @
 
+
+
+
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti.pdf}
@@ -734,5 +743,61 @@ inkludert i figuren siden de ikke har registrert noen i \Sexpr{rap_aar}:
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti_opgr_alle.pdf}
 \caption{spaghetti\_opgr\_alle.pdf}
 \end{figure}
+
+
+<<'fig:aktualitet', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+outfile <- 'Aktualitet_oppf_2022.pdf'
+outfile <- paste0(figfolder, outfile)
+
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegDataAll,
+  valgtVar = "Aktualitet_oppf",
+  datoFra = paste0(rap_aar-1, "-01-01"),
+  datoTil = paste0(rap_aar-1, "-12-31"),
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
+
+outfile <- 'Aktualitet_oppf_2023.pdf'
+outfile <- paste0(figfolder, outfile)
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegDataAll,
+  valgtVar = "Aktualitet_oppf",
+  datoFra = paste0(rap_aar, "-01-01"),
+  datoTil = paste0(rap_aar, "-12-31"),
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf_2022.pdf}
+\caption{Aktualitet\_oppf\_2022.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf_2023.pdf}
+\caption{Aktualitet\_oppf\_2023.pdf}
+\end{figure}
+
 
 \end{document}

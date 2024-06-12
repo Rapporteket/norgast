@@ -21,7 +21,7 @@ norgastIndikator_rapporteket <-
            forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, icd_kode='',
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, pst_kolonne=FALSE,
-           ny_anastomose=99)
+           ny_anastomose=99, desimaler_pst = 0, kun_oblig = FALSE)
   {
     ## Hvis spørring skjer fra R på server. ######################
     if(hentData){
@@ -42,7 +42,7 @@ norgastIndikator_rapporteket <-
                                    ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
                                    op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid,
                                    robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-                                   icd_kode=icd_kode, ny_anastomose=ny_anastomose)
+                                   icd_kode=icd_kode, ny_anastomose=ny_anastomose, kun_oblig=kun_oblig)
     RegData <- NorgastUtvalg$RegData
     utvalgTxt <- NorgastUtvalg$utvalgTxt
     NutvTxt <- length(utvalgTxt)
@@ -91,11 +91,11 @@ norgastIndikator_rapporteket <-
     andeler[N[, dim(andeler)[2]]<terskel, 1:2] <- NA
     KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]], N[, dim(andeler)[2]])*100
     KI[, is.na(andeler[, dim(andeler)[2]])] <- NA
-    pst_txt <- paste0(sprintf('%.0f', andeler[, dim(andeler)[2]]), ' %')
+    pst_txt <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'), andeler[, dim(andeler)[2]]), ' %')
     pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
     pst_txt[rownames(andeler) %in% lavDG] <- lavDGtekst
     pst_txt <- c(NA, pst_txt, NA, NA)
-    pst_txt_prikk <- paste0(sprintf('%.0f', andeler[, 1]), ' %')
+    pst_txt_prikk <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'), andeler[, 1]), ' %')
     pst_txt_prikk[N[, 1]<terskel] <- NA
     pst_txt_prikk[rownames(andeler) %in% lavDG] <- NA
     pst_txt_prikk <- c(NA, pst_txt_prikk, NA, NA)
@@ -319,7 +319,7 @@ norgastIndikator_gruppert <-
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, inset = 0,
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, inkl_N = FALSE,
            Grvar1 = "Sykehusnavn", Grvar2 = "Malign", ltop=2, lbunn=1,rotermaaltxt=45,
-           ny_anastomose=99, pst_kolonne=TRUE)
+           ny_anastomose=99, pst_kolonne=TRUE, kun_oblig=FALSE)
   {
     # RegData<-aux %>% filter(Op_gr==2); valgtVar<-"Anastomoselekkasje"; tittel=''; width=800; height=700;
     # decreasing=F; terskel=5; minstekrav = NA;
@@ -349,7 +349,7 @@ norgastIndikator_gruppert <-
       ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
       op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid,
       robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-      ny_anastomose=ny_anastomose, ny_stomi = ny_stomi)
+      ny_anastomose=ny_anastomose, ny_stomi = ny_stomi, kun_oblig=kun_oblig)
     RegData <- NorgastUtvalg$RegData
     utvalgTxt <- NorgastUtvalg$utvalgTxt
     NutvTxt <- length(utvalgTxt)

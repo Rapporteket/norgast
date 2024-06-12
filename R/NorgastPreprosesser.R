@@ -248,6 +248,17 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   levels(RegData$AvstandAnalVerge_kat) <- c(levels(RegData$AvstandAnalVerge_kat), "Ikke målt")
   RegData$AvstandAnalVerge_kat[is.na(RegData$AvstandAnalVerge)] <- "Ikke målt"
 
+  RegData <- RegData %>%
+    dplyr::mutate(
+      ForstLukket = as.Date(ForstLukket),
+      OppfForstLukket = as.Date(OppfForstLukket),
+      tid_op_lukk = as.numeric(difftime(ForstLukket, OpDato, units = "days")),
+      # tid_op_lukk_kat = cut(tid_op_lukk, breaks = c(0, 15, 30, 60, 90, 180, 100000), right = F),
+      tid_op_lukk_oppf = as.numeric(difftime(OppfForstLukket, OpDato, units = "days"))
+      # tid_op_lukk_oppf_kat = cut(tid_op_lukk_oppf, breaks = c(0, 15, 30, 60, 90, 180, 100000), right = F)
+    )
+
+
   return(invisible(RegData))
 
 }

@@ -13,7 +13,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                           maxPRS=2.2, ASA='', whoEcog='', modGlasgow = '',
                           forbehandling='', malign=99, fargepalett='BlaaRapp',
                           op_gruppe='', ncsp='', icd='', icd_kode='',
-                          hastegrad_hybrid=99,
+                          hastegrad_hybrid=99, kun_oblig = FALSE,
                           dagtid=99, robotassiastanse=99, kun_ferdigstilte=TRUE,
                           tilgang_utvidet='', ny_stomi=99, accordion='',
                           ny_anastomose=99)
@@ -23,6 +23,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
 
   Ninn <- dim(RegData)[1]
   indVarMed <- 1:Ninn
+  indOblig <- if (kun_oblig) {which(RegData$Op_gr %in% 1:8)} else {1:Ninn}
   indAld <- which(RegData$Alder >= minald & RegData$Alder <= maxald)
   indDato <- which(RegData$OperasjonsDato >= datoFra & RegData$OperasjonsDato <= datoTil)
   indKj <- if (erMann %in% 0:1) {which(RegData$erMann == erMann)} else {indKj <- 1:Ninn}
@@ -52,7 +53,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i%
     indICD %i% indGlasgow %i% indHast2 %i% indDag %i% indRobot %i% indFerdig %i% indTilgangUtvidet %i%
-    indStomi %i% indAccordion %i% indAnastomose %i% indICD_kode
+    indStomi %i% indAccordion %i% indAnastomose %i% indICD_kode %i% indOblig
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -61,8 +62,19 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                  if ((minald>0) | (maxald<120)) {
                    paste('Pasienter fra ', min(RegData$Alder, na.rm=T), ' til ', max(RegData$Alder, na.rm=T), ' år', sep='')},
                  if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinne', 'Mann')[erMann+1], sep='')},
-                 if (op_gruppe[1] != '') {paste0('Operasjonsgruppe(r): ',
-                                             paste(RegData$Operasjonsgrupper[match(op_gruppe, RegData$Op_gr)], collapse = ', '))},
+                 if (kun_oblig) {"Kun obligatoriske reseksjoner: Ja"},
+                 if (op_gruppe[1] != '') {
+                   paste0('Operasjonsgruppe(r): ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[1:4], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[1:4], RegData$Op_gr)])], collapse = ', '))},
+                 if (length(op_gruppe)>4) {
+                   paste0('  ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[5:8], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[5:8], RegData$Op_gr)])], collapse = ', '))},
+                 if (length(op_gruppe)>8) {
+                   paste0('  ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[9:12], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[9:12], RegData$Op_gr)])], collapse = ', '))},
                  if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(ncsp[which(!is.na(ncsp[1:9]))], collapse=', '))},
                  if (length(ncsp) > 9) {paste0('  ', paste(ncsp[which(!is.na(ncsp[10:20]))+9], collapse=', '))},
                  if (length(ncsp) > 20) {paste0('  ', paste(ncsp[which(!is.na(ncsp[21:31]))+20], collapse=', '))},
@@ -79,7 +91,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                                                                             'Laparoskopisk- robotassistert', 'Konvertert- konvensjonell',
                                                                             'Konvertert- robotassistert')[as.numeric(tilgang_utvidet)], collapse = ', '))},
                  if ((minPRS>0) | (maxPRS<2.2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRSScore, na.rm=T)), ' til ',
-                          sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
+                                                        sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
                  if (modGlasgow[1] != '') {paste0('Modifisert Glasgow score: ', paste(modGlasgow, collapse=','))},

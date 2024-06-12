@@ -50,20 +50,34 @@ reshID <- 0
 datoFra= paste0(rap_aar, '-01-01')
 datoTil= paste0(rap_aar, '-12-31')
 
-DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
-DG <- DG[!is.na(DG$AvdRESH), ]
-graaUt_ventrikkel <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 4]
-graaUt_osofagus <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 3]
+# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+# DG <- DG[!is.na(DG$AvdRESH), ]
+# graaUt_ventrikkel <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 4]
+# graaUt_osofagus <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 3]
 
-inkluderteResh <-  DG %>%
-  dplyr::filter(
-    Op_gr %in% c(3,4) &
-      (n_npr >= 10 | AvdRESH %in%
-         c(107440, 106168, 700922, 601225, 108162))) %>%
-  dplyr::select(AvdRESH) %>% unique()
+sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
-RegData <- RegData %>%
-  dplyr::filter(AvdRESH %in% inkluderteResh$AvdRESH)
+DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Ventrikkel_sh.csv') %>%
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+  dplyr::filter(!is.na(Sykehusnavn))
+graaUt_ventrikkel <- DG$Sykehusnavn[DG$DG_norgast < 70 | (DG$Begge + DG$Kun_norgast) <= 10 ]
+
+
+# inkluderteResh <-  DG %>%
+#   dplyr::filter(
+#     Op_gr %in% c(3,4) &
+#       (n_npr >= 10 | AvdRESH %in%
+#          c(107440, 106168, 700922, 601225, 108162))) %>%
+#   dplyr::select(AvdRESH) %>% unique()
+#
+# RegData <- RegData %>%
+#   dplyr::filter(AvdRESH %in% inkluderteResh$AvdRESH)
+
+RegData$maligndiag <-
+  factor(RegData$Malign, levels = 0:1, labels = c("Benign", "Malign"))
+RegData$Robot <- RegData$Robotassistanse
+RegData$Robot[is.na(RegData$Robot)] <- 0
+RegData$Robot <- factor(RegData$Robot, levels = 0:1, labels = c("Ikke-robot", "Robot"))
 
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
@@ -301,6 +315,26 @@ if (annet_format_ut) {
 }
 
 
+outfile <- paste0(figfolder, 'mortalitet90_osofagus_gruppertrobot_nasjonal.pdf')
+norgastIndikator_nasjonal(
+  RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=1, malign=1, Grvar = "Robot", kun_ferdigstilte = FALSE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_nasjonal(
+    RegDataAll, valgtVar = "Mort90", outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    maal = maal, skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDG = graaUt_ventrikkel, lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=1, malign=1, Grvar = "Robot", kun_ferdigstilte = FALSE)
+}
 
 @
 
@@ -344,6 +378,12 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekk_osofagus_aar.pdf}
 \caption{Anastomoselekk\_osofagus\_aar.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_osofagus_gruppertrobot_nasjonal.pdf}
+\caption{mortalitet90\_osofagus\_gruppertrobot\_nasjonal.pdf}
 \end{figure}
 
 
@@ -403,9 +443,7 @@ print(
 # Ngrense <- 5
 terskel <- 5
 op_gruppe <- 4
-RegDataAll$Robot <- RegDataAll$Robotassistanse
-RegDataAll$Robot[is.na(RegDataAll$Robot)] <- 0
-RegDataAll$Robot <- factor(RegDataAll$Robot, levels = 0:1, labels = c("Ikke-robot", "Robot"))
+
 outfile <- paste0(figfolder, 'Tilgang_ventrikkel_aar.pdf')
 valgtVar <- 'LapTilgang2'
 norgastIndikator_rapporteket(
@@ -483,7 +521,7 @@ if (annet_format_ut) {
     graaUt=graaUt, maalretn = 'lav', inkl_konf=inkl_konf, op_gruppe=op_gruppe,
     datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1, malign=malign)
 }
-RegDataAll$maligndiag <- factor(RegDataAll$Malign, levels = 0:1, labels = c("Benign", "Malign"))
+# RegDataAll$maligndiag <- factor(RegDataAll$Malign, levels = 0:1, labels = c("Benign", "Malign"))
 # outfile <- paste0(figfolder, 'ReLapNarkose_ventrikkel_aar_gruppertmalign.pdf')
 # valgtVar <- 'ReLapNarkose'
 # norgastIndikator_gruppert(
@@ -618,6 +656,26 @@ if (annet_format_ut) {
     hastegrad_hybrid=1, malign=1, Grvar = "Robot", kun_ferdigstilte = FALSE)
 }
 
+outfile <- paste0(figfolder, 'Anastomoselekk_ventrikkel_aar.pdf')
+valgtVar <- 'Anastomoselekkasje'
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
+  decreasing=T, terskel=terskel, minstekrav = 8, maal = 5, skriftStr=skriftStr,
+  lavDG = graaUt_osofagus, lavDGtekst = dg_tekst, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn='lav',
+  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil,
+  hastegrad_hybrid=hastegrad_hybrid, malign=1, hastegrad = 1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, width=width, height=height,
+  decreasing=T, terskel=terskel, minstekrav = 8, maal = 5, skriftStr=skriftStr,
+  lavDG = graaUt_osofagus, lavDGtekst = dg_tekst, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, maalretn='lav',
+  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra='2018-05-01', datoTil=datoTil,
+  hastegrad_hybrid=hastegrad_hybrid, malign=1, hastegrad = 1)
+}
+
 @
 
 \begin{figure}[ht]
@@ -672,6 +730,12 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mortalitet90_ventrikkel_gruppertrobot_nasjonal.pdf}
 \caption{mortalitet90\_ventrikkel\_gruppertrobot\_nasjonal.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekk_ventrikkel_aar.pdf}
+\caption{Anastomoselekk\_ventrikkel\_aar.pdf}
 \end{figure}
 
 

@@ -35,7 +35,8 @@ NorgastBeregnAndeler(
   tilgang_utvidet = "",
   ny_stomi = 99,
   accordion = "",
-  icd = ""
+  icd = "",
+  kun_oblig = FALSE
 )
 }
 \arguments{
