@@ -72,11 +72,11 @@ RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 #
 # graaUt_alle <- DG$Sykehusnavn[DG$DG< 60]
 sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
-
+dgterskel <- 70
 DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Alle_sh.csv') %>%
   merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
   dplyr::filter(!is.na(Sykehusnavn))
-graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < 70]
+graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < dgterskel]
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -97,7 +97,7 @@ skriftStr=0.9
 pktStr=1.2
 legPlass='top'
 minstekravTxt='Akseptabelt'
-dg_tekst <- "Dekningsgrad < 60 %"
+dg_tekst <- paste0("Dekningsgrad < ", dgterskel, " %")
 maalTxt='Mål'
 graaUt=NA
 minald=0

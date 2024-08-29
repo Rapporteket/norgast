@@ -374,7 +374,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 4, # mage
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    Hastegrad_hybrid==1) %>%
+                    Hastegrad_hybrid==1,
+                    Malign == 1) %>%
       dplyr::mutate(context = "caregiver",
                     denominator = 1,
                     ind_id = "anastomoselekk_ventrikkel",
@@ -389,7 +390,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     maal = 5
     maalretn <- "lav"
     tittel <- "Andel anastomoselekkasjer, ny anastomose"
-    utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner", "Hastegrad: Elektiv")
+    utvalgTxt <- c("Operasjonsgruppe: Ventrikkelreseksjoner", "Hastegrad: Elektiv",
+                   "Diagnose: Malign")
   }
 
 

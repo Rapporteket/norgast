@@ -15,16 +15,14 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Sykehusnavn <- trimws(RegData$SykehusNavn)
   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
   RegData$erMann <- as.numeric(RegData$erMann)
-  # names(RegData)[which(names(RegData)=='ErMann')]<-'erMann'
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
-  # RegData <- RegData[which(RegData$RegistreringStatus==1),] # Inkluder kun lukkede registreringer
   RegData$OperasjonsDato <- as.Date(RegData$OpDato, format="%Y-%m-%d") # %H:%M:%S" )  #"%d.%m.%Y"	"%Y-%m-%d"
   RegData$HovedDato <- as.Date(RegData$HovedDato, format="%Y-%m-%d")
-  RegData$Mnd <- as.numeric(format(RegData$OperasjonsDato, '%m')) # RegData$OperasjonsDato$mon +1
+  RegData$Mnd <- as.numeric(format(RegData$OperasjonsDato, '%m'))
   RegData$Kvartal <- floor((RegData$Mnd - 1)/3)+1
   RegData$Halvaar <- floor((RegData$Mnd - 1)/6)+1
-  RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y')) # RegData$OperasjonsDato$year + 1900
+  RegData$Aar <- as.numeric(format(RegData$OperasjonsDato, '%Y'))
   RegData$DoedsDato <- as.Date(RegData$AvdodDato, format="%Y-%m-%d")
   RegData$OpDoedTid <- difftime(RegData$DoedsDato, RegData$OperasjonsDato, units = 'days')
   RegData$Mort90 <- 0
@@ -162,7 +160,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$ReLapNarkose <- pmax(RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
   RegData$ViktigsteFunn <- pmin(RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
 
-  Helligdager <- norgast::Helligdager
+  # Helligdager <- norgast::Helligdager
 
   RegData$Dagtid <- NA
   RegData$Dagtid[as.numeric(RegData$AnestesiStartKl) %in% 7:15] <- 1
@@ -171,9 +169,8 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Hastegrad_tid <- NA
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% 8:15] <- 1
   RegData$Hastegrad_tid[as.numeric(RegData$AnestesiStartKl) %in% c(1:7, 16:24)] <- 0
-  # RegData$Hastegrad_tid[RegData$OperasjonsDato$wday %in% c(0, 6)] <- 0 # gammel
   RegData$Hastegrad_tid[as.numeric(format(RegData$OperasjonsDato, '%w')) %in% c(0, 6)] <- 0
-  RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
+  # RegData$Hastegrad_tid[RegData$OperasjonsDato %in% Helligdager] <- 0
 
   RegData$Hastegrad_hybrid <- 2 - RegData$Hastegrad# Definerer en hybridhastegrad som bruker gammel tidsbasert definisjon før
   # 2018-04-18 og den nye direkteregistrerte etter det.

@@ -5,11 +5,12 @@
 \title{Andeler gruppert på noe annet enn sykehusnavn}
 \usage{
 norgastAndelGruppert1Gr(
-  valgtVar = "NyStomi",
+  valgtVar = "Anastomoselekkasje",
   tittel = "Testtittel",
-  Grvar1 = "AvstandAnalVerge_kat2",
+  Grvar1 = "Robot",
   xtxt = "Andel (\%)",
   ytxt = "",
+  inkl_konf = TRUE,
   outfile = "",
   ...
 )

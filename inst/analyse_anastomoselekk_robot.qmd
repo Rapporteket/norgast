@@ -1,0 +1,150 @@
+---
+title: "Anastomoselekkasje ved robotkirurgi"
+format: html
+editor: visual
+---
+
+## Lesing og filtrering av data
+
+```{r}
+#| warning: false
+library(norgast)
+library(dplyr)
+rm(list = ls())
+
+RegData_raa <- norgast::NorgastHentRegData() # Laster rådata
+RegData <- NorgastPreprosess(RegData_raa)    # Enkle filtreringer og variabeldefinisjoner
+
+RegData <- RegData %>% 
+  filter(#HovedDato >= "2020-01-01",
+         # HovedDato <= "2024-06-30", # Filtrer på operasjonsdato
+         HovedDato >= "2021-01-01",
+         HovedDato <= "2023-12-31", # Filtrer på operasjonsdato
+         FerdigForlop_v2 == 1,      # Kun fullførte forløp
+         WHOECOG != 9,              # Fjerner de få registreringene med "Ukjent" WHOECOG
+         Op_gr == 2,                # Rektumreseksjoner
+         Hastegrad == 1,            # Elektive operasjoner
+         Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid
+         NyAnastomose == 1,         # Ny anastomomse
+         substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign
+         Tilgang == 2               # Kun laparoskopiske inngrep, uten de konverterte
+         )
+
+```
+
+```{r}
+tab1 <- RegData %>% summarise(N = n(),
+                      Lekkkasje = sum(Anastomoselekkasje==1),
+                      MedianAlder = median(Alder),
+                      Bestråling = sum(KunStraaleterapi | KjemoRadioKombo),
+                      Tum_avst = median(AvstandAnalVerge, na.rm = T),
+                      ASA = mean(ASA),
+                      .by = c(NyStomi, Robotassistanse, erMann)) %>% 
+  janitor::adorn_totals() %>% 
+  mutate(Lekkasje_pst = Lekkkasje/N*100,
+         Robotassistanse = ifelse(Robotassistanse %in% 0:1, Robotassistanse, "-"),
+         erMann = ifelse(erMann %in% 0:1, erMann, "-"),
+         MedianAlder = ifelse(Robotassistanse %in% 0:1, MedianAlder, median(RegData$Alder)),
+         Tum_avst = ifelse(erMann %in% 0:1, Tum_avst, median(RegData$AvstandAnalVerge, na.rm = T)),
+         ASA = ifelse(erMann %in% 0:1, ASA, mean(RegData$ASA)))
+
+tab2 <- tab1 %>% filter(NyStomi != "Total") %>% 
+  mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, 
+                                  labels=c("Konvensjonell", "Robot")),
+         NyStomi = factor(NyStomi, levels=0:1, labels=c("Nei", "Ja")),
+         Kjønn = factor(erMann, levels=0:1, labels=c("Kvinne", "Mann"))) %>% 
+  tidyr::pivot_wider(id_cols = c(NyStomi, Kjønn), names_from = Robotassistanse,
+                                    values_from = Lekkasje_pst) %>% 
+  rename("Avlastende stomi" = NyStomi)
+
+knitr::kable(tab1, digits = 2, caption = "Deskriptiv statistikk")
+```
+I tabellen over er Bestråling definert som at enten KunStraaleterapi eller KjemoRadioKombo er avkrysset.
+
+```{r}
+knitr::kable(tab2, digits = 2, caption = "Andel anastomoselekkasjer for robotassistert
+             og konvensjonell laparoskopi") %>% 
+  kableExtra::add_header_above(c(" " = 2, "Andel anastomoselekkaskje (%)" = 2))
+
+```
+
+## Foreløpig analyse
+
+```{r}
+model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
+              data = RegData, family = "binomial")
+summary(model1)
+
+model2 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                NyStomi, data = RegData, family = "binomial")
+summary(model2)
+
+model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                NyStomi + erMann + as.factor(WHOECOG) + Alder +
+                as.factor(ASA) + as.factor(Forbehandling) +
+                AvstandAnalVerge,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge)), 
+              family = "binomial")
+summary(model3)
+
+aux1 <- summary(model1)$coefficients %>%
+  as.data.frame.matrix() 
+aux1 <- aux1[row.names(aux1) == "Robotassistanse", ]
+aux2 <- summary(model2)$coefficients %>%
+  as.data.frame.matrix() 
+aux2 <- aux2[row.names(aux2) == "Robotassistanse", ]
+aux3 <- summary(model3)$coefficients %>%
+  as.data.frame.matrix() 
+aux3 <- aux3[row.names(aux3) == "Robotassistanse", ]
+
+
+tab3 <- data.frame(
+  Model = c("Model 1", "Model 2", "Model 3"),
+  OddsRatio = c(exp(aux1$Estimate),
+                exp(aux2$Estimate),
+                exp(aux3$Estimate)),
+  p.verdi = c(aux1$`Pr(>|z|)`,
+                aux2$`Pr(>|z|)`,
+                aux3$`Pr(>|z|)`)
+)
+
+knitr::kable(tab3)
+
+```
+
+Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for 
+avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge.
+
+
+
+```{r}
+#| echo: false
+# RegData <- RegData %>% mutate(
+#   erMann = factor(erMann, levels=0:1, labels=c("Kvinne", "Mann")),
+#   NyStomi = factor(NyStomi, levels=0:1, labels=c("Ikke-stomi", "Ny stomi"))
+# )
+# model3_k <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+#                 NyStomi + as.factor(WHOECOG) + Alder +
+#                 as.factor(ASA) + as.factor(Forbehandling) +
+#                 AvstandAnalVerge,
+#               data = RegData %>% filter(!is.na(AvstandAnalVerge),
+#                                         erMann==0), 
+#               family = "binomial")
+# summary(model3_k)
+# 
+# model3_m <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+#                 NyStomi + as.factor(WHOECOG) + Alder +
+#                 as.factor(ASA) + as.factor(Forbehandling) +
+#                 AvstandAnalVerge,
+#               data = RegData %>% filter(!is.na(AvstandAnalVerge),
+#                                         erMann==1), 
+#               family = "binomial")
+# summary(model3_m)
+# aux4 <- summary(model3_k)$coefficients %>%
+#   as.data.frame.matrix() 
+# aux4 <- aux4[row.names(aux4) == "Robotassistanse", ]
+# aux5 <- summary(model3_m)$coefficients %>%
+#   as.data.frame.matrix() 
+# aux5 <- aux5[row.names(aux5) == "Robotassistanse", ]
+
+```

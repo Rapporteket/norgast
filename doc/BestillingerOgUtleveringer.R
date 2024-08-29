@@ -4,6 +4,17 @@ library(tidyverse)
 rm(list=ls())
 
 
+###### Galler Ullevål 2024-08-20 ##########################################
+RegData <- norgast::NorgastHentRegData()
+RegData_proc <- norgast::NorgastPreprosess(RegData)
+
+
+galler1 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
+  summarise(N = n(), .by = AvdRESH)
+galler2 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
+  summarise(N = n(), .by = SykehusNavn)
+
+
 ###### DG-analysetall NPR  2024-04-30 ##########################################
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
