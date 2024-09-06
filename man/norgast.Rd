@@ -2,6 +2,7 @@
 % Please edit documentation in R/norgast.R
 \docType{package}
 \name{norgast}
+\alias{norgast-package}
 \alias{norgast}
 \title{All R resources needed for NORGAST on Rapporteket}
 \description{
