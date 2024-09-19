@@ -24,7 +24,8 @@ Imports:
   shinyWidgets,
   funnelR,
   tsibble,
-  latex2exp
+  latex2exp,
+  janitor
 Remotes:
   Rapporteket/rapbase@*release,
   Rapporteket/rapFigurer

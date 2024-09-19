@@ -43,8 +43,6 @@ NorgastTabeller <- function(
                     Antall = n)
   }
 
-  N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Ant opgr (inkludert Ukjent)
-
   ###  Lag tabell over reoperasjonsrater sammen med årsak til reoperasjon
   ###  splittet på operasjonsgrupper                               ######
 

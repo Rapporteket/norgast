@@ -73,8 +73,8 @@ datadump_UI <- function(id){
 #' @return Modulfunksjoner til datadump-fane
 #'
 #' @export
-datadump <- function(input, output, session, reshID, RegData, userRole,
-                     hvd_session, BrValg){
+datadump <- function(input, output, session, reshID, RegData,
+                     userRole, brukerinfo, hvd_session, BrValg){
 
 
   observe(
@@ -183,7 +183,14 @@ datadump <- function(input, output, session, reshID, RegData, userRole,
       if (userRole != 'SC') {
         dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
       } else {
-        if (!is.null(input$valgtShus)) {dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}
+        if (!is.null(input$valgtShus)) {
+          dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}
+      }
+      if (input$dumptype %in% c('SkjemaOversikt')) {
+        dumpdata$OpprettetAv <-
+          brukerinfo$fullname[match(dumpdata$OpprettetAv, brukerinfo$ID)]
+        dumpdata$SistLagretAv <-
+          brukerinfo$fullname[match(dumpdata$SistLagretAv, brukerinfo$ID)]
       }
 
       write.csv2(dumpdata, file, row.names = F, na = '', fileEncoding = 'Latin1')
