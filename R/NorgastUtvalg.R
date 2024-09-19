@@ -12,15 +12,18 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                           hastegrad=99, valgtShus='', tilgang='', minPRS=0,
                           maxPRS=2.2, ASA='', whoEcog='', modGlasgow = '',
                           forbehandling='', malign=99, fargepalett='BlaaRapp',
-                          op_gruppe='', ncsp='', icd='', hastegrad_hybrid=99,
+                          op_gruppe='', ncsp='', icd='', icd_kode='',
+                          hastegrad_hybrid=99, kun_oblig = FALSE,
                           dagtid=99, robotassiastanse=99, kun_ferdigstilte=TRUE,
-                          tilgang_utvidet='', ny_stomi=99, accordion='')
+                          tilgang_utvidet='', ny_stomi=99, accordion='',
+                          ny_anastomose=99)
 {
   # Definerer intersect-operator
   "%i%" <- intersect
 
   Ninn <- dim(RegData)[1]
   indVarMed <- 1:Ninn
+  indOblig <- if (kun_oblig) {which(RegData$Op_gr %in% 1:8)} else {1:Ninn}
   indAld <- which(RegData$Alder >= minald & RegData$Alder <= maxald)
   indDato <- which(RegData$OperasjonsDato >= datoFra & RegData$OperasjonsDato <= datoTil)
   indKj <- if (erMann %in% 0:1) {which(RegData$erMann == erMann)} else {indKj <- 1:Ninn}
@@ -39,16 +42,18 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
   indNCSP <- if (ncsp[1] != '') {which(substr(RegData$Hovedoperasjon, 1, 5) %in% ncsp)} else {indNCSP <- 1:Ninn}
   indForb <- if (forbehandling[1] != '') {which(RegData$Forbehandling %in% as.numeric(forbehandling))} else {indForb <- 1:Ninn}
   indMalign <- if (malign %in% c(0,1)){which(RegData$Malign == malign)} else {indMalign <- 1:Ninn}
-  indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn}
+  indICD <- if (icd[1] != '') {which(RegData$Hoveddiagnose2 %in% icd)} else {indICD <- 1:Ninn} # Fullt navn
+  indICD_kode <- if (icd_kode[1] != '') {which(sub("(\\w+).*", "\\1", RegData$Hoveddiagnose2) %in% icd_kode)} else {indICD_kode <- 1:Ninn} # Kun kode
   indRobot <- if (robotassiastanse %in% c(0,1)){which(RegData$Robotassistanse == robotassiastanse)} else {indRobot <- 1:Ninn}
   indFerdig <- if (kun_ferdigstilte) {which(RegData$OppfStatus == 1 | is.na(RegData$OppfStatus))} else {indFerdig <- 1:Ninn}
   indStomi <- if (ny_stomi %in% c(0,1)) {which(RegData$NyStomi == ny_stomi)} else {1:Ninn}
   indAccordion <- if (accordion[1] != '') {which(RegData$AccordionGrad %in% as.numeric(accordion))} else {1:Ninn}
+  indAnastomose <- if (ny_anastomose %in% c(0,1)) {which(RegData$NyAnastomose == ny_anastomose)} else {1:Ninn}
 
   indMed <- indAld %i% indDato %i% indKj %i% indVarMed %i% indOp_gr %i% indElekt %i% indBMI %i%
     indTilgang %i% indPRS %i% indASA %i% indWHO %i% indForb %i% indMalign %i% indNCSP %i% indHast %i%
     indICD %i% indGlasgow %i% indHast2 %i% indDag %i% indRobot %i% indFerdig %i% indTilgangUtvidet %i%
-    indStomi %i% indAccordion
+    indStomi %i% indAccordion %i% indAnastomose %i% indICD_kode %i% indOblig
   RegData <- RegData[indMed,]
   if (ncsp[1] != '') {ncsp <- sort(unique(substr(RegData$Hovedoperasjon, 1, 5)))}
 
@@ -57,8 +62,19 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                  if ((minald>0) | (maxald<120)) {
                    paste('Pasienter fra ', min(RegData$Alder, na.rm=T), ' til ', max(RegData$Alder, na.rm=T), ' år', sep='')},
                  if (erMann %in% 0:1) {paste('Kjønn: ', c('Kvinne', 'Mann')[erMann+1], sep='')},
-                 if (op_gruppe[1] != '') {paste0('Operasjonsgruppe(r): ',
-                                             paste(RegData$Operasjonsgrupper[match(op_gruppe, RegData$Op_gr)], collapse = ', '))},
+                 if (kun_oblig) {"Kun obligatoriske reseksjoner: Ja"},
+                 if (op_gruppe[1] != '') {
+                   paste0('Operasjonsgruppe(r): ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[1:4], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[1:4], RegData$Op_gr)])], collapse = ', '))},
+                 if (length(op_gruppe)>4) {
+                   paste0('  ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[5:8], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[5:8], RegData$Op_gr)])], collapse = ', '))},
+                 if (length(op_gruppe)>8) {
+                   paste0('  ',
+                          paste(RegData$Operasjonsgrupper[match(op_gruppe[9:12], RegData$Op_gr)][!is.na(
+                            RegData$Operasjonsgrupper[match(op_gruppe[9:12], RegData$Op_gr)])], collapse = ', '))},
                  if (ncsp[1] != '') {paste0('NCSP-kode(r): ', paste(ncsp[which(!is.na(ncsp[1:9]))], collapse=', '))},
                  if (length(ncsp) > 9) {paste0('  ', paste(ncsp[which(!is.na(ncsp[10:20]))+9], collapse=', '))},
                  if (length(ncsp) > 20) {paste0('  ', paste(ncsp[which(!is.na(ncsp[21:31]))+20], collapse=', '))},
@@ -75,7 +91,7 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                                                                             'Laparoskopisk- robotassistert', 'Konvertert- konvensjonell',
                                                                             'Konvertert- robotassistert')[as.numeric(tilgang_utvidet)], collapse = ', '))},
                  if ((minPRS>0) | (maxPRS<2.2)) {paste0('PRS-score fra ', sprintf('%.2f', min(RegData$PRSScore, na.rm=T)), ' til ',
-                          sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
+                                                        sprintf('%.2f', max(RegData$PRSScore, na.rm=T)))},
                  if (ASA[1] != '') {paste0('ASA-grad: ', paste(ASA, collapse=','))},
                  if (whoEcog[1] != '') {paste0('WHO ECOG score: ', paste(whoEcog, collapse=','))},
                  if (modGlasgow[1] != '') {paste0('Modifisert Glasgow score: ', paste(modGlasgow, collapse=','))},
@@ -83,8 +99,10 @@ NorgastUtvalg <- function(RegData, datoFra='2014-01-01', datoTil="2100-01-01",
                                                      paste(c('Cytostatika', 'Stråleterapi', 'Komb. kjemo/radioterapi', 'Ingen')[as.numeric(forbehandling)], collapse = ', '))},
                  if (malign %in% c(0,1)){paste0('Diagnose: ', c('Benign', 'Malign')[malign+1])},
                  if (icd[1] != '') {paste0('ICD-10-kode(r): ', paste(sub("(\\w+).*", "\\1", icd), collapse=', '))},
+                 if (icd_kode[1] != '') {paste0('ICD-10-kode(r): ', paste(icd_kode, collapse=', '))},
                  if (robotassiastanse %in% c(0,1)){paste0('Minimalinvasiv: ', c('Konv. laparoskopi', 'Robotassistert')[robotassiastanse+1])},
                  if (ny_stomi %in% c(0,1)){paste0('Ny stomi: ', c('Nei', 'Ja')[ny_stomi+1])},
+                 if (ny_anastomose %in% c(0,1)){paste0('Ny anastomose: ', c('Nei', 'Ja')[ny_anastomose+1])},
                  if (accordion[1] != '') {paste0('AccordionGrad: ',
                                                  paste(c("<3", "", 3:6)[sort(as.numeric(accordion))], collapse=','))},
                  if (!kun_ferdigstilte){'Ikke-ferdigstilte oppfølginger inkludert: Ja'}

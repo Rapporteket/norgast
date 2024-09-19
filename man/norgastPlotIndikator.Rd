@@ -26,7 +26,8 @@ norgastPlotIndikator(
   minstekravTxt = "Akseptabelt",
   maalTxt = "Mål",
   maalretn = "hoy",
-  prikktall = TRUE
+  prikktall = TRUE,
+  pst_kolonne = T
 )
 }
 \arguments{

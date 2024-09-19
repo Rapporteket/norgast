@@ -3,25 +3,292 @@ library(norgast)
 library(tidyverse)
 rm(list=ls())
 
+
+###### Galler Ullevål 2024-08-20 ##########################################
+RegData <- norgast::NorgastHentRegData()
+RegData_proc <- norgast::NorgastPreprosess(RegData)
+
+
+galler1 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
+  summarise(N = n(), .by = AvdRESH)
+galler2 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
+  summarise(N = n(), .by = SykehusNavn)
+
+
+###### DG-analysetall NPR  2024-04-30 ##########################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+fid <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
+                 colClasses = c("integer", "character"))
+
+RegData <- RegData[RegData$Op_gr %in% 1:8 & RegData$Aar == 2023, ]
+
+
+RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
+                  "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon",
+                  "Tilgang", "Robotassistanse")]
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+write.csv2(RegData, "~/mydata/norgast/aktivitetsdata_norgast_2023.csv",
+           row.names = F, fileEncoding = 'Latin1')
+write.csv2(fid, "~/mydata/norgast/kobling_norgast_2023.csv",
+           row.names = F, fileEncoding = 'Latin1')
+
+
+
+##### Uttrekk fnr Kristoffer 05.04.2024 ##########################
+allevarnum <- read.csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv",
+                        fileEncoding = "Latin1")
+forlop <- read.csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv",
+                    fileEncoding = "Latin1")
+kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
+                           colClasses = c("integer", "character"))
+
+pid <- merge(allevarnum, forlop, by = "ForlopsID") %>%
+  dplyr::filter(substr(SykehusNavn, 1,3) == "OUS",
+                tolower(substr(Hovedoperasjon, 1,3)) == "jjb",
+                tolower(substr(Hoveddiagnose, 1,4)) == "c221",
+                OpDato >= "2019-01-01") %>%
+  dplyr::filter(OpDato == first(OpDato), .by = PasientID) %>%
+  dplyr::select(ForlopsID, PasientID) %>%
+  merge(kobling_hnikt, by.x = "PasientID", by.y = "PID") %>%
+  dplyr::select(SSN)
+
+openxlsx::write.xlsx(pid, "~/mydata/norgast/pas_ous_jjb.xlsx")
+
+##### Uttrekk alder Kristoffer 03.04.2024 ##########################
+
+forlop <- readr::read_csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv")
+allevarnum <- readr::read_csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv")
+alderfil <- readxl::read_xlsx("~/mydata/norgast/Alder ved operasjonstidspunkt.xlsx",
+                              sheet = 1)
+
+# forlop$alder <- lubridate::interval(forlop$Fodselsdato, forlop$HovedDato) / lubridate::years(1)
+
+tmp <-merge(alderfil, forlop[,c("ForlopsID", "PasientAlder")], by = "ForlopsID")
+tmp$`Alder på operasjonstidspunkt` <- floor(tmp$PasientAlder)
+
+openxlsx::write.xlsx(tmp[,c("ForlopsID", "Alder på operasjonstidspunkt")],
+                     "~/mydata/norgast/AlderOptid.xlsx")
+
+##### Uttrekk Søreide, pankreas 2016-2022, 11.03.2024 ##########################
+varnavn_kobl <- data.frame(
+  kol = c("mce.MCEID AS ForlopsID",
+          "mce.PATIENT_ID AS PasientId",
+          "mce.CENTREID AS AvdRESH",
+          "patient.SSN AS Fodselsnummer",
+          "patient.DECEASED AS Avdod",
+          "patient.DECEASED_DATE AS AvdodDato",
+          "centre.CENTRENAME AS SenterNavn",
+          "registration.PREVIOUS_WEIGHT AS Vekt6MndFoer",
+          "registration.PREVIOUS_WEIGHT_MISS AS Vekt6MndFoerUkjent",
+          "registration.ADMISSION_WEIGHT AS VektVedInnleggelse",
+          "registration.ADMISSION_WEIGHT_MISS AS VektVedInnleggelseUkjent",
+          "registration.HEIGHT AS Hoyde",
+          "registration.HEIGHT_MISS AS HoydeUkjent",
+          "registration.BMI AS BMI",
+          "registration.BMI_CATEGORY AS BMIKategori",
+          "registration.WEIGHTLOSS AS VekttapProsent",
+          "registration.DIABETES AS MedDiabetes",
+          "registration.CHEMOTHERAPY_ONLY AS KunCytostatika",
+          "registration.RADIATION_THERAPY_ONLY AS KunStraaleterapi",
+          "registration.CHEMORADIOTHERAPY AS KjemoRadioKombo",
+          "registration.WHO_ECOG_SCORE AS WHOECOG",
+          "registration.ALBUMIN AS Albumin",
+          "registration.CRP AS CRP",
+          "registration.GLASGOW_SCORE AS GlasgowScore",
+          "registration.MODIFIED_GLASGOW_SCORE AS ModGlasgowScore",
+          "registration.ASA AS ASA",
+          "registration.LUNG_DISEASE AS Lungesykdom",
+          "registration.HEART_DISEASE AS Hjertesykdom",
+          "registration.URGENCY AS Hastegrad",
+          "registration.ANESTHESIA_START AS AnestesiStartKl",
+          "registration.PRS_SCORE AS PRSScore",
+          "registration.OPERATION_DATE AS OpDato",
+          "registration.NCSP AS Hovedoperasjon",
+          "registration.ABLATION AS LeverAblasjon",
+          "registration.RECONSTRUCTION AS Rekonstruksjon",
+          "registration.RECONSTRUCTION_TYPE AS Rekonstruksjonstype",
+          "registration.ANASTOMOSIS_LEVEL AS Anastomoseniva",
+          "registration.ANASTOMOSIS AS NyAnastomose",
+          "registration.ANAL_GUARD_DISTANCE AS AvstandAnalVerge",
+          "registration.ANAL_GUARD_DISTANCE_MISS AS AvstandAnalVergeIkkeAkt",
+          "registration.TATME AS TaTME",
+          "registration.OSTOMY AS NyStomi",
+          "registration.ABDOMINAL_ACCESS AS Tilgang",
+          "registration.ROBOTASSISTANCE AS Robotassistanse",
+          "registration.THORAX_ACCESS AS ThoraxTilgang",
+          "registration.RELAPAROTOMY AS ReLapNarkose",
+          "registration.RELAPAROTOMY_YES AS ViktigsteFunn",
+          "registration.FINDINGS_SPESIFISER AS FunnSpesifiser",
+          "registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi",
+          "registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi",
+          "registration.PERCUTANEOUS_DRAINAGE AS PerkDrenasje",
+          "registration.HIGH_AMYLASE_CONCENTRATION AS HoyAmylaseKons",
+          "registration.LEAK_INTERVENTION AS EndoInterLekkasje",
+          "registration.BLEED_INTERVENTION AS EndoInterBlod",
+          "registration.ANGIO_INTERVENTION AS AngioInter",
+          "registration.LIQUID_DRAINAGE AS KunDrenasje",
+          "registration.SINGLE_ORGAN_FAILURE AS EttOrganSvikt",
+          "registration.MULTI_ORGAN_FAILURE AS MultiOrganSvikt",
+          "registration.IN_HOUSE_DEATH AS DodUnderOpphold",
+          "registration.IN_HOUSE_DEATH_DATE AS DodUnderOppholdDato",
+          "registration.ACCORDION_SCORE AS AccordionGrad",
+          "registration.DISCHARGE_DATE AS UtskrivelseDato",
+          "registration.BED_DAYS AS PostopLiggedogn",
+          "registration.ICD10 AS Hoveddiagnose",
+          "registration.DISCHARGE_TO AS UtskrevetTil",
+          "registration.STATUS AS RegistreringStatus",
+          "readmission.OWN_INSTITUTION AS ReinnlEgenInst",
+          "readmission.OTHER_INSTITUTIONS AS ReinnlAndreInst",
+          "readmission.CONTROL AS AktivKontroll",
+          "readmission.PHYSICAL_CONTROL AS FysiskKontroll",
+          "readmission.PHONE_CONTROL AS TelefonKontroll",
+          "readmission.RELAPAROTOMY AS OppfReLapNarkose",
+          "readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn",
+          "readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser",
+          "readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi",
+          "readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi",
+          "readmission.PERCUTANEOUS_DRAINAGE AS OppfPerkDrenasje",
+          "readmission.HIGH_AMYLASE_CONCENTRATION AS OppfHoyAmylaseKons",
+          "readmission.LEAK_INTERVENTION AS OppfEndoInterLekkasje",
+          "readmission.BLEED_INTERVENTION AS OppfEndoInterBlod",
+          "readmission.ANGIO_INTERVENTION AS OppfAngioInter",
+          "readmission.LIQUID_DRAINAGE AS OppfKunDrenasje",
+          "readmission.SINGLE_ORGAN_FAILURE AS OppfEttOrganSvikt",
+          "readmission.MULTI_ORGAN_FAILURE AS OppfMultiOrganSvikt",
+          "readmission.IN_HOUSE_DEATH AS OppfDodUnderOpphold",
+          "readmission.IN_HOUSE_DEATH_DATE AS OppfDodUnderOppholdDato",
+          "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
+          "readmission.STATUS AS OppfStatus")) %>%
+  tidyr::separate(col="kol", into=c("dbnavn", "rapporteket"), sep = " AS ") %>%
+  dplyr::mutate(dbnavn = toupper(dbnavn))
+# dplyr::as_tibble() %>%
+# tidyr::separate(col="dbnavn", into=c("skjema", "dbnavn"), sep = "\\." )
+
+utlevernavn <- readr::read_csv2("~/mydata/norgast/utlevering_soreide.csv")
+utlevernavn <- readr::read_csv2("~/mydata/norgast/varnavn_utlevering_v2.csv",
+                                locale = locale(encoding = "Latin1"))
+utlevernavn <- utlevernavn %>% dplyr::mutate(variabel_id = sub("_", ".", variabel_id))
+
+utlevernavn <- utlevernavn$variabel_id %>% unique()
+rappnavn_utlevering <- varnavn_kobl %>%
+  dplyr::filter(dbnavn %in% utlevernavn)
+
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+kobling <- readr::read_csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_26.01.2024.csv")
+
+utlevering <- RegData %>%
+  dplyr::filter(Aar %in% 2016:2022 &
+                  ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
+  dplyr::select(c(rappnavn_utlevering$rapporteket,
+                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+  merge(kobling, by.x = "PasientID", by.y = "PID") %>%
+  mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
+  select(-"SSN") %>%
+  mutate(ncsp_kode = str_extract(Hovedoperasjon, "^[^\\s]+"),
+         ncsp_tekst = str_extract(Hovedoperasjon, "\\s.+"),
+         icd10_kode = str_extract(Hoveddiagnose, "^[^\\s]+"),
+         icd10_tekst = str_extract(Hoveddiagnose, "\\s.+"))
+
+openxlsx::write.xlsx(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas_mars2024.xlsx")
+write.csv2(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas_mars2024.csv",
+           row.names = F, fileEncoding = "Latin1", na = "")
+
+
+
+
+
 #### FLORENCE 26.01.2024 #######################################################
+lct <- Sys.getlocale("LC_TIME"); Sys.setlocale("LC_TIME", "C")
+diagnosedato <- read.csv2("~/mydata/norgast/Diagnosedato_NORGAST.csv")
 kobling_krg <- read.csv2("~/mydata/norgast/Nøkkel_NORGAST.csv",
-                         colClasses = c("character", "integer"))
+                         colClasses = c("character", "integer")) %>%
+  merge(diagnosedato, by = "PID") %>%
+  mutate(DIAGNOSEDATO = as.Date(DIAGNOSEDATO, "%d%b%Y"))
+Sys.setlocale("LC_TIME", lct)
+
 kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_26.01.2024.csv",
                            colClasses = c("integer", "character")) %>%
-  merge(kobling_krg, by.x = "SSN", by.y = "FNR")
-RegData <- norgast::NorgastHentRegData()
+  merge(kobling_krg, by.x = "SSN", by.y = "FNR", suffixes = c("_hnikt", "_krg"))
+
+RegData <- norgast::NorgastHentRegData() %>%
+  filter(BasisRegStatus == 1,
+         !is.na(Hovedoperasjon))
+
 varnavn <- readxl::read_xlsx("~/mydata/norgast/Klokeboken_med_RAPPORTEKNAVN_FLORENCE.xlsx",
-                                 sheet = 1) %>%
+                             sheet = 1) %>%
   dplyr::filter(`Til Florence prosjektet` == "Ja")
 varnavn <- unique(varnavn$navn_i_rapporteket)
-RegData <- RegData %>% dplyr::select(c(varnavn, "PasientID")) %>%
-  dplyr::filter(PasientID %in% kobling_hnikt$PID.x)
 
+RegData <- RegData %>% dplyr::select(dplyr::all_of(c(varnavn, "AnestesiStartKl",
+                                                     "PasientID", "ForlopsID"))) %>%
+  dplyr::filter(PasientID %in% kobling_hnikt$PID_hnikt) %>%
+  merge(kobling_hnikt, by.x = "PasientID", by.y = "PID_hnikt", all.x = TRUE) %>%
+  filter(OpDato >= DIAGNOSEDATO,
+         OpDato < "2023-01-01") %>%
+  mutate(Op_gr = case_when(
+    (substr(Hovedoperasjon, 1, 3) == "JFH" |
+       (substr(Hovedoperasjon, 1, 3) == "JFB" &
+          substr(Hovedoperasjon, 4, 5) %in% 20:64)) ~ "Kolon",
+    substr(Hovedoperasjon, 1, 3) == "JGB" ~ "Rektum",
+    substr(Hovedoperasjon, 1, 3) == "JCC" ~ "Øsofagus",
+    substr(Hovedoperasjon, 1, 3) %in% c("JDC", "JDD") ~ "Ventrikkel",
+    substr(Hovedoperasjon, 1, 3) == "JJB" ~ "Lever",
+    substr(Hovedoperasjon, 1, 3) %in% c("JLC10", "JLC11") ~ "Distale pankreas",
+    substr(Hovedoperasjon, 1, 3) %in% c("JLC30", "JLC31") ~ "Whipples",
+    substr(Hovedoperasjon, 1, 3) %in% c("JLC00","JLC20","JLC40", "JLC50", "JLC96") ~ "Andre pankreas"
+  )
+  ) %>%
+  mutate(Op_gr = ifelse(is.na(Op_gr), "Ikke-obligatoriske", Op_gr)) %>%
+  filter(Op_gr != "Ikke-obligatoriske")
+
+# utlevering_kunkolonrektum <- RegData %>%
+#   filter(Op_gr %in% c("Kolon", "Rektum"))
+#
+# forste_kolorekt <- utlevering_kunkolonrektum %>%
+#   dplyr::summarise(min_dato = min(OpDato),
+#                    .by = PasientID)
+#
+# ikkeinkluderteforlop <- RegData %>% filter(!(ForlopsID %in% utlevering_kunkolonrektum$ForlopsID)) %>%
+#   merge(forste_kolorekt, by = "PasientID", all.x = TRUE)
+#
+#
+# ikkeinkludertepasienter <- RegData %>% filter(!(PasientID %in% utlevering_kunkolonrektum$PasientID))
+# inkludertepasienterekskluderteforlop <- RegData %>%
+#   filter((PasientID %in% utlevering_kunkolonrektum$PasientID) & !(ForlopsID %in% utlevering_kunkolonrektum$ForlopsID))
+#
+# cat(paste0("Antall pasienter med obligatorisk kirurgi etter diagnosedato: ",
+#            length(unique(RegData$PasientID)), "\n",
+#            "Antall unike kolon/rektum-pasienter: ",
+#            length(unique(utlevering_kunkolonrektum$PasientID)), "\n",
+#            "Antall kolon/rektum-forløp: ", length(unique(utlevering_kunkolonrektum$ForlopsID)), "\n",
+#            "Antall pasienter uten kolon/rektum-kirurgi: ",
+#            length(unique(ikkeinkludertepasienter$PasientID)), "\n",
+#            "Antall forløp blant pasienter uten kolon/rektum-kirurgi: ",
+#            length(unique(ikkeinkludertepasienter$ForlopsID)), "\n",
+#            "Antall pasienter med annen kirurgi i tillegg til kolon/rektum: ",
+#            length(unique(inkludertepasienterekskluderteforlop$PasientID)), "\n",
+#            "Antall ikke-kolon/rektumforløp med pasienter som også har kolon/rektum-forløp: ",
+#            length(unique(inkludertepasienterekskluderteforlop$ForlopsID))))
+#
+# table(ikkeinkludertepasienter$Op_gr, useNA = 'ifany')
+# table(inkludertepasienterekskluderteforlop$Op_gr, useNA = 'ifany')
+
+RegData <- RegData %>% dplyr::select(-PasientID, -SSN) %>%
+  dplyr::relocate(PID = PID_krg)
+
+write.csv2(RegData, "~/mydata/norgast/florence_2024_02_28.csv",
+           row.names = F, fileEncoding = "Latin1", na = "")
+openxlsx::write.xlsx(RegData, "~/mydata/norgast/florence_2024_02_28.xlsx")
 
 #### KRG 07.12.2023 ############################################################
 kobling_krg <- haven::read_dta("~/mydata/norgast/nøkkeltilnorgast.dta")
 kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_07.12.2023.csv",
-                 colClasses = c("integer", "character"))
+                           colClasses = c("integer", "character"))
 
 felles  <- merge(kobling_krg, kobling_hnikt, by.x = "FNR", by.y = "SSN",
                  suffixes = c("", "_hnikt")) %>%
@@ -398,7 +665,7 @@ utlevering <- RegData %>%
   mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
   select(-"SSN")
 
-
+openxlsx::write.xlsx(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas.xlsx")
 write.csv2(utlevering, "~/mydata/norgast/textbook_outcomes_pancreas.csv", row.names = F, fileEncoding = "Latin1")
 
 ##### Uttrekk Kolecystectomier OUS 2023 ########################################

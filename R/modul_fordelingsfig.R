@@ -58,6 +58,7 @@ fordelingsfig_UI <- function(id){
                               'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
       selectInput(inputId = ns("malign"), label = "Diagnose", choices =
                     c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0)),
+      uiOutput(outputId = ns('icd')),
       selectInput(inputId = ns("ny_stomi"), label = "Ny stomi",
                   choices = c('--'=99, 'Nei'=0, 'Ja'=1)),
       selectInput(inputId = ns("accordion"), label = "Accordiongrad",
@@ -172,6 +173,20 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
                 choices = BrValg$whoEcog_valg, multiple = TRUE)
   })
 
+  output$icd <- renderUI({
+    ns <- session$ns
+    Utvalg1 <- NorgastUtvalg(RegData = RegData,
+                             op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+                             ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+                             malign = as.numeric(input$malign))
+    Utvalg1 <- Utvalg1$RegData
+    diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
+    if (!is.null(diagnoser)) {
+      selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
+                  choices = diagnoser, multiple = TRUE)
+    }
+  })
+
   tabellReager <- reactive({
     TabellData <- norgast::NorgastBeregnAndeler(
       RegData = RegData,
@@ -194,7 +209,8 @@ fordelingsfig <- function(input, output, session, reshID, RegData, userRole, hvd
       hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
       kun_ferdigstilte = input$kun_ferdigstilte,
       ny_stomi = as.numeric(input$ny_stomi),
-      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
+      accordion = if (!is.null(input$accordion)) {input$accordion} else {''},
+      icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''})
   })
 
 

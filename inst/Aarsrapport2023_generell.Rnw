@@ -1,0 +1,803 @@
+\documentclass[norsk,a4paper]{article} % ,twoside
+\usepackage[norsk]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{subfig}
+\usepackage{pdfpages}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage[a4paper]{geometry}
+
+\title{Figurer og tabeller for årsrapport NORGAST 2023 - Generell del}
+\author{NORGAST}
+
+\renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
+\def\labelitemi{$\bullet$}
+\def\labelitemii{--}
+\def\labelitemiii{$\ast$}
+\def\labelitemiv{$\cdot$}
+
+%setter grå skrift fremfort sort
+\usepackage{xcolor}
+\usepackage{graphicx}
+\pagestyle{myheadings}
+\definecolor{lysblaa}{rgb}{0.27,0.51,0.71}
+\definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
+
+
+<<'initOpts',include=FALSE>>=
+knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_knit$set(root.dir = './')
+@
+
+\begin{document}
+
+<<LastData, include=FALSE, cache=FALSE>>=
+library(norgast)
+library(tidyverse)
+rm(list = ls())
+
+RegData <-  norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
+
+gr <- c(1:6)
+grtxt <- c('Kol.','Rekt.','Øsof.','Ventr.',
+           'Lever',"Pankreas")
+RegData$Op_grAarsrapp <- RegData$Op_gr
+RegData$Op_grAarsrapp[RegData$Op_gr %in% 6:8]<- 6
+RegData$Op_grAarsrapp[!(RegData$Op_grAarsrapp %in% 1:6)]<- NA
+RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
+
+rap_aar <- 2023 # Året rapporten skal kjøres for
+ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
+reshID <- 0
+datoFra= paste0(rap_aar, '-01-01')
+datoTil= paste0(rap_aar, '-12-31')
+
+RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
+
+################################################################################
+# RegData <- RegData[RegData$Aar==rap_aar, ]
+
+# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
+# DG <- DG %>% group_by(sh) %>%
+#   summarise(n_norgast = sum(n_norgast),
+#             n_npr = sum(n_npr),
+#             DG = n_norgast/n_npr*100,
+#             AvdRESH = first(AvdRESH),
+#             Sykehusnavn = first(Sykehusnavn))
+# DG <- DG[!is.na(DG$AvdRESH), ]
+# DG <- DG[DG$n_norgast != 0, ]
+#
+# graaUt_alle <- DG$Sykehusnavn[DG$DG< 60]
+sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+dgterskel <- 70
+DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Alle_sh.csv') %>%
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+  dplyr::filter(!is.na(Sykehusnavn))
+graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < dgterskel]
+
+figstr <- 1
+tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
+@
+
+\maketitle
+\clearpage
+
+<<'sett_parametre', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+width=600
+height=700
+sideTxt='Sykehus'
+decreasing=F
+terskel=10
+minstekrav = NA
+maal = NA
+skriftStr=0.9
+pktStr=1.2
+legPlass='top'
+minstekravTxt='Akseptabelt'
+dg_tekst <- paste0("Dekningsgrad < ", dgterskel, " %")
+maalTxt='Mål'
+graaUt=NA
+minald=0
+maxald=130
+erMann <- 99
+inkl_konf <- T
+elektiv=99
+# datoFra <- '2015-01-01'
+datoFra= paste0(rap_aar-2, '-01-01')
+tittel <- ''
+hentData <- F
+preprosess <- F
+BMI=''
+tilgang=''
+minPRS=0
+maxPRS=2.2
+ASA=''
+whoEcog= ''
+ncsp=''
+forbehandling=''
+valgtShus=c('')
+op_gruppe <- ''
+malign <- 99
+annet_format_ut <- T
+ut_format <- 'svg'
+figfolder <- "~/mydata/norgast/fig_aarsrapp2023/generell/"
+if (!dir.exists(figfolder)) {
+  dir.create(figfolder)
+}
+tabfolder <- "~/mydata/norgast/fig_aarsrapp2023/tabeller/"
+if (!dir.exists(tabfolder)) {
+  dir.create(tabfolder)
+}
+@
+
+<<'Sykehusfig', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+outfile <- 'RegAvd.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width,
+                    height=height, decreasing=decreasing, terskel=terskel,
+                    minstekrav = minstekrav, maal = maal, skriftStr=1.1,
+                    pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
+                    maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+                    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                    elektiv=elektiv, malign=malign, kun_ferdigstilte = F)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastFigAntRegTid(RegDataAll, outfile=outfile, tittel=tittel, width=width,
+                      height=height, decreasing=decreasing, terskel=terskel,
+                      minstekrav = minstekrav, maal = maal, skriftStr=1.1,
+                      pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt,
+                      maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+                      op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+                      elektiv=elektiv, malign=malign, kun_ferdigstilte = F)
+}
+
+outfile <- 'RegAvd_alt.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastFigAntRegTid(
+  RegDataAll, outfile=outfile, datoFra='2014-01-01', tittel = "",
+  datoTil=datoTil, kun_ferdigstilte = F, alletider = T, skriftStr=1.1, width=width,
+  height=height)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastFigAntRegTid(
+    RegDataAll, outfile=outfile, datoFra='2014-01-01', tittel = "",
+    datoTil=datoTil, kun_ferdigstilte = F, alletider = T, skriftStr=1.1, width=width,
+    height=height)
+}
+
+valgtVar <- 'Vekttap_registrert'
+outfile <- 'Vekttap_registrert.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
+  tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
+  minstekrav = 80, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
+  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
+    tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
+    minstekrav = 80, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
+    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
+}
+
+valgtVar <- 'AktivKontroll_v2'
+outfile <- 'AktivKontroll_v2.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
+  tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
+  minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+  op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
+  malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
+    tittel=tittel, width=width, height=height, decreasing=decreasing, terskel=terskel,
+    minstekrav = 70, maal = 90, skriftStr=skriftStr, pktStr=pktStr, legPlass='topleft',
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt, inkl_konf=inkl_konf,
+    op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil, hastegrad_hybrid=1,
+    malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst, kun_oblig=TRUE)
+}
+
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}RegAvd.pdf}
+\caption{RegAvd.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}RegAvd_alt.pdf}
+\caption{RegAvd\_alt.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Vekttap_registrert.pdf}
+\caption{Vekttap\_registrert.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AktivKontroll_v2.pdf}
+\caption{AktivKontroll\_v2.pdf}
+\end{figure}
+
+
+<<'fig_sårruptur', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+op_gruppe <- ''
+valgtVar <- 'Saarruptur'
+outfile <- 'Saarruptur_utvalg.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
+  tittel=tittel, tilgang = c('1', '3'), width=width, height=height, decreasing=T,
+  terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
+  legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+  pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
+    tittel=tittel, tilgang = c('1', '3'), width=width, height=height, decreasing=T,
+    terskel=terskel, minstekrav = 4, maal = 3, skriftStr=skriftStr, pktStr=pktStr,
+    legPlass='topright', minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    inkl_konf=inkl_konf, op_gruppe=1:8, datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=1, malign=malign, lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+    pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
+}
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Saarruptur_utvalg.pdf}
+\caption{Saarruptur\_utvalg.pdf}
+\end{figure}
+
+
+\clearpage
+
+<<'Tabell:RegistrerendeAvd_alleår', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn, RegDataAll$Aar))
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(
+  Tabell, digits=0,
+  align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall registreringer i NORGAST per avdeling. Alle inngrep.'),
+  include.rownames=TRUE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+write.csv2(Tabell, paste0(tabfolder, "ant_reg_alle.csv"),
+           row.names = T, fileEncoding = 'Latin1')
+
+Tabell <- addmargins(table(RegDataAll$Sykehusnavn[!is.na(RegDataAll$Op_grAarsrapp)],
+                           RegDataAll$Aar[!is.na(RegDataAll$Op_grAarsrapp)]))
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall registreringer i NORGAST per avdeling. Obligatoriske inngrep.'),
+  include.rownames=TRUE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+write.csv2(Tabell, paste0(tabfolder, "ant_reg_oblig.csv"),
+           row.names = T, fileEncoding = 'Latin1')
+@
+
+
+
+<<'Tabell:RegistrerendeAvd', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+Tabell <- RegDataAll %>% filter(Aar == rap_aar) %>%
+  select(Sykehusnavn, Op_grAarsrapp) %>%
+  table() %>% addmargins()
+colnames(Tabell)[which(colnames(Tabell)=='Sum')] <- 'Totalt'
+rownames(Tabell)[which(rownames(Tabell)=='Sum')] <- 'Nasjonalt'
+Tabell <- Tabell[c(order(Tabell[-dim(Tabell)[1], dim(Tabell)[2]],
+                         decreasing = TRUE), dim(Tabell)[1]), ]
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', rep('r', ncol(Tabell))),
+  caption=paste0('Antall registrerte obligatoriske prosedyrer i ',
+                 rap_aar, ' fordelt på avd. og reseksjonsgruppe.'),
+  label='tab:RegistrenrendeAvd'),
+  include.rownames=TRUE,
+  include.colnames=TRUE ,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
+           row.names = T, fileEncoding = 'Latin1')
+@
+
+<<'fig:Robotkirurgi', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+gr <- c(1:6)
+grtxt <- c('Kolon','Rektum','Øsofagus','Ventrikkel',
+           'Lever',"Pankreas")
+RegData$Op_gr_ny <- RegData$Op_gr
+RegData$Op_gr_ny[RegData$Op_gr %in% 6:8]<- 6
+RegData$Op_gr_ny[!(RegData$Op_gr_ny %in% 1:6)]<- NA
+RegData$Op_gr_ny <- factor(RegData$Op_gr_ny, levels=gr, labels = grtxt)
+
+robotkir <- RegData %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+  dplyr::summarise(ant_rob_lap = sum(Tilgang_utvidet == 3),
+                   ant_rob_konv = sum(Tilgang_utvidet == 5),
+                   N = n(),
+                   andel_rob_lap = ant_rob_lap/N*100,
+                   andel_rob_konv = ant_rob_konv/N*100,
+                   .by = Op_gr_ny) %>%
+  dplyr::filter(ant_rob_lap + ant_rob_konv > 0) %>%
+  dplyr::arrange(desc(Op_gr_ny))
+
+
+
+plotmatrise <- as.matrix(robotkir[, c("andel_rob_lap", "andel_rob_konv")]) %>% t()
+grtxt <- paste0(robotkir$Op_gr_ny, " (N=", robotkir$N, ")")
+psttxt <-
+  xmax <- 1.15*max(colSums(plotmatrise))
+outfile <- "robot_lapstart.pdf"
+outfile <- paste0(figfolder, outfile)
+figinfo <- rapFigurer::figtype(outfile = outfile, fargepalett="BlaaOff")
+vmarg <- min(1,max(0, strwidth(grtxt, units='figure', cex=1)*0.75))
+par('fig'=c(vmarg, 1, 0, 1))
+farger <- figinfo$farger[c(3,1)]
+
+pos <- barplot(plotmatrise, beside = F, horiz = T,
+               col = farger,
+               border=NA, xlab="",
+               xlim = c(0, xmax))
+mtext(at=pos+0.00, text=grtxt, side=2, las=1, cex=1, adj=1, line=0.25)
+title(main = c("Andel robotassistanse blant operasjoner", "som er startet laparoskopisk"),
+      cex.main = 1.5)
+legend('bottomright', legend = c("Laparoskopisk", "Konvertert"), col = farger,
+       pch = 15, border = NA, bty='n')
+text(x = colSums(plotmatrise), y = pos,
+     labels = paste0(sprintf("%.1f" , colSums(plotmatrise)), " %"),
+     pos = 4, cex=0.7, xpd = T)
+if ( outfile != '') {dev.off()}
+
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  figinfo <- rapFigurer::figtype(outfile = outfile, fargepalett="BlaaOff")
+  par('fig'=c(vmarg, 1, 0, 1))
+  pos <- barplot(plotmatrise, beside = F, horiz = T,
+                 col = farger,
+                 border=NA, xlab="",
+                 xlim = c(0, xmax))
+  mtext(at=pos+0.00, text=grtxt, side=2, las=1, cex=1, adj=1, line=0.25)
+  title(main = c("Andel robotassistanse blant operasjoner", "som er startet laparoskopisk"),
+        cex.main = 1.5)
+  legend('bottomright', legend = c("Laparoskopisk", "Konvertert"), col = farger,
+         pch = 15, border = NA, bty='n')
+  text(x = colSums(plotmatrise), y = pos,
+       labels = paste0(sprintf("%.1f" , colSums(plotmatrise)), " %"),
+       pos = 4, cex=0.7, xpd = T)
+  if ( outfile != '') {dev.off()}
+}
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}robot_lapstart.pdf}
+\caption{robot\_lapstart.pdf}
+\end{figure}
+
+<<'Tabell:Robotab', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+# Tabell <- RegDataAll %>%
+#   dplyr::filter(Aar == rap_aar) %>%
+#   dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+#   summarise(Antall = sum(Robotassistanse),
+#             N = n(),
+#             .by = Sykehusnavn) %>%
+#   dplyr::arrange(desc(Antall))#
+# ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
+#                         "Antall" = 0,
+#                         "N" = sum(Tabell$N[Tabell$Antall == 0]))
+# Tabell <- Tabell %>%
+#   dplyr::bind_rows(ikkerobot) %>%
+#   dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+#   janitor::adorn_totals() %>%
+#   mutate(Andel = Antall/N*100) %>%
+#   select(Sykehusnavn, Antall, Andel, N) %>%
+#   rename("Andel (%)" = Andel)
+
+# print(xtable::xtable(
+#   Tabell, digits=c(0,0,0,1,0), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+#   caption='Antall robotassisterte operasjoner. N angir antall operasjoner
+#   som er startet laparoskopisk.'),
+#   include.rownames=FALSE,
+#   include.colnames=TRUE,
+#   add.to.row = list(pos=list(nrow(Tabell)-1),
+#                     command=c('\\midrule\n')))
+
+Tabell <- RegDataAll %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5) %>%
+  summarise(Antall = sum(Robotassistanse),
+            N = n(),
+            .by = Sykehusnavn) %>%
+  dplyr::arrange(desc(Antall))#
+ikkerobot <- data.frame("Sykehusnavn" = "Sykehus uten robotkirurgi",
+                        "Antall" = 0,
+                        "N" = sum(Tabell$N[Tabell$Antall == 0]))
+Tabell <- Tabell %>%
+  dplyr::bind_rows(ikkerobot) %>%
+  dplyr::filter(Antall > 0 | Sykehusnavn == "Sykehus uten robotkirurgi") %>%
+  janitor::adorn_totals() %>%
+  mutate(Andel = Antall/N*100) %>%
+  select(Sykehusnavn, Antall, Andel, N) %>%
+  rename("Andel (%)" = Andel)
+
+
+print(xtable::xtable(
+  Tabell, digits=c(0,0,0,1,0), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Antall robotassisterte operasjoner blant obligatoriske operasjoner.
+  N angir antall operasjoner som er startet laparoskopisk.'),
+  include.rownames=FALSE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+
+Tabell <- RegDataAll %>%
+  dplyr::filter(Aar == rap_aar) %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::mutate(Robotassistanse = ifelse(is.na(Robotassistanse), 0, Robotassistanse)) %>%
+  summarise(Åpen = sum(Tilgang == 1),
+            Laparoskopisk = sum(Tilgang == 2),
+            Konvertert = sum(Tilgang == 3),
+            N = n(),
+            .by = Robotassistanse) %>%
+  mutate(Robotassistanse = ifelse(Robotassistanse==1, "Ja", "Nei")) %>%
+  janitor::adorn_totals()
+
+print(xtable::xtable(
+  Tabell, digits=0, align=c('l', 'l', rep('r', ncol(Tabell)-1)),
+  caption='Robotassistanse og tilgang blant obligatoriske operasjoner.'),
+  include.rownames=FALSE,
+  include.colnames=TRUE,
+  add.to.row = list(pos=list(nrow(Tabell)-1),
+                    command=c('\\midrule\n')))
+
+Tabell <- RegDataAll %>%
+  filter(Aar %in% 2015:2022) %>%
+  filter(substr(Hoveddiagnose, 1, 3) %in% c("K50", "K51")) %>%
+  summarise(N=n(),
+            .by = c(Hoveddiagnose, Operasjonsgrupper)) %>%
+  tidyr::pivot_wider(names_from = Operasjonsgrupper, values_from = N,values_fill = 0) %>%
+  arrange(Hoveddiagnose) %>%
+  janitor::adorn_totals(where = c("row", "col"), name = c("Total", "Total")) %>%
+  write.csv2("~/norgast/doc/inflames.csv",
+             fileEncoding = 'Latin1')
+
+
+# write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
+#            row.names = T, fileEncoding = 'Latin1')
+@
+
+
+<<'fig:Robotkirurgi forts', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+aux <- RegDataAll %>%
+  dplyr::mutate(Op_gr = ifelse(Op_gr %in% 7:8, 6, Op_gr),
+                Op_gr = factor(Op_gr, levels = 1:6,
+                               labels = c("Kolon", "Rektum", "Øsofagus",
+                                          "Ventrikkel", "Lever", "Pankreas")),
+                Tilgang_utvidet = dplyr::case_when(
+                  Tilgang_utvidet == 4 ~ 2,
+                  Tilgang_utvidet == 5 ~ 3,
+                  Tilgang_utvidet %in% 1:3 ~ Tilgang_utvidet
+                ),
+                Tilgang_utvidet = factor(
+                  Tilgang_utvidet, levels = 1:3,
+                  labels = c("Åpen",
+                             "Laparoskopisk",
+                             "Robotassistert")),
+                Robot = factor(Robotassistanse, levels = c(1,0),
+                               labels = c("Robot", "Ikke-robot")))
+
+outfile <- 'mort90_opgr_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel døde innen 90 dager etter operasjon",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31", kun_ferdigstilte=FALSE,
+                                 hastegrad=1, malign=1, whoEcog=0:1, inkl_konf = FALSE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="Mort90", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = "Andel døde innen 90 dager etter operasjon",
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31", kun_ferdigstilte=FALSE,
+                                   hastegrad=1, malign=1, whoEcog=0:1, inkl_konf = FALSE)}
+
+outfile <- 'kumacc_opgr_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+norgast::norgastAndelGruppert2Gr(valgtVar="KumAcc", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel komplikasjoner (Accordion \u2265 3)",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31", hastegrad=1, malign=1, whoEcog=0:1)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="KumAcc", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = "Andel komplikasjoner (Accordion \u2265 3)",
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31", hastegrad=1, malign=1, whoEcog=0:1)}
+
+outfile <- 'malign_opgr_tilgang.pdf'
+outfile <- paste0(figfolder, outfile)
+norgast::norgastAndelGruppert2Gr(valgtVar="Malign", outfile = outfile,
+                                 Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                 tittel = "Andel malign kirurgi",
+                                 RegData = aux, datoFra="2023-01-01",
+                                 datoTil="2023-12-31")
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::norgastAndelGruppert2Gr(valgtVar="Malign", outfile = outfile,
+                                   Grvar1 = "Op_gr", Grvar2 = "Tilgang_utvidet",
+                                   tittel = c("Andel malign kirurgi","innen hver tilgangstype"),
+                                   RegData = aux, datoFra="2023-01-01",
+                                   datoTil="2023-12-31")}
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}mort90_opgr_tilgang.pdf}
+\caption{mort90\_opgr\_tilgang.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}kumacc_opgr_tilgang.pdf}
+\caption{kumacc\_opgr\_tilgang.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}malign_opgr_tilgang.pdf}
+\caption{malign\_opgr\_tilgang.pdf}
+\end{figure}
+
+
+<<'fig:Robotkirurgi tidsutvikling', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+library(ggrepel)
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5,
+                Op_gr %in% 1:8) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Sykehusnavn, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Sykehusnavn = "Nasjonalt")) %>%
+  mutate(andel_rob = ant_rob/N*100)# %>%
+
+tmp <- spagetti %>% filter(max(andel_rob)>0, .by = Sykehusnavn)
+
+spagetti <- spagetti %>%
+  filter(andel_rob[Aar==rap_aar]!=0, .by = Sykehusnavn) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Sykehusnavn, NA))
+
+ekskluderte_shus <- paste(setdiff(tmp$Sykehusnavn, spagetti$Sykehusnavn), collapse = ", ")
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Sykehusnavn,
+           color = factor(Sykehusnavn))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Sykehusnavn=="Nasjonalt"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Sykehusnavn, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+1.5), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant \n laparoskopiske inngrep")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+ggsave(paste0(figfolder, "spaghetti.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti.svg"), width = 9, height = 7)
+
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Tilgang_utvidet %in% 2:5,
+                Op_gr %in% 1:8) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Operasjonsgrupper, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Operasjonsgrupper = "Samlet")) %>%
+  mutate(andel_rob = ant_rob/N*100) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Operasjonsgrupper, NA))
+
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Operasjonsgrupper,
+           color = factor(Operasjonsgrupper))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Operasjonsgrupper=="Samlet"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Operasjonsgrupper, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+3.0), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant \n laparoskopiske inngrep")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+ggsave(paste0(figfolder, "spaghetti_opgr.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti_opgr.svg"), width = 9, height = 7)
+
+
+spagetti <- RegDataAll %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  mutate(Robotassistanse = ifelse(is.na(Robotassistanse), 0, Robotassistanse)) %>%
+  summarise(ant_rob = sum(Robotassistanse),
+            N = n(),
+            .by = c(Operasjonsgrupper, Aar)) %>%
+  bind_rows(summarise(., ant_rob = sum(ant_rob),
+                      N = sum(N),
+                      .by = Aar) %>%
+              mutate(Operasjonsgrupper = "Samlet")) %>%
+  mutate(andel_rob = ant_rob/N*100) %>%
+  mutate(name_lab = ifelse(Aar==rap_aar, Operasjonsgrupper, NA))
+
+ggplot(spagetti,
+       aes(Aar, andel_rob, group = Operasjonsgrupper,
+           color = factor(Operasjonsgrupper))) +
+  geom_line() +
+  geom_line(data = spagetti %>% filter(Operasjonsgrupper=="Samlet"),
+            size = 1.5, color = "black") +
+  scale_size(guide = "none") +
+  geom_text_repel(aes(color = Operasjonsgrupper, label = name_lab),
+                  xlim = c(rap_aar+0.8, NA),
+                  direction = "y",
+                  size = 4,
+                  segment.linetype = "dotted") +
+  coord_cartesian(clip = "off") +
+  scale_x_continuous(limits = c(2014, rap_aar+3.0), breaks = unique(aux$Aar)) +
+  guides(color="none") +
+  theme_classic() + ylab("Andel robotkirurgi (%)") + xlab("År") +
+  ggtitle(c("Andel robotkirugi blant alle inngrep \n (inkludert åpne)")) +
+  theme(plot.title = element_text(size = 16, hjust = 0.5))
+
+ggsave(paste0(figfolder, "spaghetti_opgr_alle.pdf"), width = 9, height = 7)
+ggsave(paste0(figfolder, "spaghetti_opgr_alle.svg"), width = 9, height = 7)
+
+@
+
+
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti.pdf}
+\caption{spaghetti.pdf. Nasjonal linje i sort er andelen robotassistanse blant
+alle laparoskopiske  obligatoriske reseksjoner registrert i NORGAST, også fra
+sykehus som ikke gjør robotkirurgi og dermed ikke er representert med linje i
+figuren. Følgende sykehus har registrert minst én robotkirurgi men er ikke
+inkludert i figuren siden de ikke har registrert noen i \Sexpr{rap_aar}:
+\Sexpr{ekskluderte_shus}.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti_opgr.pdf}
+\caption{spaghetti\_opgr.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}spaghetti_opgr_alle.pdf}
+\caption{spaghetti\_opgr\_alle.pdf}
+\end{figure}
+
+
+<<'fig:aktualitet', include=FALSE, echo=FALSE, eval=T, cache=FALSE>>=
+
+outfile <- 'Aktualitet_oppf_2022.pdf'
+outfile <- paste0(figfolder, outfile)
+
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegDataAll,
+  valgtVar = "Aktualitet_oppf",
+  datoFra = paste0(rap_aar-1, "-01-01"),
+  datoTil = paste0(rap_aar-1, "-12-31"),
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
+
+outfile <- 'Aktualitet_oppf_2023.pdf'
+outfile <- paste0(figfolder, outfile)
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegDataAll,
+  valgtVar = "Aktualitet_oppf",
+  datoFra = paste0(rap_aar, "-01-01"),
+  datoTil = paste0(rap_aar, "-12-31"),
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf_2022.pdf}
+\caption{Aktualitet\_oppf\_2022.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf_2023.pdf}
+\caption{Aktualitet\_oppf\_2023.pdf}
+\end{figure}
+
+
+\end{document}

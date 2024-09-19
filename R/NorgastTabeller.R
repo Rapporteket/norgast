@@ -10,70 +10,67 @@
 #'         Terskel Minste antall
 #'
 #' @export
-
-
-NorgastTabeller <- function(RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
-                            minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=15,
-                            reshID=reshID, elektiv=99, BMI='', valgtShus='')
+NorgastTabeller <- function(
+    RegData=RegData, datoFra='2014-01-01', datoTil='2050-12-31',
+    minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=15,
+    reshID=reshID, elektiv=99, BMI='', valgtShus='')
 {
 
-if (enhetsUtvalg==2){RegData <- RegData[which(RegData$AvdRESH==reshID),]}
+  if (enhetsUtvalg==2){RegData <- RegData[which(RegData$AvdRESH==reshID),]}
 
-NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald, maxald=maxald,
-                                  erMann=erMann, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
-RegData <- NorgastUtvalg$RegData
+  NorgastUtvalg <- NorgastUtvalg(
+    RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+    maxald=maxald, erMann=erMann, elektiv=elektiv, BMI=BMI, valgtShus=valgtShus)
+  RegData <- NorgastUtvalg$RegData
 
-####################    Lag tabell over alle operasjoner (noen gruppert)  ###########################################
-RegData$Hovedoperasjon <- paste0(substr(RegData$Hovedoperasjon, 7, 100), ' (', substr(RegData$Hovedoperasjon, 1, 5), ')')
+  ###### Lag tabell over alle operasjoner (noen gruppert)  ##################
+  RegData <- RegData %>%
+    dplyr::mutate(Hovedoperasjon = paste0(substr(Hovedoperasjon, 7, 100),
+                                          ' (', substr(Hovedoperasjon, 1, 5), ')'),
+                  Hovedoperasjon = ifelse(Op_gr == 99, Hovedoperasjon, Operasjonsgrupper),
+                  Hovedoperasjon = gsub("[\r\n]", "", Hovedoperasjon))
 
-N_opgr <- length(unique(RegData$Operasjonsgrupper))  # Antall distikte operasjonsgrupper (inkludert Ukjent)
-RegData$Hovedoperasjon[RegData$Op_gr %in% 1:(N_opgr-1)] <- RegData$Operasjonsgrupper[RegData$Op_gr %in% 1:(N_opgr-1)]
+  Tabell <- RegData %>%
+    dplyr::count(Hovedoperasjon) %>%
+    dplyr::arrange(-n)
 
+  if (dim(Tabell)[1] > 14) {
+    Tabell$Hovedoperasjon[15] <- "Andre"
+    Tabell$n[15] <- sum(Tabell$n[15:dim(Tabell)[1]])
+    Tabell <- Tabell[1:15, ] %>%
+      dplyr::mutate(Andel = n/sum(n)*100) %>%
+      dplyr::rename(Operasjonsgruppe = Hovedoperasjon,
+                    Antall = n)
+  }
 
-RegData$Hovedoperasjon <- gsub("[\r\n]", "", RegData$Hovedoperasjon)
-res <- sort(table(RegData$Hovedoperasjon), decreasing=T)
-Tabell <- data.frame('Operasjonsgruppe'=names(res[res>=Terskel]), 'Antall'=as.numeric(res[res>=Terskel]))
+  ###  Lag tabell over reoperasjonsrater sammen med årsak til reoperasjon
+  ###  splittet på operasjonsgrupper                               ######
 
-# Tabellen skal inneholde maks 14 operasjonskoder
-while(length(Tabell$Antall)>14){
-  Terskel <- Terskel+1
-  Tabell <- Tabell[Tabell$Antall>=Terskel, ]
+  Tabell2 <- RegData %>%
+    dplyr::filter(ReLapNarkose %in% c(0, 1)) %>%
+    dplyr::summarise(
+      N = dplyr::n(),
+      Reoperasjonsrate = sum(ReLapNarkose)/N*100,
+      Anastomoselekkasje = sum(ViktigsteFunn == 1, na.rm = TRUE)/N*100,
+      # Anastomoselekkasje_v2 = sum(ViktigsteFunn == 1 & NyAnastomose==1, na.rm = TRUE)/
+      #   sum(NyAnastomose==1, na.rm = TRUE)*100,
+      DypInfUtenLekkasje = sum(ViktigsteFunn == 2, na.rm = TRUE)/N*100,
+      Bloedning = sum(ViktigsteFunn == 3, na.rm = TRUE)/N*100,
+      Saarruptur = sum(ViktigsteFunn == 4, na.rm = TRUE)/N*100,
+      Annet = sum(ViktigsteFunn == 5, na.rm = TRUE)/N*100,
+      Ingen = sum(ViktigsteFunn == 6, na.rm = TRUE)/N*100,
+      .by = Operasjonsgrupper
+    ) %>%
+    dplyr::mutate(
+      Operasjonsgrupper =
+        factor(Operasjonsgrupper,
+               levels = RegData$Operasjonsgrupper[match(sort(unique(RegData$Op_gr)),
+                                                        RegData$Op_gr)])
+    ) %>%
+    dplyr::arrange(Operasjonsgrupper)
+
+  Data <- list(Tabell=Tabell, Tabell2=Tabell2, Terskel=Terskel)
+
+  return(invisible(Data))
 }
 
-Tabell <- data.frame('Operasjonsgruppe'=c(names(res[res>=Terskel]), 'Andre'),
-                     'Antall'=c(as.numeric(res[res>=Terskel]), sum(as.numeric(res[res<Terskel]))))
-Tabell$Andel <- Tabell$Antall/sum(Tabell$Antall)*100
-
-
-
-###  Lag tabell over reoperasjonsrater sammen med årsak til reoperasjon splittet på operasjonsgrupper ######################
-
-grtxt <- c('Nei','Ja')
-RegData <- RegData[which(RegData$ReLapNarkose %in% c(0, 1)), ] # Ekskluderer de som ikke har registrert om reoperasjon er utført
-RegData$VariabelGr <- factor(RegData$ReLapNarkose, levels=c(0, 1), labels = grtxt)
-
-Tabell2 <- data.frame(Operasjonsgruppe=RegData$Operasjonsgrupper[match(c(1:(N_opgr-1),99), RegData$Op_gr)],
-                     N=numeric(N_opgr), Reoperasjonsrate=numeric(N_opgr), Anastomoselekkasje=numeric(N_opgr),
-                     DypInfUtenLekkasje=numeric(N_opgr),Bloedning=numeric(N_opgr),Saarruptur=numeric(N_opgr),
-                     Annet=numeric(N_opgr), Ingen=numeric(N_opgr))
-
-
-# RegData$ViktigsteFunn[which(RegData$ViktigsteFunn==6)]<-5    # Nytt alternativ "Ingen funn, kun diagnostisk" må tas høyde for.
-
-grtxt <- c('Anastomoselekkasje', 'DypInfUtenLekkasje', 'Bloedning', 'Saarruptur', 'Annet', 'Ingen')
-
-for (p in  1:N_opgr){
-  Subset <- RegData[RegData$Op_gr==p, ]
-  if (p==N_opgr) Subset <- RegData[RegData$Op_gr==99, ]
-  Tabell2$Reoperasjonsrate[p] <- table(Subset$VariabelGr)[2]/length(Subset$VariabelGr)*100
-  Tabell2$N[p] <- dim(Subset)[1]
-  Subset <- Subset[Subset$ReLapNarkose==1,]
-  Subset$VariabelGr <- factor(Subset$ViktigsteFunn, levels=1:6, labels = grtxt)
-#   Tabell2[p,grtxt]<- round(table(Subset$VariabelGr)/length(Subset$VariabelGr)*100,2)
-  Tabell2[p,grtxt]<- table(Subset$VariabelGr)/Tabell2$N[p]*100
-}
-
-Data <- list(Tabell=Tabell, Tabell2=Tabell2, Terskel=Terskel)
-
-return(invisible(Data))
-}

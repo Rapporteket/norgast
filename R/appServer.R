@@ -16,6 +16,13 @@ appServer <- function(input, output, session) {
     RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
     skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
   }
+  query <- "SELECT * FROM user"
+  brukerinfo <- rapbase::loadRegData("norgast", query, "mysql") %>%
+    dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
+  RegData$ForstLukketAv <-
+    brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
+  RegData$OppfForstLukketAv <-
+    brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
   if (rapbase::isRapContext()) {
@@ -99,7 +106,7 @@ appServer <- function(input, output, session) {
   ################ Datadump   ##################################################
 
   shiny::callModule(norgast::datadump, "datadump_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+                    RegData = RegData, userRole = userRole, brukerinfo=brukerinfo,
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################

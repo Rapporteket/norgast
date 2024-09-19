@@ -1,7 +1,7 @@
 Package: norgast
 Type: Package
 Title: Resultatrapporter for NORGAST
-Version: 2.3.2
+Version: 2.4.0
 Date: 2015-12-17
 Author: Kevin Thon
 Maintainer: Kevin Thon <kevin.thon@skde.no>
@@ -24,11 +24,12 @@ Imports:
   shinyWidgets,
   funnelR,
   tsibble,
-  latex2exp
+  latex2exp,
+  janitor
 Remotes:
   Rapporteket/rapbase@*release,
   Rapporteket/rapFigurer
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

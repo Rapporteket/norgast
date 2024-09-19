@@ -7,6 +7,7 @@
 \usepackage{caption}
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=black]{hyperref}
 
 \newif\ifkolon
 \newif\ifrektum
@@ -73,7 +74,7 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \textbf{NORGAST}\\
 \vspace{0.3cm}
 \LARGE
-Norsk Register for Gastrokirurgi
+Norsk register for gastrokirurgi
 \end{flushleft}
 % \vspace{0.5cm}
 \vfill
@@ -151,15 +152,19 @@ Templatversjon II, 2016
 \clearpage
 
 \section{Bakgrunn}
-Norsk Register for Gastrokirurgi (NORGAST) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010 og registeret ble satt i produksjon fra januar 2014. NORGAST er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
+Norsk register for gastrokirurgi (NORGAST) er et nasjonalt kvalitetsregister utarbeidet av gastrokirurger fra universitetssykehusmiljøene i Norge. Arbeidet ble påbegynt i begynnelsen av 2010. Registeret ble satt i produksjon fra januar 2014 og oppnådde fra 2015 nasjonal status. NORGAST er et register med svært få, men robuste og meningsfulle variabler.  Dette for å sikre optimalt datatilfang og størst mulig grad av dekning. Målet er full nasjonal dekning for de formaliserte gastrokirurgiske reseksjonene.
 
-Registeret har nødvendig konsesjon og er samtykkebasert. Databehandlings-ansvaret ligger hos UNN-HF ved direktøren.
+\noindent Opplysningene i registeret behandles med hjemmel i:
+\begin{itemize}
+\item Lov om medisinske kvalitetsregistre
+\item Personvernforordningen artikkel 6 nr.1 bokstav e og artikkel 9 nr.2 bokstav j
+\end{itemize}
 
-En utvidet arbeidsgruppe er etter hvert strukturert i en Styringsgruppe (\mbox{Asgaut} Viste, Morten Tandberg Eriksen, Hans Wasmuth, Hartwig Kørner, Bjørn Atle Bjørnbeth og Stig Norderval).
+\noindent Det kreves ikke samtykke fra den registrerte men den registrerte har reservasjonsrett, jf. helseregisterloven § 10 og forskrift om medisinske kvalitetsregistre § 3-2.Databehandlings-ansvaret ligger hos UNN-HF ved direktøren. \\ \\
 
-Kristoffer Lassen har vært registerets fagleder og daglige leder. Fra 2015 er funksjonen som daglig leder delt med Linn Såve Nymo.
+\noindent En utvidet arbeidsgruppe ble etter hvert strukturert i et fagråd. Fagrådet oppnevnes av registereier, og endres over tid i henhold til registerets vedtekter. For oppdatert sammensetning av Fagråd og registerledelse, se registerets hjemmeside \href{www.norgast.no}{NORGAST}. \\ \\
 
-Registerløsningen er utviklet av Torkil Grindstein ved HN-IKT, analysene er gjort av Han Roger Moen ved HN-IKT og Kevin Thon (SKDE). Kevin Thon har laget den foreliggende rapporten. Valideringsverktøy er under utarbeidelse med hjelp av Frank Olsen og Bård Uleberg (begge SKDE). Anne Høie, Are Edvardsen, Lena Ringstad Olsen, Eva Stensland og Philip Skau (alle SKDE) har bidradd med viktige råd underveis.
+\noindent Registerløsningen er utviklet av Torkil Grindstein ved HN-IKT, analysene er gjort av Kevin Thon (SKDE). Kevin Thon har laget den foreliggende rapporten.
 
 \newpage
 
@@ -247,8 +252,10 @@ if (length(which(RegData$ncsp_lowercase %in% c('jlc10', 'jlc11') & RegData$AvdRE
 
 
 Terskel<-20
-TabellData_landet <- NorgastTabeller(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
-                                     minald=0, maxald=130, erMann=99, enhetsUtvalg=0, Terskel=Terskel, reshID=reshID)
+TabellData_landet <- NorgastTabeller(
+  RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+  minald=0, maxald=130, erMann=99, enhetsUtvalg=0,
+  Terskel=Terskel, reshID=reshID)
 Tabell <- TabellData_landet$Tabell
 colnames(Tabell) <- c('Operasjonsgruppe', 'Antall', 'Andel (%)')
 print(xtable::xtable(Tabell, digits=c(0,0,0,1), align=c('l', 'l', rep('r', ncol(Tabell)-1)),
@@ -364,12 +371,23 @@ for (p in 1:length(varNavn)){
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              minald=0, maxald=130, erMann='', outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=1)}
+outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar="ohjelp_kveld", datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=1)
+
 @
 
 \begin{figure}[ht]
 \centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ohjelp_kveld_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16. Differensierer ikke mellom virkedag og andre dager.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -529,12 +547,24 @@ for (p in 1:length(varNavn)){
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              minald=0, maxald=130, erMann='', outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=2)}
+
+outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar="ohjelp_kveld", datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=2)
+
 @
 
 \begin{figure}[ht]
 \centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ohjelp_kveld_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16. Differensierer ikke mellom virkedag og andre dager.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -698,12 +728,23 @@ for (p in 1:length(varNavn)){
   FigAndeler(RegData, valgtVar=varNavn[p], datoFra=datoFra, datoTil=datoTil,
              minald=0, maxald=130, erMann='', outfile=outfile,
              reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=4)}
+outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
+  FigAndeler(RegData, valgtVar="ohjelp_kveld", datoFra=datoFra, datoTil=datoTil,
+             minald=0, maxald=130, erMann='', outfile=outfile,
+             reshID=reshID, enhetsUtvalg=1, stabel=T, preprosess=F, op_gruppe=4)
+
 @
 
 \begin{figure}[ht]
 \centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{ohjelp_kveld_\Sexpr{gruppe}.pdf}
+\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16. Differensierer ikke mellom virkedag og andre dager.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner med anestesistart mellom klokken 08-16 på virkedager regnes som elektive. Virkedager er her definert som  alle dager som ikke er offisielle \emph{røddager} eller helg.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -1373,7 +1414,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1,1)),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen\\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{hele landet}.}
 \end{minipage}
 \end{table}
 
@@ -1393,7 +1434,7 @@ print(xtable::xtable(Tabell, digits=c(0,0,0,1,1,1,1,1,1,1)),
                                 'Operasjonsgruppe & $N$ & rate (\\%) & lekkasje\\footnote[2]{Dette er av alle opererte, ikke
 alle under risiko. Se Tabell \\ref{tab:Anastomose1} for korrekt rate av de under risiko.} & infeksjon & Blødning & Sårruptur & Annet & Ingen\\\\\n','\\midrule\n','\\bottomrule\n')), include.colnames=FALSE, include.rownames=FALSE)
 @
-\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkudert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
+\captionof{table}{Reoperasjoner for de ulike operasjonsgruppene inkludert fordeling på årsak til reoperasjon. Gjelder \textbf{\Sexpr{shtxt}}.}
 \end{minipage}
 \end{table}
 

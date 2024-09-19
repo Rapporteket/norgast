@@ -37,7 +37,8 @@ FigAndeler(
   kun_ferdigstilte = TRUE,
   tilgang_utvidet = "",
   ny_stomi = 99,
-  accordion = ""
+  accordion = "",
+  icd_kode = ""
 )
 }
 \arguments{
