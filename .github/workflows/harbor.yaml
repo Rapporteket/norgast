@@ -1,0 +1,48 @@
+name: Publish Docker image to Harbor
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+        IMAGE_NAME: ${{ github.repository }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Lint Dockerfile
+        uses: brpaz/hadolint-action@master
+        with:
+          dockerfile: "Dockerfile"
+      - name: R setup
+        uses: r-lib/actions/setup-r@v2
+      - name: Build package (tarball)
+        run: R CMD build .
+      - name: Prepare tags
+        id: docker_meta
+        uses: docker/metadata-action@v5.5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=schedule,pattern=weekly
+            type=semver,pattern={{version}}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Harbor
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+      - name: Build image and push to Harbor
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: ${{ secrets.HARBOR_REGISTRY }}/${{ steps.docker_meta.outputs.tags }}
+          push: ${{ github.event_name != 'pull_request' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
