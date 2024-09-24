@@ -16,9 +16,9 @@ jobs:
         IMAGE_NAME: ${{ github.repository }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Lint Dockerfile
-        uses: brpaz/hadolint-action@master
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: "Dockerfile"
       - name: R setup
@@ -36,15 +36,15 @@ jobs:
             type=schedule,pattern=weekly
             type=semver,pattern={{version}}
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       - name: Login to Harbor
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets.HARBOR_REGISTRY }}
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
       - name: Build image and push to Harbor
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
