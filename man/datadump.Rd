@@ -11,6 +11,7 @@ datadump(
   reshID,
   RegData,
   userRole,
+  brukerinfo,
   hvd_session,
   BrValg
 )

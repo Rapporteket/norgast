@@ -33,32 +33,32 @@ RegData <- RegData %>%
 ```
 
 ```{r}
-tab1 <- RegData %>% summarise(N = n(),
-                      Lekkkasje = sum(Anastomoselekkasje==1),
-                      MedianAlder = median(Alder),
-                      Bestråling = sum(KunStraaleterapi | KjemoRadioKombo),
-                      Tum_avst = median(AvstandAnalVerge, na.rm = T),
-                      ASA = mean(ASA),
-                      .by = c(NyStomi, Robotassistanse, erMann)) %>% 
-  janitor::adorn_totals() %>% 
-  mutate(Lekkasje_pst = Lekkkasje/N*100,
-         Robotassistanse = ifelse(Robotassistanse %in% 0:1, Robotassistanse, "-"),
-         erMann = ifelse(erMann %in% 0:1, erMann, "-"),
-         MedianAlder = ifelse(Robotassistanse %in% 0:1, MedianAlder, median(RegData$Alder)),
-         Tum_avst = ifelse(erMann %in% 0:1, Tum_avst, median(RegData$AvstandAnalVerge, na.rm = T)),
-         ASA = ifelse(erMann %in% 0:1, ASA, mean(RegData$ASA)))
-
-tab2 <- tab1 %>% filter(NyStomi != "Total") %>% 
+tab1 <- RegData %>%
   mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, 
                                   labels=c("Konvensjonell", "Robot")),
          NyStomi = factor(NyStomi, levels=0:1, labels=c("Nei", "Ja")),
          Kjønn = factor(erMann, levels=0:1, labels=c("Kvinne", "Mann"))) %>% 
+  summarise(N = n(),
+            Lekkkasje = sum(Anastomoselekkasje==1),
+            MedianAlder = median(Alder),
+            Bestråling = sum(KunStraaleterapi | KjemoRadioKombo),
+            Tum_avst = median(AvstandAnalVerge, na.rm = T),
+            ASA = mean(ASA),
+            .by = c(NyStomi, Robotassistanse, Kjønn)) %>% 
+  janitor::adorn_totals() %>% 
+  mutate(Lekkasje_pst = Lekkkasje/N*100,
+         MedianAlder = ifelse(Robotassistanse == "-", median(RegData$Alder), MedianAlder),
+         Tum_avst = ifelse(Robotassistanse == "-", median(RegData$AvstandAnalVerge, na.rm = T), Tum_avst),
+         ASA = ifelse(Robotassistanse == "-", mean(RegData$ASA), ASA))
+
+tab2 <- tab1 %>% filter(NyStomi != "Total") %>% 
   tidyr::pivot_wider(id_cols = c(NyStomi, Kjønn), names_from = Robotassistanse,
                                     values_from = Lekkasje_pst) %>% 
   rename("Avlastende stomi" = NyStomi)
 
 knitr::kable(tab1, digits = 2, caption = "Deskriptiv statistikk")
 ```
+
 I tabellen over er Bestråling definert som at enten KunStraaleterapi eller KjemoRadioKombo er avkrysset.
 
 ```{r}
@@ -68,7 +68,41 @@ knitr::kable(tab2, digits = 2, caption = "Andel anastomoselekkasjer for robotass
 
 ```
 
-## Foreløpig analyse
+```{r}
+oppsum_stat <- RegData %>% 
+  mutate(
+    Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
+                              labels=c("Nei", "Ja"))) %>% 
+  summarise(
+    Antall = n(),
+    "Alder (median)" = median(Alder),
+    "Andel kvinnner" = sum(erMann==0)/Antall*100,
+    "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100,
+    "Tumoravstand fra anus (median)" = median(AvstandAnalVerge, na.rm = T),
+    "ASA-score (gjennonsnitt)" = mean(ASA),
+    "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100,
+    "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100,
+    "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100,
+    "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100,
+    "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100,
+    "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100,
+    .by = Anastomoselekkasje
+  ) %>% 
+  tr_summarize_output(kolnavn1 = "")
+# %>% 
+#   mutate(Anastomoselekk_nei = round(Anastomoselekk_nei, 1),
+#          Anastomoselekk_ja = round(Anastomoselekk_ja, 1))
+
+knitr::kable(
+  oppsum_stat, digits = 1, 
+  caption = "Oppsummerende statistikk for de med og uten anastomoselekkasje",
+  row.names = FALSE) %>% 
+  kableExtra::add_header_above(c(" " = 1, "Anastomoselekkaskje" = 2))
+
+```
+
+
+## Foreløpig analyse - Anastomoselekkasje
 
 ```{r}
 model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
@@ -112,10 +146,24 @@ knitr::kable(tab3)
 
 ```
 
-Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for 
-avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge.
+Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge.
+
+## Foreløpig analyse - Ny stomi
+
+Her ser vi på hva som ser ut til å påvirke valget å benytte avlastende stomi.
+
+```{r}
+
+model3 <- glm(NyStomi ~ 1 + Robotassistanse + 
+                erMann + as.factor(WHOECOG) + Alder +
+                as.factor(ASA) + as.factor(Forbehandling) +
+                AvstandAnalVerge,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge)), 
+              family = "binomial")
+summary(model3)
 
 
+```
 
 ```{r}
 #| echo: false

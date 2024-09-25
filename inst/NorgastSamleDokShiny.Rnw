@@ -387,7 +387,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -564,7 +564,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
@@ -744,7 +744,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]

@@ -54,7 +54,7 @@ tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
 \textbf{NORGAST}\\
 \vspace{0.3cm}
 \LARGE
-Norsk Register for Gastrokirurgi
+Norsk register for gastrokirurgi
 \end{flushleft}
 % \vspace{0.5cm}
 \vfill
@@ -330,7 +330,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 
@@ -508,7 +508,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 
@@ -690,7 +690,7 @@ outfile=paste0("ohjelp_kveld", '_', gruppe, '.pdf')
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{Hastegrad_\Sexpr{gruppe}.pdf}
-\caption{\Sexpr{gruppe}reseksjoner. Variabelen akutt elektiv kirurgi ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
+\caption{\Sexpr{gruppe}reseksjoner. Variabelen hastegrad, dvs. om det er akutt eller elektiv kirurgi, ble innført i registeret i 18.04.2018. Dersom utvalget inkluderer data fra før denne dato vil N kunne bli lavere enn antall forløp i samme periode.}
 \end{figure}
 
 \begin{figure}[ht]
