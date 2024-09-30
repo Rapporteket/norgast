@@ -9,13 +9,20 @@
 
 appServer <- function(input, output, session) {
 
-  RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
-  skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
-  if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
-    norgast::norgastMakeStagingData()
-    RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
-    skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
-  }
+  # RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+  # skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  # if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
+  #   norgast::norgastMakeStagingData()
+  #   RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
+  #   skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
+  # }
+  RegData <-  norgast::NorgastHentRegData()
+  skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
+  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+  skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+  RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   query <- "SELECT * FROM user"
   brukerinfo <- rapbase::loadRegData("norgast", query, "mysql") %>%
     dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))

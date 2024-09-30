@@ -1,7 +1,30 @@
 # setwd('C:/GIT/norgast/doc/')
 library(norgast)
-library(tidyverse)
+# library(tidyverse)
 rm(list=ls())
+
+###### Komorbiditet NPR 30.09.2024 ########################################
+RegData <- norgast::NorgastHentRegData() %>%
+  norgast::NorgastPreprosess() %>%
+  dplyr::filter(Op_gr %in% 1:8) %>%
+  dplyr::select(PasientID, OperasjonsDato) %>%
+  dplyr::mutate(PasientID = as.numeric(PasientID))
+
+fid <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_30.09.2024.csv",
+                 colClasses = c("integer", "character"))
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+write.csv2(
+  RegData,
+  "~/mydata/norgast/aktivitetsdata_norgast_komobiditet_2024_09_30.csv",
+  row.names = F, fileEncoding = 'Latin1')
+write.csv2(
+  fid,
+  "~/mydata/norgast/kobling_norgast_komobiditet_2024_09_30.csv",
+  row.names = F, fileEncoding = 'Latin1')
+
 
 
 ###### Galler Ullevål 2024-08-20 ##########################################
@@ -25,8 +48,8 @@ RegData <- RegData[RegData$Op_gr %in% 1:8 & RegData$Aar == 2023, ]
 
 
 RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
-                  "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon",
-                  "Tilgang", "Robotassistanse")]
+                      "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon",
+                      "Tilgang", "Robotassistanse")]
 
 fid <- fid[fid$PID %in% RegData$PasientID, ]
 names(fid) <- c("PasientID", "Fnr")
