@@ -17,18 +17,20 @@ RegData <- NorgastPreprosess(RegData_raa)    # Enkle filtreringer og variabeldef
 
 RegData <- RegData %>% 
   filter(#HovedDato >= "2020-01-01",
-         # HovedDato <= "2024-06-30", # Filtrer på operasjonsdato
-         HovedDato >= "2021-01-01",
-         HovedDato <= "2023-12-31", # Filtrer på operasjonsdato
-         FerdigForlop_v2 == 1,      # Kun fullførte forløp
-         WHOECOG != 9,              # Fjerner de få registreringene med "Ukjent" WHOECOG
-         Op_gr == 2,                # Rektumreseksjoner
-         Hastegrad == 1,            # Elektive operasjoner
-         Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid
-         NyAnastomose == 1,         # Ny anastomomse
-         substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign
-         Tilgang == 2               # Kun laparoskopiske inngrep, uten de konverterte
-         )
+    # HovedDato <= "2024-06-30", # Filtrer på operasjonsdato
+    HovedDato >= "2021-01-01",
+    HovedDato <= "2023-12-31", # Filtrer på operasjonsdato
+    FerdigForlop_v2 == 1,      # Kun fullførte forløp
+    WHOECOG != 9,              # Fjerner de få registreringene med "Ukjent" WHOECOG
+    Op_gr == 2,                # Rektumreseksjoner
+    Hastegrad == 1,            # Elektive operasjoner
+    Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid
+    NyAnastomose == 1,         # Ny anastomomse
+    substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign
+    Tilgang == 2               # Kun laparoskopiske inngrep, uten de konverterte
+  ) %>% 
+  mutate(ASA = ifelse(ASA==1, 2, ASA),
+         straaling = KunStraaleterapi | KjemoRadioKombo)
 
 ```
 
@@ -53,7 +55,7 @@ tab1 <- RegData %>%
 
 tab2 <- tab1 %>% filter(NyStomi != "Total") %>% 
   tidyr::pivot_wider(id_cols = c(NyStomi, Kjønn), names_from = Robotassistanse,
-                                    values_from = Lekkasje_pst) %>% 
+                     values_from = Lekkasje_pst) %>% 
   rename("Avlastende stomi" = NyStomi)
 
 knitr::kable(tab1, digits = 2, caption = "Deskriptiv statistikk")
@@ -72,14 +74,18 @@ knitr::kable(tab2, digits = 2, caption = "Andel anastomoselekkasjer for robotass
 oppsum_stat <- RegData %>% 
   mutate(
     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
-                              labels=c("Nei", "Ja"))) %>% 
+                                labels=c("Nei", "Ja"))) %>% 
   summarise(
     Antall = n(),
     "Alder (median)" = median(Alder),
-    "Andel kvinnner" = sum(erMann==0)/Antall*100,
+    "Andel kvinner" = sum(erMann==0)/Antall*100,
     "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100,
     "Tumoravstand fra anus (median)" = median(AvstandAnalVerge, na.rm = T),
     "ASA-score (gjennonsnitt)" = mean(ASA),
+    "ASA 1-2" = sum(ASA==2)/Antall*100,
+    "ASA 3" = sum(ASA==3)/Antall*100,
+    "ASA 4" = sum(ASA==4)/Antall*100,
+    "BMI (gjennonsnitt)" = mean(BMI, na.rm = T),
     "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100,
     "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100,
     "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100,
@@ -88,16 +94,58 @@ oppsum_stat <- RegData %>%
     "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100,
     .by = Anastomoselekkasje
   ) %>% 
-  tr_summarize_output(kolnavn1 = "")
-# %>% 
-#   mutate(Anastomoselekk_nei = round(Anastomoselekk_nei, 1),
-#          Anastomoselekk_ja = round(Anastomoselekk_ja, 1))
+  tr_summarize_output(kolnavn1 = "Variabel")
+
+oppsum_stat_total <- RegData %>% 
+  mutate(
+    Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
+                                labels=c("Nei", "Ja"))) %>% 
+  summarise(
+    Antall = n(),
+    "Alder (median)" = median(Alder),
+    "Andel kvinner" = sum(erMann==0)/Antall*100,
+    "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100,
+    "Tumoravstand fra anus (median)" = median(AvstandAnalVerge, na.rm = T),
+    "ASA-score (gjennonsnitt)" = mean(ASA),
+    "ASA 1-2" = sum(ASA==2)/Antall*100,
+    "ASA 3" = sum(ASA==3)/Antall*100,
+    "ASA 4" = sum(ASA==4)/Antall*100,
+    "BMI (gjennonsnitt)" = mean(BMI, na.rm = T),
+    "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100,
+    "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100,
+    "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100,
+    "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100,
+    "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100,
+    "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100
+  ) %>% 
+  mutate(radnavn1="Total") %>% 
+  relocate(radnavn1) %>% 
+  tr_summarize_output(kolnavn1 = "Variabel")
+
+pverdier <- data.frame(Variabel = oppsum_stat$Variabel, pverdi = NA)
+pverdier <- pverdier %>% 
+  mutate(pverdi = case_match(
+    Variabel,
+    "Andel kvinner" ~ 
+      fisher.test(table(RegData[,c("Anastomoselekkasje", "ASA")]))$p.value,
+    "Andel preoperativ bestråling" ~
+      fisher.test(table(RegData[,c("Anastomoselekkasje", "straaling")]))$p.value,
+    "Andel anlagt ny stomi" ~
+      fisher.test(table(RegData[,c("Anastomoselekkasje", "NyStomi")]))$p.value,
+    "Andel robotkirurgi" ~ 
+      fisher.test(table(RegData[,c("Anastomoselekkasje", "Robotassistanse")]))$p.value
+  ))
+
+oppsum_stat <- inner_join(oppsum_stat_total, oppsum_stat, by = "Variabel")
+names(oppsum_stat)[-1] <- paste0(names(oppsum_stat)[-1], 
+                                 " (N=", round(oppsum_stat[1, -1]), ")")
 
 knitr::kable(
-  oppsum_stat, digits = 1, 
+  oppsum_stat %>% filter(Variabel != "Antall"), 
+  digits = 1, 
   caption = "Oppsummerende statistikk for de med og uten anastomoselekkasje",
   row.names = FALSE) %>% 
-  kableExtra::add_header_above(c(" " = 1, "Anastomoselekkaskje" = 2))
+  kableExtra::add_header_above(c(" " = 2, "Anastomoselekkaskje" = 2))
 
 ```
 
@@ -121,6 +169,15 @@ model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse +
               family = "binomial")
 summary(model3)
 
+model4 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                NyStomi + erMann + as.factor(WHOECOG) + Alder +
+                as.factor(ASA) + as.factor(Forbehandling) +
+                AvstandAnalVerge + BMI,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge),
+                                        !is.na(BMI)), 
+              family = "binomial")
+summary(model4)
+
 aux1 <- summary(model1)$coefficients %>%
   as.data.frame.matrix() 
 aux1 <- aux1[row.names(aux1) == "Robotassistanse", ]
@@ -130,16 +187,20 @@ aux2 <- aux2[row.names(aux2) == "Robotassistanse", ]
 aux3 <- summary(model3)$coefficients %>%
   as.data.frame.matrix() 
 aux3 <- aux3[row.names(aux3) == "Robotassistanse", ]
-
+aux4 <- summary(model4)$coefficients %>%
+  as.data.frame.matrix() 
+aux4 <- aux4[row.names(aux4) == "Robotassistanse", ]
 
 tab3 <- data.frame(
-  Model = c("Model 1", "Model 2", "Model 3"),
+  Model = c("Model 1", "Model 2", "Model 3", "Model 4"),
   OddsRatio = c(exp(aux1$Estimate),
                 exp(aux2$Estimate),
-                exp(aux3$Estimate)),
+                exp(aux3$Estimate),
+                exp(aux4$Estimate)),
   p.verdi = c(aux1$`Pr(>|z|)`,
-                aux2$`Pr(>|z|)`,
-                aux3$`Pr(>|z|)`)
+              aux2$`Pr(>|z|)`,
+              aux3$`Pr(>|z|)`,
+              aux4$`Pr(>|z|)`)
 )
 
 knitr::kable(tab3)
@@ -157,8 +218,9 @@ Her ser vi på hva som ser ut til å påvirke valget å benytte avlastende stomi
 model3 <- glm(NyStomi ~ 1 + Robotassistanse + 
                 erMann + as.factor(WHOECOG) + Alder +
                 as.factor(ASA) + as.factor(Forbehandling) +
-                AvstandAnalVerge,
-              data = RegData %>% filter(!is.na(AvstandAnalVerge)), 
+                AvstandAnalVerge + BMI,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge),
+                                        !is.na(BMI)), 
               family = "binomial")
 summary(model3)
 
