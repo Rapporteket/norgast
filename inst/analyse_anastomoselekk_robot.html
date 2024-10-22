@@ -122,7 +122,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="co"># Kun malign</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    Tilgang <span class="sc">==</span> <span class="dv">2</span>               <span class="co"># Kun laparoskopiske inngrep, uten de konverterte</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA =</span> <span class="fu">ifelse</span>(ASA<span class="sc">==</span><span class="dv">1</span>, <span class="dv">2</span>, ASA))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA =</span> <span class="fu">ifelse</span>(ASA<span class="sc">==</span><span class="dv">1</span>, <span class="dv">2</span>, ASA),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> KunStraaleterapi <span class="sc">|</span> KjemoRadioKombo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tab1 <span class="ot">&lt;-</span> RegData <span class="sc">%&gt;%</span></span>
@@ -357,15 +358,15 @@ Andel anastomoselekkaskje (%)
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Nei"</span>, <span class="st">"Ja"</span>))) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Antall =</span> <span class="fu">n</span>(),</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Alder (median)"</span> <span class="ot">=</span> <span class="fu">median</span>(Alder),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel kvinnner"</span> <span class="ot">=</span> <span class="fu">sum</span>(erMann<span class="sc">==</span><span class="dv">0</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Alder (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(Alder),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel kvinner"</span> <span class="ot">=</span> <span class="fu">sum</span>(erMann<span class="sc">==</span><span class="dv">0</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel preoperativ bestråling"</span> <span class="ot">=</span> <span class="fu">sum</span>(KunStraaleterapi <span class="sc">|</span> KjemoRadioKombo)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumoravstand fra anus (median)"</span> <span class="ot">=</span> <span class="fu">median</span>(AvstandAnalVerge, <span class="at">na.rm =</span> T),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA-score (gjennonsnitt)"</span> <span class="ot">=</span> <span class="fu">mean</span>(ASA),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumoravstand fra anus (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(AvstandAnalVerge, <span class="at">na.rm =</span> T),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA-score (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(ASA),</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 1-2"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">2</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 3"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">3</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 4"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">4</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI (gjennonsnitt)"</span> <span class="ot">=</span> <span class="fu">mean</span>(BMI, <span class="at">na.rm =</span> T),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(BMI, <span class="at">na.rm =</span> T),</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel anlagt ny stomi"</span> <span class="ot">=</span> <span class="fu">sum</span>(NyStomi)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel robotkirurgi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Robotassistanse<span class="sc">==</span><span class="dv">1</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Konvensjonell med stomi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Robotassistanse<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> NyStomi<span class="sc">==</span><span class="dv">1</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
@@ -382,15 +383,15 @@ Andel anastomoselekkaskje (%)
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                                <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"Nei"</span>, <span class="st">"Ja"</span>))) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">Antall =</span> <span class="fu">n</span>(),</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Alder (median)"</span> <span class="ot">=</span> <span class="fu">median</span>(Alder),</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel kvinnner"</span> <span class="ot">=</span> <span class="fu">sum</span>(erMann<span class="sc">==</span><span class="dv">0</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Alder (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(Alder),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel kvinner"</span> <span class="ot">=</span> <span class="fu">sum</span>(erMann<span class="sc">==</span><span class="dv">0</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel preoperativ bestråling"</span> <span class="ot">=</span> <span class="fu">sum</span>(KunStraaleterapi <span class="sc">|</span> KjemoRadioKombo)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumoravstand fra anus (median)"</span> <span class="ot">=</span> <span class="fu">median</span>(AvstandAnalVerge, <span class="at">na.rm =</span> T),</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA-score (gjennonsnitt)"</span> <span class="ot">=</span> <span class="fu">mean</span>(ASA),</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumoravstand fra anus (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(AvstandAnalVerge, <span class="at">na.rm =</span> T),</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA-score (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(ASA),</span>
 <span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 1-2"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">2</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 3"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">3</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA 4"</span> <span class="ot">=</span> <span class="fu">sum</span>(ASA<span class="sc">==</span><span class="dv">4</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI (gjennonsnitt)"</span> <span class="ot">=</span> <span class="fu">mean</span>(BMI, <span class="at">na.rm =</span> T),</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI (gj.sn)"</span> <span class="ot">=</span> <span class="fu">mean</span>(BMI, <span class="at">na.rm =</span> T),</span>
 <span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel anlagt ny stomi"</span> <span class="ot">=</span> <span class="fu">sum</span>(NyStomi)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel robotkirurgi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Robotassistanse<span class="sc">==</span><span class="dv">1</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
 <span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Konvensjonell med stomi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Robotassistanse<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> NyStomi<span class="sc">==</span><span class="dv">1</span>)<span class="sc">/</span>Antall<span class="sc">*</span><span class="dv">100</span>,</span>
@@ -402,24 +403,53 @@ Andel anastomoselekkaskje (%)
 <span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(radnavn1) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tr_summarize_output</span>(<span class="at">kolnavn1 =</span> <span class="st">"Variabel"</span>)</span>
 <span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>oppsum_stat <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(oppsum_stat_total, oppsum_stat, <span class="at">by =</span> <span class="st">"Variabel"</span>)</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(oppsum_stat)[<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">names</span>(oppsum_stat)[<span class="sc">-</span><span class="dv">1</span>], </span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">" (N="</span>, <span class="fu">round</span>(oppsum_stat[<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>]), <span class="st">")"</span>)</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  oppsum_stat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Variabel <span class="sc">!=</span> <span class="st">"Antall"</span>), </span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">1</span>, </span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Oppsummerende statistikk for de med og uten anastomoselekkasje"</span>,</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">" "</span> <span class="ot">=</span> <span class="dv">2</span>, <span class="st">"Anastomoselekkaskje"</span> <span class="ot">=</span> <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>pverdier <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Variabel =</span> oppsum_stat<span class="sc">$</span>Variabel, <span class="at">pverdi =</span> <span class="cn">NA</span>)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>pverdier <span class="ot">&lt;-</span> pverdier <span class="sc">%&gt;%</span> </span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pverdi =</span> <span class="fu">case_match</span>(</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    Variabel,</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel kvinner"</span> <span class="sc">~</span> </span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fisher.test</span>(<span class="fu">table</span>(RegData[,<span class="fu">c</span>(<span class="st">"Anastomoselekkasje"</span>, <span class="st">"erMann"</span>)]))<span class="sc">$</span>p.value,</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel preoperativ bestråling"</span> <span class="sc">~</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fisher.test</span>(<span class="fu">table</span>(RegData[,<span class="fu">c</span>(<span class="st">"Anastomoselekkasje"</span>, <span class="st">"straaling"</span>)]))<span class="sc">$</span>p.value,</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel anlagt ny stomi"</span> <span class="sc">~</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fisher.test</span>(<span class="fu">table</span>(RegData[,<span class="fu">c</span>(<span class="st">"Anastomoselekkasje"</span>, <span class="st">"NyStomi"</span>)]))<span class="sc">$</span>p.value,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Andel robotkirurgi"</span> <span class="sc">~</span> </span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fisher.test</span>(<span class="fu">table</span>(RegData[,<span class="fu">c</span>(<span class="st">"Anastomoselekkasje"</span>, <span class="st">"Robotassistanse"</span>)]))<span class="sc">$</span>p.value,</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Alder (gj.sn)"</span> <span class="sc">~</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(RegData<span class="sc">$</span>Alder[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">0</span>],</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>             RegData<span class="sc">$</span>Alder[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">1</span>])<span class="sc">$</span>p.value,</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumoravstand fra anus (gj.sn)"</span> <span class="sc">~</span> </span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(RegData<span class="sc">$</span>AvstandAnalVerge[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">0</span>],</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>             RegData<span class="sc">$</span>AvstandAnalVerge[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">1</span>])<span class="sc">$</span>p.value,</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ASA-score (gj.sn)"</span> <span class="sc">~</span> </span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(RegData<span class="sc">$</span>ASA[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">0</span>],</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>             RegData<span class="sc">$</span>ASA[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">1</span>])<span class="sc">$</span>p.value,</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI (gj.sn)"</span> <span class="sc">~</span> </span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>      <span class="fu">t.test</span>(RegData<span class="sc">$</span>BMI[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">0</span>],</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>             RegData<span class="sc">$</span>BMI[RegData<span class="sc">$</span>Anastomoselekkasje <span class="sc">==</span> <span class="dv">1</span>])<span class="sc">$</span>p.value</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>oppsum_stat <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(oppsum_stat_total, oppsum_stat, <span class="at">by =</span> <span class="st">"Variabel"</span>)</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(oppsum_stat)[<span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">names</span>(oppsum_stat)[<span class="sc">-</span><span class="dv">1</span>], </span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">" (N="</span>, <span class="fu">round</span>(oppsum_stat[<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>]), <span class="st">")"</span>)</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>oppsum_stat <span class="ot">&lt;-</span> <span class="fu">left_join</span>(oppsum_stat, pverdier, <span class="at">by =</span> <span class="st">"Variabel"</span>)</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>  oppsum_stat <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Variabel <span class="sc">!=</span> <span class="st">"Antall"</span>), </span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">5</span>), </span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Oppsummerende statistikk for de med og uten anastomoselekkasje"</span>,</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">" "</span> <span class="ot">=</span> <span class="dv">2</span>, <span class="st">"Anastomoselekkaskje"</span> <span class="ot">=</span> <span class="dv">2</span>, <span class="st">" "</span> <span class="ot">=</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <caption>Oppsummerende statistikk for de med og uten anastomoselekkasje</caption>
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -427,104 +457,121 @@ Andel anastomoselekkaskje (%)
 <th colspan="2" data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
 Anastomoselekkaskje
 </div></th>
+<th data-quarto-table-cell-role="th" style="text-align: right; empty-cells: hide; border-bottom: hidden;"></th>
 </tr>
 <tr class="odd">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Variabel</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Total (N=1311)</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Nei (N=1209)</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Ja (N=102)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pverdi</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Alder (median)</td>
-<td style="text-align: right;">66.6</td>
-<td style="text-align: right;">66.9</td>
-<td style="text-align: right;">64.1</td>
+<td style="text-align: left;">Alder (gj.sn)</td>
+<td style="text-align: right;">65.7</td>
+<td style="text-align: right;">65.8</td>
+<td style="text-align: right;">63.9</td>
+<td style="text-align: right;">0.09737</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Andel kvinnner</td>
+<td style="text-align: left;">Andel kvinner</td>
 <td style="text-align: right;">40.4</td>
 <td style="text-align: right;">41.9</td>
 <td style="text-align: right;">21.6</td>
+<td style="text-align: right;">0.00004</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Andel preoperativ bestråling</td>
 <td style="text-align: right;">23.5</td>
 <td style="text-align: right;">23.7</td>
 <td style="text-align: right;">20.6</td>
+<td style="text-align: right;">0.54363</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Tumoravstand fra anus (median)</td>
+<td style="text-align: left;">Tumoravstand fra anus (gj.sn)</td>
 <td style="text-align: right;">10.0</td>
 <td style="text-align: right;">10.0</td>
-<td style="text-align: right;">11.0</td>
+<td style="text-align: right;">10.5</td>
+<td style="text-align: right;">0.09949</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">ASA-score (gjennonsnitt)</td>
+<td style="text-align: left;">ASA-score (gj.sn)</td>
 <td style="text-align: right;">2.3</td>
 <td style="text-align: right;">2.3</td>
 <td style="text-align: right;">2.2</td>
+<td style="text-align: right;">0.87279</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ASA 1-2</td>
 <td style="text-align: right;">75.5</td>
 <td style="text-align: right;">75.5</td>
 <td style="text-align: right;">75.5</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ASA 3</td>
 <td style="text-align: right;">23.8</td>
 <td style="text-align: right;">23.7</td>
 <td style="text-align: right;">24.5</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">ASA 4</td>
 <td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.7</td>
 <td style="text-align: right;">0.0</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">BMI (gjennonsnitt)</td>
+<td style="text-align: left;">BMI (gj.sn)</td>
 <td style="text-align: right;">26.4</td>
 <td style="text-align: right;">26.3</td>
 <td style="text-align: right;">27.1</td>
+<td style="text-align: right;">0.11731</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Andel anlagt ny stomi</td>
 <td style="text-align: right;">45.7</td>
 <td style="text-align: right;">48.4</td>
 <td style="text-align: right;">13.7</td>
+<td style="text-align: right;">0.00000</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Andel robotkirurgi</td>
 <td style="text-align: right;">54.3</td>
 <td style="text-align: right;">52.9</td>
 <td style="text-align: right;">71.6</td>
+<td style="text-align: right;">0.00026</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Konvensjonell med stomi</td>
 <td style="text-align: right;">24.1</td>
 <td style="text-align: right;">25.7</td>
 <td style="text-align: right;">4.9</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Konvensjonell uten stomi</td>
 <td style="text-align: right;">21.6</td>
 <td style="text-align: right;">21.4</td>
 <td style="text-align: right;">23.5</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Robot med stomi</td>
 <td style="text-align: right;">21.6</td>
 <td style="text-align: right;">22.7</td>
 <td style="text-align: right;">8.8</td>
+<td style="text-align: right;">NA</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Robot uten stomi</td>
 <td style="text-align: right;">32.7</td>
 <td style="text-align: right;">30.2</td>
 <td style="text-align: right;">62.7</td>
+<td style="text-align: right;">NA</td>
 </tr>
 </tbody>
 </table>
@@ -585,57 +632,22 @@ AIC: 662.99
 
 Number of Fisher Scoring iterations: 6</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                NyStomi <span class="sc">+</span> erMann <span class="sc">+</span> <span class="fu">as.factor</span>(WHOECOG) <span class="sc">+</span> Alder <span class="sc">+</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">as.factor</span>(ASA) <span class="sc">+</span> <span class="fu">as.factor</span>(Forbehandling) <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                AvstandAnalVerge,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> RegData <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge)), </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-glm(formula = Anastomoselekkasje ~ 1 + Robotassistanse + NyStomi + 
-    erMann + as.factor(WHOECOG) + Alder + as.factor(ASA) + as.factor(Forbehandling) + 
-    AvstandAnalVerge, family = "binomial", data = RegData %&gt;% 
-    filter(!is.na(AvstandAnalVerge)))
-
-Coefficients:
-                            Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)                 -1.66301    1.15312  -1.442   0.1492    
-Robotassistanse              0.59898    0.26485   2.262   0.0237 *  
-NyStomi                     -1.97940    0.35357  -5.598 2.16e-08 ***
-erMann                       1.14144    0.28147   4.055 5.01e-05 ***
-as.factor(WHOECOG)1         -0.15995    0.34821  -0.459   0.6460    
-as.factor(WHOECOG)2         -0.67544    1.05925  -0.638   0.5237    
-as.factor(WHOECOG)3          0.99327    1.21497   0.818   0.4136    
-as.factor(WHOECOG)4        -14.35430 1506.39385  -0.010   0.9924    
-Alder                       -0.01451    0.01137  -1.276   0.2019    
-as.factor(ASA)3              0.02721    0.29816   0.091   0.9273    
-as.factor(ASA)4            -12.85006  826.51339  -0.016   0.9876    
-as.factor(Forbehandling)2    0.44700    0.87072   0.513   0.6077    
-as.factor(Forbehandling)3   -0.01813    0.82100  -0.022   0.9824    
-as.factor(Forbehandling)4    0.13758    0.76726   0.179   0.8577    
-AvstandAnalVerge            -0.05776    0.03917  -1.475   0.1403    
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 604.69  on 1138  degrees of freedom
-Residual deviance: 528.12  on 1124  degrees of freedom
-AIC: 558.12
-
-Number of Fisher Scoring iterations: 15</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>model4 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                NyStomi <span class="sc">+</span> erMann <span class="sc">+</span> <span class="fu">as.factor</span>(WHOECOG) <span class="sc">+</span> Alder <span class="sc">+</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">as.factor</span>(ASA) <span class="sc">+</span> <span class="fu">as.factor</span>(Forbehandling) <span class="sc">+</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                AvstandAnalVerge <span class="sc">+</span> BMI,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> RegData <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                        <span class="sc">!</span><span class="fu">is.na</span>(BMI)), </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model3 &lt;- glm(Anastomoselekkasje ~ 1 + Robotassistanse + </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#                 NyStomi + erMann + as.factor(WHOECOG) + Alder +</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#                 as.factor(ASA) + as.factor(Forbehandling) +</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#                 AvstandAnalVerge,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#               data = RegData %&gt;% filter(!is.na(AvstandAnalVerge)), </span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#               family = "binomial")</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># summary(model3)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                NyStomi <span class="sc">+</span> erMann <span class="sc">+</span> <span class="fu">as.factor</span>(WHOECOG) <span class="sc">+</span> Alder <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">as.factor</span>(ASA) <span class="sc">+</span> <span class="fu">as.factor</span>(Forbehandling) <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                AvstandAnalVerge <span class="sc">+</span> BMI,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> RegData <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="sc">!</span><span class="fu">is.na</span>(BMI)), </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -673,32 +685,30 @@ AIC: 556.63
 
 Number of Fisher Scoring iterations: 15</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>aux1 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model1)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>aux1 <span class="ot">&lt;-</span> aux1[<span class="fu">row.names</span>(aux1) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>aux2 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model2)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>aux2 <span class="ot">&lt;-</span> aux2[<span class="fu">row.names</span>(aux2) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>aux3 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model3)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>aux3 <span class="ot">&lt;-</span> aux3[<span class="fu">row.names</span>(aux3) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>aux4 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model4)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>aux4 <span class="ot">&lt;-</span> aux4[<span class="fu">row.names</span>(aux4) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>tab3 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Model 1"</span>, <span class="st">"Model 2"</span>, <span class="st">"Model 3"</span>, <span class="st">"Model 4"</span>),</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">OddsRatio =</span> <span class="fu">c</span>(<span class="fu">exp</span>(aux1<span class="sc">$</span>Estimate),</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">exp</span>(aux2<span class="sc">$</span>Estimate),</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">exp</span>(aux3<span class="sc">$</span>Estimate),</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>                <span class="fu">exp</span>(aux4<span class="sc">$</span>Estimate)),</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.verdi =</span> <span class="fu">c</span>(aux1<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>              aux2<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>,</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>              aux3<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>              aux4<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>)</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tab3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>aux1 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model1)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>aux1 <span class="ot">&lt;-</span> aux1[<span class="fu">row.names</span>(aux1) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>aux2 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model2)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>() </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>aux2 <span class="ot">&lt;-</span> aux2[<span class="fu">row.names</span>(aux2) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>aux3 <span class="ot">&lt;-</span> <span class="fu">summary</span>(model3)<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame.matrix</span>()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>aux3 <span class="ot">&lt;-</span> aux3[<span class="fu">row.names</span>(aux3) <span class="sc">==</span> <span class="st">"Robotassistanse"</span>, ]</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># aux4 &lt;- summary(model4)$coefficients %&gt;%</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   as.data.frame.matrix() </span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># aux4 &lt;- aux4[row.names(aux4) == "Robotassistanse", ]</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>tab3 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Model 1"</span>, <span class="st">"Model 2"</span>, <span class="st">"Model 3"</span>),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">OddsRatio =</span> <span class="fu">c</span>(<span class="fu">exp</span>(aux1<span class="sc">$</span>Estimate),</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">exp</span>(aux2<span class="sc">$</span>Estimate),</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">exp</span>(aux3<span class="sc">$</span>Estimate)),</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.verdi =</span> <span class="fu">c</span>(aux1<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>              aux2<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>              aux3<span class="sc">$</span><span class="st">`</span><span class="at">Pr(&gt;|z|)</span><span class="st">`</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tab3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <thead>
@@ -721,11 +731,6 @@ Number of Fisher Scoring iterations: 15</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Model 3</td>
-<td style="text-align: right;">1.820260</td>
-<td style="text-align: right;">0.0237235</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Model 4</td>
 <td style="text-align: right;">1.785010</td>
 <td style="text-align: right;">0.0291383</td>
 </tr>
@@ -733,20 +738,20 @@ Number of Fisher Scoring iterations: 15</code></pre>
 </table>
 </div>
 </div>
-<p>Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge.</p>
+<p>Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten, samt BMI. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge og BMI.</p>
 </section>
 <section id="foreløpig-analyse---ny-stomi" class="level2">
 <h2 class="anchored" data-anchor-id="foreløpig-analyse---ny-stomi">Foreløpig analyse - Ny stomi</h2>
 <p>Her ser vi på hva som ser ut til å påvirke valget å benytte avlastende stomi.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(NyStomi <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                erMann <span class="sc">+</span> <span class="fu">as.factor</span>(WHOECOG) <span class="sc">+</span> Alder <span class="sc">+</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">as.factor</span>(ASA) <span class="sc">+</span> <span class="fu">as.factor</span>(Forbehandling) <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                AvstandAnalVerge <span class="sc">+</span> BMI,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> RegData <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge),</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                                        <span class="sc">!</span><span class="fu">is.na</span>(BMI)), </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_nystomi <span class="ot">&lt;-</span> <span class="fu">glm</span>(NyStomi <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                erMann <span class="sc">+</span> <span class="fu">as.factor</span>(WHOECOG) <span class="sc">+</span> Alder <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">as.factor</span>(ASA) <span class="sc">+</span> <span class="fu">as.factor</span>(Forbehandling) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                AvstandAnalVerge <span class="sc">+</span> BMI,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">data =</span> RegData <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                                        <span class="sc">!</span><span class="fu">is.na</span>(BMI)), </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_nystomi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -784,6 +789,7 @@ AIC: 1242.8
 Number of Fisher Scoring iterations: 4</code></pre>
 </div>
 </div>
+<!-- ## INLA -->
 </section>
 
 </main>
