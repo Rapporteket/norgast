@@ -174,14 +174,6 @@ model2 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse +
                 NyStomi, data = RegData, family = "binomial")
 summary(model2)
 
-# model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
-#                 NyStomi + erMann + as.factor(WHOECOG) + Alder +
-#                 as.factor(ASA) + as.factor(Forbehandling) +
-#                 AvstandAnalVerge,
-#               data = RegData %>% filter(!is.na(AvstandAnalVerge)), 
-#               family = "binomial")
-# summary(model3)
-
 model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
                 NyStomi + erMann + as.factor(WHOECOG) + Alder +
                 as.factor(ASA) + as.factor(Forbehandling) +
@@ -200,9 +192,6 @@ aux2 <- aux2[row.names(aux2) == "Robotassistanse", ]
 aux3 <- summary(model3)$coefficients %>%
   as.data.frame.matrix()
 aux3 <- aux3[row.names(aux3) == "Robotassistanse", ]
-# aux4 <- summary(model4)$coefficients %>%
-#   as.data.frame.matrix() 
-# aux4 <- aux4[row.names(aux4) == "Robotassistanse", ]
 
 tab3 <- data.frame(
   Model = c("Model 1", "Model 2", "Model 3"),
@@ -238,25 +227,3 @@ summary(model_nystomi)
 
 ```
 
-<!-- ## INLA -->
-
-```{r}
-#| echo: false
-
-# formel <- formula(Anastomoselekkasje ~ 1 + Robotassistanse +
-#                 NyStomi + erMann + as.factor(WHOECOG) + Alder +
-#                   f(Aar, model="ar1") +
-#                 as.factor(ASA) + as.factor(Forbehandling) +
-#                 AvstandAnalVerge + BMI)
-# formel <- formula(Anastomoselekkasje ~ 1 +
-#                   f(Alder, model="rw1"))
-# 
-# 
-# model4 <- INLA::inla(formel, data = RegData %>% filter(!is.na(AvstandAnalVerge),
-#                                         !is.na(BMI)),
-#                      family = "binomial")
-# 
-# summary(model4)
-
-
-```
