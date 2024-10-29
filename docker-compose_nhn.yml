@@ -47,7 +47,7 @@ services:
   dev:
     depends_on:
       - db
-    image: rapporteket/pilot-dev:main
+    image: rapporteket/nogast-dev:nhn
     volumes:
       - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
