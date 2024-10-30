@@ -10,7 +10,7 @@
 appServer <- function(input, output, session) {
 
   user <- rapbase::navbarWidgetServer2(
-    "norgast-widget",
+    "navbar-widget",
     orgName = "NORGAST",
     caller = packageName()
   )
@@ -157,20 +157,23 @@ appServer <- function(input, output, session) {
   # )
 
   ## Subscription
-  rapbase::autoReportServer(
-    id = "norgastSubscription",
-    registryName = "norgast",
-    type = "subscription",
-    reports = list(
-      Kvartalsrapport = list(
-        synopsis = "NORGAST: Kvartalsrapport",
-        fun = "abonnement_kvartal_norgast",
-        paramNames = c("baseName", "reshID"),
-        paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
-      )
-    ),
-    orgs = orgs,
-    freq = "quarter"
+  shiny::observe(
+
+    rapbase::autoReportServer(
+      id = "norgastSubscription",
+      registryName = "norgast",
+      type = "subscription",
+      reports = list(
+        Kvartalsrapport = list(
+          synopsis = "NORGAST: Kvartalsrapport",
+          fun = "abonnement_kvartal_norgast",
+          paramNames = c("baseName", "reshID"),
+          paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
+        )
+      ),
+      orgs = orgs,
+      freq = "quarter"
+    )
   )
 
   ## Dispatchment
@@ -179,47 +182,51 @@ appServer <- function(input, output, session) {
   paramNames <- shiny::reactive(c("reshID"))
   paramValues <- shiny::reactive(c(org$value()))
 
-  rapbase::autoReportServer(
-    id = "norgastDispatch",
-    registryName = "norgast",
-    type = "dispatchment",
-    org = org$value,
-    paramNames = paramNames,
-    paramValues = paramValues,
-    reports = list(
-      Kvartalsrapport = list(
-        synopsis = "NORGAST: Kvartalsrapport",
-        fun = "abonnement_kvartal_norgast",
-        paramNames = c("baseName", "reshID"),
-        paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
-      )
-    ),
-    orgs = orgs,
-    eligible = (userRole == "SC"),
-    freq = "quarter"
+  observe(
+    rapbase::autoReportServer(
+      id = "norgastDispatch",
+      registryName = "norgast",
+      type = "dispatchment",
+      org = org$value,
+      paramNames = paramNames,
+      paramValues = paramValues,
+      reports = list(
+        Kvartalsrapport = list(
+          synopsis = "NORGAST: Kvartalsrapport",
+          fun = "abonnement_kvartal_norgast",
+          paramNames = c("baseName", "reshID"),
+          paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
+        )
+      ),
+      orgs = orgs,
+      eligible = (user$org() == "SC"),
+      freq = "quarter"
+    )
   )
 
   ## Stats
-  rapbase::statsServer("norgastStats", registryName = "norgast",
-                       eligible = (userRole == "SC"))
+  observe(
+    rapbase::statsServer("norgastStats", registryName = "norgast",
+                         eligible = (user$org() == "SC"))
+  )
   rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
 
 
-  #Navbarwidget
-  output$appUserName <- renderText(rapbase::getUserFullName(session))
-  output$appOrgName <-
-    shiny::renderText(
-      names(BrValg$sykehus[BrValg$sykehus == user$org()])
-    )
+  # #Navbarwidget
+  # output$appUserName <- renderText(rapbase::getUserFullName(session))
+  # output$appOrgName <-
+  #   shiny::renderText(
+  #     names(BrValg$sykehus[BrValg$sykehus == user$org()])
+  #   )
 
   # Brukerinformasjon
-  userInfo <- rapbase::howWeDealWithPersonalData(session)
-  shiny::observeEvent(input$userInfo, {
-    shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
-                           type = "", imageUrl = "rap/logo.svg",
-                           closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-                           html = TRUE, confirmButtonText = "Den er grei!")
-  })
+  # userInfo <- rapbase::howWeDealWithPersonalData(session)
+  # shiny::observeEvent(input$userInfo, {
+  #   shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
+  #                          type = "", imageUrl = "rap/logo.svg",
+  #                          closeOnEsc = TRUE, closeOnClickOutside = TRUE,
+  #                          html = TRUE, confirmButtonText = "Den er grei!")
+  # })
 
 
   ##############################################################################
