@@ -7,7 +7,11 @@
 
 NorgastHentSkjemaOversikt <- function() {
 
-  registryName <- "norgast"
+  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
+    registryName <- "data"
+  } else {
+    registryName <- "norgast"
+  }
   dbType <- "mysql"
 
   query <- paste0("SELECT * FROM SkjemaOversikt")

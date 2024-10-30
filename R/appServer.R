@@ -9,13 +9,12 @@
 
 appServer <- function(input, output, session) {
 
-  # RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
-  # skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
-  # if (isFALSE(RegData) | isFALSE(skjemaoversikt)) {
-  #   norgast::norgastMakeStagingData()
-  #   RegData <- rapbase::loadStagingData("norgast", "RegData") #Benyttes i appen
-  #   skjemaoversikt <- rapbase::loadStagingData("norgast", "skjemaoversikt") #Benyttes i appen
-  # }
+  user <- rapbase::navbarWidgetServer2(
+    "norgast-widget",
+    orgName = "NORGAST",
+    caller = packageName()
+  )
+
   RegData <-  norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
@@ -24,7 +23,7 @@ appServer <- function(input, output, session) {
   RegData <- RegData[which(RegData$RegistreringStatus==1),]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   query <- "SELECT * FROM user"
-  brukerinfo <- rapbase::loadRegData("norgast", query, "mysql") %>%
+  brukerinfo <- rapbase::loadRegData("data", query, "mysql") %>%
     dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
   RegData$ForstLukketAv <-
     brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
@@ -32,95 +31,106 @@ appServer <- function(input, output, session) {
     brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
-  if (rapbase::isRapContext()) {
-    rapbase::appLogger(session = session, msg = 'Starter NORGAST')
-    reshID <- rapbase::getUserReshId(session)
-    userRole <- rapbase::getUserRole(session)
-  } else {
-    reshID <- 601225
-    userRole <- 'SC'
-  }
+  # if (rapbase::isRapContext()) {
+  #   rapbase::appLogger(session = session, msg = 'Starter NORGAST')
+  #   reshID <- rapbase::getUserReshId(session)
+  #   userRole <- rapbase::getUserRole(session)
+  # } else {
+  #   reshID <- 601225
+  #   userRole <- 'SC'
+  # }
 
-  if (userRole != 'SC') {
-    shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
-    shiny::hideTab("norgast_app_id", target = "Utsending")
-    # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
-    shiny::hideTab("norgast_app_id", target = "Eksport")
-    shiny::hideTab("norgast_app_id", target = "Traktplott")
-    shiny::hideTab("norgast_app_id", target = "Indikatorer")
-    shiny::hideTab("norgast_app_id", target = "Verktøy")
-  }
+  shiny::observeEvent(
+    user$role(),
+    if (user$role() != 'SC') {
+      shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+      shiny::hideTab("norgast_app_id", target = "Utsending")
+      # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+      shiny::hideTab("norgast_app_id", target = "Eksport")
+      shiny::hideTab("norgast_app_id", target = "Traktplott")
+      shiny::hideTab("norgast_app_id", target = "Indikatorer")
+      shiny::hideTab("norgast_app_id", target = "Verktøy")
+    } else {
+      shiny::showTab("norgast_app_id", target = "Sykehusvisning")
+      shiny::showTab("norgast_app_id", target = "Utsending")
+      # shiny::showTab("norgast_app_id", target = "Datakvalitet")
+      shiny::showTab("norgast_app_id", target = "Eksport")
+      shiny::showTab("norgast_app_id", target = "Traktplott")
+      shiny::showTab("norgast_app_id", target = "Indikatorer")
+      shiny::showTab("norgast_app_id", target = "Verktøy")
+    }
+  )
 
-  shiny::callModule(norgast::startside, "startside", usrRole=userRole)
+  shiny::callModule(norgast::startside, "startside", usrRole=user$role())
 
   ##############################################################################
   ################ Fordelingsfigurer ###########################################
 
-  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Sykehusvisning ##############################################
 
-  shiny::callModule(norgast::sykehusvisning, "sykehusvisning_id", reshID = reshID,
+  shiny::callModule(norgast::sykehusvisning, "sykehusvisning_id", reshID = user$org(),
                     RegData = RegData, hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Traktplot ###################################################
 
-  shiny::callModule(norgast::traktplot, "traktplot_id", reshID = reshID,
+  shiny::callModule(norgast::traktplot, "traktplot_id", reshID = user$org(),
                     RegData = RegData, hvd_session = session, BrValg = BrValg)
 
 
   ##############################################################################
   ################ Tidsvisning #################################################
 
-  shiny::callModule(norgast::tidsvisning, "tidsvisning_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::tidsvisning, "tidsvisning_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Sammenlign utvalg ###########################################
 
-  shiny::callModule(norgast::saml_andeler, "saml_andeler_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::saml_andeler, "saml_andeler_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
 
   ##############################################################################
   ################ Indikatorfigurer ############################################
 
-  shiny::callModule(norgast::indikatorfig, "indikator_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::indikatorfig, "indikator_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Overlevelseskurver ##########################################
 
-  shiny::callModule(norgast::overlevelse, "overlevelse_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::overlevelse, "overlevelse_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Samledokumenter #############################################
 
-  shiny::callModule(norgast::samledok, "samledok_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::samledok, "samledok_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Datadump   ##################################################
 
-  shiny::callModule(norgast::datadump, "datadump_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole, brukerinfo=brukerinfo,
+  shiny::callModule(norgast::datadump, "datadump_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(), brukerinfo=brukerinfo,
                     hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Adm. tabeller ###############################################
 
-  shiny::callModule(norgast::admtab, "admtab_id", reshID = reshID,
-                    RegData = RegData, userRole = userRole,
+  shiny::callModule(norgast::admtab, "admtab_id", reshID = user$org(),
+                    RegData = RegData, userRole = user$role(),
                     hvd_session = session, skjemaoversikt=skjemaoversikt,
                     BrValg = BrValg)
 
@@ -128,7 +138,7 @@ appServer <- function(input, output, session) {
   ################ Datakvalitet ################################################
 
   shiny::callModule(norgast::datakval_server, "datakval_id",
-                    reshID = reshID, userRole = userRole,
+                    reshID = user$org(), userRole = user$role(),
                     RegData = RegData, SkjemaOversikt = skjemaoversikt,
                     hvd_session = session)
 
@@ -137,19 +147,30 @@ appServer <- function(input, output, session) {
 
   ## Objects currently shared among subscription and dispathcment
   orgs <- as.list(BrValg$sykehus)
-  reports <- list(
-    Kvartalsrapport = list(
-      synopsis = "NORGAST: Kvartalsrapport",
-      fun = "abonnement_kvartal_norgast",
-      paramNames = c("baseName", "reshID"),
-      paramValues = c("NorgastKvartalsrapport_abonnement", reshID)
-    )
-  )
+  # reports <- list(
+  #   Kvartalsrapport = list(
+  #     synopsis = "NORGAST: Kvartalsrapport",
+  #     fun = "abonnement_kvartal_norgast",
+  #     paramNames = c("baseName", "reshID"),
+  #     paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
+  #   )
+  # )
 
   ## Subscription
   rapbase::autoReportServer(
-    id = "norgastSubscription", registryName = "norgast",
-    type = "subscription", reports = reports, orgs = orgs, freq = "quarter"
+    id = "norgastSubscription",
+    registryName = "norgast",
+    type = "subscription",
+    reports = list(
+      Kvartalsrapport = list(
+        synopsis = "NORGAST: Kvartalsrapport",
+        fun = "abonnement_kvartal_norgast",
+        paramNames = c("baseName", "reshID"),
+        paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
+      )
+    ),
+    orgs = orgs,
+    freq = "quarter"
   )
 
   ## Dispatchment
@@ -159,10 +180,23 @@ appServer <- function(input, output, session) {
   paramValues <- shiny::reactive(c(org$value()))
 
   rapbase::autoReportServer(
-    id = "norgastDispatch", registryName = "norgast",
-    type = "dispatchment", org = org$value, paramNames = paramNames,
-    paramValues = paramValues, reports = reports, orgs = orgs,
-    eligible = (userRole == "SC"), freq = "quarter"
+    id = "norgastDispatch",
+    registryName = "norgast",
+    type = "dispatchment",
+    org = org$value,
+    paramNames = paramNames,
+    paramValues = paramValues,
+    reports = list(
+      Kvartalsrapport = list(
+        synopsis = "NORGAST: Kvartalsrapport",
+        fun = "abonnement_kvartal_norgast",
+        paramNames = c("baseName", "reshID"),
+        paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
+      )
+    ),
+    orgs = orgs,
+    eligible = (userRole == "SC"),
+    freq = "quarter"
   )
 
   ## Stats
@@ -175,7 +209,7 @@ appServer <- function(input, output, session) {
   output$appUserName <- renderText(rapbase::getUserFullName(session))
   output$appOrgName <-
     shiny::renderText(
-      names(BrValg$sykehus[BrValg$sykehus == rapbase::getUserReshId(session)])
+      names(BrValg$sykehus[BrValg$sykehus == user$org()])
     )
 
   # Brukerinformasjon
@@ -200,4 +234,4 @@ appServer <- function(input, output, session) {
 
 
 
-  }
+}

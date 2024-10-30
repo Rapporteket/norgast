@@ -23,9 +23,6 @@ appUi <- function() {
       rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
                                    organization = uiOutput("appOrgName"),
                                    addUserInfo = TRUE),
-      shiny::tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico"),
-                       includeCSS(system.file("www/yohannes.css",
-                                              package = "norgast"))),
       norgast::startside_UI("startside")
     ),
 
