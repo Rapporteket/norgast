@@ -1,15 +1,15 @@
 Package: norgast
 Type: Package
 Title: Resultatrapporter for NORGAST
-Version: 2.4.0
+Version: 3.0.0
 Date: 2015-12-17
 Author: Kevin Thon
-Maintainer: Kevin Thon <kevin.thon@skde.no>
+Maintainer: Kevin Thon <kevin.otto.thon@helse-nord.no>
 Description: Pakke for generering av resultatrapporter for NORGAST.
 License: GPL2
 LazyData: TRUE
 Encoding: UTF-8
-Depends: R (>= 3.6.0)
+Depends: R (>= 4.1.0)
 Imports:
   xtable,
   plotrix,
@@ -27,7 +27,7 @@ Imports:
   latex2exp,
   janitor
 Remotes:
-  Rapporteket/rapbase@*release,
+  Rapporteket/rapbase@main,
   Rapporteket/rapFigurer
 RoxygenNote: 7.3.2
 Suggests: knitr,
