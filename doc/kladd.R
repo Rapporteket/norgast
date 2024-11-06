@@ -48,8 +48,8 @@ library(tidyverse)
 setwd('C:/GIT/norgast/doc/')
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-06-12 09-09-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-12 09-09-17.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2019-06-12 09-09-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-06-12 09-09-17.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -61,7 +61,7 @@ RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
 
 
-skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2019-06-12 09-09-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+skjemaoversikt <- read.table('I:/norgast/skjemaoversikt2019-06-12 09-09-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 skjemaoversikt$Sykehusnavn <- iconv(skjemaoversikt$Sykehusnavn, from = 'UTF-8', to = '')
 skjemaoversikt$Skjemanavn <- iconv(skjemaoversikt$Skjemanavn, from = 'UTF-8', to = '')
 skjemaoversikt$OpprettetDato <- as.Date(skjemaoversikt$OpprettetDato)
@@ -80,8 +80,8 @@ hfest[hfest$OpprettetDato >= '2019-01-01', ]
 setwd('C:/GIT/norgast/doc/')
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-04-26 10-59-03.txt', header=TRUE, sep=";", encoding = 'UFT-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2019-04-26 10-59-03.txt', header=TRUE, sep=";", encoding = 'UFT-8', stringsAsFactors = F)
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 # RegData <- RegData[RegData$OppfStatus == 'Ferdigstilt', ]
 
@@ -136,8 +136,8 @@ write.csv2(antall_na, 'missing_norgast_v2.csv', row.names = F)
 library(norgast)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-06-06 08-41-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-06 08-42-14.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2019-06-06 08-41-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-06-06 08-42-14.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -173,8 +173,8 @@ RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 
 ## Forrige versjon
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-04-26 10-59-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2019-04-26 10-59-03.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-04-26 10-59-18.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

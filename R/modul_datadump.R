@@ -21,8 +21,8 @@ datadump_UI <- function(id){
                                                     unit = "year"),
                      end = Sys.Date(), separator = " til "),
       selectInput(inputId = ns("dumptype"), label = "Velg type datadump",
-                  choices = c('AlleVar', 'AlleVarNum', 'ForlopsOversikt',
-                              'SkjemaOversikt')),
+                  choices = c('AlleVar', 'allevarnum', 'forlopsoversikt',
+                              'skjemaoversikt')),
       shinyjs::hidden(uiOutput(outputId = ns('op_gruppe_ui'))),
       shinyjs::hidden(uiOutput(outputId = ns('ncsp'))),
       uiOutput(outputId = ns('valgtShus_ui')),
@@ -43,11 +43,11 @@ datadump_UI <- function(id){
           h4(tags$b(tags$u('Forklaring til de ulike datadump-typene:'))),
           h4(tags$b('AlleVar '), 'inneholder alle kliniske variabler i registeret
              og benytter etikettene til kategoriske variabler.'),
-          h4(tags$b('AlleVarNum '), 'inneholder alle kliniske variabler i
+          h4(tags$b('allevarnum '), 'inneholder alle kliniske variabler i
              registeret og benytter tallkodene til kategoriske variabler.'),
-          h4(tags$b('ForlopsOversikt '), 'inneholder en del administrative data
+          h4(tags$b('forlopsoversikt '), 'inneholder en del administrative data
              relevant for forløpene.'),
-          h4(tags$b('SkjemaOversikt '), 'er en oversikt over status til alle
+          h4(tags$b('skjemaoversikt '), 'er en oversikt over status til alle
              registreringer i registreret, også uferdige.'),
           downloadButton(ns("lastNed_dump_raa"), "Last ned datadump")
         ),
@@ -175,7 +175,7 @@ datadump <- function(input, output, session, reshID, RegData,
       } else {
         tmpData <- read.table(paste0('I:/norgast/', input$dumptype, '2021-06-02 08-20-32.txt'), header=TRUE, sep=";", encoding = 'UTF-8', stringsAsFactors = F)
       }
-      if (input$dumptype %in% c('AlleVar', 'AlleVarNum')) {
+      if (input$dumptype %in% c('AlleVar', 'allevarnum')) {
         tmpData$HovedDato <- tmpData$OpDato
       }
       dumpdata <- tmpData[as.Date(tmpData$HovedDato) >= input$datovalg[1] &
@@ -186,7 +186,7 @@ datadump <- function(input, output, session, reshID, RegData,
         if (!is.null(input$valgtShus)) {
           dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}
       }
-      if (input$dumptype %in% c('SkjemaOversikt')) {
+      if (input$dumptype %in% c('skjemaoversikt')) {
         dumpdata$OpprettetAv <-
           brukerinfo$fullname[match(dumpdata$OpprettetAv, brukerinfo$ID)]
         dumpdata$SistLagretAv <-

@@ -190,9 +190,9 @@ write.csv2(fid, "~/mydata/norgast/kobling_norgast_2023.csv",
 
 
 ##### Uttrekk fnr Kristoffer 05.04.2024 ##########################
-allevarnum <- read.csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv",
+allevarnum <- read.csv2("~/mydata/norgast/allevarnum_NORGAST2024-04-02 11_51_13.csv",
                         fileEncoding = "Latin1")
-forlop <- read.csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv",
+forlop <- read.csv2("~/mydata/norgast/forlopsoversikt_NORGAST2024-04-02 11_52_26.csv",
                     fileEncoding = "Latin1")
 kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.04.2024.csv",
                            colClasses = c("integer", "character"))
@@ -211,8 +211,8 @@ openxlsx::write.xlsx(pid, "~/mydata/norgast/pas_ous_jjb.xlsx")
 
 ##### Uttrekk alder Kristoffer 03.04.2024 ##########################
 
-forlop <- readr::read_csv2("~/mydata/norgast/ForlopsOversikt_NORGAST2024-04-02 11_52_26.csv")
-allevarnum <- readr::read_csv2("~/mydata/norgast/AlleVarNum_NORGAST2024-04-02 11_51_13.csv")
+forlop <- readr::read_csv2("~/mydata/norgast/forlopsoversikt_NORGAST2024-04-02 11_52_26.csv")
+allevarnum <- readr::read_csv2("~/mydata/norgast/allevarnum_NORGAST2024-04-02 11_51_13.csv")
 alderfil <- readxl::read_xlsx("~/mydata/norgast/Alder ved operasjonstidspunkt.xlsx",
                               sheet = 1)
 
@@ -1005,7 +1005,7 @@ write.csv2(aggdata, "/home/rstudio/delt_folder/krg_pdac_2021.csv",
 
 # registryName <- "norgast"
 # dbType <- "mysql"
-# query <- "SELECT * FROM AlleVarNum"
+# query <- "SELECT * FROM allevarnum"
 # allevar <- rapbase::loadRegData(registryName, query, dbType)
 
 
@@ -1073,9 +1073,9 @@ write.csv2(kobl[which(kobl$AvdRESH == 601225), c("PasientID", "ForlopsID", "SSN"
            "/home/rstudio/delt_folder/UNNTromso.csv", row.names = F, fileEncoding = "Latin1")
 
 ##### Tall til Kristoffer 30.03.2021 ####################################################
-RegData <- read.table('I:/norgast/AlleVarNum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2021-03-25 14-46-40.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-25 14-46-40.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2021-03-25 14-46-40.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1105,9 +1105,9 @@ andel_acc <- sum(RegData_acc$Variabel)/length(RegData_acc$Variabel)*100
 konf_acc <- binomkonf(sum(RegData_acc$Variabel), length(RegData_acc$Variabel), konfnivaa = .9)*100
 
 ##### Feilsøk etter flytting av tilhørighet OUS-pasienter 11.03.2021 ####################################################
-RegData <- read.table('I:/norgast/AlleVarNum2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2021-03-11 09-25-01.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-03-11 09-25-01.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2021-03-11 09-25-01.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1124,9 +1124,9 @@ RegData <- RegData[which(RegData$RegistreringStatus==1),]
 RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
 RegData_ny <-  RegData
 
-RegData <- read.table('I:/norgast/AlleVarNum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2021-02-15 10-00-19.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2021-02-15 10-00-19.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1160,9 +1160,9 @@ write.csv2(tmp, "I:/norgast/konvertering.csv")
 ###### Feilsøk jmfr. e-post Kristoffer 15.02.2021 #################################
 mangler <- c(31533, 31750, 31865, 13526, 34068, 34348, 37090, 37223)
 
-RegData <- read.table('I:/norgast/NoRGast_AlleVarNum_datadump_2021-02-16.csv', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/NoRGast_allevarnum_datadump_2021-02-16.csv', header=TRUE, sep=";",
                       fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/NoRGast_ForlopsOversikt_datadump_2021-02-16.csv', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/NoRGast_forlopsoversikt_datadump_2021-02-16.csv', header=TRUE, sep=";",
                          fileEncoding = 'UTF-8-BOM', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1175,7 +1175,7 @@ names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykeh
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 
-skjemaoversikt <- read.table('I:/norgast/NoRGast_SkjemaOversikt_datadump_2021-02-16.csv', header=TRUE, sep=';',
+skjemaoversikt <- read.table('I:/norgast/NoRGast_skjemaoversikt_datadump_2021-02-16.csv', header=TRUE, sep=';',
                              stringsAsFactors = F, fileEncoding = 'UTF-8-BOM')
 skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
 
@@ -1209,9 +1209,9 @@ write.csv2(utlevering, "I:/norgast/NoRGast_lever_OUS_2020.csv", row.names = F, f
 
 ### 05.02.2021 - Antall jfb koder i Sandefjord 2019 ##########################
 library(tidyverse)
-skjemaoversikt <- read.table('I:/norgast/SkjemaOversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
+skjemaoversikt <- read.table('I:/norgast/skjemaoversikt2021-02-03 15-28-13.txt', header=TRUE, sep=';',
                              stringsAsFactors = F, encoding = 'UTF-8')
-RegData <- read.table('I:/norgast/AlleVarNum2021-02-03 15-28-13.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2021-02-03 15-28-13.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
 tmp <- merge(skjemaoversikt[skjemaoversikt$Skjemanavn=='Registrering', c("ForlopsID", "SkjemaStatus", "HovedDato", "OpprettetDato", "Sykehusnavn", "AvdRESH")],
              skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl', c("ForlopsID", "SkjemaStatus")],
@@ -1245,31 +1245,31 @@ ant_skjema[ant_skjema$Sykehusnavn == "HS-Sandnessjøen", ]
 
 ###### Testdata ifm. dataprodukter. Aksel 14.01.2021 ##############################
 library(tidyverse)
-AlleVarNum <- read.table('I:/norgast/AlleVarNum2021-01-14 13-59-17.txt', header=TRUE, sep=";",
+allevarnum <- read.table('I:/norgast/allevarnum2021-01-14 13-59-17.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 AlleVar <- read.table('I:/norgast/AlleVar2021-01-14 13-59-17.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopOversikt <- read.table('I:/norgast/ForlopsOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=";",
+ForlopOversikt <- read.table('I:/norgast/forlopsoversikt2021-01-14 13-59-17.txt', header=TRUE, sep=";",
                              encoding = 'UTF-8', stringsAsFactors = F)
-SkjemaOversikt <- read.table('I:/norgast/SkjemaOversikt2021-01-14 13-59-17.txt', header=TRUE, sep=';',
+skjemaoversikt <- read.table('I:/norgast/skjemaoversikt2021-01-14 13-59-17.txt', header=TRUE, sep=';',
                              stringsAsFactors = F, encoding = 'UTF-8')
 
-AlleVarNum <- apply(AlleVarNum, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+allevarnum <- apply(allevarnum, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
 AlleVar <- apply(AlleVar, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
 ForlopOversikt <- apply(ForlopOversikt, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
-SkjemaOversikt <- apply(SkjemaOversikt, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
+skjemaoversikt <- apply(skjemaoversikt, 2, function(x){y <- x[sample(length(x), 20)]}) %>% as.data.frame()
 
 write.csv2(AlleVar, "I:/norgast/AlleVar.csv", row.names = F, fileEncoding = "Latin1")
-write.csv2(AlleVarNum, "I:/norgast/AlleVarNum.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(allevarnum, "I:/norgast/allevarnum.csv", row.names = F, fileEncoding = "Latin1")
 write.csv2(ForlopOversikt, "I:/norgast/ForlopOversikt.csv", row.names = F, fileEncoding = "Latin1")
-write.csv2(SkjemaOversikt, "I:/norgast/SkjemaOversikt.csv", row.names = F, fileEncoding = "Latin1")
+write.csv2(skjemaoversikt, "I:/norgast/skjemaoversikt.csv", row.names = F, fileEncoding = "Latin1")
 
 
 
 ##### Linn 26.06.2020 - kvalitetssikring strålingstall ############################
 library(tidyverse)
-RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/allevarnum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1309,8 +1309,8 @@ write.csv2(ingen, 'ingen_forbehandling.csv', row.names = F, fileEncoding = 'Lati
 
 ##### St.Olavs 02.06.2020 - postopliggetid Per Even Storli ####################################################
 library(tidyverse)
-RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/allevarnum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1343,8 +1343,8 @@ spread(tabell[,-4], key = Aar, value = gj.sn.liggetid)
 
 ##### Alta 20.05.2020 - saarruptur ####################################################
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/allevarnum2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-04-02 16-59-12.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1366,9 +1366,9 @@ acc3pluss <- RegData[RegData$Aar==2018 & RegData$Sykehusnavn=='Hammerfest' & Reg
 
 
 ###### Undersøk Haugesund robotassistert lap 25.03.2020 ###########################
-RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1388,9 +1388,9 @@ aux[,c("PasientID", "ForlopsID")]
 
 ###### Data til dekningsgradsanalyse NPR, 17.03.2020 St. Paddy's #########################################################################
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1440,9 +1440,9 @@ write.csv2(RegData, 'I:/norgast/aktivitetsdata_norgast_2019.csv', row.names = F)
 
 ###### Kristoffer Avdøde innen 90 dager, OUS, lever og pankreasreseksjoner 2016-2019, Utlevert 11.03.2020 ################
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1471,9 +1471,9 @@ write.csv2(uttrekk, 'I:/norgast/norgast_avdod90_OUS_2016-2019.csv', row.names = 
 
 ############# Kristiansand 2019 - Utlevering 19.11.2019 ###############################
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-11-19 10-04-46.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2019-11-19 10-04-46.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-11-19 10-05-04.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1496,9 +1496,9 @@ write.csv2(RegData, 'I:/norgast/norgast_kristiansand2019.csv', row.names = F)
 koblingsinfo <- read.table('I:/norgast/AlleNorgastPasienterAugsti2019.csv', header=TRUE, sep=",", colClasses = c('integer', 'character'))
 koblingsinfo <- koblingsinfo[match(unique(koblingsinfo$PID), koblingsinfo$PID), ]
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-06-27 12-09-02.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2019-06-27 12-09-02.txt', header=TRUE, sep=";",
                       encoding = 'UTF-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-27 12-09-18.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-06-27 12-09-18.txt', header=TRUE, sep=";",
                          encoding = 'UTF-8', stringsAsFactors = F)
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- RegData[which(RegData$BasisRegStatus == 1), ]
@@ -1519,9 +1519,9 @@ write.csv2(RegDataLabel, 'norgastdata_label_27082019.csv', row.names = F)
 
 ############# Fagråd - Innhold av Annet under årsak til reoperasjon 16.06.2019 ###############################
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-06-12 09-09-03.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2019-06-12 09-09-03.txt', header=TRUE, sep=";",
                       encoding = 'UFT-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-06-12 09-09-17.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-06-12 09-09-17.txt', header=TRUE, sep=";",
                          encoding = 'UFT-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1549,7 +1549,7 @@ write.csv2(Utlevering, 'reopererte_funn_annet.csv', row.names = F)
 
 persondata <- read.csv('I:/norgast/AlleNorgastPasienterApril2019.csv', colClasses = "character")
 persondata$PID <- as.numeric(persondata$PID)
-# RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";",
+# RegData <- read.table('I:/norgast/allevarnum2019-04-04 15-53-26.txt', header=TRUE, sep=";",
 #                       encoding = 'UFT-8', stringsAsFactors = F)
 # RegData$OpDato <- as.Date(RegData$OpDato)
 # RegData$Aar <- format(RegData$OpDato, '%Y')
@@ -1563,9 +1563,9 @@ persondata$PID <- as.numeric(persondata$PID)
 # RegData[RegData$PasientId %in% setdiff(RegData$PasientId, persondata$PID), "RegistreringStatus"]
 # RegData[RegData$PasientId %in% c(22455, 22458, 22460, 22464), "RegistreringStatus"]
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-04-11 09-02-00.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2019-04-11 09-02-00.txt', header=TRUE, sep=";",
                       encoding = 'UFT-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-11 08-59-44.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-04-11 08-59-44.txt', header=TRUE, sep=";",
                          encoding = 'UFT-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1616,9 +1616,9 @@ write.csv2(NoRGastObligOperasjoner2018, 'I:/norgast/norgast_telling.csv', row.na
 
 
 ###### Stig Norderval 08.02.2019 Pasienter ved UNN - Tromsø i NoRGast med rektum elektiv, malign 2016 og 2017 #########
-RegData <- read.table('I:/norgast/AlleVarNum2018-12-20 12-31-21.txt', header=TRUE, sep=";",
+RegData <- read.table('I:/norgast/allevarnum2018-12-20 12-31-21.txt', header=TRUE, sep=";",
                       encoding = 'UFT-8', stringsAsFactors = F)
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-12-20 12-31-43.txt', header=TRUE, sep=";",
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-12-20 12-31-43.txt', header=TRUE, sep=";",
                          encoding = 'UFT-8', stringsAsFactors = F)
 
 RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
@@ -1644,7 +1644,7 @@ write.csv2(RegData[, c("ForlopsID", "PasientID", "OperasjonsDato", "Hovedoperasj
 
 ### Trond Dehli - 21.09.2018 Liste av PID robotassisterte op. ved St. Olavs ######################################################
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-09-21 08-38-12.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-09-21 08-38-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-09-21 08-38-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1666,7 +1666,7 @@ write.csv2(RegData, 'UtleveringColoncancer.csv', row.names = F)
 
 ### Linn - 12.09.2018 Liste av PID robotassisterte op. ved St. Olavs ######################################################
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-09-12 08-52-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-09-12 08-52-54.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-09-12 08-52-54.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1685,7 +1685,7 @@ RegData[which(RegData$Robotassistanse==1), c("PasientID", "ForlopsID")]
 
 ### Linn - 18.06.2018 Liste av PID og op.dato for utvalgte op.koder ######################################################
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-06-14 09-40-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1709,7 +1709,7 @@ write.csv2(utlevering, 'Utlevering_Linn_18.06.2018.csv', row.names = F)
 
 ### Stig Norderval - 14.06.2018 ###############################################################
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-06-14 09-40-44.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-06-14 09-40-55.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1819,7 +1819,7 @@ library(norgast)
 rm(list = ls())
 
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-04-24 12-12-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1845,7 +1845,7 @@ library(norgast)
 rm(list = ls())
 
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-04-24 12-12-33.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-04-24 12-12-43.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1871,7 +1871,7 @@ library(norgast)
 rm(list = ls())
 
 RegData <- read.table('I:/norgast/AlleVariablerNum2018-04-13 08-48-49.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2018-04-13 08-48-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2018-04-13 08-48-58.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1889,7 +1889,7 @@ table(robot$Tilgang)
 ### Hent tall til nasjonal rapport over dekningsgrad og indikatorer ########################################
 # Les inn data
 RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2017-10-31 12-12-24.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('P:/MinData/norgast/forlopsoversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1958,7 +1958,7 @@ pankreasdata[,c(1,3,2)]
 ### PID-liste Vestfold - 55 pasienter til valideringsprosjekt ########################################
 # Les inn data
 RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2017-10-31 12-12-24.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('P:/MinData/norgast/forlopsoversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
@@ -1980,7 +1980,7 @@ write.csv2(pidlist, 'PidValideringNoRGastVestfold.csv', row.names = F)
 
 # Les inn data
 RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2017-10-31 12-12-24.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('P:/MinData/norgast/forlopsoversikt2017-10-31 12-12-22.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

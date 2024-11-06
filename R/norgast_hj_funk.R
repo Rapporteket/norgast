@@ -111,7 +111,7 @@ dobbelreg <- function(RegData, skjemaoversikt, usrRole = 'LU', reshID) {
 norgastMakeStagingData <- function() {
 
   RegData <-  norgast::NorgastHentRegData()
-  skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
+  skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
   skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)

@@ -11,7 +11,7 @@ datakval_server(
   reshID,
   userRole,
   RegData,
-  SkjemaOversikt,
+  skjemaoversikt,
   hvd_session
 )
 }

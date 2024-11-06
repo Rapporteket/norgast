@@ -4,7 +4,7 @@
 \alias{NorgastHentKolnavn}
 \title{Hent navnene til variablene i datadump NORGAST}
 \usage{
-NorgastHentKolnavn(tabellnavn = "AlleVarNum")
+NorgastHentKolnavn(tabellnavn = "allevarnum")
 }
 \value{
 kolnavn dataframe

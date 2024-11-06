@@ -6,9 +6,9 @@ library(dplyr)
 rm(list=ls())
 
 # Les inn data
-RegData <- read.table('I:/norgast/AlleVarNum2020-01-13 13-43-56.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2020-01-13 13-43-56.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 # RegData2 <- read.table('C:/SVN/jasper/norgast/data/AlleVar2016-10-11 09-34-46.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast//ForlopsOversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast//forlopsoversikt2020-01-13 13-44-23.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

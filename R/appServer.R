@@ -11,12 +11,12 @@ appServer <- function(input, output, session) {
 
   user <- rapbase::navbarWidgetServer2(
     "navbar-widget",
-    orgName = "NORGAST",
-    caller = packageName()
+    orgName = "norgast",
+    caller = "norgast"
   )
 
   RegData <-  norgast::NorgastHentRegData()
-  skjemaoversikt <- norgast::NorgastHentSkjemaOversikt()
+  skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
   skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
@@ -32,7 +32,7 @@ appServer <- function(input, output, session) {
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
   # if (rapbase::isRapContext()) {
-  #   rapbase::appLogger(session = session, msg = 'Starter NORGAST')
+  rapbase::appLogger(session = session, msg = 'Starter NORGAST')
   #   reshID <- rapbase::getUserReshId(session)
   #   userRole <- rapbase::getUserRole(session)
   # } else {
@@ -41,25 +41,26 @@ appServer <- function(input, output, session) {
   # }
 
   shiny::observeEvent(
-    user$role(),
-    if (user$role() != 'SC') {
-      shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
-      shiny::hideTab("norgast_app_id", target = "Utsending")
-      # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
-      shiny::hideTab("norgast_app_id", target = "Eksport")
-      shiny::hideTab("norgast_app_id", target = "Traktplott")
-      shiny::hideTab("norgast_app_id", target = "Indikatorer")
-      shiny::hideTab("norgast_app_id", target = "Verktøy")
-    } else {
-      shiny::showTab("norgast_app_id", target = "Sykehusvisning")
-      shiny::showTab("norgast_app_id", target = "Utsending")
-      # shiny::showTab("norgast_app_id", target = "Datakvalitet")
-      shiny::showTab("norgast_app_id", target = "Eksport")
-      shiny::showTab("norgast_app_id", target = "Traktplott")
-      shiny::showTab("norgast_app_id", target = "Indikatorer")
-      shiny::showTab("norgast_app_id", target = "Verktøy")
-    }
-  )
+    shiny::req(user$role()), {
+      print(user$role())
+      if (user$role() != 'SC') {
+        shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
+        shiny::hideTab("norgast_app_id", target = "Utsending")
+        # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
+        shiny::hideTab("norgast_app_id", target = "Eksport")
+        shiny::hideTab("norgast_app_id", target = "Traktplott")
+        shiny::hideTab("norgast_app_id", target = "Indikatorer")
+        shiny::hideTab("norgast_app_id", target = "Verktøy")
+      } else {
+        shiny::showTab("norgast_app_id", target = "Sykehusvisning")
+        shiny::showTab("norgast_app_id", target = "Utsending")
+        # shiny::showTab("norgast_app_id", target = "Datakvalitet")
+        shiny::showTab("norgast_app_id", target = "Eksport")
+        shiny::showTab("norgast_app_id", target = "Traktplott")
+        shiny::showTab("norgast_app_id", target = "Indikatorer")
+        shiny::showTab("norgast_app_id", target = "Verktøy")
+      }
+    })
 
   shiny::callModule(norgast::startside, "startside", usrRole=user$role())
 
@@ -139,7 +140,7 @@ appServer <- function(input, output, session) {
 
   shiny::callModule(norgast::datakval_server, "datakval_id",
                     reshID = user$org(), userRole = user$role(),
-                    RegData = RegData, SkjemaOversikt = skjemaoversikt,
+                    RegData = RegData, skjemaoversikt = skjemaoversikt,
                     hvd_session = session)
 
   ##############################################################################
@@ -204,29 +205,12 @@ appServer <- function(input, output, session) {
     )
   )
 
-  ## Stats
-  observe(
-    rapbase::statsServer("norgastStats", registryName = "norgast",
-                         eligible = (user$org() == "SC"))
-  )
-  rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
-
-
-  # #Navbarwidget
-  # output$appUserName <- renderText(rapbase::getUserFullName(session))
-  # output$appOrgName <-
-  #   shiny::renderText(
-  #     names(BrValg$sykehus[BrValg$sykehus == user$org()])
-  #   )
-
-  # Brukerinformasjon
-  # userInfo <- rapbase::howWeDealWithPersonalData(session)
-  # shiny::observeEvent(input$userInfo, {
-  #   shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
-  #                          type = "", imageUrl = "rap/logo.svg",
-  #                          closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-  #                          html = TRUE, confirmButtonText = "Den er grei!")
-  # })
+  # ## Stats
+  # observe(
+  #   rapbase::statsServer("norgastStats", registryName = "norgast",
+  #                        eligible = (user$org() == "SC"))
+  # )
+  # rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
 
 
   ##############################################################################

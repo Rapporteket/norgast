@@ -21,8 +21,8 @@ NorgastPlotAndeler(utdata$PlotParams, outfile='', utvalgTxt=utdata$utvalgTxt,
 
 # Les inn data
 
-RegData <- read.table('I:/norgast/AlleVarNum2019-04-04 15-53-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2019-04-04 15-53-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+RegData <- read.table('I:/norgast/allevarnum2019-04-04 15-53-26.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2019-04-04 15-53-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',
                       'NyAnastomose','NyStomi','Tilgang','Robotassistanse','ThoraxTilgang','ReLapNarkose','ViktigsteFunn',
@@ -412,9 +412,9 @@ rm(list=ls())
 
 # Les inn data
 # RegData <- read.table('C:/SVN/jasper/norgast/data/all_variables2015-12-15 10-33-18.txt', header=TRUE, sep=";")
-tmp1 <- read.table('C:/SVN/jasper/norgast/data/AlleVarNum2016-01-22 09-41-57.txt', header=TRUE, sep=";")
+tmp1 <- read.table('C:/SVN/jasper/norgast/data/allevarnum2016-01-22 09-41-57.txt', header=TRUE, sep=";")
 tmp2 <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2016-01-22 09-42-00.txt', header=TRUE, sep=";")
-tmp3 <- read.table('C:/SVN/jasper/norgast/data/ForlopsOversikt2016-01-22 09-42-02.txt', header=TRUE, sep=";")
+tmp3 <- read.table('C:/SVN/jasper/norgast/data/forlopsoversikt2016-01-22 09-42-02.txt', header=TRUE, sep=";")
 
 # tmp3 <- read.table('C:/SVN/jasper/norgast/data/AlleVariablerNum2015-12-15 10-14-43.txt', header=TRUE, sep=";")
 

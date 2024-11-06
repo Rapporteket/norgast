@@ -1,7 +1,8 @@
 devtools::install("../rapbase/.")
 devtools::install(upgrade = FALSE, dependencies = FALSE)
 
-Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LU\",\"U\":601225},{\"A\":80,\"R\":\"SC\",\"U\":4211928},{\"A\":80,\"R\":\"SC\",\"U\":601225}]")
+# Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LU\",\"U\":601225},{\"A\":80,\"R\":\"SC\",\"U\":4211928},{\"A\":80,\"R\":\"SC\",\"U\":601225},{\"A\":80,\"R\":\"LC\",\"U\":601225}, {\"A\":80,\"R\":\"LU\",\"U\":4211928}]")
+Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LC\",\"U\":106896},{\"A\":80,\"R\":\"SC\",\"U\":105593},{\"A\":80,\"R\":\"LC\",\"U\":105593},{\"A\":80,\"R\":\"LC\",\"U\":2}]")
 Sys.setenv(R_RAP_INSTANCE="QAC")
 Sys.setenv(R_RAP_CONFIG_PATH="/home/rstudio/norgast/data-raw/config")
 Sys.setenv(MYSQL_DB_DATA="NoRGastReportDataStaging")

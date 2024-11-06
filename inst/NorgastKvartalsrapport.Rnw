@@ -70,7 +70,7 @@ if(hentData){
   RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
 } else {
   RegData <- read.table('P:/MinData/norgast/AlleVariablerNum2018-01-29 14-54-48.txt', header=TRUE, sep=";", encoding = 'UFT-8')
-  ForlopData <- read.table('P:/MinData/norgast/ForlopsOversikt2018-01-29 14-54-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
+  ForlopData <- read.table('P:/MinData/norgast/forlopsoversikt2018-01-29 14-54-57.txt', header=TRUE, sep=";", encoding = 'UFT-8')
 
   RegData <- RegData[,c('ForlopsID','BMIKategori', 'BMI', 'VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                         'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

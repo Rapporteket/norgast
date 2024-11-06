@@ -2,8 +2,8 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-RegData <- read.table('I:/norgast/AlleVarNum2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
-ForlopData <- read.table('I:/norgast/ForlopsOversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+RegData <- read.table('I:/norgast/allevarnum2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
+ForlopData <- read.table('I:/norgast/forlopsoversikt2020-03-11 14-52-26.txt', header=TRUE, sep=";", encoding = 'UTF-8')
 
 RegData <- RegData[,c('ForlopsID','BMIKategori','VekttapProsent','MedDiabetes','KunCytostatika','KunStraaleterapi',
                       'KjemoRadioKombo','WHOECOG','ModGlasgowScore','ASA','AnestesiStartKl','Hovedoperasjon','OpDato',

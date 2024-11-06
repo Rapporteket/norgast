@@ -1,11 +1,11 @@
-#' Provide SkjemaOversikt for NORGAST
+#' Provide skjemaoversikt for NORGAST
 #'
-#' Provides SkjemaOversikt for NORGAST data staging
+#' Provides skjemaoversikt for NORGAST data staging
 #'
-#' @return SkjemaOversikt data frame
+#' @return skjemaoversikt data frame
 #' @export
 
-NorgastHentSkjemaOversikt <- function() {
+NorgastHentskjemaoversikt <- function() {
 
   if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
     registryName <- "data"
@@ -14,16 +14,16 @@ NorgastHentSkjemaOversikt <- function() {
   }
   dbType <- "mysql"
 
-  query <- paste0("SELECT * FROM SkjemaOversikt")
-  SkjemaOversikt <- rapbase::loadRegData(registryName, query, dbType)
+  query <- paste0("SELECT * FROM skjemaoversikt")
+  skjemaoversikt <- rapbase::loadRegData(registryName, query, dbType)
   query <- "SELECT * FROM user"
   brukerinfo <- rapbase::loadRegData(registryName, query, dbType) %>%
     dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
 
-  SkjemaOversikt$OpprettetAv <-
-    brukerinfo$fullname[match(SkjemaOversikt$OpprettetAv, brukerinfo$ID)]
-  SkjemaOversikt$SistLagretAv <-
-    brukerinfo$fullname[match(SkjemaOversikt$SistLagretAv, brukerinfo$ID)]
+  skjemaoversikt$OpprettetAv <-
+    brukerinfo$fullname[match(skjemaoversikt$OpprettetAv, brukerinfo$ID)]
+  skjemaoversikt$SistLagretAv <-
+    brukerinfo$fullname[match(skjemaoversikt$SistLagretAv, brukerinfo$ID)]
 
-  return(SkjemaOversikt)
+  return(skjemaoversikt)
 }

@@ -11,9 +11,12 @@ appUi <- function() {
   # Define UI for application
   ui <- shiny::navbarPage(
     id = "norgast_app_id",
-
-    title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
-                regTitle),
+    title = shiny::div(shiny::a(
+      shiny::includeHTML(
+        system.file('www/logo.svg', package='rapbase')
+        )
+        ),
+    regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
 
