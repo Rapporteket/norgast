@@ -22,10 +22,6 @@ appUi <- function() {
 
     shiny::tabPanel(
       "Startside",
-      # shinyjs::useShinyjs(),
-      # rapbase::appNavbarUserWidget(user = uiOutput("appUserName"),
-      #                              organization = uiOutput("appOrgName"),
-      #                              addUserInfo = TRUE),
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
 
       norgast::startside_UI("startside")

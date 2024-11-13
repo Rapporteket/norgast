@@ -31,14 +31,7 @@ appServer <- function(input, output, session) {
     brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
-  # if (rapbase::isRapContext()) {
   rapbase::appLogger(session = session, msg = 'Starter NORGAST')
-  #   reshID <- rapbase::getUserReshId(session)
-  #   userRole <- rapbase::getUserRole(session)
-  # } else {
-  #   reshID <- 601225
-  #   userRole <- 'SC'
-  # }
 
   shiny::observeEvent(
     shiny::req(user$role()), {
