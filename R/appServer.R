@@ -15,6 +15,51 @@ appServer <- function(input, output, session) {
     caller = "norgast"
   )
 
+  output$tabeller <- shiny::renderTable({
+    query <- paste0("SELECT table_name FROM information_schema.tables
+                    WHERE table_schema = '", Sys.getenv("MYSQL_DB_DATA"), "';")
+    tabell <- try(rapbase::loadRegData("data", query, "mysql"), TRUE)
+  })
+
+  # Environment
+  output$user <- shiny::renderText({
+    paste("rapbase::getUserName(session):",
+          user$name())
+  })
+  output$group <- shiny::renderText({
+    paste("rapbase::getUserGroups(session):",
+          user$group())
+  })
+  output$resh_id <- shiny::renderText({
+    paste("rapbase::getUserReshId(session):",
+          user$org())
+  })
+  output$role <- shiny::renderText({
+    paste("rapbase::getUserRole(session):",
+          user$role())
+  })
+  output$database <- shiny::renderText({
+    Sys.getenv("MYSQL_DB_DATA")
+  })
+  output$full_name <- shiny::renderText({
+    paste("rapbase::getUserFullName(session):",
+          user$name())
+  })
+  output$instance <- shiny::renderText({
+    Sys.getenv("R_RAP_INSTANCE")
+  })
+  output$config_path <- shiny::renderText({
+    Sys.getenv("R_RAP_CONFIG_PATH")
+  })
+  output$sp_usergroups <- shiny::renderText({
+    paste("Sys.getenv('SHINYPROXY_USERGROUPS'):",
+          Sys.getenv("SHINYPROXY_USERGROUPS"))
+  })
+  output$locale <- shiny::renderText({
+    Sys.getlocale()
+  })
+
+
   # RegData <-  norgast::NorgastHentRegData()
   # skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   # skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)

@@ -26,7 +26,28 @@ appUi <- function() {
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
 
       norgast::startside_UI("startside")
-    )#,
+    ),
+
+    shiny::tabPanel(
+      "debugging",
+      shiny::h4("Test 'rapbase' functions using the session object:"),
+      shiny::textOutput("user"),
+      shiny::textOutput("group"),
+      shiny::textOutput("resh_id"),
+      shiny::textOutput("role"),
+      shiny::textOutput("full_name"),
+      shiny::h4("Environment var R_RAP_INSTANCE:"),
+      shiny::textOutput("instance"),
+      shiny::h4("Environment var R_RAP_CONFIG_PATH:"),
+      shiny::textOutput("config_path"),
+      shiny::h4("Environment var(s) provided by SHINYPROXY (if any):"),
+      shiny::textOutput("sp_usergroups"),
+      shiny::h4("Locale settings:"),
+      shiny::textOutput("locale"),
+      shiny::h4("Database og tabeller:"),
+      shiny::textOutput("database"),
+      shiny::tableOutput("tabeller")
+    )
 
     # shiny::tabPanel(
     #   "Fordelinger",
