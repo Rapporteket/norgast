@@ -26,12 +26,12 @@ appUi <- function() {
       # rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
 
       norgast::startside_UI("startside")
-    )#,
+    ),
 
-    # shiny::tabPanel(
-    #   "Fordelinger",
-    #   norgast::fordelingsfig_UI(id = "fordelingsfig_id")
-    # ),
+    shiny::tabPanel(
+      "Fordelinger",
+      norgast::fordelingsfig_UI(id = "fordelingsfig_id")
+    )#,
     #
     # shiny::tabPanel(
     #   "Sykehusvisning",
