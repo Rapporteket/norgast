@@ -31,7 +31,7 @@ appServer <- function(input, output, session) {
     brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
-  rapbase::appLogger(session = session, msg = 'Starter NORGAST')
+  # rapbase::appLogger(session = session, msg = 'Starter NORGAST')
 
   # shiny::observeEvent(
   #   shiny::req(user$role()), {
@@ -55,15 +55,16 @@ appServer <- function(input, output, session) {
   #     }
   #   })
 
-  shiny::callModule(norgast::startside, "startside", usrRole=user$role())
+  # shiny::callModule(norgast::startside, "startside", usrRole=user$role())
+  shiny::callModule(norgast::startside, "startside", usrRole="LU")
 
   ##############################################################################
   ################ Fordelingsfigurer ###########################################
-#
-#   shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = user$org(),
-#                     RegData = RegData, userRole = user$role(),
-#                     hvd_session = session, BrValg = BrValg)
-#
+
+  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = 601225,
+                    RegData = RegData, userRole = "LU",
+                    hvd_session = session, BrValg = BrValg)
+
 #   ##############################################################################
 #   ################ Sykehusvisning ##############################################
 #

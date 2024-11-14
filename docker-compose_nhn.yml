@@ -37,7 +37,7 @@ services:
   app:
     depends_on:
       - db
-    image: rapporteket/norgast:3.0.1
+    image: rapporteket/norgast:3.0.2
     ports:
       - 3838:3838
     volumes:

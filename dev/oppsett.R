@@ -2,9 +2,9 @@ devtools::install("../rapbase/.")
 devtools::install(upgrade = FALSE, dependencies = FALSE)
 
 # Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LU\",\"U\":601225},{\"A\":80,\"R\":\"SC\",\"U\":4211928},{\"A\":80,\"R\":\"SC\",\"U\":601225},{\"A\":80,\"R\":\"LC\",\"U\":601225}, {\"A\":80,\"R\":\"LU\",\"U\":4211928}]")
-Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LC\",\"U\":601225},
-           {\"A\":80,\"R\":\"SC\",\"U\":601225},
-           {\"A\":81,\"R\":\"LC\",\"U\":4211928}]")
+# Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LC\",\"U\":601225},
+#            {\"A\":80,\"R\":\"SC\",\"U\":601225},
+#            {\"A\":81,\"R\":\"LC\",\"U\":4211928}]")
 # Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LC\",\"U\":106896},{\"A\":80,\"R\":\"SC\",\"U\":105593},{\"A\":80,\"R\":\"LC\",\"U\":105593},{\"A\":80,\"R\":\"LC\",\"U\":2}]")
 # Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"LC\",\"U\":601225},
 #            {\"A\":80,\"R\":\"SC\",\"U\":601225},

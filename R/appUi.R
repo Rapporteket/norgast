@@ -10,6 +10,7 @@ appUi <- function() {
 
   # Define UI for application
   ui <- shiny::navbarPage(
+    shinyjs::useShinyjs(),
     id = "norgast_app_id",
     title = shiny::div(shiny::a(
       shiny::includeHTML(
@@ -22,7 +23,7 @@ appUi <- function() {
 
     shiny::tabPanel(
       "Startside",
-      rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
+      # rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
 
       norgast::startside_UI("startside")
     )#,
