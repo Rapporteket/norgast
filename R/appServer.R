@@ -15,21 +15,21 @@ appServer <- function(input, output, session) {
     caller = "norgast"
   )
 
-  RegData <-  norgast::NorgastHentRegData()
-  skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
-  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
-  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
-  skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
-  RegData <- RegData[which(RegData$RegistreringStatus==1),]
-  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
-  query <- "SELECT * FROM user"
-  brukerinfo <- rapbase::loadRegData("data", query, "mysql") %>%
-    dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
-  RegData$ForstLukketAv <-
-    brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
-  RegData$OppfForstLukketAv <-
-    brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
-  BrValg <- norgast::BrValgNorgastShiny(RegData)
+  # RegData <-  norgast::NorgastHentRegData()
+  # skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
+  # skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+  # RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+  # skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+  # RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  # RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
+  # query <- "SELECT * FROM user"
+  # brukerinfo <- rapbase::loadRegData("data", query, "mysql") %>%
+  #   dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
+  # RegData$ForstLukketAv <-
+  #   brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
+  # RegData$OppfForstLukketAv <-
+  #   brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
+  # BrValg <- norgast::BrValgNorgastShiny(RegData)
 
   # rapbase::appLogger(session = session, msg = 'Starter NORGAST')
 
@@ -58,12 +58,12 @@ appServer <- function(input, output, session) {
   # shiny::callModule(norgast::startside, "startside", usrRole=user$role())
   shiny::callModule(norgast::startside, "startside", usrRole="LU")
 
-  ##############################################################################
-  ################ Fordelingsfigurer ###########################################
-
-  shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = 601225,
-                    RegData = RegData, userRole = "LU",
-                    hvd_session = session, BrValg = BrValg)
+  # ##############################################################################
+  # ################ Fordelingsfigurer ###########################################
+  #
+  # shiny::callModule(norgast::fordelingsfig, "fordelingsfig_id", reshID = 601225,
+  #                   RegData = RegData, userRole = "LU",
+  #                   hvd_session = session, BrValg = BrValg)
 
 #   ##############################################################################
 #   ################ Sykehusvisning ##############################################
