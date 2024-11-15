@@ -59,12 +59,20 @@ appServer <- function(input, output, session) {
     Sys.getlocale()
   })
 
-
-  # RegData <-  norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
+  skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   output$skjemaoversikt <- shiny::renderTable({
     head(skjemaoversikt)
   })
+
+  RegData <-  norgast::NorgastHentRegData()
+  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
+  output$regdata <- shiny::renderTable(
+    head(RegData[,1:10])
+  )
+
+  # RegData <-  norgast::NorgastHentRegData()
+  # skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   # skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   # RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
   # skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)

@@ -47,7 +47,8 @@ appUi <- function() {
       shiny::h4("Database og tabeller:"),
       shiny::textOutput("database"),
       shiny::tableOutput("tabeller"),
-      shiny::tableOutput("skjemaoversikt")
+      shiny::tableOutput("skjemaoversikt"),
+      shiny::tableOutput("regdata")
     )
 
     # shiny::tabPanel(
