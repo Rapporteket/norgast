@@ -65,10 +65,22 @@ appServer <- function(input, output, session) {
     head(skjemaoversikt)
   })
 
-  RegData <-  norgast::NorgastHentRegData()
-  RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
-  output$regdata <- shiny::renderTable(
-    head(RegData[,1:10])
+  query <- paste0("SELECT * FROM allevarnum")
+  allevarnum <- rapbase::loadRegData("data", query, "mysql")
+  output$allevarnum <- shiny::renderTable(
+    head(allevarnum[,1:10])
+  )
+
+  query <- paste0("SELECT * FROM forlopsoversikt")
+  forlopsoversikt <- rapbase::loadRegData("data", query, "mysql")
+  output$forlopsoversikt <- shiny::renderTable(
+    head(forlopsoversikt[,1:10])
+  )
+
+  query <- paste0("SELECT * FROM user")
+  user_tab <- rapbase::loadRegData("data", query, "mysql")
+  output$user_tab <- shiny::renderTable(
+    head(user_tab)
   )
 
   # RegData <-  norgast::NorgastHentRegData()
