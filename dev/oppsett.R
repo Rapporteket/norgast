@@ -13,6 +13,7 @@ Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":81,\"R\":\"LC\",\"U\":601225},
 #            {\"A\":83,\"R\":\"CC\",\"U\":1},
 #            {\"A\":84,\"R\":\"LU\",\"U\":8},
 #            {\"A\":84,\"R\":\"LU\",\"U\":5}]")
+Sys.setenv(FALK_USER_EMAIL="kevin.thon@gmail.com")
 Sys.setenv(R_RAP_INSTANCE="QAC")
 Sys.setenv(R_RAP_CONFIG_PATH="/home/rstudio/norgast/data-raw/config")
 # Sys.setenv(MYSQL_DB_DATA="NoRGastReportDataStaging")
