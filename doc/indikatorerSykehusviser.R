@@ -2,7 +2,7 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-rap_aar <- 2023
+rap_aar <- 2024
 
 RegData <-  norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
@@ -10,7 +10,7 @@ RegData <- norgast::NorgastPreprosess(RegData)
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
 RegDataOblig <- RegData[RegData$Aar <= rap_aar, ]
-# RegDataOblig <- RegDataOblig %>% filter(OpDato < "2023-07-01") ## Ad hoc, desemberpublisering
+RegDataOblig <- RegDataOblig %>% filter(OpDato < "2024-07-01") ## Ad hoc, desemberpublisering
 
 ind <- c("norgast_saarruptur", "norgast_aktivkontroll", "norgast_vekt_reg",
          "norgast_avdoede_spiseroer", "norgast_avdoede_magesekk",
@@ -162,7 +162,8 @@ dg_samlet <- bind_rows(dg_samlet, DG_tot_2023) %>%
 
 indikator <- bind_rows(indikator, dg_samlet)
 
-write.csv2(indikator, paste0("~/mydata/norgast/norgast_indikator_", lubridate::today(), ".csv"),
+write.csv2(indikator, paste0("~/mydata/norgast_indikator_",
+                             lubridate::today(), ".csv"),
            row.names = F, fileEncoding = 'UTF-8')
 
 

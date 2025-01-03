@@ -10,16 +10,16 @@ NorgastHentSkjemaOversikt <- function() {
   registryName <- "norgast"
   dbType <- "mysql"
 
-  query <- paste0("SELECT * FROM SkjemaOversikt")
-  SkjemaOversikt <- rapbase::loadRegData(registryName, query, dbType)
+  query <- paste0("SELECT * FROM skjemaoversikt")
+  skjemaoversikt <- rapbase::loadRegData(registryName, query, dbType)
   query <- "SELECT * FROM user"
   brukerinfo <- rapbase::loadRegData(registryName, query, dbType) %>%
     dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
 
-  SkjemaOversikt$OpprettetAv <-
-    brukerinfo$fullname[match(SkjemaOversikt$OpprettetAv, brukerinfo$ID)]
-  SkjemaOversikt$SistLagretAv <-
-    brukerinfo$fullname[match(SkjemaOversikt$SistLagretAv, brukerinfo$ID)]
+  skjemaoversikt$OpprettetAv <-
+    brukerinfo$fullname[match(skjemaoversikt$OpprettetAv, brukerinfo$ID)]
+  skjemaoversikt$SistLagretAv <-
+    brukerinfo$fullname[match(skjemaoversikt$SistLagretAv, brukerinfo$ID)]
 
-  return(SkjemaOversikt)
+  return(skjemaoversikt)
 }

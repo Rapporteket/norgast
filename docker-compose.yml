@@ -1,8 +1,6 @@
 services:
   db:
     image: mysql:8
-    command: --innodb-log-file-size=500M --innodb_strict_mode=0
-    restart: "no"
     volumes:
       - ~/softlinks/mysql_db:/var/lib/mysql
     environment:
@@ -15,7 +13,7 @@ services:
     volumes:
       - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
-      - ~/GIT/norgast:/home/rstudio/norgast  
+      - .:/home/rstudio/norgast  
       - ~/softlinks/mydata:/home/rstudio/mydata
     ports:
       - "8787:8787"
