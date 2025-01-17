@@ -31,40 +31,41 @@ datakval_ui <- function(id){
 #' @return Modulfunksjoner til Datakvalitet
 #'
 #' @export
-datakval_server <- function(input, output, session, reshID,
-                            userRole, RegData, skjemaoversikt, hvd_session) {
+datakval_server <- function(id, reshID,
+                            userRole, RegData, skjemaoversikt, hvd_session){
+  moduleServer(
+    id,
+    function(input, output, session) {
 
+      output$dobbeltreg <-
+        DT::renderDataTable(
+          norgast::dobbelreg(RegData=RegData,
+                             skjemaoversikt=skjemaoversikt,
+                             usrRole = userRole,
+                             reshID = reshID),
+          options = list(pageLength = 40), rownames = FALSE)
 
-  output$dobbeltreg <-
-    DT::renderDataTable(
-      norgast::dobbelreg(RegData=RegData,
-                         skjemaoversikt=skjemaoversikt,
-                         usrRole = userRole,
-                         reshID = reshID),
-      options = list(pageLength = 40), rownames = FALSE)
+      output$lastNed_dobbeltreg <- downloadHandler(
+        filename = function(){
+          paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
+        },
+        content = function(file, filename){
+          write.csv2(norgast::dobbelreg(RegData, skjemaoversikt=skjemaoversikt,
+                                        usrRole = userRole, reshID = reshID),
+                     file, row.names = F, na = '', fileEncoding = "Latin1")
+        })
 
-  output$lastNed_dobbeltreg <- downloadHandler(
-    filename = function(){
-      paste0('dobbeltreg_norgast_', Sys.time(),'.csv')
-    },
-    content = function(file, filename){
-      write.csv2(norgast::dobbelreg(RegData, skjemaoversikt=skjemaoversikt,
-                                    usrRole = userRole, reshID = reshID),
-                 file, row.names = F, na = '', fileEncoding = "Latin1")
-    })
-
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-      shinyjs::onclick(
-        "lastNed_dobbeltreg",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = "NORGAST: nedlasting tabell over potensielle duplikater"
-        )
-      )
+      shiny::observe({
+        if (rapbase::isRapContext()) {
+          shinyjs::onclick(
+            "lastNed_dobbeltreg",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = "NORGAST: nedlasting tabell over potensielle duplikater"
+            )
+          )
+        }
+      })
     }
-  })
-
-
-
+  )
 }

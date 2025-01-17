@@ -4,16 +4,7 @@
 \alias{datakval_server}
 \title{Server-modul for datakvalitetstabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
-datakval_server(
-  input,
-  output,
-  session,
-  reshID,
-  userRole,
-  RegData,
-  skjemaoversikt,
-  hvd_session
-)
+datakval_server(id, reshID, userRole, RegData, skjemaoversikt, hvd_session)
 }
 \value{
 Modulfunksjoner til Datakvalitet

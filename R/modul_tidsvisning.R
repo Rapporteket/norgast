@@ -5,7 +5,7 @@
 #' @return Modul tidsvisning, andeler
 #'
 #' @export
-tidsvisning_UI <- function(id){
+tidsvisning_ui <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -93,286 +93,286 @@ tidsvisning_UI <- function(id){
 #' @return Modul tidsvisning, andeler
 #'
 #' @export
-tidsvisning <- function(input, output, session, reshID, RegData, userRole,
-                        hvd_session, BrValg){
+tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrValg){
+  moduleServer(
+    id,
+    function(input, output, session) {
 
-  observeEvent(input$reset_input, {
-    shinyjs::reset("id_tid_panel")
-  })
+      observeEvent(input$reset_input, {
+        shinyjs::reset("id_tid_panel")
+      })
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus_ui')
-    })
+      observe(
+        if (userRole != 'SC') {
+          shinyjs::hide(id = 'valgtShus_ui')
+        })
 
-  output$ncsp <- renderUI({
-    ns <- session$ns
-    if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"),
-                  label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {
-                    RegData %>%
-                      dplyr::select(Hovedoperasjon, Op_gr) %>%
-                      dplyr::filter(Op_gr %in% as.numeric(input$op_gruppe)) %>%
-                      dplyr::select(Hovedoperasjon) %>%
-                      unique() %>%
-                      dplyr::arrange(Hovedoperasjon) %>%
-                      dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
-                      dplyr::pull(NCSP, Hovedoperasjon)
-                  }, multiple = TRUE)
-    }
-  })
+      output$ncsp <- renderUI({
+        ns <- session$ns
+        if (!is.null(input$op_gruppe)) {
+          selectInput(inputId = ns("ncsp_verdi"),
+                      label = "NCSP koder (velg en eller flere)",
+                      choices = if (!is.null(input$op_gruppe)) {
+                        RegData %>%
+                          dplyr::select(Hovedoperasjon, Op_gr) %>%
+                          dplyr::filter(Op_gr %in% as.numeric(input$op_gruppe)) %>%
+                          dplyr::select(Hovedoperasjon) %>%
+                          unique() %>%
+                          dplyr::arrange(Hovedoperasjon) %>%
+                          dplyr::mutate(NCSP = substr(Hovedoperasjon, 1, 5)) %>%
+                          dplyr::pull(NCSP, Hovedoperasjon)
+                      }, multiple = TRUE)
+        }
+      })
 
-  output$valgtShus_ui <- renderUI({
-    ns <- session$ns
-    if (userRole == 'SC') {
-    selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                choices = BrValg$sykehus, multiple = TRUE)
-    }
-  })
+      output$valgtShus_ui <- renderUI({
+        ns <- session$ns
+        if (userRole == 'SC') {
+          selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                      choices = BrValg$sykehus, multiple = TRUE)
+        }
+      })
 
-  output$valgtVar_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                choices = BrValg$varvalg_andel)
-  })
+      output$valgtVar_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                    choices = BrValg$varvalg_andel)
+      })
 
-  output$op_gruppe_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                choices = BrValg$reseksjonsgrupper, multiple = TRUE)
-  })
+      output$op_gruppe_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                    choices = BrValg$reseksjonsgrupper, multiple = TRUE)
+      })
 
-  output$tilgang_utvidet_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("tilgang_utvidet"),
-                label = "Tilgang i abdomen (inkl. robotassistanse)",
-                choices = BrValg$tilgang_utvidet, multiple = TRUE)
-  })
+      output$tilgang_utvidet_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("tilgang_utvidet"),
+                    label = "Tilgang i abdomen (inkl. robotassistanse)",
+                    choices = BrValg$tilgang_utvidet, multiple = TRUE)
+      })
 
-  output$BMI_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("BMI"), label = "BMI",
-                choices = BrValg$bmi_valg, multiple = TRUE)
-  })
+      output$BMI_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("BMI"), label = "BMI",
+                    choices = BrValg$bmi_valg, multiple = TRUE)
+      })
 
-  output$ASA_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("ASA"), label = "ASA-grad",
-                choices = BrValg$ASA_valg, multiple = TRUE)
-  })
+      output$ASA_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("ASA"), label = "ASA-grad",
+                    choices = BrValg$ASA_valg, multiple = TRUE)
+      })
 
-  output$whoEcog_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
-                choices = BrValg$whoEcog_valg, multiple = TRUE)
-  })
-
-
-
-
-  output$fig_andel_tid <- renderPlot({
-    norgast::NorgastFigAndelTid(
-      RegData,
-      valgtVar=input$valgtVar,
-      datoFra = input$datovalg[1],
-      datoTil = input$datovalg[2],
-      reshID = reshID,
-      enhetsUtvalg=as.numeric(input$enhetsUtvalg),
-      minald=as.numeric(input$alder[1]),
-      maxald=as.numeric(input$alder[2]),
-      valgtShus = fiksNULL(input$valgtShus),
-      op_gruppe = fiksNULL(input$op_gruppe),
-      ncsp = fiksNULL(input$ncsp_verdi),
-      BMI = fiksNULL(input$BMI),
-      tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
-      minPRS = as.numeric(input$PRS[1]),
-      maxPRS = as.numeric(input$PRS[2]),
-      ASA = fiksNULL(input$ASA),
-      whoEcog = fiksNULL(input$whoEcog),
-      forbehandling = fiksNULL(input$forbehandling),
-      modGlasgow = fiksNULL(input$modGlasgow),
-      malign = as.numeric(input$malign),
-      erMann = as.numeric(input$erMann),
-      elektiv = as.numeric(input$elektiv),
-      tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
-      inkl_konf = fiksNULL(input$inkl_konf, 99),
-      hastegrad=as.numeric(input$hastegrad),
-      kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
-  }, width = 700, height = 700)
-
-  tabellReagerTid <- reactive({
-    TabellData_Tid <- norgast::NorgastFigAndelTid(
-      RegData,
-      valgtVar=input$valgtVar,
-      datoFra = input$datovalg[1],
-      datoTil = input$datovalg[2],
-      reshID = reshID,
-      enhetsUtvalg=as.numeric(input$enhetsUtvalg),
-      minald=as.numeric(input$alder[1]),
-      maxald=as.numeric(input$alder[2]),
-      valgtShus = fiksNULL(input$valgtShus),
-      op_gruppe = fiksNULL(input$op_gruppe),
-      ncsp = fiksNULL(input$ncsp_verdi),
-      BMI = fiksNULL(input$BMI),
-      tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
-      minPRS = as.numeric(input$PRS[1]),
-      maxPRS = as.numeric(input$PRS[2]),
-      ASA = fiksNULL(input$ASA),
-      whoEcog = fiksNULL(input$whoEcog),
-      forbehandling = fiksNULL(input$forbehandling),
-      modGlasgow = fiksNULL(input$modGlasgow),
-      malign = as.numeric(input$malign),
-      erMann = as.numeric(input$erMann),
-      elektiv = as.numeric(input$elektiv),
-      tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
-      inkl_konf = fiksNULL(input$inkl_konf, 99),
-      hastegrad=as.numeric(input$hastegrad),
-      kun_ferdigstilte = input$kun_ferdigstilte,
-      hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-      accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
-  })
-
-  output$utvalg_tid <- renderUI({
-    TabellData <- tabellReagerTid()
-    tagList(
-      h3(HTML(paste0(TabellData$tittel, '<br />'))),
-      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
-    )})
+      output$whoEcog_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
+                    choices = BrValg$whoEcog_valg, multiple = TRUE)
+      })
 
 
 
-  output$Tabell_tid <- function() {
 
-    utdata <- tabellReagerTid()
-    if (input$enhetsUtvalg == 1) {
-      Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                                  N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
-                                  Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-                                  N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
-                                  Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
-      names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
-                             'KI_nedre', 'KI_ovre')
-      Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
-        kableExtra::kable_styling("hover", full_width = F) %>%
-        kableExtra::add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
-    } else {
-      Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
-                                  Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                                  N = utdata$NTid$NTidHoved, 'Andel (%)'= utdata$Andeler$AndelHoved, KI_nedre = utdata$KonfInt$Konf[1,],
-                                  KI_ovre = utdata$KonfInt$Konf[2,])
-      Tabell_tid %>%
-        knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
-        kableExtra::kable_styling("hover", full_width = F)
-    }
-  }
+      output$fig_andel_tid <- renderPlot({
+        norgast::NorgastFigAndelTid(
+          RegData,
+          valgtVar=input$valgtVar,
+          datoFra = input$datovalg[1],
+          datoTil = input$datovalg[2],
+          reshID = reshID,
+          enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+          minald=as.numeric(input$alder[1]),
+          maxald=as.numeric(input$alder[2]),
+          valgtShus = fiksNULL(input$valgtShus),
+          op_gruppe = fiksNULL(input$op_gruppe),
+          ncsp = fiksNULL(input$ncsp_verdi),
+          BMI = fiksNULL(input$BMI),
+          tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
+          minPRS = as.numeric(input$PRS[1]),
+          maxPRS = as.numeric(input$PRS[2]),
+          ASA = fiksNULL(input$ASA),
+          whoEcog = fiksNULL(input$whoEcog),
+          forbehandling = fiksNULL(input$forbehandling),
+          modGlasgow = fiksNULL(input$modGlasgow),
+          malign = as.numeric(input$malign),
+          erMann = as.numeric(input$erMann),
+          elektiv = as.numeric(input$elektiv),
+          tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
+          inkl_konf = fiksNULL(input$inkl_konf, 99),
+          hastegrad=as.numeric(input$hastegrad),
+          kun_ferdigstilte = input$kun_ferdigstilte,
+          hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+          accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
+      }, width = 700, height = 700)
 
-  output$lastNed_tid <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
-    },
-    content = function(file){
-      utdata <- tabellReagerTid()
-      if (input$enhetsUtvalg == 1) {
-        Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                                    N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
-                                    Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
-                                    N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
-                                    Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
-      } else {
-        Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
-                                    Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
-                                    N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
-                                    Konf.int.ovre = utdata$KonfInt$Konf[2,])
+      tabellReagerTid <- reactive({
+        TabellData_Tid <- norgast::NorgastFigAndelTid(
+          RegData,
+          valgtVar=input$valgtVar,
+          datoFra = input$datovalg[1],
+          datoTil = input$datovalg[2],
+          reshID = reshID,
+          enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+          minald=as.numeric(input$alder[1]),
+          maxald=as.numeric(input$alder[2]),
+          valgtShus = fiksNULL(input$valgtShus),
+          op_gruppe = fiksNULL(input$op_gruppe),
+          ncsp = fiksNULL(input$ncsp_verdi),
+          BMI = fiksNULL(input$BMI),
+          tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
+          minPRS = as.numeric(input$PRS[1]),
+          maxPRS = as.numeric(input$PRS[2]),
+          ASA = fiksNULL(input$ASA),
+          whoEcog = fiksNULL(input$whoEcog),
+          forbehandling = fiksNULL(input$forbehandling),
+          modGlasgow = fiksNULL(input$modGlasgow),
+          malign = as.numeric(input$malign),
+          erMann = as.numeric(input$erMann),
+          elektiv = as.numeric(input$elektiv),
+          tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
+          inkl_konf = fiksNULL(input$inkl_konf, 99),
+          hastegrad=as.numeric(input$hastegrad),
+          kun_ferdigstilte = input$kun_ferdigstilte,
+          hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+          accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
+      })
+
+      output$utvalg_tid <- renderUI({
+        TabellData <- tabellReagerTid()
+        tagList(
+          h3(HTML(paste0(TabellData$tittel, '<br />'))),
+          h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+        )})
+
+
+
+      output$Tabell_tid <- function() {
+
+        utdata <- tabellReagerTid()
+        if (input$enhetsUtvalg == 1) {
+          Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                                      N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                                      Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                                      N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
+                                      Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
+          names(Tabell_tid) <- c('Tidsperiode', 'Antall', 'N', 'Andel (%)', 'KI_nedre', 'KI_ovre', 'Antall', 'N', 'Andel (%)',
+                                 'KI_nedre', 'KI_ovre')
+          Tabell_tid %>% knitr::kable("html", digits = c(0,0,0,1,1,1,0,0,1,1,1)) %>%
+            kableExtra::kable_styling("hover", full_width = F) %>%
+            kableExtra::add_header_above(c(" ", "Din avdeling" = 5, "Landet forøvrig" = 5))
+        } else {
+          Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
+                                      Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                                      N = utdata$NTid$NTidHoved, 'Andel (%)'= utdata$Andeler$AndelHoved, KI_nedre = utdata$KonfInt$Konf[1,],
+                                      KI_ovre = utdata$KonfInt$Konf[2,])
+          Tabell_tid %>%
+            knitr::kable("html", digits = c(0,0,0,1,1,1)) %>%
+            kableExtra::kable_styling("hover", full_width = F)
+        }
       }
-      write.csv3(Tabell_tid, file, row.names = F)
+
+      output$lastNed_tid <- downloadHandler(
+        filename = function(){
+          paste0(input$valgtVar, '_tid', Sys.time(), '.csv')
+        },
+        content = function(file){
+          utdata <- tabellReagerTid()
+          if (input$enhetsUtvalg == 1) {
+            Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt, Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                                        N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                                        Konf.int.ovre = utdata$KonfInt$Konf[2,], Antall2 = round(utdata$Andeler$AndelRest*utdata$NTid$NTidRest/100),
+                                        N2 = utdata$NTid$NTidRest, Andel2 = utdata$Andeler$AndelRest, Konf.int.nedre2 = utdata$KonfInt$KonfRest[1,],
+                                        Konf.int.ovre2 = utdata$KonfInt$KonfRest[2,])
+          } else {
+            Tabell_tid <- dplyr::tibble(Tidsperiode = utdata$Tidtxt,
+                                        Antall = round(utdata$Andeler$AndelHoved*utdata$NTid$NTidHoved/100),
+                                        N = utdata$NTid$NTidHoved, Andel = utdata$Andeler$AndelHoved, Konf.int.nedre = utdata$KonfInt$Konf[1,],
+                                        Konf.int.ovre = utdata$KonfInt$Konf[2,])
+          }
+          write.csv3(Tabell_tid, file, row.names = F)
+        }
+      )
+
+      output$lastNedBilde_tid <- downloadHandler(
+        filename = function(){
+          paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat)
+        },
+        content = function(file){
+          norgast::NorgastFigAndelTid(
+            RegData,
+            valgtVar=input$valgtVar,
+            datoFra = input$datovalg[1],
+            datoTil = input$datovalg[2],
+            reshID = reshID,
+            enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+            minald=as.numeric(input$alder[1]),
+            maxald=as.numeric(input$alder[2]),
+            valgtShus = fiksNULL(input$valgtShus),
+            op_gruppe = fiksNULL(input$op_gruppe),
+            ncsp = fiksNULL(input$ncsp_verdi),
+            BMI = fiksNULL(input$BMI),
+            tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
+            minPRS = as.numeric(input$PRS[1]),
+            maxPRS = as.numeric(input$PRS[2]),
+            ASA = fiksNULL(input$ASA),
+            hastegrad=as.numeric(input$hastegrad),
+            whoEcog = fiksNULL(input$whoEcog),
+            forbehandling = fiksNULL(input$forbehandling),
+            modGlasgow = fiksNULL(input$modGlasgow),
+            malign = as.numeric(input$malign),
+            erMann = as.numeric(input$erMann),
+            elektiv = as.numeric(input$elektiv),
+            tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
+            inkl_konf = fiksNULL(input$inkl_konf, 99),
+            kun_ferdigstilte = input$kun_ferdigstilte,
+            outfile = file,
+            hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+            accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
+        }
+      )
+
+
+      shiny::observe({
+        if (rapbase::isRapContext()) {
+          if (req(input$tab) == "fig") {
+            mld_fordeling <- paste0(
+              "NORGAST: Figur - tidsvisning, variabel - ",
+              input$valgtVar)
+          }
+          if (req(input$tab) == "tab") {
+            mld_fordeling <- paste(
+              "NORGAST: tabell - tidsvisning variabel - ",
+              input$valgtVar)
+          }
+          rapbase::repLogger(
+            session = hvd_session,
+            msg = mld_fordeling
+          )
+          shinyjs::onclick(
+            "lastNedBilde_tid",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = paste(
+                "NORGAST: nedlasting figur - tidsvisning, variabel -",
+                input$valgtVar
+              )
+            )
+          )
+          shinyjs::onclick(
+            "lastNed_tid",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = paste(
+                "NORGAST: nedlasting tabell - tidsvisning, variabel -",
+                input$valgtVar
+              )
+            )
+          )
+        }
+      })
     }
   )
-
-  output$lastNedBilde_tid <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar, '_tid', Sys.time(), '.', input$bildeformat)
-    },
-    content = function(file){
-      norgast::NorgastFigAndelTid(
-        RegData,
-        valgtVar=input$valgtVar,
-        datoFra = input$datovalg[1],
-        datoTil = input$datovalg[2],
-        reshID = reshID,
-        enhetsUtvalg=as.numeric(input$enhetsUtvalg),
-        minald=as.numeric(input$alder[1]),
-        maxald=as.numeric(input$alder[2]),
-        valgtShus = fiksNULL(input$valgtShus),
-        op_gruppe = fiksNULL(input$op_gruppe),
-        ncsp = fiksNULL(input$ncsp_verdi),
-        BMI = fiksNULL(input$BMI),
-        tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
-        minPRS = as.numeric(input$PRS[1]),
-        maxPRS = as.numeric(input$PRS[2]),
-        ASA = fiksNULL(input$ASA),
-        hastegrad=as.numeric(input$hastegrad),
-        whoEcog = fiksNULL(input$whoEcog),
-        forbehandling = fiksNULL(input$forbehandling),
-        modGlasgow = fiksNULL(input$modGlasgow),
-        malign = as.numeric(input$malign),
-        erMann = as.numeric(input$erMann),
-        elektiv = as.numeric(input$elektiv),
-        tidsenhet = fiksNULL(input$tidsenhet, 'Aar'),
-        inkl_konf = fiksNULL(input$inkl_konf, 99),
-        kun_ferdigstilte = input$kun_ferdigstilte,
-        outfile = file,
-        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-        accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
-    }
-  )
-
-
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-      if (req(input$tab) == "fig") {
-        mld_fordeling <- paste0(
-          "NORGAST: Figur - tidsvisning, variabel - ",
-          input$valgtVar)
-      }
-      if (req(input$tab) == "tab") {
-        mld_fordeling <- paste(
-          "NORGAST: tabell - tidsvisning variabel - ",
-          input$valgtVar)
-      }
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = mld_fordeling
-      )
-      shinyjs::onclick(
-        "lastNedBilde_tid",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = paste(
-            "NORGAST: nedlasting figur - tidsvisning, variabel -",
-            input$valgtVar
-          )
-        )
-      )
-      shinyjs::onclick(
-        "lastNed_tid",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = paste(
-            "NORGAST: nedlasting tabell - tidsvisning, variabel -",
-            input$valgtVar
-          )
-        )
-      )
-    }
-  })
-
-
-
 }
-
 
 
 

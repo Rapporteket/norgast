@@ -5,7 +5,7 @@
 #' @return Modul traktplot
 #'
 #' @export
-traktplot_UI <- function(id){
+traktplot_ui <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -103,273 +103,272 @@ traktplot_UI <- function(id){
 #' @return Modul traktplot
 #'
 #' @export
-traktplot <- function(input, output, session, reshID, RegData, hvd_session, BrValg){
+traktplot_server <- function(id, reshID, RegData, hvd_session, BrValg){
+  moduleServer(
+    id,
+    function(input, output, session) {
 
-  observeEvent(input$reset_input, {
-    shinyjs::reset("br_kontroller1")
-    shinyjs::reset("br_kontroller2")
-  })
+      observeEvent(input$reset_input, {
+        shinyjs::reset("br_kontroller1")
+        shinyjs::reset("br_kontroller2")
+      })
 
-  output$ncsp <- renderUI({
-    ns <- session$ns
-    if (!is.null(input$op_gruppe)) {
-      selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
-                  choices = if (!is.null(input$op_gruppe)) {
-                    setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
-                             sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
-                  }, multiple = TRUE)
-    }
-  })
+      output$ncsp <- renderUI({
+        ns <- session$ns
+        if (!is.null(input$op_gruppe)) {
+          selectInput(inputId = ns("ncsp_verdi"), label = "NCSP koder (velg en eller flere)",
+                      choices = if (!is.null(input$op_gruppe)) {
+                        setNames(substr(sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])), 1, 5),
+                                 sort(unique(RegData$Hovedoperasjon[RegData$Op_gr %in% as.numeric(input$op_gruppe)])))
+                      }, multiple = TRUE)
+        }
+      })
 
-  output$valgtVar_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
-                choices = BrValg$varvalg_andel)
-  })
+      output$valgtVar_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("valgtVar"), label = "Velg variabel",
+                    choices = BrValg$varvalg_andel)
+      })
 
-  output$op_gruppe_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
-                choices = BrValg$reseksjonsgrupper, multiple = TRUE)
-  })
+      output$op_gruppe_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+                    choices = BrValg$reseksjonsgrupper, multiple = TRUE)
+      })
 
-  output$tilgang_utvidet_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("tilgang_utvidet"),
-                label = "Tilgang i abdomen (inkl. robotassistanse)",
-                choices = BrValg$tilgang_utvidet, multiple = TRUE)
-  })
+      output$tilgang_utvidet_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("tilgang_utvidet"),
+                    label = "Tilgang i abdomen (inkl. robotassistanse)",
+                    choices = BrValg$tilgang_utvidet, multiple = TRUE)
+      })
 
-  output$BMI_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("BMI"), label = "BMI",
-                choices = BrValg$bmi_valg, multiple = TRUE)
-  })
+      output$BMI_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("BMI"), label = "BMI",
+                    choices = BrValg$bmi_valg, multiple = TRUE)
+      })
 
-  output$ASA_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("ASA"), label = "ASA-grad",
-                choices = BrValg$ASA_valg, multiple = TRUE)
-  })
+      output$ASA_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("ASA"), label = "ASA-grad",
+                    choices = BrValg$ASA_valg, multiple = TRUE)
+      })
 
-  output$whoEcog_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
-                choices = BrValg$whoEcog_valg, multiple = TRUE)
-  })
-
-
-
-  output$slider_to_anim <- renderUI({
-    ns <- session$ns
-    # shiny::validate(need(input$speed, F))
-    sliderInput(inputId = ns("datovalg"), label = "Velg tidsintervall",
-                min=as.Date("2014-01-01"), max = Sys.Date(),
-                value=c(lubridate::`%m-%`(Sys.Date(), months(12)), Sys.Date()),
-                step = 365,
-                animate = animationOptions(interval = if (!is.null(input$speed)) {1000*input$speed} else {1400}, loop = F,
-                                           playButton = "Spill av animasjon"),
-                timeFormat="%F")
-  })
+      output$whoEcog_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("whoEcog"), label = "WHO ECOG score",
+                    choices = BrValg$whoEcog_valg, multiple = TRUE)
+      })
 
 
-  output$speed_value <- renderUI({
-    ns <- session$ns
-    numericInput(ns("speed"),"Tid i sekunder mellom hvert animasjonssteg :", value = 1.4, min = 0.1, max = 5, step = 0.1)
-  })
 
-  output$settMaalnivaa <- renderUI({
-    ns <- session$ns
-    if (input$aktiver_justering) {
-      numericInput(inputId = ns("settMaalnivaa_verdi"), "Midtverdi", min = 0, max = 100,
-                   value = round(vals$benchmark, 2), step = 0.01) #, ticks = F
-    }
-  })
-
-  observe(
-    if (req(input$referansepasient)) {
-      shiny::updateSelectInput(inputId = "hastegrad_hybrid", label = "Hastegrad (hybrid)",
-                               choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0), selected = 1)
-      shiny::updateSelectInput(inputId = "malign", label = "Diagnose",
-                               choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0), selected = 1)
-      shiny::updateSelectInput(inputId = "whoEcog", label = "WHO ECOG score",
-                               choices = BrValg$whoEcog_valg, selected = c(0, 1))
-    })
+      output$slider_to_anim <- renderUI({
+        ns <- session$ns
+        # shiny::validate(need(input$speed, F))
+        sliderInput(inputId = ns("datovalg"), label = "Velg tidsintervall",
+                    min=as.Date("2014-01-01"), max = Sys.Date(),
+                    value=c(lubridate::`%m-%`(Sys.Date(), months(12)), Sys.Date()),
+                    step = 365,
+                    animate = animationOptions(interval = if (!is.null(input$speed)) {1000*input$speed} else {1400}, loop = F,
+                                               playButton = "Spill av animasjon"),
+                    timeFormat="%F")
+      })
 
 
-  output$utvalg <- renderUI({
-    tagList(
-      h3(HTML(paste0(traktdata()$tittel, '<br />'))),
-      h5(HTML(paste0(traktdata()$utvalgTxt, '<br />')))
-    )})
+      output$speed_value <- renderUI({
+        ns <- session$ns
+        numericInput(ns("speed"),"Tid i sekunder mellom hvert animasjonssteg :", value = 1.4, min = 0.1, max = 5, step = 0.1)
+      })
 
-  farger<-rapFigurer::figtype()$farger
+      output$settMaalnivaa <- renderUI({
+        ns <- session$ns
+        if (input$aktiver_justering) {
+          numericInput(inputId = ns("settMaalnivaa_verdi"), "Midtverdi", min = 0, max = 100,
+                       value = round(vals$benchmark, 2), step = 0.01) #, ticks = F
+        }
+      })
 
-  ############### Andeler #######################################################
+      observe(
+        if (req(input$referansepasient)) {
+          shiny::updateSelectInput(inputId = "hastegrad_hybrid", label = "Hastegrad (hybrid)",
+                                   choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0), selected = 1)
+          shiny::updateSelectInput(inputId = "malign", label = "Diagnose",
+                                   choices = c('Ikke valgt'=99, 'Malign'=1, 'Benign'=0), selected = 1)
+          shiny::updateSelectInput(inputId = "whoEcog", label = "WHO ECOG score",
+                                   choices = BrValg$whoEcog_valg, selected = c(0, 1))
+        })
 
-  traktdata <- function() {
-    ## Preparer variabler for fremstilling i figur
-    PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=req(input$valgtVar))
-    RegData <- PlotParams$RegData
-    tittel <- PlotParams$tittel
-    PlotParams$RegData <- NA
 
-    ## Gjør utvalg basert på brukervalg (LibUtvalg)
-    if (!is.null(input$datovalg)) {
-      NorgastUtvalg <- NorgastUtvalg(
-        RegData=RegData, datoFra = input$datovalg[1],
-        datoTil = input$datovalg[2],
-        kun_ferdigstilte = input$kun_ferdigstilte,
-        minald=as.numeric(input$alder[1]),
-        maxald=as.numeric(input$alder[2]),
-        erMann=as.numeric(input$erMann),
-        elektiv=as.numeric(input$elektiv),
-        hastegrad = as.numeric(input$hastegrad),
-        hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
-        BMI=fiksNULL(input$BMI), valgtShus='',
-        tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {
-          input$tilgang_utvidet} else {''},
-        minPRS = as.numeric(input$PRS[1]),
-        maxPRS = as.numeric(input$PRS[2]),
-        ASA=fiksNULL(input$ASA),
-        whoEcog=fiksNULL(input$whoEcog),
-        forbehandling = fiksNULL(input$forbehandling),
-        malign=as.numeric(input$malign),
-        op_gruppe=fiksNULL(input$op_gruppe),
-        ncsp = fiksNULL(input$ncsp_verdi),
-        modGlasgow=fiksNULL(input$modGlasgow),
-        accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
-      RegData <- NorgastUtvalg$RegData
-      utvalgTxt <- NorgastUtvalg$utvalgTxt} else utvalgTxt <-""
+      output$utvalg <- renderUI({
+        tagList(
+          h3(HTML(paste0(traktdata()$tittel, '<br />'))),
+          h5(HTML(paste0(traktdata()$utvalgTxt, '<br />')))
+        )})
 
-    RegData <- RegData[!is.na(RegData$Variabel), ]
-    my_data <- RegData %>% dplyr::group_by(Sykehusnavn) %>%
-      dplyr::summarise(n = sum(Variabel),
-                       d = dplyr::n())
-    my_data <- my_data[my_data$d >= req(input$fjern_n), ]
+      farger<-rapFigurer::figtype()$farger
 
-    if (!is.null(my_data)) {
+      ############### Andeler #######################################################
 
-      if (input$aktiver_justering & !is.null(input$settMaalnivaa_verdi)) {
-        my_limits   <- funnelR::fundata(input=my_data,
-                                        benchmark= as.numeric(input$settMaalnivaa_verdi)/100,
-                                        alpha=0.80,
-                                        alpha2=0.95,
-                                        method='approximate',
-                                        step=1)
-      } else {
-        my_limits   <- funnelR::fundata(input=my_data,
-                                        alpha=0.80,
-                                        alpha2=0.95,
-                                        method='approximate',
-                                        step=1)
+      traktdata <- function() {
+        ## Preparer variabler for fremstilling i figur
+        PlotParams <- NorgastPrepVar(RegData=RegData, valgtVar=req(input$valgtVar))
+        RegData <- PlotParams$RegData
+        tittel <- PlotParams$tittel
+        PlotParams$RegData <- NA
+
+        ## Gjør utvalg basert på brukervalg (LibUtvalg)
+        if (!is.null(input$datovalg)) {
+          NorgastUtvalg <- NorgastUtvalg(
+            RegData=RegData, datoFra = input$datovalg[1],
+            datoTil = input$datovalg[2],
+            kun_ferdigstilte = input$kun_ferdigstilte,
+            minald=as.numeric(input$alder[1]),
+            maxald=as.numeric(input$alder[2]),
+            erMann=as.numeric(input$erMann),
+            elektiv=as.numeric(input$elektiv),
+            hastegrad = as.numeric(input$hastegrad),
+            hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
+            BMI=fiksNULL(input$BMI), valgtShus='',
+            tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {
+              input$tilgang_utvidet} else {''},
+            minPRS = as.numeric(input$PRS[1]),
+            maxPRS = as.numeric(input$PRS[2]),
+            ASA=fiksNULL(input$ASA),
+            whoEcog=fiksNULL(input$whoEcog),
+            forbehandling = fiksNULL(input$forbehandling),
+            malign=as.numeric(input$malign),
+            op_gruppe=fiksNULL(input$op_gruppe),
+            ncsp = fiksNULL(input$ncsp_verdi),
+            modGlasgow=fiksNULL(input$modGlasgow),
+            accordion = if (!is.null(input$accordion)) {input$accordion} else {''})
+          RegData <- NorgastUtvalg$RegData
+          utvalgTxt <- NorgastUtvalg$utvalgTxt} else utvalgTxt <-""
+
+        RegData <- RegData[!is.na(RegData$Variabel), ]
+        my_data <- RegData %>% dplyr::group_by(Sykehusnavn) %>%
+          dplyr::summarise(n = sum(Variabel),
+                           d = dplyr::n())
+        my_data <- my_data[my_data$d >= req(input$fjern_n), ]
+
+        if (!is.null(my_data)) {
+
+          if (input$aktiver_justering & !is.null(input$settMaalnivaa_verdi)) {
+            my_limits   <- funnelR::fundata(input=my_data,
+                                            benchmark= as.numeric(input$settMaalnivaa_verdi)/100,
+                                            alpha=0.80,
+                                            alpha2=0.95,
+                                            method='approximate',
+                                            step=1)
+          } else {
+            my_limits   <- funnelR::fundata(input=my_data,
+                                            alpha=0.80,
+                                            alpha2=0.95,
+                                            method='approximate',
+                                            step=1)
+          }
+
+          my_limits$lo[my_limits$lo < 0] <- 0
+          my_limits$lo2[my_limits$lo2 < 0] <- 0
+          my_data$andel <- my_data$n/my_data$d*100
+          my_limits[, c("up2", "lo2")] <- 100*my_limits[, c("up2", "lo2")]
+          list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt, tittel=tittel)
+        }
       }
 
-      my_limits$lo[my_limits$lo < 0] <- 0
-      my_limits$lo2[my_limits$lo2 < 0] <- 0
-      my_data$andel <- my_data$n/my_data$d*100
-      my_limits[, c("up2", "lo2")] <- 100*my_limits[, c("up2", "lo2")]
-      list(my_data=my_data, my_limits=my_limits, utvalgTxt=utvalgTxt, tittel=tittel)
-    }
-  }
+      vals <- reactiveValues(
+        shus = data.frame(),
+        benchmark = 0,
+        klikkinfo = NULL
+      )
+      observeEvent(input$aktiver_justering, {
+        vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
+      })
+      observeEvent(input$valgtVar, {
+        vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
+      })
+      observeEvent(input$plot_click2, {
+        vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
+        vals$shus$color[round(as.numeric(input$plot_click2$y))] <- 'red'
+        vals$klikkinfo <- c(round(as.numeric(input$plot_click2$y)), vals$klikkinfo)
+      })
+      observeEvent(input$plot_click, {
+        vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
+        point <- nearPoints(vals$shus, input$plot_click, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
+        if (nrow(point) != 0) {vals$shus$color <- ifelse(vals$shus$Sykehusnavn==point$Sykehusnavn,'red','blue')}
+      })
 
-  vals <- reactiveValues(
-    shus = data.frame(),
-    benchmark = 0,
-    klikkinfo = NULL
+      output$fig_trakt <- renderPlot({
+        my_limits <- traktdata()$my_limits
+        my_data <- traktdata()$my_data
+        if (dim(vals$shus)[1]>0) {
+          my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
+        } else {my_data$color <- "blue"}
+        my_data$color[is.na(my_data$color)] <- "red"
+        ggplot2::ggplot(data=my_data, ggplot2::aes(x=d,y=andel, color=color)) +
+          ggplot2::geom_line(data=my_limits, ggplot2::aes(x=d, y=up2), colour=farger[1]) +
+          ggplot2::geom_line(data=my_limits, ggplot2::aes(x=d, y=lo2), colour=farger[1]) +
+          ggplot2::geom_hline(data=my_limits, ggplot2::aes(yintercept=benchmark*100), colour="red") +
+          ggplot2::coord_cartesian(ylim=c(0,max(my_limits$up2, my_data$andel)), clip = "off") +
+          ggplot2::annotate("text", x = round(max(my_data$d)[1]*1.1),
+                            y = my_limits$benchmark[1]*110,
+                            label = as.character(round(my_limits$benchmark[1]*100, 2))) +
+          ggplot2::theme_classic()+ ggplot2::geom_point(data=my_data, size=1.5) +
+          ggplot2::scale_color_manual(values = c("red" = "red", "blue" = "black"), na.value = "red") +
+          ggplot2::labs(x = "Antall forløp",  y = "Andel (%)") + #scale_x_discrete(expand = c(0, 10)) +
+          ggplot2::theme(legend.position = "none")
+      })
+
+      output$barplot <- renderPlot({
+        if (!is.null(traktdata()$my_data)) {
+          my_data <- traktdata()$my_data
+          if (dim(vals$shus)[1]>0) {
+            my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
+          } else {my_data$color <- "blue"}
+          my_data <- my_data[order(my_data$andel), ]
+          my_data$Sykehusnavn <- factor(my_data$Sykehusnavn, levels = my_data$Sykehusnavn)
+          my_data$color[is.na(my_data$color)] <- "red"
+          ggplot2::ggplot(data=my_data, ggplot2::aes(x=Sykehusnavn, y=andel, fill = color)) +
+            ggplot2::geom_bar(stat = "identity", width = 0.5) +
+            ggplot2::coord_flip() +
+            ggplot2::theme_classic() +
+            ggplot2::scale_x_discrete(expand = c(0, 0)) +
+            ggplot2::scale_y_continuous(expand = c(0,0)) +
+            ggplot2::labs(y = "Andel (%)") +
+            ggplot2::theme(legend.position = "none",
+                           plot.title = ggplot2::element_text(hjust = 0.5),
+                           axis.line.y = ggplot2::element_blank(),
+                           axis.ticks.y = ggplot2::element_blank(),
+                           axis.title.y = ggplot2::element_blank()) +
+            ggplot2::scale_fill_manual(values = c("red" = "red", "blue" = farger[1]),
+                                       na.value = "red")
+        }
+      })
+
+      output$click_info_verbatim <- renderUI({
+        if (dim(vals$shus)[1]>0) {
+          my_data <- traktdata()$my_data
+          my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
+          wellPanel(
+            HTML(paste0("<b> Avdeling: </b>", my_data$Sykehusnavn[my_data$color=="red" | is.na(my_data$color)], "<br/>",
+                        "<b> Andel: </b>", round(my_data$andel[my_data$color=="red" | is.na(my_data$color)], 1), "<b> % </b>","<br/>",
+                        "<b> n: </b>", my_data$n[my_data$color=="red" | is.na(my_data$color)], "<br/>",
+                        "<b> N: </b>", my_data$d[my_data$color=="red" | is.na(my_data$color)], "<br/>"))
+          )
+        }
+      })
+
+      shiny::observe({
+        if (rapbase::isRapContext()) {
+          rapbase::repLogger(
+            session = hvd_session,
+            msg = paste(
+              "NORGAST: Traktplott, variabel -",
+              input$valgtVar
+            )
+          )
+        }
+      })
+    }
   )
-  observeEvent(input$aktiver_justering, {
-    vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
-  })
-  observeEvent(input$valgtVar, {
-    vals$benchmark <- sum(traktdata()$my_data$n)/sum(traktdata()$my_data$d)*100
-  })
-  observeEvent(input$plot_click2, {
-    vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    vals$shus$color[round(as.numeric(input$plot_click2$y))] <- 'red'
-      vals$klikkinfo <- c(round(as.numeric(input$plot_click2$y)), vals$klikkinfo)
-  })
-  observeEvent(input$plot_click, {
-    vals$shus <- data.frame(traktdata()$my_data[order(traktdata()$my_data$andel), ], color="blue")
-    point <- nearPoints(vals$shus, input$plot_click, xvar = "d", yvar = "andel", threshold = 5, maxpoints = 1, addDist = TRUE)
-    if (nrow(point) != 0) {vals$shus$color <- ifelse(vals$shus$Sykehusnavn==point$Sykehusnavn,'red','blue')}
-  })
-
-  output$fig_trakt <- renderPlot({
-    my_limits <- traktdata()$my_limits
-    my_data <- traktdata()$my_data
-    if (dim(vals$shus)[1]>0) {
-      my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
-    } else {my_data$color <- "blue"}
-    my_data$color[is.na(my_data$color)] <- "red"
-      ggplot2::ggplot(data=my_data, ggplot2::aes(x=d,y=andel, color=color)) +
-        ggplot2::geom_line(data=my_limits, ggplot2::aes(x=d, y=up2), colour=farger[1]) +
-        ggplot2::geom_line(data=my_limits, ggplot2::aes(x=d, y=lo2), colour=farger[1]) +
-        ggplot2::geom_hline(data=my_limits, ggplot2::aes(yintercept=benchmark*100), colour="red") +
-        ggplot2::coord_cartesian(ylim=c(0,max(my_limits$up2, my_data$andel)), clip = "off") +
-        ggplot2::annotate("text", x = round(max(my_data$d)[1]*1.1),
-                          y = my_limits$benchmark[1]*110,
-                          label = as.character(round(my_limits$benchmark[1]*100, 2))) +
-        ggplot2::theme_classic()+ ggplot2::geom_point(data=my_data, size=1.5) +
-        ggplot2::scale_color_manual(values = c("red" = "red", "blue" = "black"), na.value = "red") +
-        ggplot2::labs(x = "Antall forløp",  y = "Andel (%)") + #scale_x_discrete(expand = c(0, 10)) +
-        ggplot2::theme(legend.position = "none")
-  })
-
-  output$barplot <- renderPlot({
-    if (!is.null(traktdata()$my_data)) {
-      my_data <- traktdata()$my_data
-      if (dim(vals$shus)[1]>0) {
-        my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
-      } else {my_data$color <- "blue"}
-      my_data <- my_data[order(my_data$andel), ]
-      my_data$Sykehusnavn <- factor(my_data$Sykehusnavn, levels = my_data$Sykehusnavn)
-      my_data$color[is.na(my_data$color)] <- "red"
-        ggplot2::ggplot(data=my_data, ggplot2::aes(x=Sykehusnavn, y=andel, fill = color)) +
-          ggplot2::geom_bar(stat = "identity", width = 0.5) +
-          ggplot2::coord_flip() +
-          ggplot2::theme_classic() +
-          ggplot2::scale_x_discrete(expand = c(0, 0)) +
-          ggplot2::scale_y_continuous(expand = c(0,0)) +
-          ggplot2::labs(y = "Andel (%)") +
-          ggplot2::theme(legend.position = "none",
-                         plot.title = ggplot2::element_text(hjust = 0.5),
-                         axis.line.y = ggplot2::element_blank(),
-                         axis.ticks.y = ggplot2::element_blank(),
-                         axis.title.y = ggplot2::element_blank()) +
-          ggplot2::scale_fill_manual(values = c("red" = "red", "blue" = farger[1]),
-                                     na.value = "red")
-    }
-  })
-
-  output$click_info_verbatim <- renderUI({
-    if (dim(vals$shus)[1]>0) {
-      my_data <- traktdata()$my_data
-      my_data <- merge(my_data, vals$shus[, c("Sykehusnavn", "color")], by="Sykehusnavn")
-      wellPanel(
-        HTML(paste0("<b> Avdeling: </b>", my_data$Sykehusnavn[my_data$color=="red" | is.na(my_data$color)], "<br/>",
-                    "<b> Andel: </b>", round(my_data$andel[my_data$color=="red" | is.na(my_data$color)], 1), "<b> % </b>","<br/>",
-                    "<b> n: </b>", my_data$n[my_data$color=="red" | is.na(my_data$color)], "<br/>",
-                    "<b> N: </b>", my_data$d[my_data$color=="red" | is.na(my_data$color)], "<br/>"))
-      )
-    }
-  })
-
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = paste(
-          "NORGAST: Traktplott, variabel -",
-          input$valgtVar
-        )
-      )
-    }
-  })
-
-
-
-
-
-
 }

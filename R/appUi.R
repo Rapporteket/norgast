@@ -25,69 +25,40 @@ appUi <- function() {
       "Startside",
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
 
-      norgast::startside_UI("startside")
+      norgast::startside_ui("startside")
     ),
-
-    # shiny::tabPanel(
-    #   "debugging",
-    #   shiny::h4("Test 'rapbase' functions using the session object:"),
-    #   shiny::textOutput("user"),
-    #   shiny::textOutput("group"),
-    #   shiny::textOutput("resh_id"),
-    #   shiny::textOutput("role"),
-    #   shiny::textOutput("full_name"),
-    #   shiny::h4("Environment var R_RAP_INSTANCE:"),
-    #   shiny::textOutput("instance"),
-    #   shiny::h4("Environment var R_RAP_CONFIG_PATH:"),
-    #   shiny::textOutput("config_path"),
-    #   shiny::h4("Environment var(s) provided by SHINYPROXY (if any):"),
-    #   shiny::textOutput("sp_usergroups"),
-    #   shiny::h4("Locale settings:"),
-    #   shiny::textOutput("locale"),
-    #   shiny::h4("Database og tabeller:"),
-    #   shiny::textOutput("database"),
-    #   shiny::tableOutput("tabeller"),
-    #   shiny::h4("skjemaoversikt:"),
-    #   shiny::tableOutput("skjemaoversikt"),
-    #   shiny::h4("allevarnum:"),
-    #   shiny::tableOutput("allevarnum"),
-    #   shiny::h4("forlopsoversikt:"),
-    #   shiny::tableOutput("forlopsoversikt"),
-    #   shiny::h4("user:"),
-    #   shiny::tableOutput("user_tab")
-    # ),
 
     shiny::tabPanel(
       "Fordelinger",
-      norgast::fordelingsfig_UI(id = "fordelingsfig_id")
+      norgast::fordelingsfig_ui(id = "fordelingsfig_id")
     ),
 
     shiny::tabPanel(
       "Sykehusvisning",
-      norgast::sykehusvisning_UI(id = "sykehusvisning_id")
+      norgast::sykehusvisning_ui(id = "sykehusvisning_id")
     ),
 
     shiny::tabPanel(
       "Traktplott",
-      norgast::traktplot_UI(id = "traktplot_id")
+      norgast::traktplot_ui(id = "traktplot_id")
     ),
 
     shiny::navbarMenu(
       "Tidsvisning",
       shiny::tabPanel("Andeler over tid",
-                      norgast::tidsvisning_UI(id = "tidsvisning_id")
+                      norgast::tidsvisning_ui(id = "tidsvisning_id")
       ),
       shiny::tabPanel("Sammenlign andeler",
-                      norgast::saml_andeler_UI(id = "saml_andeler_id")
+                      norgast::saml_andeler_ui(id = "saml_andeler_id")
       )
     ),
 
     shiny::tabPanel("Indikatorer",
-                    norgast::indikatorfig_UI(id = "indikator_id")
+                    norgast::indikatorfig_ui(id = "indikator_id")
     ),
 
     shiny::tabPanel("Overlevelse",
-                    norgast::overlevelse_UI(id = "overlevelse_id")
+                    norgast::overlevelse_ui(id = "overlevelse_id")
     ),
 
     shiny::tabPanel("Samledokumenter",
@@ -97,7 +68,7 @@ appUi <- function() {
                             tabeller.", align='center'),
                     shiny::br(),
                     shiny::br(),
-                    norgast::samledok_UI(id = "samledok_id")
+                    norgast::samledok_ui(id = "samledok_id")
     ),
 
     shiny::tabPanel(
@@ -109,11 +80,11 @@ appUi <- function() {
                 align='center'),
       shiny::br(),
       shiny::br(),
-      norgast::datadump_UI(id = "datadump_id")
+      norgast::datadump_ui(id = "datadump_id")
     ),
 
     shiny::tabPanel("Administrative tabeller",
-                    norgast::admtab_UI(id = "admtab_id")
+                    norgast::admtab_ui(id = "admtab_id")
     ),
 
     shiny::tabPanel("Datakvalitet",
@@ -174,3 +145,33 @@ appUi <- function() {
   )
 
 }
+
+
+# shiny::tabPanel(
+#   "debugging",
+#   shiny::h4("Test 'rapbase' functions using the session object:"),
+#   shiny::textOutput("user"),
+#   shiny::textOutput("group"),
+#   shiny::textOutput("resh_id"),
+#   shiny::textOutput("role"),
+#   shiny::textOutput("full_name"),
+#   shiny::h4("Environment var R_RAP_INSTANCE:"),
+#   shiny::textOutput("instance"),
+#   shiny::h4("Environment var R_RAP_CONFIG_PATH:"),
+#   shiny::textOutput("config_path"),
+#   shiny::h4("Environment var(s) provided by SHINYPROXY (if any):"),
+#   shiny::textOutput("sp_usergroups"),
+#   shiny::h4("Locale settings:"),
+#   shiny::textOutput("locale"),
+#   shiny::h4("Database og tabeller:"),
+#   shiny::textOutput("database"),
+#   shiny::tableOutput("tabeller"),
+#   shiny::h4("skjemaoversikt:"),
+#   shiny::tableOutput("skjemaoversikt"),
+#   shiny::h4("allevarnum:"),
+#   shiny::tableOutput("allevarnum"),
+#   shiny::h4("forlopsoversikt:"),
+#   shiny::tableOutput("forlopsoversikt"),
+#   shiny::h4("user:"),
+#   shiny::tableOutput("user_tab")
+# ),

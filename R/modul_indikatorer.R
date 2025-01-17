@@ -5,7 +5,7 @@
 #' @return Modul fordelingsfigur
 #'
 #' @export
-indikatorfig_UI <- function(id){
+indikatorfig_ui <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -73,180 +73,175 @@ indikatorfig_UI <- function(id){
 #' @return Modul fordelingsfigur
 #'
 #' @export
-indikatorfig <- function(input, output, session, reshID, RegData,
-                         userRole, hvd_session, BrValg){
+indikatorfig_server <- function(id, reshID, RegData,
+                                userRole, hvd_session, BrValg){
+  moduleServer(
+    id,
+    function(input, output, session) {
 
-  RegData <- RegData[RegData$Op_gr %in% 1:8, ]
+      RegData <- RegData[RegData$Op_gr %in% 1:8, ]
 
-  observeEvent(input$reset_input, {
-    shinyjs::reset("id_indikator_panel")
-  })
+      observeEvent(input$reset_input, {
+        shinyjs::reset("id_indikator_panel")
+      })
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus')
-    })
+      observe(
+        if (userRole != 'SC') {
+          shinyjs::hide(id = 'valgtShus')
+        })
 
-  output$valgtShus_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
-                choices = sort(unique(RegData$SykehusNavn)), multiple = TRUE)
-  })
+      output$valgtShus_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
+                    choices = sort(unique(RegData$SykehusNavn)), multiple = TRUE)
+      })
 
-  output$tilAar_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("tilAar"), label = "T.o.m. år",
-                choices = rev((min(RegData$Aar)+2):max(RegData$Aar)))
-  })
-
-
-
-  indikatordata <- reactive({
-    indikatordata <- norgastBeregnIndikator(
-      RegData = if(
-        !is.null(input$tilAar)) {RegData[which(RegData$Aar <= as.numeric(input$tilAar)), ]
-      } else {RegData},
-      ind_id = input$valgtVar2
-    )
-  })
-
-  output$Figur1 <- renderPlot({
-    norgastPlotIndikator(AntTilfeller = indikatordata()$AntTilfeller,
-                         N = indikatordata()$N,
-                         andeler = indikatordata()$andeler,
-                         decreasing = indikatordata()$decreasing,
-                         terskel = indikatordata()$terskel,
-                         minstekrav = indikatordata()$minstekrav,
-                         maal = indikatordata()$maal,
-                         utvalgTxt = indikatordata()$utvalgTxt,
-                         tittel = indikatordata()$tittel,
-                         skriftStr = input$skriftStr,
-                         lavDG = input$valgtShus,
-                         maalretn = indikatordata()$maalretn,
-                         prikktall = !input$pst_kolonne,
-                         pst_kolonne = input$pst_kolonne)
-  }, width = 600, height = 700)
+      output$tilAar_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("tilAar"), label = "T.o.m. år",
+                    choices = rev((min(RegData$Aar)+2):max(RegData$Aar)))
+      })
 
 
 
-  output$utvalg <- renderUI({
-    TabellData <- indikatordata()
-    tagList(
-      h3(HTML(paste0(TabellData$tittel, '<br />'))),
-      h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
-    )})
-
-  lagTabell <- function() {
-
-    Utdata <- indikatordata()
-    ant_tilfeller <- Utdata$AntTilfeller
-    N <- Utdata$N
-    andeler <- round(ant_tilfeller/N*100, 1)
-    names(ant_tilfeller) <- paste0("Antall_", names(ant_tilfeller))
-    names(N) <- paste0("N_", names(N))
-    aux <- dplyr::bind_cols(ant_tilfeller, N, andeler) %>%
-      dplyr::mutate(Avdeling = rownames(.)) %>%
-      dplyr::select(Avdeling, dplyr::everything())
-
-    sketch = htmltools::withTags(table(
-      # class = 'display yohannes',
-      thead(
-        tr(
-          th(rowspan = 2, 'Avdeling'),
-          th(colspan = 2, 'Antall'),
-          th(colspan = 2, 'N'),
-          th(colspan = 2, 'Andel')
-        ),
-        tr(
-          lapply(rep(names(andeler), 3), th)
+      indikatordata <- reactive({
+        indikatordata <- norgastBeregnIndikator(
+          RegData = if(
+            !is.null(input$tilAar)) {RegData[which(RegData$Aar <= as.numeric(input$tilAar)), ]
+          } else {RegData},
+          ind_id = input$valgtVar2
         )
-      )
-    ))
-    # {text-align: center;}
-    # datatable(aux, container = sketch, rownames = TRUE)
-    list(Tabell=aux, sketch=sketch)
+      })
 
-  }
-
-  output$tabell <- DT::renderDT(
-    DT::datatable(lagTabell()$Tabell,
-                  container = lagTabell()$sketch,
-                  rownames = FALSE,
-                  extensions = 'Buttons',
-
-                  options = list(
-                    fixedColumns = TRUE,
-                    autoWidth = TRUE,
-                    ordering = TRUE,
-                    dom = 'Bliftsp',
-                    buttons = c('copy', 'csv', 'excel'),
-                    pageLength = 40
-                  ),
-                  class = "display")
-  )
+      output$Figur1 <- renderPlot({
+        norgastPlotIndikator(AntTilfeller = indikatordata()$AntTilfeller,
+                             N = indikatordata()$N,
+                             andeler = indikatordata()$andeler,
+                             decreasing = indikatordata()$decreasing,
+                             terskel = indikatordata()$terskel,
+                             minstekrav = indikatordata()$minstekrav,
+                             maal = indikatordata()$maal,
+                             utvalgTxt = indikatordata()$utvalgTxt,
+                             tittel = indikatordata()$tittel,
+                             skriftStr = input$skriftStr,
+                             lavDG = input$valgtShus,
+                             maalretn = indikatordata()$maalretn,
+                             prikktall = !input$pst_kolonne,
+                             pst_kolonne = input$pst_kolonne)
+      }, width = 600, height = 700)
 
 
 
-  output$lastNedBilde <- downloadHandler(
-    filename = function(){
-      paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
-    },
+      output$utvalg <- renderUI({
+        TabellData <- indikatordata()
+        tagList(
+          h3(HTML(paste0(TabellData$tittel, '<br />'))),
+          h5(HTML(paste0(TabellData$utvalgTxt, '<br />')))
+        )})
 
-    content = function(file){
-      norgastPlotIndikator(AntTilfeller = indikatordata()$AntTilfeller,
-                           N = indikatordata()$N,
-                           andeler = indikatordata()$andeler,
-                           decreasing = indikatordata()$decreasing,
-                           terskel = indikatordata()$terskel,
-                           minstekrav = indikatordata()$minstekrav,
-                           maal = indikatordata()$maal,
-                           utvalgTxt = indikatordata()$utvalgTxt,
-                           tittel = indikatordata()$tittel,
-                           skriftStr = input$skriftStr,
-                           lavDG = input$valgtShus,
-                           maalretn = indikatordata()$maalretn,
-                           prikktall = !input$pst_kolonne,
-                           pst_kolonne = input$pst_kolonne,
-                           outfile = file)
-    }
-  )
+      lagTabell <- function() {
 
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-      if (req(input$tab) == "fig") {
-        mld_fordeling <- paste0(
-          "NORGAST: Indikatorfigur, variabel - ",
-          input$valgtVar)
-      }
-      if (req(input$tab) == "tab") {
-        mld_fordeling <- paste(
-          "NORGAST: Indikatortabell, variabel - ",
-          input$valgtVar)
-      }
-      rapbase::repLogger(
-        session = hvd_session,
-        msg = mld_fordeling
-      )
-      shinyjs::onclick(
-        "lastNedBilde",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = paste(
-            "NORGAST: nedlasting indikatorfigur, variabel -",
-            input$valgtVar
+        Utdata <- indikatordata()
+        ant_tilfeller <- Utdata$AntTilfeller
+        N <- Utdata$N
+        andeler <- round(ant_tilfeller/N*100, 1)
+        names(ant_tilfeller) <- paste0("Antall_", names(ant_tilfeller))
+        names(N) <- paste0("N_", names(N))
+        aux <- dplyr::bind_cols(ant_tilfeller, N, andeler) %>%
+          dplyr::mutate(Avdeling = rownames(.)) %>%
+          dplyr::select(Avdeling, dplyr::everything())
+
+        sketch = htmltools::withTags(table(
+          # class = 'display yohannes',
+          thead(
+            tr(
+              th(rowspan = 2, 'Avdeling'),
+              th(colspan = 2, 'Antall'),
+              th(colspan = 2, 'N'),
+              th(colspan = 2, 'Andel')
+            ),
+            tr(
+              lapply(rep(names(andeler), 3), th)
+            )
           )
-        )
+        ))
+        # {text-align: center;}
+        # datatable(aux, container = sketch, rownames = TRUE)
+        list(Tabell=aux, sketch=sketch)
+
+      }
+
+      output$tabell <- DT::renderDT(
+        DT::datatable(lagTabell()$Tabell,
+                      container = lagTabell()$sketch,
+                      rownames = FALSE,
+                      extensions = 'Buttons',
+
+                      options = list(
+                        fixedColumns = TRUE,
+                        autoWidth = TRUE,
+                        ordering = TRUE,
+                        dom = 'Bliftsp',
+                        buttons = c('copy', 'csv', 'excel'),
+                        pageLength = 40
+                      ),
+                      class = "display")
       )
+
+
+
+      output$lastNedBilde <- downloadHandler(
+        filename = function(){
+          paste0(input$valgtVar, Sys.time(), '.', input$bildeformat)
+        },
+
+        content = function(file){
+          norgastPlotIndikator(AntTilfeller = indikatordata()$AntTilfeller,
+                               N = indikatordata()$N,
+                               andeler = indikatordata()$andeler,
+                               decreasing = indikatordata()$decreasing,
+                               terskel = indikatordata()$terskel,
+                               minstekrav = indikatordata()$minstekrav,
+                               maal = indikatordata()$maal,
+                               utvalgTxt = indikatordata()$utvalgTxt,
+                               tittel = indikatordata()$tittel,
+                               skriftStr = input$skriftStr,
+                               lavDG = input$valgtShus,
+                               maalretn = indikatordata()$maalretn,
+                               prikktall = !input$pst_kolonne,
+                               pst_kolonne = input$pst_kolonne,
+                               outfile = file)
+        }
+      )
+
+      shiny::observe({
+        if (rapbase::isRapContext()) {
+          if (req(input$tab) == "fig") {
+            mld_fordeling <- paste0(
+              "NORGAST: Indikatorfigur, variabel - ",
+              input$valgtVar)
+          }
+          if (req(input$tab) == "tab") {
+            mld_fordeling <- paste(
+              "NORGAST: Indikatortabell, variabel - ",
+              input$valgtVar)
+          }
+          rapbase::repLogger(
+            session = hvd_session,
+            msg = mld_fordeling
+          )
+          shinyjs::onclick(
+            "lastNedBilde",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = paste(
+                "NORGAST: nedlasting indikatorfigur, variabel -",
+                input$valgtVar
+              )
+            )
+          )
+        }
+      })
     }
-  })
-
-
-
-
-
-
-
-
-
-
+  )
 }

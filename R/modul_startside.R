@@ -1,7 +1,7 @@
 #' UI-del av startside for NORGAST sin Rapporteket-app
 #'
 #' @export
-startside_UI <- function(id){
+startside_ui <- function(id){
   ns <- NS(id)
   shiny::bootstrapPage(
     div(
@@ -76,15 +76,20 @@ startside_UI <- function(id){
 #' Server-del av startside for NORGAST sin Rapporteket-app
 #'
 #' @export
-startside <- function(input, output,session, usrRole){
-  observe(
-    if (usrRole == "SC") {
-      shinyjs::show("SC1")
-      shinyjs::show("SC2")
-      shinyjs::show("SC3")
-      shinyjs::show("SC4")
-      shinyjs::show("SC5")
-      # shinyjs::show("SC6")
+startside_server <- function(id, usrRole){
+  moduleServer(
+    id,
+    function(input, output, session) {
+      observe(
+        if (usrRole == "SC") {
+          shinyjs::show("SC1")
+          shinyjs::show("SC2")
+          shinyjs::show("SC3")
+          shinyjs::show("SC4")
+          shinyjs::show("SC5")
+          # shinyjs::show("SC6")
+        }
+      )
     }
   )
 }

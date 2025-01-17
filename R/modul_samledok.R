@@ -5,7 +5,7 @@
 #' @return Modulfunksjoner til Samledokumenter
 #'
 #' @export
-samledok_UI <- function(id){
+samledok_ui <- function(id){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -57,122 +57,125 @@ samledok_UI <- function(id){
 #' @return Modulfunksjoner til Samledokumenter
 #'
 #' @export
-samledok <- function(input, output, session, reshID, RegData, userRole,
-                     hvd_session, BrValg){
+samledok_server <- function(id, reshID, RegData, userRole,
+                            hvd_session, BrValg){
+  moduleServer(
+    id,
+    function(input, output, session) {
 
-  observeEvent(input$reset_input, {
-    shinyjs::reset("id_samledok_panel")
-  })
+      observeEvent(input$reset_input, {
+        shinyjs::reset("id_samledok_panel")
+      })
 
-  observe(
-    if (userRole != 'SC') {
-      shinyjs::hide(id = 'valgtShus_ui')
-    })
+      observe(
+        if (userRole != 'SC') {
+          shinyjs::hide(id = 'valgtShus_ui')
+        })
 
-  output$valgtShus_ui <- renderUI({
-    ns <- session$ns
-    selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
-                choices = BrValg$sykehus, multiple = TRUE)
-  })
+      output$valgtShus_ui <- renderUI({
+        ns <- session$ns
+        selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
+                    choices = BrValg$sykehus, multiple = TRUE)
+      })
 
-  output$kvartal <- renderUI({
-    ns <- session$ns
-    if (!is.null(input$valgtAar)) {
-      selectInput(inputId = ns("kvartal_verdi"), label = "Til og med (avsluttet) kvartal",
-                  choices = if (input$valgtAar == format(Sys.Date(), '%Y')) {
-                    ant_kvartal <- match(Sys.Date() %>% as.Date() %>%
-                                           lubridate::floor_date(unit = 'quarter') %>%
-                                           as.character() %>% substr(6,10),
-                                         c('04-01', '07-01', '10-01'))
-                    # rev(setNames(1:ant_kvartal, paste0(1:ant_kvartal, '. kvartal')))
-                    rev(setNames(paste0(input$valgtAar, c('-04-01', '-07-01', '-10-01'))[1:ant_kvartal], paste0(1:ant_kvartal, '. kvartal')))
-                  } else {
-                    # rev(setNames(1:4, paste0(1:4, '. kvartal')))
-                    rev(setNames(paste0(c(input$valgtAar, input$valgtAar, input$valgtAar, as.numeric(input$valgtAar) + 1),
-                                        c('-04-01', '-07-01', '-10-01', '-01-01')), paste0(1:4, '. kvartal')))
-                  })
-    }
-  })
+      output$kvartal <- renderUI({
+        ns <- session$ns
+        if (!is.null(input$valgtAar)) {
+          selectInput(inputId = ns("kvartal_verdi"), label = "Til og med (avsluttet) kvartal",
+                      choices = if (input$valgtAar == format(Sys.Date(), '%Y')) {
+                        ant_kvartal <- match(Sys.Date() %>% as.Date() %>%
+                                               lubridate::floor_date(unit = 'quarter') %>%
+                                               as.character() %>% substr(6,10),
+                                             c('04-01', '07-01', '10-01'))
+                        # rev(setNames(1:ant_kvartal, paste0(1:ant_kvartal, '. kvartal')))
+                        rev(setNames(paste0(input$valgtAar, c('-04-01', '-07-01', '-10-01'))[1:ant_kvartal], paste0(1:ant_kvartal, '. kvartal')))
+                      } else {
+                        # rev(setNames(1:4, paste0(1:4, '. kvartal')))
+                        rev(setNames(paste0(c(input$valgtAar, input$valgtAar, input$valgtAar, as.numeric(input$valgtAar) + 1),
+                                            c('-04-01', '-07-01', '-10-01', '-01-01')), paste0(1:4, '. kvartal')))
+                      })
+        }
+      })
 
-  contentFile2 <- function(file, baseName, datoFra, datoTil, reshID=0,
-                           valgtShus='') {
+      contentFile2 <- function(file, baseName, datoFra, datoTil, reshID=0,
+                               valgtShus='') {
 
-    src <- system.file(paste0(baseName, ".Rnw"), package = "norgast")
-    tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
+        src <- system.file(paste0(baseName, ".Rnw"), package = "norgast")
+        tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
 
-    owd <- setwd(tempdir())
-    on.exit(setwd(owd))
-    file.copy(src, tmpFile, overwrite = TRUE)
+        owd <- setwd(tempdir())
+        on.exit(setwd(owd))
+        file.copy(src, tmpFile, overwrite = TRUE)
 
-    pdfFile <- knitr::knit2pdf(tmpFile)
-    file.copy(pdfFile, file)
-  }
+        pdfFile <- knitr::knit2pdf(tmpFile)
+        file.copy(pdfFile, file)
+      }
 
-  output$lastNed_saml <- downloadHandler(
-    filename = function(){
-      paste0("samleDok", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
-    },
-    content = function(file){
-      contentFile2(
-        file, "NorgastSamleDokShiny", input$datovalg[1],
-        input$datovalg[2], reshID = reshID,
-        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
-    }
-  )
-
-  output$lastNed_saml_land <- downloadHandler(
-    filename = function(){
-      paste0("samleDokLandet", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"),
-             ".pdf")
-    },
-    content = function(file){
-      contentFile2(file, "NorgastSamleDokLandetShiny", input$datovalg[1],
-                   input$datovalg[2], reshID = reshID)
-    }
-  )
-
-  output$lastNed_kvartal <- downloadHandler(
-    filename = function(){
-      paste0("Kvartalsrapp",
-             RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)],
-             format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
-    },
-    content = function(file){
-      contentFile2(
-        file, "NorgastKvartalsrapportShiny",
-        datoTil = input$kvartal_verdi, reshID = reshID,
-        valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
-
-    }
-  )
-
-  shiny::observe({
-    if (rapbase::isRapContext()) {
-
-      shinyjs::onclick(
-        "lastNed_saml",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = "NORGAST: samledokument nedlastet"
-        )
+      output$lastNed_saml <- downloadHandler(
+        filename = function(){
+          paste0("samleDok", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
+        },
+        content = function(file){
+          contentFile2(
+            file, "NorgastSamleDokShiny", input$datovalg[1],
+            input$datovalg[2], reshID = reshID,
+            valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
+        }
       )
 
-      shinyjs::onclick(
-        "lastNed_saml_land",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = "NORGAST: samledokument med nasjonale talll nedlastet"
-        )
+      output$lastNed_saml_land <- downloadHandler(
+        filename = function(){
+          paste0("samleDokLandet", format(Sys.time(), format = "%Y-%m-%d-%H%M%S"),
+                 ".pdf")
+        },
+        content = function(file){
+          contentFile2(file, "NorgastSamleDokLandetShiny", input$datovalg[1],
+                       input$datovalg[2], reshID = reshID)
+        }
       )
-      shinyjs::onclick(
-        "lastNed_kvartal",
-        rapbase::repLogger(
-          session = hvd_session,
-          msg = "NORGAST: Kvartalsrapport nedlastet"
-        )
+
+      output$lastNed_kvartal <- downloadHandler(
+        filename = function(){
+          paste0("Kvartalsrapp",
+                 RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)],
+                 format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
+        },
+        content = function(file){
+          contentFile2(
+            file, "NorgastKvartalsrapportShiny",
+            datoTil = input$kvartal_verdi, reshID = reshID,
+            valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
+
+        }
       )
+
+      shiny::observe({
+        if (rapbase::isRapContext()) {
+
+          shinyjs::onclick(
+            "lastNed_saml",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = "NORGAST: samledokument nedlastet"
+            )
+          )
+
+          shinyjs::onclick(
+            "lastNed_saml_land",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = "NORGAST: samledokument med nasjonale talll nedlastet"
+            )
+          )
+          shinyjs::onclick(
+            "lastNed_kvartal",
+            rapbase::repLogger(
+              session = hvd_session,
+              msg = "NORGAST: Kvartalsrapport nedlastet"
+            )
+          )
+        }
+      })
     }
-  })
-
-
+  )
 }
