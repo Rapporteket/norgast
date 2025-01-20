@@ -8,6 +8,7 @@
 #' @export
 
 appServer <- function(input, output, session) {
+  rapbase::logShinyInputChanges(input)
 
   RegData <-  norgast::NorgastHentRegData()
   map_avdeling <- data.frame(
