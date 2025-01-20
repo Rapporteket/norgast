@@ -35,7 +35,7 @@ services:
   app:
     depends_on:
       - db
-    image: rapporteket/norgast:3.0.10
+    image: rapporteket/norgast:3.0.11
     deploy:
       resources:
         limits:
