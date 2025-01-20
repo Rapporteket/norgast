@@ -4,7 +4,7 @@
 \alias{norgastApp}
 \title{Run the NORGAST Shiny Application}
 \usage{
-norgastApp()
+norgastApp(logAsJson = TRUE)
 }
 \value{
 An object representing the NORGAST app

@@ -80,7 +80,7 @@ admtab_ui <- function(id){
 #' @return Modulfunksjoner til Administrative tabeller
 #'
 #' @export
-admtab_server <- function(id, reshID, RegData, userRole,
+admtab_server <- function(id, RegData, userRole,
                           hvd_session, skjemaoversikt, BrValg){
   moduleServer(
     id,
@@ -91,7 +91,7 @@ admtab_server <- function(id, reshID, RegData, userRole,
       })
 
       observe(
-        if (userRole != 'SC') {
+        if (userRole() != 'SC') {
           shinyjs::hide(id = 'valgtShus_ui')
         })
 

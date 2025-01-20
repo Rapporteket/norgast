@@ -103,7 +103,7 @@ traktplot_ui <- function(id){
 #' @return Modul traktplot
 #'
 #' @export
-traktplot_server <- function(id, reshID, RegData, hvd_session, BrValg){
+traktplot_server <- function(id, RegData, hvd_session, BrValg){
   moduleServer(
     id,
     function(input, output, session) {

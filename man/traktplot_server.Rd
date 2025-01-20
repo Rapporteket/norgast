@@ -4,7 +4,7 @@
 \alias{traktplot_server}
 \title{UI-modul for sykehusvise andeler sammen med traktplot i NORGAST sin shiny-app på Rapporteket}
 \usage{
-traktplot_server(id, reshID, RegData, hvd_session, BrValg)
+traktplot_server(id, RegData, hvd_session, BrValg)
 }
 \value{
 Modul traktplot

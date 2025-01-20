@@ -4,15 +4,7 @@
 \alias{admtab_server}
 \title{Serverdel av modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket}
 \usage{
-admtab_server(
-  id,
-  reshID,
-  RegData,
-  userRole,
-  hvd_session,
-  skjemaoversikt,
-  BrValg
-)
+admtab_server(id, RegData, userRole, hvd_session, skjemaoversikt, BrValg)
 }
 \value{
 Modulfunksjoner til Administrative tabeller

@@ -211,13 +211,13 @@ saml_andeler_server <- function(id, reshID, RegData,
       })
 
       # observe(
-      #   if (userRole != 'SC') {
+      #   if (userRole() != 'SC') {
       #     shinyjs::hide(id = 'valgtShus')
       #     shinyjs::hide(id = 'valgtShus2')
       #   })
 
       observe(
-        if (userRole == 'SC') {
+        if (userRole() == 'SC') {
           shinyjs::hide(id = 'enhetsUtvalg')
           shinyjs::hide(id = 'enhetsUtvalg2')
         })
@@ -249,7 +249,7 @@ saml_andeler_server <- function(id, reshID, RegData,
 
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
-        if (userRole == 'SC') {
+        if (userRole() == 'SC') {
           selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                       choices = BrValg$sykehus, multiple = TRUE)
         }
@@ -257,7 +257,7 @@ saml_andeler_server <- function(id, reshID, RegData,
 
       output$valgtShus2_ui <- renderUI({
         ns <- session$ns
-        if (userRole == 'SC') {
+        if (userRole() == 'SC') {
           selectInput(inputId = ns("valgtShus2"), label = "Velg sykehus",
                       choices = BrValg$sykehus, multiple = TRUE)
         }
@@ -395,7 +395,7 @@ saml_andeler_server <- function(id, reshID, RegData,
             Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH %in% as.numeric(input$valgtShus)), ]
           })
           shiny::isolate(if (!is.null(input$enhetsUtvalg)) {
-            if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID), ]}
+            if (input$enhetsUtvalg == 2) {Utvalg1data <- Utvalg1data[which(Utvalg1data$AvdRESH == reshID()), ]}
           })
           Utvalg1data$Utvalg <- 1
           Utvalg1data <- Utvalg1data[order(Utvalg1data$HovedDato, decreasing = F), ]                  # Hvis pasient opptrer flere ganger, velg
@@ -428,7 +428,7 @@ saml_andeler_server <- function(id, reshID, RegData,
             Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH %in% as.numeric(input$valgtShus2)), ]
           })
           shiny::isolate(if (!is.null(input$enhetsUtvalg2)) {
-            if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID), ]}
+            if (input$enhetsUtvalg2 == 2) {Utvalg2data <- Utvalg2data[which(Utvalg2data$AvdRESH == reshID()), ]}
           })
           Utvalg2data$Utvalg <- 2
           Utvalg2data <- Utvalg2data[order(Utvalg2data$HovedDato, decreasing = F), ]                   # Hvis pasient opptrer flere ganger, velg

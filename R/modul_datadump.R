@@ -98,7 +98,7 @@ datadump_server <- function(id, reshID, RegData,
       })
 
       observe(
-        if (userRole != 'SC') {
+        if (userRole() != 'SC') {
           shinyjs::hide(id = 'valgtShus_ui')
         })
 
@@ -150,8 +150,8 @@ datadump_server <- function(id, reshID, RegData,
         content = function(file){
           dumpdata <- RegData[RegData$HovedDato >= input$datovalg[1] &
                                 RegData$HovedDato <= input$datovalg[2], ]
-          if (userRole != 'SC') {
-            dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
+          if (userRole() != 'SC') {
+            dumpdata <- dumpdata[dumpdata$AvdRESH == reshID(), ]
           } else {
             if (!is.null(input$valgtShus)) {dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}
           }
@@ -182,8 +182,8 @@ datadump_server <- function(id, reshID, RegData,
           }
           dumpdata <- tmpData[as.Date(tmpData$HovedDato) >= input$datovalg[1] &
                                 as.Date(tmpData$HovedDato) <= input$datovalg[2], ]
-          if (userRole != 'SC') {
-            dumpdata <- dumpdata[dumpdata$AvdRESH == reshID, ]
+          if (userRole() != 'SC') {
+            dumpdata <- dumpdata[dumpdata$AvdRESH == reshID(), ]
           } else {
             if (!is.null(input$valgtShus)) {
               dumpdata <- dumpdata[dumpdata$AvdRESH %in% as.numeric(input$valgtShus), ]}

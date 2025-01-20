@@ -41,8 +41,8 @@ datakval_server <- function(id, reshID,
         DT::renderDataTable(
           norgast::dobbelreg(RegData=RegData,
                              skjemaoversikt=skjemaoversikt,
-                             usrRole = userRole,
-                             reshID = reshID),
+                             usrRole = userRole(),
+                             reshID = reshID()),
           options = list(pageLength = 40), rownames = FALSE)
 
       output$lastNed_dobbeltreg <- downloadHandler(
@@ -51,7 +51,7 @@ datakval_server <- function(id, reshID,
         },
         content = function(file, filename){
           write.csv2(norgast::dobbelreg(RegData, skjemaoversikt=skjemaoversikt,
-                                        usrRole = userRole, reshID = reshID),
+                                        usrRole = userRole(), reshID = reshID()),
                      file, row.names = F, na = '', fileEncoding = "Latin1")
         })
 

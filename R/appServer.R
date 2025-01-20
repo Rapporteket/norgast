@@ -64,78 +64,78 @@ appServer <- function(input, output, session) {
       }
     })
 
-  norgast::startside_server("startside", usrRole=user$role())
+  norgast::startside_server("startside", usrRole=user$role)
 
   ##############################################################################
   ################ Fordelingsfigurer ###########################################
 
-  norgast::fordelingsfig_server("fordelingsfig_id", reshID = user$org(),
-                                RegData = RegData, userRole = user$role(),
+  norgast::fordelingsfig_server("fordelingsfig_id", reshID = user$org,
+                                RegData = RegData, userRole = user$role,
                                 hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Sykehusvisning ##############################################
 
-  norgast::sykehusvisning_server("sykehusvisning_id", reshID = user$org(),
-                                 RegData = RegData, hvd_session = session,
+  norgast::sykehusvisning_server("sykehusvisning_id", RegData = RegData,
+                                 hvd_session = session,
                                  BrValg = BrValg)
 
   ##############################################################################
   ################ Traktplot ###################################################
 
-  norgast::traktplot_server("traktplot_id", reshID = user$org(),
-                            RegData = RegData, hvd_session = session, BrValg = BrValg)
+  norgast::traktplot_server("traktplot_id", RegData = RegData,
+                            hvd_session = session,
+                            BrValg = BrValg)
 
 
   ##############################################################################
   ################ Tidsvisning #################################################
 
-  norgast::tidsvisning_server("tidsvisning_id", reshID = user$org(),
-                              RegData = RegData, userRole = user$role(),
+  norgast::tidsvisning_server("tidsvisning_id", reshID = user$org,
+                              RegData = RegData, userRole = user$role,
                               hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Sammenlign utvalg ###########################################
 
-  norgast::saml_andeler_server("saml_andeler_id", reshID = user$org(),
-                               RegData = RegData, userRole = user$role(),
+  norgast::saml_andeler_server("saml_andeler_id", reshID = user$org,
+                               RegData = RegData, userRole = user$role,
                                hvd_session = session, BrValg = BrValg)
 
 
   ##############################################################################
   ################ Indikatorfigurer ############################################
 
-  norgast::indikatorfig_server("indikator_id", reshID = user$org(),
-                               RegData = RegData, userRole = user$role(),
+  norgast::indikatorfig_server("indikator_id", RegData = RegData,
+                               userRole = user$role,
                                hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Overlevelseskurver ##########################################
 
-  norgast::overlevelse_server("overlevelse_id", reshID = user$org(),
-                              RegData = RegData, userRole = user$role(),
+  norgast::overlevelse_server("overlevelse_id", reshID = user$org,
+                              RegData = RegData, userRole = user$role,
                               hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Samledokumenter #############################################
 
-  norgast::samledok_server("samledok_id", reshID = user$org(),
-                           RegData = RegData, userRole = user$role(),
+  norgast::samledok_server("samledok_id", reshID = user$org,
+                           RegData = RegData, userRole = user$role,
                            hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Datadump   ##################################################
 
-  norgast::datadump_server("datadump_id", reshID = user$org(),
-                           RegData = RegData, userRole = user$role(),
+  norgast::datadump_server("datadump_id", reshID = user$org,
+                           RegData = RegData, userRole = user$role,
                            brukerinfo=brukerinfo,
                            hvd_session = session, BrValg = BrValg)
 
   ##############################################################################
   ################ Adm. tabeller ###############################################
 
-  norgast::admtab_server("admtab_id", reshID = user$org(),
-                         RegData = RegData, userRole = user$role(),
+  norgast::admtab_server("admtab_id", RegData = RegData, userRole = user$role,
                          hvd_session = session, skjemaoversikt=skjemaoversikt,
                          BrValg = BrValg)
 
@@ -143,7 +143,7 @@ appServer <- function(input, output, session) {
   ################ Datakvalitet ################################################
 
   norgast::datakval_server("datakval_id",
-                           reshID = user$org(), userRole = user$role(),
+                           reshID = user$org, userRole = user$role,
                            RegData = RegData, skjemaoversikt = skjemaoversikt,
                            hvd_session = session)
 

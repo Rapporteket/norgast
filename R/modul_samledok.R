@@ -68,7 +68,7 @@ samledok_server <- function(id, reshID, RegData, userRole,
       })
 
       observe(
-        if (userRole != 'SC') {
+        if (userRole() != 'SC') {
           shinyjs::hide(id = 'valgtShus_ui')
         })
 
@@ -118,7 +118,7 @@ samledok_server <- function(id, reshID, RegData, userRole,
         content = function(file){
           contentFile2(
             file, "NorgastSamleDokShiny", input$datovalg[1],
-            input$datovalg[2], reshID = reshID,
+            input$datovalg[2], reshID = reshID(),
             valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
         }
       )
@@ -130,20 +130,20 @@ samledok_server <- function(id, reshID, RegData, userRole,
         },
         content = function(file){
           contentFile2(file, "NorgastSamleDokLandetShiny", input$datovalg[1],
-                       input$datovalg[2], reshID = reshID)
+                       input$datovalg[2], reshID = reshID())
         }
       )
 
       output$lastNed_kvartal <- downloadHandler(
         filename = function(){
           paste0("Kvartalsrapp",
-                 RegData$Sykehusnavn[match(reshID, RegData$AvdRESH)],
+                 RegData$Sykehusnavn[match(reshID(), RegData$AvdRESH)],
                  format(Sys.time(), format = "%Y-%m-%d-%H%M%S"), ".pdf")
         },
         content = function(file){
           contentFile2(
             file, "NorgastKvartalsrapportShiny",
-            datoTil = input$kvartal_verdi, reshID = reshID,
+            datoTil = input$kvartal_verdi, reshID = reshID(),
             valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {""})
 
         }

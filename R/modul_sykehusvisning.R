@@ -102,7 +102,7 @@ sykehusvisning_ui <- function(id){
 #' @return Modul sykehusvisning, andeler
 #'
 #' @export
-sykehusvisning_server <- function(id, reshID, RegData, hvd_session, BrValg){
+sykehusvisning_server <- function(id, RegData, hvd_session, BrValg){
   moduleServer(
     id,
     function(input, output, session) {

@@ -103,7 +103,7 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
       })
 
       observe(
-        if (userRole != 'SC') {
+        if (userRole() != 'SC') {
           shinyjs::hide(id = 'valgtShus_ui')
         })
 
@@ -127,7 +127,7 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
 
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
-        if (userRole == 'SC') {
+        if (userRole() == 'SC') {
           selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                       choices = BrValg$sykehus, multiple = TRUE)
         }
@@ -179,7 +179,7 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
           valgtVar=input$valgtVar,
           datoFra = input$datovalg[1],
           datoTil = input$datovalg[2],
-          reshID = reshID,
+          reshID = reshID(),
           enhetsUtvalg=as.numeric(input$enhetsUtvalg),
           minald=as.numeric(input$alder[1]),
           maxald=as.numeric(input$alder[2]),
@@ -211,7 +211,7 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
           valgtVar=input$valgtVar,
           datoFra = input$datovalg[1],
           datoTil = input$datovalg[2],
-          reshID = reshID,
+          reshID = reshID(),
           enhetsUtvalg=as.numeric(input$enhetsUtvalg),
           minald=as.numeric(input$alder[1]),
           maxald=as.numeric(input$alder[2]),
@@ -303,7 +303,7 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
             valgtVar=input$valgtVar,
             datoFra = input$datovalg[1],
             datoTil = input$datovalg[2],
-            reshID = reshID,
+            reshID = reshID(),
             enhetsUtvalg=as.numeric(input$enhetsUtvalg),
             minald=as.numeric(input$alder[1]),
             maxald=as.numeric(input$alder[2]),

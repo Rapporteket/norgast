@@ -81,13 +81,20 @@ startside_server <- function(id, usrRole){
     id,
     function(input, output, session) {
       observe(
-        if (usrRole == "SC") {
+        if (usrRole() == "SC") {
           shinyjs::show("SC1")
           shinyjs::show("SC2")
           shinyjs::show("SC3")
           shinyjs::show("SC4")
           shinyjs::show("SC5")
           # shinyjs::show("SC6")
+        } else {
+          shinyjs::hide("SC1")
+          shinyjs::hide("SC2")
+          shinyjs::hide("SC3")
+          shinyjs::hide("SC4")
+          shinyjs::hide("SC5")
+          # shinyjs::hide("SC6")
         }
       )
     }

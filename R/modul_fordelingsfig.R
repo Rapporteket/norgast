@@ -109,7 +109,7 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
       })
 
       # observe(
-      #   if (userRole != 'SC') {
+      #   if (userRole() != 'SC') {
       #     shinyjs::hide(id = 'valgtShus')
       #   })
 
@@ -137,7 +137,7 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
 
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
-        if (userRole == 'SC') {
+        if (userRole() == 'SC') {
           selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                       choices = BrValg$sykehus, multiple = TRUE)
         }
@@ -206,7 +206,7 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
           whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
           forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
           malign = as.numeric(input$malign),
-          reshID = reshID, enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
+          reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
           elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
           hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
           kun_ferdigstilte = input$kun_ferdigstilte,

@@ -73,7 +73,7 @@ indikatorfig_ui <- function(id){
 #' @return Modul fordelingsfigur
 #'
 #' @export
-indikatorfig_server <- function(id, reshID, RegData,
+indikatorfig_server <- function(id, RegData,
                                 userRole, hvd_session, BrValg){
   moduleServer(
     id,
@@ -86,7 +86,7 @@ indikatorfig_server <- function(id, reshID, RegData,
       })
 
       observe(
-        if (userRole != 'SC') {
+        if (userRole() != 'SC') {
           shinyjs::hide(id = 'valgtShus')
         })
 

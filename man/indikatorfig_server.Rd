@@ -4,7 +4,7 @@
 \alias{indikatorfig_server}
 \title{Server-modul for indikatorfigurer i NORGAST sin shiny-app på Rapporteket}
 \usage{
-indikatorfig_server(id, reshID, RegData, userRole, hvd_session, BrValg)
+indikatorfig_server(id, RegData, userRole, hvd_session, BrValg)
 }
 \value{
 Modul fordelingsfigur
