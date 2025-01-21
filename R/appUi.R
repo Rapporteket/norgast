@@ -111,10 +111,23 @@ appUi <- function() {
         shiny::sidebarLayout(
           shiny::sidebarPanel(
             rapbase::autoReportOrgInput("norgastDispatch"),
-            rapbase::autoReportInput("norgastDispatch")
+            rapbase::autoReportInput("norgastDispatch"),
+            shiny::actionButton(inputId = "run_autoreport",
+                                label = "Kjør autorapporter"),
+            shiny::dateInput(inputId = "rapportdato",
+                             label = "Kjør rapporter med dato:",
+                             value = Sys.Date(),
+                             min = Sys.Date(),
+                             max = Sys.Date() + 366
+                            ),
+            shiny::checkboxInput(inputId = "dryRun", label = "Send e-post")
           ),
           shiny::mainPanel(
-            rapbase::autoReportUI("norgastDispatch")
+            rapbase::autoReportUI("norgastDispatch"),
+            p(em("System message:")),
+            verbatimTextOutput("sysMessage"),
+            p(em("Function message:")),
+            verbatimTextOutput("funMessage")
           )
         )
       ),

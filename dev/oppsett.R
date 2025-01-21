@@ -20,6 +20,9 @@ Sys.setenv(R_RAP_CONFIG_PATH="/home/rstudio/norgast/data-raw/config")
 
 norgast::norgastApp()
 
+# rapbase::runAutoReport()
+# Rscript -e "Sys.setenv(R_RAP_INSTANCE=\"QAC\")" -e "rapbase::runAutoReport(dato = Sys.Date()+1, dryRun = TRUE)"
+
 RegData <- rapbase::loadRegData(
   registryName = "data",
   query="SELECT * FROM eq5dlformdatacontract",

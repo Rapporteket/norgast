@@ -203,6 +203,21 @@ appServer <- function(input, output, session) {
     )
   )
 
+  kjor_autorapport <- shiny::observeEvent(input$run_autoreport, {
+    dato <- input$rapportdato
+    dryRun <- !(input$dryRun)
+    withCallingHandlers({
+      shinyjs::html("sysMessage", "")
+      shinyjs::html("funMessage", "")
+      shinyjs::html("funMessage",
+                    rapbase::runAutoReport(group = "norgast",
+                                           dato = dato, dryRun = dryRun))
+    },
+    message = function(m) {
+      shinyjs::html(id = "sysMessage", html = m$message, add = TRUE)
+    })
+  })
+
   ## Stats
   observe(
     rapbase::statsServer("norgastStats",
