@@ -218,6 +218,19 @@ appServer <- function(input, output, session) {
     })
   })
 
+  output$confgreier1 <- shiny::renderText({
+    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$sender:",
+          rapbase::getConfig("rapbaseConfig.yml")$network$sender)
+  })
+  output$confgreier2 <- shiny::renderText({
+    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$server:",
+          rapbase::getConfig("rapbaseConfig.yml")$network$smtp$server)
+  })
+  output$confgreier3 <- shiny::renderText({
+    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$port:",
+          rapbase::getConfig("rapbaseConfig.yml")$network$smtp$port)
+  })
+
   ## Stats
   observe(
     rapbase::statsServer("norgastStats",

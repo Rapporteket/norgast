@@ -127,7 +127,11 @@ appUi <- function() {
             p(em("System message:")),
             verbatimTextOutput("sysMessage"),
             p(em("Function message:")),
-            verbatimTextOutput("funMessage")
+            verbatimTextOutput("funMessage"),
+            shiny::h4("Conf-parametre:"),
+            shiny::textOutput("confgreier1"),
+            shiny::textOutput("confgreier2"),
+            shiny::textOutput("confgreier3")
           )
         )
       ),
