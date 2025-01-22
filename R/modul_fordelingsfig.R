@@ -13,33 +13,38 @@ fordelingsfig_ui <- function(id){
       width = 3,
       id = ns("id_fordeling_panel"),
       # checkboxInput(inputId = ns("referansepasient"), label = "Velg referansepasient"),
-      checkboxInput(inputId = ns("kun_ferdigstilte"),
-                    label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)",
-                    value = TRUE),
+      checkboxInput(
+        inputId = ns("kun_ferdigstilte"),
+        label = "Inkludér kun komplette forløp (også oppfølging ferdigstilt)",
+        value = TRUE),
       uiOutput(outputId = ns('valgtVar_ui')),
-      dateRangeInput(inputId=ns("datovalg"), label = "Dato fra og til",
-                     min = '2014-01-01',
-                     max = Sys.Date(),
-                     start  = lubridate::floor_date(lubridate::today() -
-                                                      lubridate::years(1), unit = "year"),
-                     end = Sys.Date(), language = "nb", separator = " til "),
-      selectInput(inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
-                  choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1,
-                              'Egen avd.'=2)),
+      dateRangeInput(
+        inputId=ns("datovalg"), label = "Dato fra og til",
+        min = '2014-01-01',
+        max = Sys.Date(),
+        start  = lubridate::floor_date(lubridate::today() -
+                                         lubridate::years(1), unit = "year"),
+        end = Sys.Date(), language = "nb", separator = " til "),
+      selectInput(
+        inputId = ns("enhetsUtvalg"), label = "Kjør rapport for",
+        choices = c('Hele landet'=0, 'Egen avd. mot landet forøvrig'=1,
+                    'Egen avd.'=2)),
       uiOutput(outputId = ns('valgtShus_ui')),
       uiOutput(outputId = ns('tilgang_utvidet_ui')),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
                   max = 120, value = c(0, 120)),
       selectInput(inputId = ns("erMann"), label = "Kjønn",
                   choices = c('Begge'=99, 'Kvinne'=0, 'Mann'=1)),
-      selectInput(inputId = ns("elektiv"), label = "Tidspunkt for operasjonsstart",
+      selectInput(inputId = ns("elektiv"),
+                  label = "Tidspunkt for operasjonsstart",
                   choices = c('Ikke valgt'=99, 'Innenfor normalarbeidstid'=1,
                               'Utenfor normalarbeidstid'=0)),
       selectInput(inputId = ns("hastegrad"), label = "Hastegrad",
                   choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=2)),
-      selectInput(inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid
+      selectInput(
+        inputId = ns("hastegrad_hybrid"), label = "Hastegrad, hybrid
                   (bruker hastegrad når den finnes, ellers tidspkt for op.start)",
-                  choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
+        choices = c('Ikke valgt'=99, 'Elektiv'=1, 'Akutt'=0)),
       # shinyjs::hidden(
       #   div(
       #     id = ns("avansert"),
@@ -52,7 +57,8 @@ fordelingsfig_ui <- function(id){
       selectInput(inputId = ns("modGlasgow"), label = "Modified Glasgow score",
                   choices = 0:2, multiple = TRUE),
       uiOutput(outputId = ns('whoEcog_ui')),
-      selectInput(inputId = ns("forbehandling"), label = "Onkologisk forbehandling",
+      selectInput(inputId = ns("forbehandling"),
+                  label = "Onkologisk forbehandling",
                   multiple = TRUE,
                   choices = c('Cytostatika'=1, 'Stråleterapi'=2,
                               'Komb. kjemo/radioterapi'=3, 'Ingen'=4)),
@@ -74,14 +80,17 @@ fordelingsfig_ui <- function(id){
     ),
     mainPanel(
       tabsetPanel(id = ns("tab"),
-                  tabPanel("Figur", value = "fig",
-                           plotOutput(ns("Figur1"), height="auto"), downloadButton(ns("lastNedBilde"), "Last ned figur")),
-                  tabPanel("Tabell", value = "tab",
-                           uiOutput(ns("utvalg")),
-                           # textOutput(ns("utvalg")),
-                           br(),
-                           tableOutput(ns("Tabell1")),
-                           downloadButton(ns("lastNed"), "Last ned tabell"))
+                  tabPanel(
+                    "Figur", value = "fig",
+                    plotOutput(ns("Figur1"), height="auto"),
+                    downloadButton(ns("lastNedBilde"), "Last ned figur")),
+                  tabPanel(
+                    "Tabell", value = "tab",
+                    uiOutput(ns("utvalg")),
+                    # textOutput(ns("utvalg")),
+                    br(),
+                    tableOutput(ns("Tabell1")),
+                    downloadButton(ns("lastNed"), "Last ned tabell"))
       )
     )
   )
@@ -97,7 +106,8 @@ fordelingsfig_ui <- function(id){
 #' @return Modul fordelingsfigur
 #'
 #' @export
-fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrValg){
+fordelingsfig_server <- function(id, reshID, RegData, userRole,
+                                 hvd_session, BrValg){
   moduleServer(
     id,
     function(input, output, session) {
@@ -153,7 +163,8 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
 
       output$op_gruppe_ui <- renderUI({
         ns <- session$ns
-        selectInput(inputId = ns("op_gruppe"), label = "Velg reseksjonsgruppe(r)",
+        selectInput(inputId = ns("op_gruppe"),
+                    label = "Velg reseksjonsgruppe(r)",
                     choices = BrValg$reseksjonsgrupper, multiple = TRUE)
       })
 
@@ -177,14 +188,16 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
 
       output$icd <- renderUI({
         ns <- session$ns
-        Utvalg1 <- NorgastUtvalg(RegData = RegData,
-                                 op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
-                                 ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
-                                 malign = as.numeric(input$malign))
+        Utvalg1 <- NorgastUtvalg(
+          RegData = RegData,
+          op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
+          ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
+          malign = as.numeric(input$malign))
         Utvalg1 <- Utvalg1$RegData
         diagnoser <- names(sort(table(Utvalg1$Hoveddiagnose2), decreasing = T))
         if (!is.null(diagnoser)) {
-          selectInput(inputId = ns("icd_verdi"), label = "Spesifiser ICD-10 koder (velg en eller flere)",
+          selectInput(inputId = ns("icd_verdi"),
+                      label = "Spesifiser ICD-10 koder (velg en eller flere)",
                       choices = diagnoser, multiple = TRUE)
         }
       })
@@ -192,35 +205,46 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
       tabellReager <- reactive({
         TabellData <- norgast::NorgastBeregnAndeler(
           RegData = RegData,
-          valgtVar = if (!is.null(input$valgtVar)) {input$valgtVar} else {'Alder'},
+          valgtVar = if (!is.null(input$valgtVar)) {
+            input$valgtVar} else {'Alder'},
           minald=as.numeric(input$alder[1]),
-          maxald=as.numeric(input$alder[2]), datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-          valgtShus = if (!is.null(input$valgtShus)) {input$valgtShus} else {''},
+          maxald=as.numeric(input$alder[2]),
+          datoFra = input$datovalg[1], datoTil = input$datovalg[2],
+          valgtShus = if (!is.null(input$valgtShus) & userRole() == "SC") {
+            input$valgtShus} else {''},
           op_gruppe = if (!is.null(input$op_gruppe)) {input$op_gruppe} else {''},
           ncsp = if (!is.null(input$ncsp_verdi)) {input$ncsp_verdi} else {''},
           BMI = if (!is.null(input$BMI)) {input$BMI} else {''},
-          tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {input$tilgang_utvidet} else {''},
+          tilgang_utvidet = if (!is.null(input$tilgang_utvidet)) {
+            input$tilgang_utvidet} else {''},
           minPRS = as.numeric(input$PRS[1]), maxPRS = as.numeric(input$PRS[2]),
           ASA = if (!is.null(input$ASA)) {input$ASA} else {''},
           modGlasgow = fiksNULL(input$modGlasgow),
           whoEcog = if (!is.null(input$whoEcog)) {input$whoEcog} else {''},
-          forbehandling = if (!is.null(input$forbehandling)) {input$forbehandling} else {''},
+          forbehandling = if (!is.null(input$forbehandling)) {
+            input$forbehandling} else {''},
           malign = as.numeric(input$malign),
-          reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg, erMann = as.numeric(input$erMann),
-          elektiv = as.numeric(input$elektiv), hastegrad = as.numeric(input$hastegrad),
+          reshID = reshID(), enhetsUtvalg = input$enhetsUtvalg,
+          erMann = as.numeric(input$erMann),
+          elektiv = as.numeric(input$elektiv),
+          hastegrad = as.numeric(input$hastegrad),
           hastegrad_hybrid = as.numeric(input$hastegrad_hybrid),
           kun_ferdigstilte = input$kun_ferdigstilte,
           ny_stomi = as.numeric(input$ny_stomi),
-          accordion = if (!is.null(input$accordion)) {input$accordion} else {''},
+          accordion = if (!is.null(input$accordion)) {
+            input$accordion} else {''},
           icd = if (!is.null(input$icd_verdi)) {input$icd_verdi} else {''})
       })
 
 
       output$Figur1 <- renderPlot({
         norgast::NorgastPlotAndeler(
-          PlotParams=tabellReager()$PlotParams, utvalgTxt=tabellReager()$utvalgTxt,
-          Andeler=tabellReager()$Andeler, Antall=tabellReager()$Antall,
-          fargepalett=tabellReager()$fargepalett, enhetsUtvalg=tabellReager()$enhetsUtvalg,
+          PlotParams=tabellReager()$PlotParams,
+          utvalgTxt=tabellReager()$utvalgTxt,
+          Andeler=tabellReager()$Andeler,
+          Antall=tabellReager()$Antall,
+          fargepalett=tabellReager()$fargepalett,
+          enhetsUtvalg=tabellReager()$enhetsUtvalg,
           shtxt=tabellReager()$shtxt
         )
       }, width = 700, height = 700)
@@ -243,16 +267,21 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
             dplyr::mutate(AndelHoved = 100*AntHoved/NHoved) %>%
             dplyr::mutate(AndelRest= 100*AntRest/Nrest)
           Tabell1 <- Tabell1[, c(1,2,4,6,3,5,7)]
-          names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
-          Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1), row.names = F) %>%
+          names(Tabell1) <- c(
+            'Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)',
+            'Antall i kategori', 'Antall totalt', 'Andel (%)')
+          Tabell1 %>% knitr::kable("html", digits = c(0,0,0,1,0,0,1),
+                                   row.names = F) %>%
             kableExtra::kable_styling("hover", full_width = F) %>%
-            kableExtra::add_header_above(c(" ", "Din avdeling" = 3, "Landet forøvrig" = 3))
+            kableExtra::add_header_above(c(" ", "Din avdeling" = 3,
+                                           "Landet forøvrig" = 3))
         } else {
           Tabell1 <- TabellData$Antall %>%
             dplyr::mutate(Kategori = rownames(.)) %>%
             dplyr::select(Kategori, everything()) %>%
             dplyr::mutate(AndelHoved = 100*AntHoved/NHoved)
-          names(Tabell1) <- c('Kategori', 'Antall i kategori', 'Antall totalt', 'Andel (%)')
+          names(Tabell1) <- c('Kategori', 'Antall i kategori',
+                              'Antall totalt', 'Andel (%)')
           Tabell1 %>%
             knitr::kable("html", digits = c(0,0,0,1), row.names = F) %>%
             kableExtra::kable_styling("hover", full_width = F)
@@ -292,9 +321,12 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole, hvd_session, BrV
 
         content = function(file){
           norgast::NorgastPlotAndeler(
-            PlotParams=tabellReager()$PlotParams, utvalgTxt=tabellReager()$utvalgTxt,
-            Andeler=tabellReager()$Andeler, Antall=tabellReager()$Antall,
-            fargepalett=tabellReager()$fargepalett, enhetsUtvalg=tabellReager()$enhetsUtvalg,
+            PlotParams=tabellReager()$PlotParams,
+            utvalgTxt=tabellReager()$utvalgTxt,
+            Andeler=tabellReager()$Andeler,
+            Antall=tabellReager()$Antall,
+            fargepalett=tabellReager()$fargepalett,
+            enhetsUtvalg=tabellReager()$enhetsUtvalg,
             shtxt=tabellReager()$shtxt, outfile = file)
         }
       )
