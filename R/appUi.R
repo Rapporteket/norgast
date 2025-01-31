@@ -15,8 +15,8 @@ appUi <- function() {
     title = shiny::div(shiny::a(
       shiny::includeHTML(
         system.file('www/logo.svg', package='rapbase')
-        )
-        ),
+      )
+    ),
     regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
@@ -111,27 +111,29 @@ appUi <- function() {
         shiny::sidebarLayout(
           shiny::sidebarPanel(
             rapbase::autoReportOrgInput("norgastDispatch"),
-            rapbase::autoReportInput("norgastDispatch"),
-            shiny::actionButton(inputId = "run_autoreport",
-                                label = "Kjør autorapporter"),
-            shiny::dateInput(inputId = "rapportdato",
-                             label = "Kjør rapporter med dato:",
-                             value = Sys.Date(),
-                             min = Sys.Date(),
-                             max = Sys.Date() + 366
-                            ),
-            shiny::checkboxInput(inputId = "dryRun", label = "Send e-post")
+            rapbase::autoReportInput("norgastDispatch")#,
+            # shiny::actionButton(inputId = "run_autoreport",
+            #                     label = "Kjør autorapporter"),
+            # shiny::dateInput(inputId = "rapportdato",
+            #                  label = "Kjør rapporter med dato:",
+            #                  value = Sys.Date(),
+            #                  min = Sys.Date(),
+            #                  max = Sys.Date() + 366
+            # ),
+            # shiny::checkboxInput(inputId = "dryRun", label = "Send e-post")
           ),
           shiny::mainPanel(
-            rapbase::autoReportUI("norgastDispatch"),
-            p(em("System message:")),
-            verbatimTextOutput("sysMessage"),
-            p(em("Function message:")),
-            verbatimTextOutput("funMessage"),
-            shiny::h4("Conf-parametre:"),
-            shiny::textOutput("confgreier1"),
-            shiny::textOutput("confgreier2"),
-            shiny::textOutput("confgreier3")
+            rapbase::autoReportUI("norgastDispatch")#,
+            # p(em("System message:")),
+            # verbatimTextOutput("sysMessage"),
+            # p(em("Function message:")),
+            # verbatimTextOutput("funMessage"),
+            # shiny::h4("Conf-parametre:"),
+            # shiny::textOutput("confgreier1"),
+            # shiny::textOutput("confgreier2"),
+            # shiny::textOutput("confgreier3"),
+            # shiny::h4("Autorapporttabell:"),
+            # shiny::tableOutput("autoraptab")
           )
         )
       ),

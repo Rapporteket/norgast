@@ -203,33 +203,33 @@ appServer <- function(input, output, session) {
     )
   )
 
-  kjor_autorapport <- shiny::observeEvent(input$run_autoreport, {
-    dato <- input$rapportdato
-    dryRun <- !(input$dryRun)
-    withCallingHandlers({
-      shinyjs::html("sysMessage", "")
-      shinyjs::html("funMessage", "")
-      shinyjs::html("funMessage",
-                    rapbase::runAutoReport(group = "norgast",
-                                           dato = dato, dryRun = dryRun))
-    },
-    message = function(m) {
-      shinyjs::html(id = "sysMessage", html = m$message, add = TRUE)
-    })
-  })
+  # kjor_autorapport <- shiny::observeEvent(input$run_autoreport, {
+  #   dato <- input$rapportdato
+  #   dryRun <- !(input$dryRun)
+  #   withCallingHandlers({
+  #     shinyjs::html("sysMessage", "")
+  #     shinyjs::html("funMessage", "")
+  #     shinyjs::html("funMessage",
+  #                   rapbase::runAutoReport(group = "norgast",
+  #                                          dato = dato, dryRun = dryRun))
+  #   },
+  #   message = function(m) {
+  #     shinyjs::html(id = "sysMessage", html = m$message, add = TRUE)
+  #   })
+  # })
 
-  output$confgreier1 <- shiny::renderText({
-    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$sender:",
-          rapbase::getConfig("rapbaseConfig.yml")$network$sender)
-  })
-  output$confgreier2 <- shiny::renderText({
-    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$server:",
-          rapbase::getConfig("rapbaseConfig.yml")$network$smtp$server)
-  })
-  output$confgreier3 <- shiny::renderText({
-    paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$port:",
-          rapbase::getConfig("rapbaseConfig.yml")$network$smtp$port)
-  })
+  # output$confgreier1 <- shiny::renderText({
+  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$sender:",
+  #         rapbase::getConfig("rapbaseConfig.yml")$network$sender)
+  # })
+  # output$confgreier2 <- shiny::renderText({
+  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$server:",
+  #         rapbase::getConfig("rapbaseConfig.yml")$network$smtp$server)
+  # })
+  # output$confgreier3 <- shiny::renderText({
+  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$port:",
+  #         rapbase::getConfig("rapbaseConfig.yml")$network$smtp$port)
+  # })
 
   ## Stats
   observe(
@@ -251,6 +251,18 @@ appServer <- function(input, output, session) {
 
   ##############################################################################
 
+
+
+
+  # autos <- rapbase::readAutoReportData(target = "db") %>%
+  #   rapbase::filterAutoRep(by = "type", pass = type, target = "db") %>%
+  #   rapbase::filterAutoRep(by = "package", pass = "norgast", target = "db") %>%
+  #   dplyr::summarise(
+  #     email = list(unique(email)),
+  #     .by = c(owner, ownerName, package, organization, type, fun,
+  #             params, startDate, terminateDate, interval, synopsis)
+  #   )
+  # output$autoraptab <- shiny::renderTable(autos)
 
 
 }
