@@ -152,55 +152,62 @@ appServer <- function(input, output, session) {
 
   ## Objects currently shared among subscription and dispathcment
   orgs <- as.list(BrValg$sykehus)
+  org <- rapbase::autoReportOrgServer("norgastDispatch", orgs)
+
+  subParamNames <- shiny::reactive(c("reshID"))
+  # paramValues <- shiny::reactive(c(org$value()))
+  subParamValues <- shiny::reactive(user$org())
 
   ## Subscription
-  shiny::observe(
 
-    rapbase::autoReportServer2(
-      id = "norgastSubscription",
-      registryName = "norgast",
-      type = "subscription",
-      reports = list(
-        Kvartalsrapport = list(
-          synopsis = "NORGAST: Kvartalsrapport",
-          fun = "abonnement_kvartal_norgast",
-          paramNames = c("baseName", "reshID"),
-          paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
-        )
-      ),
-      orgs = orgs,
-      freq = "quarter",
-      user = user
-    )
+  rapbase::autoReportServer(
+    id = "norgastSubscription",
+    registryName = "norgast",
+    type = "subscription",
+    paramNames = subParamNames,
+    paramValues = subParamValues,
+    reports = list(
+      Kvartalsrapport = list(
+        synopsis = "NORGAST: Kvartalsrapport",
+        fun = "abonnement_kvartal_norgast",
+        paramNames = c("baseName", "reshID"),
+        paramValues = c("NorgastKvartalsrapport_abonnement", 999999)
+      )
+    ),
+    orgs = orgs,
+    freq = "quarter",
+    user = user
   )
 
   ## Dispatchment
-  org <- rapbase::autoReportOrgServer("norgastDispatch", orgs)
 
-  paramNames <- shiny::reactive(c("reshID"))
-  paramValues <- shiny::reactive(c(org$value()))
 
-  observe(
-    rapbase::autoReportServer2(
-      id = "norgastDispatch",
-      registryName = "norgast",
-      type = "dispatchment",
-      org = org$value,
-      paramNames = paramNames,
-      paramValues = paramValues,
-      reports = list(
-        Kvartalsrapport = list(
-          synopsis = "NORGAST: Kvartalsrapport",
-          fun = "abonnement_kvartal_norgast",
-          paramNames = c("baseName", "reshID"),
-          paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
-        )
-      ),
-      orgs = orgs,
-      eligible = (user$role() == "SC"),
-      freq = "quarter",
-      user = user
-    )
+  vis_rapp <- reactiveVal(FALSE)
+  observeEvent(user$role(), {
+    vis_rapp(user$role() == "SC")
+  })
+  disParamNames <- shiny::reactive(c("reshID"))
+  disParamValues <- shiny::reactive(c(org$value()))
+
+  rapbase::autoReportServer2(
+    id = "norgastDispatch",
+    registryName = "norgast",
+    type = "dispatchment",
+    org = org$value,
+    paramNames = disParamNames,
+    paramValues = disParamValues,
+    reports = list(
+      Kvartalsrapport = list(
+        synopsis = "NORGAST: Kvartalsrapport",
+        fun = "abonnement_kvartal_norgast",
+        paramNames = c("baseName", "reshID"),
+        paramValues = c("NorgastKvartalsrapport_abonnement", 999999)
+      )
+    ),
+    orgs = orgs,
+    eligible = vis_rapp,
+    freq = "quarter",
+    user = user
   )
 
   # kjor_autorapport <- shiny::observeEvent(input$run_autoreport, {

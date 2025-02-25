@@ -49,7 +49,7 @@ RegData$Op_grAarsrapp[RegData$Op_gr %in% 6:8]<- 6
 RegData$Op_grAarsrapp[!(RegData$Op_grAarsrapp %in% 1:6)]<- NA
 RegData$Op_grAarsrapp <- factor(RegData$Op_grAarsrapp, levels=gr, labels = grtxt)
 
-rap_aar <- 2023 # Året rapporten skal kjøres for
+rap_aar <- 2024 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
 reshID <- 0
 datoFra= paste0(rap_aar, '-01-01')
@@ -58,25 +58,14 @@ datoTil= paste0(rap_aar, '-12-31')
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 
 ################################################################################
-# RegData <- RegData[RegData$Aar==rap_aar, ]
 
-# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
-# DG <- DG %>% group_by(sh) %>%
-#   summarise(n_norgast = sum(n_norgast),
-#             n_npr = sum(n_npr),
-#             DG = n_norgast/n_npr*100,
-#             AvdRESH = first(AvdRESH),
-#             Sykehusnavn = first(Sykehusnavn))
-# DG <- DG[!is.na(DG$AvdRESH), ]
-# DG <- DG[DG$n_norgast != 0, ]
-#
-# graaUt_alle <- DG$Sykehusnavn[DG$DG< 60]
-sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
+# sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 dgterskel <- 70
-DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Alle_sh.csv') %>%
-  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
-  dplyr::filter(!is.na(Sykehusnavn))
-graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < dgterskel]
+# DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Alle_sh.csv') %>%
+#   merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
+#   dplyr::filter(!is.na(Sykehusnavn))
+# graaUt_alle <- DG$Sykehusnavn[DG$DG_norgast < dgterskel]
+graaUt_alle <- ""
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -123,11 +112,11 @@ op_gruppe <- ''
 malign <- 99
 annet_format_ut <- T
 ut_format <- 'svg'
-figfolder <- "~/mydata/norgast/fig_aarsrapp2023/generell/"
+figfolder <- "C:/Users/kth200/register/norgast/resultater/aarsrapp2024/generell/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
-tabfolder <- "~/mydata/norgast/fig_aarsrapp2023/tabeller/"
+tabfolder <- "C:/Users/kth200/register/norgast/resultater/aarsrapp2024/generell/"
 if (!dir.exists(tabfolder)) {
   dir.create(tabfolder)
 }
@@ -500,9 +489,9 @@ Tabell <- RegDataAll %>%
             .by = c(Hoveddiagnose, Operasjonsgrupper)) %>%
   tidyr::pivot_wider(names_from = Operasjonsgrupper, values_from = N,values_fill = 0) %>%
   arrange(Hoveddiagnose) %>%
-  janitor::adorn_totals(where = c("row", "col"), name = c("Total", "Total")) %>%
-  write.csv2("~/norgast/doc/inflames.csv",
-             fileEncoding = 'Latin1')
+  janitor::adorn_totals(where = c("row", "col"), name = c("Total", "Total"))# %>%
+  # write.csv2("~/norgast/doc/inflames.csv",
+  #            fileEncoding = 'Latin1')
 
 
 # write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
