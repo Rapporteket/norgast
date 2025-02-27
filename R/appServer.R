@@ -155,7 +155,6 @@ appServer <- function(input, output, session) {
   org <- rapbase::autoReportOrgServer("norgastDispatch", orgs)
 
   subParamNames <- shiny::reactive(c("reshID"))
-  # paramValues <- shiny::reactive(c(org$value()))
   subParamValues <- shiny::reactive(user$org())
 
   ## Subscription
@@ -189,7 +188,7 @@ appServer <- function(input, output, session) {
   disParamNames <- shiny::reactive(c("reshID"))
   disParamValues <- shiny::reactive(c(org$value()))
 
-  rapbase::autoReportServer2(
+  rapbase::autoReportServer(
     id = "norgastDispatch",
     registryName = "norgast",
     type = "dispatchment",
