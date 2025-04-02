@@ -13,217 +13,1461 @@ library(dplyr)
 rm(list = ls())
 
 RegData_raa <- norgast::NorgastHentRegData() # Laster rådata
-RegData <- NorgastPreprosess(RegData_raa)    # Enkle filtreringer og variabeldefinisjoner
+RegData <- NorgastPreprosess(RegData_raa) |> 
+  mutate(ASA = ifelse(ASA==1, 2, ASA),
+         straaling = (KunStraaleterapi | KjemoRadioKombo),
+         erfaringsnivaa = case_when(
+           Sykehusnavn %in% c("OUS-Radiumhospitalet", "OUS-Ullevål", 
+                              "Tønsberg", "SI-Hamar", "Haukeland", 
+                              "Stavanger", "NS-Bodø", "UNN-Tromsø") ~ "A",
+           Sykehusnavn %in% c("VV-Drammen", "SS-Kristiansand", 
+                              "Skien", "St.Olavs", "Ahus") ~ "B",
+           Sykehusnavn %in% c("SI-Gjøvik", "Haugesund", "Ålesund", 
+                              "Førde", "VV-Bærum", "Sykehuset Levanger") ~ "C")
+  ) |> 
+  filter(
+    HovedDato >= "2020-01-01",
+    HovedDato <= "2024-12-31", # Filtrer på operasjonsdato
+    Op_gr == 2,
+    FerdigForlop_v2 == 1)
+
+frafall <- RegData |> 
+  summarise(
+    "Rektumreseksjoner" = n(),
+    "Ikke-maligne" = sum(substr(toupper(Hoveddiagnose), 1, 3) != "C20"),
+    "WHOECOG > 1" = sum(!(WHOECOG %in% 0:1)),
+    "Akuttkirugi" = sum(Hastegrad == 2),          
+    "Utenfor normalarbeidstid" = sum(Hastegrad_tid == 0),
+    "Åpen kirurgi" = sum(Tilgang == 1),
+    "Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)" = 
+      sum(NyAnastomose != 1 & Robotassistanse == 0 & Tilgang %in% 2:3, na.rm = T),
+    "Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)" = 
+      sum(NyAnastomose != 1 & Robotassistanse == 1 & Tilgang %in% 2:3, na.rm = T),
+    "Operert robotassistert på sykehus uten robot" = sum(erfaringsnivaa == "C" &
+                                                           Robotassistanse == 1, na.rm = T),
+    "Tumor >15 cm fra analkant" = sum(is.na(AvstandAnalVerge_kat)),
+    "Rektumoperert på sykehus som ikke opererer rektum" = 
+      sum(is.na(erfaringsnivaa)),
+    "Oppfyller én eller flere eksklusjonsskriterier" = 
+      sum((substr(toupper(Hoveddiagnose), 1, 3) != "C20") |
+            (!(WHOECOG %in% 0:1)) | (Hastegrad == 2) | 
+            (Hastegrad_tid == 0) |
+            (Tilgang == 1) | (NyAnastomose != 1) | 
+            (erfaringsnivaa == "C" & Robotassistanse == 1) | 
+            is.na(AvstandAnalVerge_kat) | is.na(erfaringsnivaa))
+  )
+
+frafall <- data.frame("var" = names(frafall),
+                      "Antall" = unlist(frafall))
+names(frafall)[1] <- ""
+knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsaker")
 
 RegData <- RegData %>% 
-  filter(#HovedDato >= "2020-01-01",
-    # HovedDato <= "2024-06-30", # Filtrer på operasjonsdato
-    HovedDato >= "2021-01-01",
-    HovedDato <= "2023-12-31", # Filtrer på operasjonsdato
-    FerdigForlop_v2 == 1,      # Kun fullførte forløp
-    WHOECOG != 9,              # Fjerner de få registreringene med "Ukjent" WHOECOG
-    Op_gr == 2,                # Rektumreseksjoner
+  filter(
+    WHOECOG %in% 0:1,          # WHOECOG > 1 fjernes
     Hastegrad == 1,            # Elektive operasjoner
     Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid
-    NyAnastomose == 1,         # Ny anastomomse
+    # NyAnastomose == 1,         # Ny anastomomse
     substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign
-    Tilgang == 2               # Kun laparoskopiske inngrep, uten de konverterte
-  ) %>% 
-  mutate(ASA = ifelse(ASA==1, 2, ASA),
-         straaling = KunStraaleterapi | KjemoRadioKombo)
+    Tilgang %in% 2:3,           # Laparoskopiske inngrep, inkludert konverterte
+    !(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
+    !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
+    !is.na(AvstandAnalVerge_kat) # Fjerner tumor >15 cm fra analkant
+  )
+
+nyanastomosetab <- RegData |> summarise(UtenNyAnastomose = sum(NyAnastomose==0),
+                     "Andel uten ny anastomose (%)" = 
+                       round(UtenNyAnastomose/n()*100, 1),
+                     N = n(),
+                     .by = Robotassistanse) |> 
+  rename("Antall uten ny anastomose" = UtenNyAnastomose)
+
+knitr::kable(nyanastomosetab, row.names = FALSE, 
+             caption = "Antall uten ny anastomose")
+
+RegData <- RegData %>%
+  filter(NyAnastomose == 1) # Ny anastomomse
 
 ```
 
-```{r}
-tab1 <- RegData %>%
-  mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, 
-                                  labels=c("Konvensjonell", "Robot")),
-         NyStomi = factor(NyStomi, levels=0:1, labels=c("Nei", "Ja")),
-         Kjønn = factor(erMann, levels=0:1, labels=c("Kvinne", "Mann"))) %>% 
-  summarise(N = n(),
-            Lekkkasje = sum(Anastomoselekkasje==1),
-            MedianAlder = median(Alder),
-            Bestråling = sum(KunStraaleterapi | KjemoRadioKombo),
-            Tum_avst = median(AvstandAnalVerge, na.rm = T),
-            ASA = mean(ASA),
-            .by = c(NyStomi, Robotassistanse, Kjønn)) %>% 
-  janitor::adorn_totals() %>% 
-  mutate(Lekkasje_pst = Lekkkasje/N*100,
-         MedianAlder = ifelse(Robotassistanse == "-", median(RegData$Alder), MedianAlder),
-         Tum_avst = ifelse(Robotassistanse == "-", median(RegData$AvstandAnalVerge, na.rm = T), Tum_avst),
-         ASA = ifelse(Robotassistanse == "-", mean(RegData$ASA), ASA))
 
-tab2 <- tab1 %>% filter(NyStomi != "Total") %>% 
-  tidyr::pivot_wider(id_cols = c(NyStomi, Kjønn), names_from = Robotassistanse,
-                     values_from = Lekkasje_pst) %>% 
-  rename("Avlastende stomi" = NyStomi)
+```{r, echo=FALSE}
 
-knitr::kable(tab1, digits = 2, caption = "Deskriptiv statistikk")
-```
-
-I tabellen over er Bestråling definert som at enten KunStraaleterapi eller KjemoRadioKombo er avkrysset.
-
-```{r}
-knitr::kable(tab2, digits = 2, caption = "Andel anastomoselekkasjer for robotassistert
-             og konvensjonell laparoskopi") %>% 
-  kableExtra::add_header_above(c(" " = 2, "Andel anastomoselekkaskje (%)" = 2))
-
-```
-
-```{r}
-oppsum_stat <- RegData %>% 
-  mutate(
+tab1_v2 <- tableone::CreateTableOne(
+  c("Alder", "erMann", "AvstandAnalVerge", "ASA", 
+    "BMI", "NyStomi", "Straaling", "Tilgang"),
+  strata = "Robotassistanse", data = RegData |> mutate(
     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
-                                labels=c("Nei", "Ja"))) %>% 
-  summarise(
-    Antall = n(),
-    "Alder (gj.sn)" = mean(Alder),
-    "Andel kvinner" = sum(erMann==0)/Antall*100,
-    "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100,
-    "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T),
-    "ASA-score (gj.sn)" = mean(ASA),
-    "ASA 1-2" = sum(ASA==2)/Antall*100,
-    "ASA 3" = sum(ASA==3)/Antall*100,
-    "ASA 4" = sum(ASA==4)/Antall*100,
-    "BMI (gj.sn)" = mean(BMI, na.rm = T),
-    "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100,
-    "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100,
-    "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100,
-    "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100,
-    "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100,
-    "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100,
-    .by = Anastomoselekkasje
-  ) %>% 
-  tr_summarize_output(kolnavn1 = "Variabel")
+                                labels=c("Nei", "Ja")),
+    Robotassistanse = factor(Robotassistanse, levels=0:1, 
+                             labels=c("Konvensjonell", "Robot")),
+    Tilgang = factor(Tilgang, levels=2:3, 
+                     labels=c("Laparoskopisk", "Konvertert")),
+    Straaling = (KunStraaleterapi | KjemoRadioKombo)),
+  factorVars = c("erMann", "NyStomi", "Straaling", "ASA", "Tilgang"),
+  addOverall = TRUE)
 
-oppsum_stat_total <- RegData %>% 
+knitr::kable(print(tab1_v2, printToggle = FALSE)[,-5])
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+RegData$alder_kat <- cut(RegData$Alder, breaks = c(0, 65, 80, 140))
+RegData$Kjonn <- factor(RegData$erMann, levels = 0:1, labels = c("Kvinne", "Mann"))
+RegData$Straaling <- 
+  (RegData$KunStraaleterapi | RegData$KjemoRadioKombo) |> 
+  as.numeric()
+RegData <- RegData |> 
+  mutate(ASA_kat = case_when(ASA %in% 1:2 ~ "1/2",
+                             ASA %in% 3:4 ~ "3/4"))
+RegData$bmi_forenklet <- cut(RegData$BMI_kodet, breaks = c(0,3,4,5,8), labels = c("undervekt", "normal", "overvekt", "fedme"))
+RegData$bmi_forenklet <- relevel(RegData$bmi_forenklet, "normal")
+RegData$AvstandAnalVerge_kat <- 
+  relevel(RegData$AvstandAnalVerge_kat, "6.0-10.9 cm")
+RegData <- RegData |> 
+  mutate(Konvertert = ifelse(Tilgang == 2, 0, 1))
+
+konvertert <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = Konvertert) |> 
+  dplyr::arrange(Konvertert) |> 
   mutate(
-    Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
-                                labels=c("Nei", "Ja"))) %>% 
-  summarise(
-    Antall = n(),
-    "Alder (gj.sn)" = mean(Alder),
-    "Andel kvinner" = sum(erMann==0)/Antall*100,
-    "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100,
-    "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T),
-    "ASA-score (gj.sn)" = mean(ASA),
-    "ASA 1-2" = sum(ASA==2)/Antall*100,
-    "ASA 3" = sum(ASA==3)/Antall*100,
-    "ASA 4" = sum(ASA==4)/Antall*100,
-    "BMI (gj.sn)" = mean(BMI, na.rm = T),
-    "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100,
-    "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100,
-    "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100,
-    "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100,
-    "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100,
-    "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100
-  ) %>% 
-  mutate(radnavn1="Total") %>% 
-  relocate(radnavn1) %>% 
-  tr_summarize_output(kolnavn1 = "Variabel")
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Konvertert, "Ny stomi")
 
-pverdier <- data.frame(Variabel = oppsum_stat$Variabel, pverdi = NA)
-pverdier <- pverdier %>% 
-  mutate(pverdi = case_match(
-    Variabel,
-    "Andel kvinner" ~ 
-      fisher.test(table(RegData[,c("Anastomoselekkasje", "erMann")]))$p.value,
-    "Andel preoperativ bestråling" ~
-      fisher.test(table(RegData[,c("Anastomoselekkasje", "straaling")]))$p.value,
-    "Andel anlagt ny stomi" ~
-      fisher.test(table(RegData[,c("Anastomoselekkasje", "NyStomi")]))$p.value,
-    "Andel robotkirurgi" ~ 
-      fisher.test(table(RegData[,c("Anastomoselekkasje", "Robotassistanse")]))$p.value,
-    "Alder (gj.sn)" ~
-      t.test(RegData$Alder[RegData$Anastomoselekkasje == 0],
-             RegData$Alder[RegData$Anastomoselekkasje == 1])$p.value,
-    "Tumoravstand fra anus (gj.sn)" ~ 
-      t.test(RegData$AvstandAnalVerge[RegData$Anastomoselekkasje == 0],
-             RegData$AvstandAnalVerge[RegData$Anastomoselekkasje == 1])$p.value,
-    "ASA-score (gj.sn)" ~ 
-      t.test(RegData$ASA[RegData$Anastomoselekkasje == 0],
-             RegData$ASA[RegData$Anastomoselekkasje == 1])$p.value,
-    "BMI (gj.sn)" ~ 
-      t.test(RegData$BMI[RegData$Anastomoselekkasje == 0],
-             RegData$BMI[RegData$Anastomoselekkasje == 1])$p.value
-  ))
+alder <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = alder_kat) |> 
+  dplyr::arrange(alder_kat) |> 
+  janitor::adorn_totals() |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(alder_kat, "Ny stomi")
 
-oppsum_stat <- inner_join(oppsum_stat_total, oppsum_stat, by = "Variabel")
-names(oppsum_stat)[-1] <- paste0(names(oppsum_stat)[-1], 
-                                 " (N=", round(oppsum_stat[1, -1]), ")")
+kjonn <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = Kjonn) |> 
+  dplyr::arrange(Kjonn) |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Kjonn, "Ny stomi")
 
-oppsum_stat <- left_join(oppsum_stat, pverdier, by = "Variabel")
 
+straaling <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = Straaling) |> 
+  dplyr::arrange(Straaling) |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Straaling, "Ny stomi")
+
+analkant <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = AvstandAnalVerge_kat) |>
+  dplyr::arrange(AvstandAnalVerge_kat) |>
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(AvstandAnalVerge_kat, "Ny stomi")
+
+bmi <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = bmi_forenklet) |> 
+  arrange(bmi_forenklet) |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(bmi_forenklet, "Ny stomi")
+
+asa <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = ASA_kat) |> 
+  dplyr::arrange(ASA_kat) |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(ASA_kat, "Ny stomi")
+
+
+robot <- RegData |> summarise(
+  ant = sum(NyStomi == 1),
+  N = n(),
+  .by = Robotassistanse) |> 
+  dplyr::arrange(Robotassistanse) |> 
+  mutate(
+    andel = ant/N*100,
+    "Ny stomi" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Robotassistanse, "Ny stomi")
+
+model1 <- glm(NyStomi ~ 1 + Konvertert, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+konvertert$univar <- NA
+konvertert$univar[-1] <- univar
+
+model1 <- glm(NyStomi ~ 1 + alder_kat, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder <- alder[c(4,1:3), ]
+alder$univar <- NA
+alder$univar[3:4] <- univar
+
+model1 <- glm(NyStomi ~ 1 + Kjonn, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+kjonn$univar <- NA
+kjonn$univar[-1] <- univar
+
+model1 <- glm(NyStomi ~ 1 + Straaling, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# straaling <- straaling[c(2,1), ]
+straaling$univar <- NA
+straaling$univar[-1] <- univar
+
+
+model1 <- glm(NyStomi ~ 1 + AvstandAnalVerge_kat, 
+              data = RegData |> filter(!is.na(AvstandAnalVerge_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# analkant <- analkant[c(5,4,1,3),]
+analkant <- analkant[!is.na(analkant$AvstandAnalVerge_kat), ]
+analkant$univar <- NA
+analkant$univar[-1] <- univar
+
+
+model1 <- glm(NyStomi ~ 1 + bmi_forenklet, 
+              data = RegData |> filter(!is.na(bmi_forenklet)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+bmi <- bmi[!is.na(bmi$bmi_forenklet),]
+
+bmi$univar <- NA
+bmi$univar[-1] <- univar
+
+model1 <- glm(NyStomi ~ 1 + ASA_kat, 
+              data = RegData |> filter(!is.na(ASA_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+asa$univar <- NA
+asa$univar[-1] <- univar
+
+
+model1 <- glm(NyStomi ~ 1 + Robotassistanse, 
+              data = RegData |> filter(!is.na(Robotassistanse)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# robot <- robot[c(2,1), ]
+robot$univar <- NA
+robot$univar[-1] <- univar
+
+
+model_samlet <- glm(NyStomi ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet, # + Konvertert
+                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                              !is.na(BMI)), 
+                    family = "binomial")
+
+a <- exp(coef(model_samlet))
+b <- exp(confint(model_samlet))
+multvar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder$multvar <- NA
+alder$multvar[3:4] <- multvar[3:4]
+
+kjonn$multvar <- NA
+kjonn$multvar[-1] <- multvar[2]
+
+# konvertert$multvar <- NA
+# konvertert$multvar[-1] <- multvar[13]
+
+robot$multvar <- NA
+robot$multvar[-1] <- multvar[1]
+
+asa$multvar <- NA
+asa$multvar[-1] <- multvar[5]
+
+straaling$multvar <- NA
+straaling$multvar[-1] <- multvar[6]
+
+analkant$multvar <- NA
+analkant$multvar[-1] <- multvar[7:9]
+
+bmi$multvar <- NA
+bmi$multvar[-1] <- multvar[10:12]
+
+names(bmi)[1] <- "var_kat"
+bmi <- rbind(NA, bmi)
+bmi$var_kat <- as.character(bmi$var_kat)
+bmi$var_kat[1] <- "BMI"
+
+names(asa)[1] <- "var_kat"
+asa <- rbind(NA, asa)
+asa$var_kat[1] <- "ASA"
+
+names(analkant)[1] <- "var_kat"
+analkant <- rbind(NA, analkant)
+analkant$var_kat <- as.character(analkant$var_kat)
+analkant$var_kat[1] <- "Avstand analkant"
+
+names(straaling)[1] <- "var_kat"
+straaling <- rbind(NA, straaling)
+straaling$var_kat <- as.character(straaling$var_kat)
+straaling$var_kat[1] <- "Preop. bestrålt"
+
+names(robot)[1] <- "var_kat"
+robot <- rbind(NA, robot)
+robot$var_kat[1] <- "Robotassistanse"
+
+# names(konvertert)[1] <- "var_kat"
+# konvertert <- rbind(NA, konvertert)
+# konvertert$var_kat[1] <- "Konvertert"
+
+names(kjonn)[1] <- "var_kat"
+kjonn <- rbind(NA, kjonn)
+kjonn$var_kat <- as.character(kjonn$var_kat)
+kjonn$var_kat[1] <- "Kjønn"
+
+names(alder)[1] <- "var_kat"
+alder <- rbind(NA, alder)
+alder$var_kat <- as.character(alder$var_kat)
+alder$var_kat[1] <- "Alder"
+
+
+samlet_stomitabell <- bind_rows(
+  alder[2,], robot, alder[-2,], kjonn, straaling, analkant, 
+  bmi, asa #, konvertert
+)
+
+names(samlet_stomitabell)[1] <- ""
+
+options(knitr.kable.NA = '')
 knitr::kable(
-  oppsum_stat %>% filter(Variabel != "Antall"), 
-  digits = c(1,1,1,1,5), 
-  caption = "Oppsummerende statistikk for de med og uten anastomoselekkasje",
-  row.names = FALSE) %>% 
-  kableExtra::add_header_above(c(" " = 2, "Anastomoselekkaskje" = 2, " " = 1))
+  samlet_stomitabell, 
+  caption = "Regresjonsanalyse av risikofaktorer for avlastende stomi.",
+  row.names = FALSE)
 
 ```
 
-## Foreløpig analyse - Anastomoselekkasje
+## Analyse: anastomoselekkasje
 
-```{r}
+
+```{r "anastomoselekkasje", echo=FALSE, warning=FALSE, message=FALSE}
+
+alder <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = alder_kat) |> 
+  dplyr::arrange(alder_kat) |> 
+  dplyr::filter(!is.na(alder_kat)) |> 
+  janitor::adorn_totals() |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(alder_kat, "Anastomoselekkasje")
+
+kjonn <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Kjonn) |> 
+  dplyr::arrange(Kjonn) |> 
+  dplyr::filter(!is.na(Kjonn)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Kjonn, "Anastomoselekkasje")
+
+
+straaling <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Straaling) |> 
+  dplyr::arrange(Straaling) |> 
+  dplyr::filter(!is.na(Straaling)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Straaling, "Anastomoselekkasje")
+
+analkant <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = AvstandAnalVerge_kat) |> 
+  dplyr::arrange(AvstandAnalVerge_kat) |> 
+  dplyr::filter(!is.na(AvstandAnalVerge_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(AvstandAnalVerge_kat, "Anastomoselekkasje")
+
+bmi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = bmi_forenklet) |> 
+  dplyr::arrange(bmi_forenklet) |> 
+  dplyr::filter(!is.na(bmi_forenklet)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(bmi_forenklet, "Anastomoselekkasje")
+
+asa <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = ASA_kat) |> 
+  dplyr::arrange(ASA_kat) |> 
+  dplyr::filter(!is.na(ASA_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(ASA_kat, "Anastomoselekkasje")
+
+
+robot <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Robotassistanse) |> 
+  dplyr::arrange(Robotassistanse) |> 
+  dplyr::filter(!is.na(Robotassistanse)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Robotassistanse, "Anastomoselekkasje")
+
+nystomi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = NyStomi) |> 
+  dplyr::arrange(NyStomi) |> 
+  dplyr::filter(!is.na(NyStomi)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(NyStomi, "Anastomoselekkasje")
+
+model1 <- glm(Anastomoselekkasje ~ 1 + alder_kat, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder <- alder[c(4,1:3), ]
+alder$univar <- NA
+alder$univar[3:4] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Kjonn, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+kjonn$univar <- NA
+kjonn$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Straaling, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# straaling <- straaling[c(2,1), ]
+straaling$univar <- NA
+straaling$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + AvstandAnalVerge_kat, 
+              data = RegData |> filter(!is.na(AvstandAnalVerge_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# analkant <- analkant[c(5,4,1,3),]
+analkant$univar <- NA
+analkant$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + bmi_forenklet, 
+              data = RegData |> filter(!is.na(bmi_forenklet)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# bmi <- bmi[c(4,2,3,1),]
+
+bmi$univar <- NA
+bmi$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + ASA_kat, 
+              data = RegData |> filter(!is.na(ASA_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+asa$univar <- NA
+asa$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
+              data = RegData |> filter(!is.na(Robotassistanse)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# robot <- robot[c(2,1), ]
+robot$univar <- NA
+robot$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + NyStomi, 
+              data = RegData |> filter(!is.na(NyStomi)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# nystomi <- nystomi[c(2,1), ]
+nystomi$univar <- NA
+nystomi$univar[-1] <- univar
+
+
+model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet + NyStomi,
+                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                              !is.na(BMI)), 
+                    family = "binomial")
+
+a <- exp(coef(model_samlet))
+b <- exp(confint(model_samlet))
+multvar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder$multvar <- NA
+alder$multvar[3:4] <- multvar[3:4]
+
+kjonn$multvar <- NA
+kjonn$multvar[-1] <- multvar[2]
+
+robot$multvar <- NA
+robot$multvar[-1] <- multvar[1]
+
+asa$multvar <- NA
+asa$multvar[-1] <- multvar[5]
+
+straaling$multvar <- NA
+straaling$multvar[-1] <- multvar[6]
+
+analkant$multvar <- NA
+analkant$multvar[-1] <- multvar[7:9]
+
+bmi$multvar <- NA
+bmi$multvar[-1] <- multvar[10:12]
+
+nystomi$multvar <- NA
+nystomi$multvar[-1] <- multvar[13]
+
+names(bmi)[1] <- "var_kat"
+bmi <- rbind(NA, bmi)
+bmi$var_kat <- as.character(bmi$var_kat)
+bmi$var_kat[1] <- "BMI"
+
+names(asa)[1] <- "var_kat"
+asa <- rbind(NA, asa)
+asa$var_kat[1] <- "ASA"
+
+names(analkant)[1] <- "var_kat"
+analkant <- rbind(NA, analkant)
+analkant$var_kat <- as.character(analkant$var_kat)
+analkant$var_kat[1] <- "Avstand analkant"
+
+names(straaling)[1] <- "var_kat"
+straaling <- rbind(NA, straaling)
+straaling$var_kat <- as.character(straaling$var_kat)
+straaling$var_kat[1] <- "Preop. bestrålt"
+
+names(robot)[1] <- "var_kat"
+robot <- rbind(NA, robot)
+robot$var_kat[1] <- "Robotassistanse"
+
+names(nystomi)[1] <- "var_kat"
+nystomi <- rbind(NA, nystomi)
+nystomi$var_kat[1] <- "Ny stomi"
+
+names(kjonn)[1] <- "var_kat"
+kjonn <- rbind(NA, kjonn)
+kjonn$var_kat <- as.character(kjonn$var_kat)
+kjonn$var_kat[1] <- "Kjønn"
+
+names(alder)[1] <- "var_kat"
+alder <- rbind(NA, alder)
+alder$var_kat <- as.character(alder$var_kat)
+alder$var_kat[1] <- "Alder"
+
+
+samlet_stomitabell <- bind_rows(
+  alder[2,], robot, nystomi, alder[-2,], kjonn, straaling, analkant, bmi, asa
+)
+
+names(samlet_stomitabell)[1] <- ""
+
+options(knitr.kable.NA = '')
+knitr::kable(
+  samlet_stomitabell, 
+  caption = "Regresjonsanalyse av risikofaktorer for anastomoselekkasje.",
+  row.names = FALSE,)
+
+```
+
+```{r "anastomoselekkasje shus gr A", echo=FALSE, warning=FALSE, message=FALSE}
+RegData_alle <- RegData
+RegData <- RegData_alle |> filter(erfaringsnivaa == "A")
+
+alder <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = alder_kat) |> 
+  dplyr::arrange(alder_kat) |> 
+  dplyr::filter(!is.na(alder_kat)) |> 
+  janitor::adorn_totals() |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(alder_kat, "Anastomoselekkasje")
+
+kjonn <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Kjonn) |> 
+  dplyr::arrange(Kjonn) |> 
+  dplyr::filter(!is.na(Kjonn)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Kjonn, "Anastomoselekkasje")
+
+
+straaling <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Straaling) |> 
+  dplyr::arrange(Straaling) |> 
+  dplyr::filter(!is.na(Straaling)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Straaling, "Anastomoselekkasje")
+
+analkant <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = AvstandAnalVerge_kat) |> 
+  dplyr::arrange(AvstandAnalVerge_kat) |> 
+  dplyr::filter(!is.na(AvstandAnalVerge_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(AvstandAnalVerge_kat, "Anastomoselekkasje")
+
+bmi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = bmi_forenklet) |> 
+  dplyr::arrange(bmi_forenklet) |> 
+  dplyr::filter(!is.na(bmi_forenklet)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(bmi_forenklet, "Anastomoselekkasje")
+
+asa <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = ASA_kat) |> 
+  dplyr::arrange(ASA_kat) |> 
+  dplyr::filter(!is.na(ASA_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(ASA_kat, "Anastomoselekkasje")
+
+
+robot <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Robotassistanse) |> 
+  dplyr::arrange(Robotassistanse) |> 
+  dplyr::filter(!is.na(Robotassistanse)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Robotassistanse, "Anastomoselekkasje")
+
+nystomi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = NyStomi) |> 
+  dplyr::arrange(NyStomi) |> 
+  dplyr::filter(!is.na(NyStomi)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(NyStomi, "Anastomoselekkasje")
+
+model1 <- glm(Anastomoselekkasje ~ 1 + alder_kat, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder <- alder[c(4,1:3), ]
+alder$univar <- NA
+alder$univar[3:4] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Kjonn, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+kjonn$univar <- NA
+kjonn$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Straaling, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# straaling <- straaling[c(2,1), ]
+straaling$univar <- NA
+straaling$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + AvstandAnalVerge_kat, 
+              data = RegData |> filter(!is.na(AvstandAnalVerge_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# analkant <- analkant[c(5,4,1,3),]
+analkant$univar <- NA
+analkant$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + bmi_forenklet, 
+              data = RegData |> filter(!is.na(bmi_forenklet)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# bmi <- bmi[c(4,2,3,1),]
+
+bmi$univar <- NA
+bmi$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + ASA_kat, 
+              data = RegData |> filter(!is.na(ASA_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+asa$univar <- NA
+asa$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
+              data = RegData |> filter(!is.na(Robotassistanse)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# robot <- robot[c(2,1), ]
+robot$univar <- NA
+robot$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + NyStomi, 
+              data = RegData |> filter(!is.na(NyStomi)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# nystomi <- nystomi[c(2,1), ]
+nystomi$univar <- NA
+nystomi$univar[-1] <- univar
+
+
+model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet + NyStomi,
+                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                              !is.na(BMI)), 
+                    family = "binomial")
+
+a <- exp(coef(model_samlet))
+b <- exp(confint(model_samlet))
+multvar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder$multvar <- NA
+alder$multvar[3:4] <- multvar[3:4]
+
+kjonn$multvar <- NA
+kjonn$multvar[-1] <- multvar[2]
+
+robot$multvar <- NA
+robot$multvar[-1] <- multvar[1]
+
+asa$multvar <- NA
+asa$multvar[-1] <- multvar[5]
+
+straaling$multvar <- NA
+straaling$multvar[-1] <- multvar[6]
+
+analkant$multvar <- NA
+analkant$multvar[-1] <- multvar[7:9]
+
+bmi$multvar <- NA
+bmi$multvar[-1] <- multvar[10:12]
+
+nystomi$multvar <- NA
+nystomi$multvar[-1] <- multvar[13]
+
+names(bmi)[1] <- "var_kat"
+bmi <- rbind(NA, bmi)
+bmi$var_kat <- as.character(bmi$var_kat)
+bmi$var_kat[1] <- "BMI"
+
+names(asa)[1] <- "var_kat"
+asa <- rbind(NA, asa)
+asa$var_kat[1] <- "ASA"
+
+names(analkant)[1] <- "var_kat"
+analkant <- rbind(NA, analkant)
+analkant$var_kat <- as.character(analkant$var_kat)
+analkant$var_kat[1] <- "Avstand analkant"
+
+names(straaling)[1] <- "var_kat"
+straaling <- rbind(NA, straaling)
+straaling$var_kat <- as.character(straaling$var_kat)
+straaling$var_kat[1] <- "Preop. bestrålt"
+
+names(robot)[1] <- "var_kat"
+robot <- rbind(NA, robot)
+robot$var_kat[1] <- "Robotassistanse"
+
+names(nystomi)[1] <- "var_kat"
+nystomi <- rbind(NA, nystomi)
+nystomi$var_kat[1] <- "Ny stomi"
+
+names(kjonn)[1] <- "var_kat"
+kjonn <- rbind(NA, kjonn)
+kjonn$var_kat <- as.character(kjonn$var_kat)
+kjonn$var_kat[1] <- "Kjønn"
+
+names(alder)[1] <- "var_kat"
+alder <- rbind(NA, alder)
+alder$var_kat <- as.character(alder$var_kat)
+alder$var_kat[1] <- "Alder"
+
+
+samlet_stomitabell <- bind_rows(
+  alder[2,], robot, nystomi, alder[-2,], kjonn, straaling, analkant, bmi, asa
+)
+
+names(samlet_stomitabell)[1] <- ""
+
+options(knitr.kable.NA = '')
+knitr::kable(
+  samlet_stomitabell, 
+  caption = "Regresjonsanalyse av risikofaktorer for anastomoselekkasje for sykehus som har drevet robotkirurgi fra 2020 og tidligere.",
+  row.names = FALSE,)
+
+```
+
+```{r "anastomoselekkasje shus gr B", echo=FALSE, warning=FALSE, message=FALSE}
+
+RegData <- RegData_alle |> filter(erfaringsnivaa == "B")
+
+alder <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = alder_kat) |> 
+  dplyr::arrange(alder_kat) |> 
+  dplyr::filter(!is.na(alder_kat)) |> 
+  janitor::adorn_totals() |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(alder_kat, "Anastomoselekkasje")
+
+kjonn <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Kjonn) |> 
+  dplyr::arrange(Kjonn) |> 
+  dplyr::filter(!is.na(Kjonn)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Kjonn, "Anastomoselekkasje")
+
+
+straaling <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Straaling) |> 
+  dplyr::arrange(Straaling) |> 
+  dplyr::filter(!is.na(Straaling)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Straaling, "Anastomoselekkasje")
+
+analkant <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = AvstandAnalVerge_kat) |> 
+  dplyr::arrange(AvstandAnalVerge_kat) |> 
+  dplyr::filter(!is.na(AvstandAnalVerge_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(AvstandAnalVerge_kat, "Anastomoselekkasje")
+
+bmi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = bmi_forenklet) |> 
+  dplyr::arrange(bmi_forenklet) |> 
+  dplyr::filter(!is.na(bmi_forenklet)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(bmi_forenklet, "Anastomoselekkasje")
+
+asa <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = ASA_kat) |> 
+  dplyr::arrange(ASA_kat) |> 
+  dplyr::filter(!is.na(ASA_kat)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(ASA_kat, "Anastomoselekkasje")
+
+
+robot <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = Robotassistanse) |> 
+  dplyr::arrange(Robotassistanse) |> 
+  dplyr::filter(!is.na(Robotassistanse)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(Robotassistanse, "Anastomoselekkasje")
+
+nystomi <- RegData |> summarise(
+  ant = sum(Anastomoselekkasje == 1),
+  N = n(),
+  .by = NyStomi) |> 
+  dplyr::arrange(NyStomi) |> 
+  dplyr::filter(!is.na(NyStomi)) |> 
+  mutate(
+    andel = ant/N*100,
+    "Anastomoselekkasje" = paste0(ant, "/", N, " (", round(andel, 1), ")")) |> 
+  select(NyStomi, "Anastomoselekkasje")
+
+model1 <- glm(Anastomoselekkasje ~ 1 + alder_kat, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder <- alder[c(4,1:3), ]
+alder$univar <- NA
+alder$univar[3:4] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Kjonn, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+kjonn$univar <- NA
+kjonn$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Straaling, 
+              data = RegData, family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# straaling <- straaling[c(2,1), ]
+straaling$univar <- NA
+straaling$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + AvstandAnalVerge_kat, 
+              data = RegData |> filter(!is.na(AvstandAnalVerge_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# analkant <- analkant[c(5,4,1,3),]
+analkant$univar <- NA
+analkant$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + bmi_forenklet, 
+              data = RegData |> filter(!is.na(bmi_forenklet)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# bmi <- bmi[c(4,2,3,1),]
+
+bmi$univar <- NA
+bmi$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + ASA_kat, 
+              data = RegData |> filter(!is.na(ASA_kat)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+asa$univar <- NA
+asa$univar[-1] <- univar
+
+
+model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
+              data = RegData |> filter(!is.na(Robotassistanse)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# robot <- robot[c(2,1), ]
+robot$univar <- NA
+robot$univar[-1] <- univar
+
+model1 <- glm(Anastomoselekkasje ~ 1 + NyStomi, 
+              data = RegData |> filter(!is.na(NyStomi)), family = "binomial")
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+
+univar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+# nystomi <- nystomi[c(2,1), ]
+nystomi$univar <- NA
+nystomi$univar[-1] <- univar
+
+
+model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet + NyStomi,
+                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                              !is.na(BMI)), 
+                    family = "binomial")
+
+a <- exp(coef(model_samlet))
+b <- exp(confint(model_samlet))
+multvar <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+alder$multvar <- NA
+alder$multvar[3:4] <- multvar[3:4]
+
+kjonn$multvar <- NA
+kjonn$multvar[-1] <- multvar[2]
+
+robot$multvar <- NA
+robot$multvar[-1] <- multvar[1]
+
+asa$multvar <- NA
+asa$multvar[-1] <- multvar[5]
+
+straaling$multvar <- NA
+straaling$multvar[-1] <- multvar[6]
+
+analkant$multvar <- NA
+analkant$multvar[-1] <- multvar[7:9]
+
+bmi$multvar <- NA
+bmi$multvar[-1] <- multvar[10:12]
+
+nystomi$multvar <- NA
+nystomi$multvar[-1] <- multvar[13]
+
+names(bmi)[1] <- "var_kat"
+bmi <- rbind(NA, bmi)
+bmi$var_kat <- as.character(bmi$var_kat)
+bmi$var_kat[1] <- "BMI"
+
+names(asa)[1] <- "var_kat"
+asa <- rbind(NA, asa)
+asa$var_kat[1] <- "ASA"
+
+names(analkant)[1] <- "var_kat"
+analkant <- rbind(NA, analkant)
+analkant$var_kat <- as.character(analkant$var_kat)
+analkant$var_kat[1] <- "Avstand analkant"
+
+names(straaling)[1] <- "var_kat"
+straaling <- rbind(NA, straaling)
+straaling$var_kat <- as.character(straaling$var_kat)
+straaling$var_kat[1] <- "Preop. bestrålt"
+
+names(robot)[1] <- "var_kat"
+robot <- rbind(NA, robot)
+robot$var_kat[1] <- "Robotassistanse"
+
+names(nystomi)[1] <- "var_kat"
+nystomi <- rbind(NA, nystomi)
+nystomi$var_kat[1] <- "Ny stomi"
+
+names(kjonn)[1] <- "var_kat"
+kjonn <- rbind(NA, kjonn)
+kjonn$var_kat <- as.character(kjonn$var_kat)
+kjonn$var_kat[1] <- "Kjønn"
+
+names(alder)[1] <- "var_kat"
+alder <- rbind(NA, alder)
+alder$var_kat <- as.character(alder$var_kat)
+alder$var_kat[1] <- "Alder"
+
+
+samlet_stomitabell <- bind_rows(
+  alder[2,], robot, nystomi, alder[-2,], kjonn, straaling, analkant, bmi, asa
+)
+
+names(samlet_stomitabell)[1] <- ""
+
+options(knitr.kable.NA = '')
+knitr::kable(
+  samlet_stomitabell, 
+  caption = "Regresjonsanalyse av risikofaktorer for anastomoselekkasje for sykehus som har drevet robotkirurgi fra etter 2020.",
+  row.names = FALSE,)
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+RegData <- RegData_alle
+
 model1 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse, 
               data = RegData, family = "binomial")
-summary(model1)
+# summary(model1)
 
 model2 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
                 NyStomi, data = RegData, family = "binomial")
-summary(model2)
+# summary(model2)
 
 model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
-                NyStomi + erMann + as.factor(WHOECOG) + Alder +
-                as.factor(ASA) + as.factor(Forbehandling) +
-                AvstandAnalVerge + BMI,
-              data = RegData %>% filter(!is.na(AvstandAnalVerge),
-                                        !is.na(BMI)), 
+                NyStomi + erMann + alder_kat +
+                ASA_kat + Straaling +
+                AvstandAnalVerge_kat + bmi_forenklet,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                        !is.na(bmi_forenklet)), 
               family = "binomial")
-summary(model3)
+# summary(model3)
 
-aux1 <- summary(model1)$coefficients %>%
-  as.data.frame.matrix() 
-aux1 <- aux1[row.names(aux1) == "Robotassistanse", ]
-aux2 <- summary(model2)$coefficients %>%
-  as.data.frame.matrix() 
-aux2 <- aux2[row.names(aux2) == "Robotassistanse", ]
-aux3 <- summary(model3)$coefficients %>%
-  as.data.frame.matrix()
-aux3 <- aux3[row.names(aux3) == "Robotassistanse", ]
+a <- exp(coef(model1))
+b <- exp(confint(model1))
+mod1 <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
 
-tab3 <- data.frame(
-  Model = c("Model 1", "Model 2", "Model 3"),
-  OddsRatio = c(exp(aux1$Estimate),
-                exp(aux2$Estimate),
-                exp(aux3$Estimate)),
-  p.verdi = c(aux1$`Pr(>|z|)`,
-              aux2$`Pr(>|z|)`,
-              aux3$`Pr(>|z|)`)
-)
+a<- exp(coef(model2))
+b <- exp(confint(model2))
+mod2 <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
 
-knitr::kable(tab3)
+a<- exp(coef(model3))
+b <- exp(confint(model3))
+mod3 <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
+
+
+samlet <- cbind(mod1, mod2, mod3)
+samlet[-1, 1] <- ""
+samlet[-c(1,2), 2] <- ""
+row.names(samlet) <- names(a[-1])
+
+knitr::kable(samlet)
 
 ```
 
-Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, WHOecog, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten, samt BMI. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge og BMI.
-
-## Foreløpig analyse - Ny stomi
-
-Her ser vi på hva som ser ut til å påvirke valget å benytte avlastende stomi.
-
-```{r}
-
-model_nystomi <- glm(NyStomi ~ 1 + Robotassistanse + 
-                erMann + as.factor(WHOECOG) + Alder +
-                as.factor(ASA) + as.factor(Forbehandling) +
-                AvstandAnalVerge + BMI,
-              data = RegData %>% filter(!is.na(AvstandAnalVerge),
-                                        !is.na(BMI)), 
-              family = "binomial")
-summary(model_nystomi)
+Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten, samt BMI. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge og BMI.
 
 
-```
+<!-- ```{r, include=FALSE} -->
+<!-- tab1 <- RegData %>% -->
+<!--   mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, -->
+<!--                                   labels=c("Konvensjonell", "Robot")), -->
+<!--          NyStomi = factor(NyStomi, levels=0:1, labels=c("Nei", "Ja")), -->
+<!--          Kjønn = factor(erMann, levels=0:1, labels=c("Kvinne", "Mann"))) %>% -->
+<!--   summarise(N = n(), -->
+<!--             Lekkkasje = sum(Anastomoselekkasje==1), -->
+<!--             MedianAlder = median(Alder), -->
+<!--             Bestråling = sum(KunStraaleterapi | KjemoRadioKombo), -->
+<!--             Tum_avst = median(AvstandAnalVerge, na.rm = T), -->
+<!--             ASA = mean(ASA), -->
+<!--             .by = c(NyStomi, Robotassistanse, Kjønn)) %>%  -->
+<!--   janitor::adorn_totals() %>%  -->
+<!--   mutate(Lekkasje_pst = Lekkkasje/N*100, -->
+<!--          MedianAlder = ifelse(Robotassistanse == "-", median(RegData$Alder), MedianAlder), -->
+<!--          Tum_avst = ifelse(Robotassistanse == "-", median(RegData$AvstandAnalVerge, na.rm = T), Tum_avst), -->
+<!--          ASA = ifelse(Robotassistanse == "-", mean(RegData$ASA), ASA)) -->
 
+<!-- tab2 <- tab1 %>% filter(NyStomi != "Total") %>%  -->
+<!--   tidyr::pivot_wider( -->
+<!--     id_cols = c(NyStomi, Kjønn), names_from = Robotassistanse, -->
+<!--     values_from = Lekkasje_pst) %>%  -->
+<!--   rename("Avlastende stomi" = NyStomi) -->
+
+<!-- knitr::kable(tab1, digits = 2, caption = "Deskriptiv statistikk") -->
+
+
+<!-- ``` -->
+
+<!-- ```{r, include=FALSE} -->
+<!-- knitr::kable(tab2, digits = 2,  -->
+<!--              caption = "Andel anastomoselekkasjer for robotassistert -->
+<!--              og konvensjonell laparoskopi") %>%  -->
+<!--   kableExtra::add_header_above( -->
+<!--     c(" " = 2,  -->
+<!--       "Andel anastomoselekkaskje (%)" = 2)) -->
+
+<!-- ``` -->
+
+<!-- ```{r, include=FALSE} -->
+<!-- oppsum_stat <- RegData %>%  -->
+<!--   mutate( -->
+<!--     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1,  -->
+<!--                                 labels=c("Nei", "Ja"))) %>%  -->
+<!--   summarise( -->
+<!--     Antall = n(), -->
+<!--     "Alder (gj.sn)" = mean(Alder), -->
+<!--     "Andel kvinner" = sum(erMann==0)/Antall*100, -->
+<!--     "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100, -->
+<!--     "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T), -->
+<!--     "ASA-score (gj.sn)" = mean(ASA), -->
+<!--     "ASA 1-2" = sum(ASA==2)/Antall*100, -->
+<!--     "ASA 3" = sum(ASA==3)/Antall*100, -->
+<!--     "ASA 4" = sum(ASA==4)/Antall*100, -->
+<!--     "BMI (gj.sn)" = mean(BMI, na.rm = T), -->
+<!--     "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100, -->
+<!--     "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100, -->
+<!--     "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100, -->
+<!--     "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100, -->
+<!--     "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100, -->
+<!--     "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100, -->
+<!--     .by = Anastomoselekkasje -->
+<!--   ) %>%  -->
+<!--   tr_summarize_output(kolnavn1 = "Variabel") -->
+
+<!-- oppsum_stat_total <- RegData %>%  -->
+<!--   mutate( -->
+<!--     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1,  -->
+<!--                                 labels=c("Nei", "Ja"))) %>%  -->
+<!--   summarise( -->
+<!--     Antall = n(), -->
+<!--     "Alder (gj.sn)" = mean(Alder), -->
+<!--     "Andel kvinner" = sum(erMann==0)/Antall*100, -->
+<!--     "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100, -->
+<!--     "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T), -->
+<!--     "ASA-score (gj.sn)" = mean(ASA), -->
+<!--     "ASA 1-2" = sum(ASA==2)/Antall*100, -->
+<!--     "ASA 3" = sum(ASA==3)/Antall*100, -->
+<!--     "ASA 4" = sum(ASA==4)/Antall*100, -->
+<!--     "BMI (gj.sn)" = mean(BMI, na.rm = T), -->
+<!--     "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100, -->
+<!--     "Andel robotkirurgi" = sum(Robotassistanse==1)/Antall*100, -->
+<!--     "Konvensjonell med stomi" = sum(Robotassistanse==0 & NyStomi==1)/Antall*100, -->
+<!--     "Konvensjonell uten stomi" = sum(Robotassistanse==0 & NyStomi==0)/Antall*100, -->
+<!--     "Robot med stomi" = sum(Robotassistanse==1 & NyStomi==1)/Antall*100, -->
+<!--     "Robot uten stomi" = sum(Robotassistanse==1 & NyStomi==0)/Antall*100 -->
+<!--   ) %>%  -->
+<!--   mutate(radnavn1="Total") %>%  -->
+<!--   relocate(radnavn1) %>%  -->
+<!--   tr_summarize_output(kolnavn1 = "Variabel") -->
+
+<!-- pverdier <- data.frame(Variabel = oppsum_stat$Variabel, pverdi = NA) -->
+<!-- pverdier <- pverdier %>%  -->
+<!--   mutate(pverdi = case_match( -->
+<!--     Variabel, -->
+<!--     "Andel kvinner" ~  -->
+<!--       fisher.test(table(RegData[,c("Anastomoselekkasje", "erMann")]))$p.value, -->
+<!--     "Andel preoperativ bestråling" ~ -->
+<!--       fisher.test(table(RegData[,c("Anastomoselekkasje", "straaling")]))$p.value, -->
+<!--     "Andel anlagt ny stomi" ~ -->
+<!--       fisher.test(table(RegData[,c("Anastomoselekkasje", "NyStomi")]))$p.value, -->
+<!--     "Andel robotkirurgi" ~  -->
+<!--       fisher.test(table(RegData[,c("Anastomoselekkasje", "Robotassistanse")]))$p.value, -->
+<!--     "Alder (gj.sn)" ~ -->
+<!--       t.test(RegData$Alder[RegData$Anastomoselekkasje == 0], -->
+<!--              RegData$Alder[RegData$Anastomoselekkasje == 1])$p.value, -->
+<!--     "Tumoravstand fra anus (gj.sn)" ~  -->
+<!--       t.test(RegData$AvstandAnalVerge[RegData$Anastomoselekkasje == 0], -->
+<!--              RegData$AvstandAnalVerge[RegData$Anastomoselekkasje == 1])$p.value, -->
+<!--     "ASA-score (gj.sn)" ~  -->
+<!--       t.test(RegData$ASA[RegData$Anastomoselekkasje == 0], -->
+<!--              RegData$ASA[RegData$Anastomoselekkasje == 1])$p.value, -->
+<!--     "BMI (gj.sn)" ~  -->
+<!--       t.test(RegData$BMI[RegData$Anastomoselekkasje == 0], -->
+<!--              RegData$BMI[RegData$Anastomoselekkasje == 1])$p.value -->
+<!--   )) -->
+
+<!-- oppsum_stat <- inner_join(oppsum_stat_total, oppsum_stat, by = "Variabel") -->
+<!-- names(oppsum_stat)[-1] <- paste0(names(oppsum_stat)[-1],  -->
+<!--                                  " (N=", round(oppsum_stat[1, -1]), ")") -->
+
+<!-- oppsum_stat <- left_join(oppsum_stat, pverdier, by = "Variabel") -->
+
+<!-- knitr::kable( -->
+<!--   oppsum_stat %>% filter(Variabel != "Antall"),  -->
+<!--   digits = c(1,1,1,1,5),  -->
+<!--   caption = "Oppsummerende statistikk for de med og uten anastomoselekkasje", -->
+<!--   row.names = FALSE) %>%  -->
+<!--   kableExtra::add_header_above(c(" " = 2, "Anastomoselekkaskje" = 2, " " = 1)) -->
+<!-- ``` -->
+<!-- # oppsum_stat_robot <- RegData %>%  -->
+<!-- #   mutate( -->
+<!-- #     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1,  -->
+<!-- #                                 labels=c("Nei", "Ja"))) %>%  -->
+<!-- #   mutate( -->
+<!-- #     Robotassistanse = factor(Robotassistanse, levels=0:1,  -->
+<!-- #                              labels=c("Konvensjonell", "Robot"))) |>  -->
+<!-- #   summarise( -->
+<!-- #     Antall = n(), -->
+<!-- #     "Alder (gj.sn)" = mean(Alder), -->
+<!-- #     "Andel kvinner" = sum(erMann==0)/Antall*100, -->
+<!-- #     "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100, -->
+<!-- #     "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T), -->
+<!-- #     "ASA-score (gj.sn)" = mean(ASA), -->
+<!-- #     "BMI (gj.sn)" = mean(BMI, na.rm = T), -->
+<!-- #     "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100, -->
+<!-- #     .by = Robotassistanse -->
+<!-- #   ) %>%  -->
+<!-- #   tr_summarize_output(kolnavn1 = "Variabel") -->
+<!-- #  -->
+<!-- # oppsum_stat_total_robot <- RegData %>%  -->
+<!-- #   mutate( -->
+<!-- #     Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1,  -->
+<!-- #                                 labels=c("Nei", "Ja"))) %>%  -->
+<!-- #   mutate( -->
+<!-- #     Robotassistanse = factor(Robotassistanse, levels=0:1,  -->
+<!-- #                              labels=c("Konvensjonell", "Robot"))) |> -->
+<!-- #   summarise( -->
+<!-- #     Antall = n(), -->
+<!-- #     "Alder (gj.sn)" = mean(Alder), -->
+<!-- #     "Andel kvinner" = sum(erMann==0)/Antall*100, -->
+<!-- #     "Andel preoperativ bestråling" = sum(KunStraaleterapi | KjemoRadioKombo)/Antall*100, -->
+<!-- #     "Tumoravstand fra anus (gj.sn)" = mean(AvstandAnalVerge, na.rm = T), -->
+<!-- #     "ASA-score (gj.sn)" = mean(ASA), -->
+<!-- #     "BMI (gj.sn)" = mean(BMI, na.rm = T), -->
+<!-- #     "Andel anlagt ny stomi" = sum(NyStomi)/Antall*100, -->
+<!-- #   ) %>%  -->
+<!-- #   mutate(radnavn1="Total") %>%  -->
+<!-- #   relocate(radnavn1) %>%  -->
+<!-- #   tr_summarize_output(kolnavn1 = "Variabel") -->
+<!-- #  -->
+<!-- # pverdier <- data.frame(Variabel = oppsum_stat_robot$Variabel, pverdi = NA) -->
+<!-- # pverdier <- pverdier %>%  -->
+<!-- #   mutate(pverdi = case_match( -->
+<!-- #     Variabel, -->
+<!-- #     "Andel kvinner" ~  -->
+<!-- #       fisher.test(table(RegData[,c("Robotassistanse", "erMann")]))$p.value, -->
+<!-- #     "Andel preoperativ bestråling" ~ -->
+<!-- #       fisher.test(table(RegData[,c("Robotassistanse", "straaling")]))$p.value, -->
+<!-- #     "Andel anlagt ny stomi" ~ -->
+<!-- #       fisher.test(table(RegData[,c("Robotassistanse", "NyStomi")]))$p.value, -->
+<!-- #     "Andel robotkirurgi" ~  -->
+<!-- #       fisher.test(table(RegData[,c("Robotassistanse", "Robotassistanse")]))$p.value, -->
+<!-- #     "Alder (gj.sn)" ~ -->
+<!-- #       t.test(RegData$Alder[RegData$Robotassistanse == 0], -->
+<!-- #              RegData$Alder[RegData$Robotassistanse == 1])$p.value, -->
+<!-- #     "Tumoravstand fra anus (gj.sn)" ~  -->
+<!-- #       t.test(RegData$AvstandAnalVerge[RegData$Robotassistanse == 0], -->
+<!-- #              RegData$AvstandAnalVerge[RegData$Robotassistanse == 1])$p.value, -->
+<!-- #     "ASA-score (gj.sn)" ~  -->
+<!-- #       t.test(RegData$ASA[RegData$Robotassistanse == 0], -->
+<!-- #              RegData$ASA[RegData$Robotassistanse == 1])$p.value, -->
+<!-- #     "BMI (gj.sn)" ~  -->
+<!-- #       t.test(RegData$BMI[RegData$Robotassistanse == 0], -->
+<!-- #              RegData$BMI[RegData$Robotassistanse == 1])$p.value -->
+<!-- #   )) -->
+<!-- #  -->
+<!-- # oppsum_stat_robot <- inner_join(oppsum_stat_total_robot, oppsum_stat_robot, by = "Variabel") -->
+<!-- # names(oppsum_stat_robot)[-1] <- paste0(names(oppsum_stat_robot)[-1],  -->
+<!-- #                                        " (N=", round(oppsum_stat_robot[1, -1]), ")") -->
+<!-- #  -->
+<!-- # oppsum_stat_robot <- left_join(oppsum_stat_robot, pverdier, by = "Variabel") -->
+
+<!-- # knitr::kable( -->
+<!-- #   oppsum_stat_robot %>% filter(Variabel != "Antall"),  -->
+<!-- #   digits = c(1,1,1,1,5),  -->
+<!-- #   caption = "Oppsummerende statistikk for de med og uten robotassistanse", -->
+<!-- #   row.names = FALSE) %>%  -->
+<!-- #   kableExtra::add_header_above(c(" " = 2, "Robotassistanse" = 2, " " = 1)) -->
