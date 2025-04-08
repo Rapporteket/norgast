@@ -237,6 +237,26 @@ appServer <- function(input, output, session) {
   #         rapbase::getConfig("rapbaseConfig.yml")$network$smtp$port)
   # })
 
+  ## Metadata
+  meta <- shiny::reactive({
+    rapbase::describeRegistryDb("data")
+  })
+
+  output$metaControl <- shiny::renderUI({
+    tabs <- names(meta())
+    selectInput("metaTab", "Velg tabell:", tabs)
+  })
+
+
+  output$metaDataTable <- DT::renderDataTable(
+    meta()[[input$metaTab]], rownames = FALSE,
+    options = list(lengthMenu=c(25, 50, 100, 200, 400))
+  )
+
+  output$metaData <- shiny::renderUI({
+    DT::dataTableOutput("metaDataTable")
+  })
+
   ## Stats
   observe(
     rapbase::statsServer("norgastStats",
