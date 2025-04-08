@@ -137,6 +137,13 @@ appUi <- function() {
           )
         )
       ),
+      shiny::tabPanel(
+        "Metadata",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(uiOutput("metaControl")),
+          shiny::mainPanel(htmlOutput("metaData"))
+        )
+      ),
 
       shiny::tabPanel(
         "Eksport",
