@@ -1228,7 +1228,17 @@ model2 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse +
 # summary(model2)
 
 model3 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
-                NyStomi + erMann + alder_kat +
+                NyStomi +
+                erMann + alder_kat +
+                ASA_kat + Straaling +
+                AvstandAnalVerge_kat + bmi_forenklet,
+              data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                        !is.na(bmi_forenklet)), 
+              family = "binomial")
+
+model4 <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                # NyStomi +
+                erMann + alder_kat +
                 ASA_kat + Straaling +
                 AvstandAnalVerge_kat + bmi_forenklet,
               data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
@@ -1248,6 +1258,9 @@ a<- exp(coef(model3))
 b <- exp(confint(model3))
 mod3 <- paste0(round(a[-1], 2), " (", round(b[-1,1], 2), "-", round(b[-1,2], 2), ")")
 
+a1<- exp(coef(model4))
+b1 <- exp(confint(model4))
+mod4 <- paste0(round(a1[-1], 2), " (", round(b1[-1,1], 2), "-", round(b1[-1,2], 2), ")")
 
 samlet <- cbind(mod1, mod2, mod3)
 samlet[-1, 1] <- ""
@@ -1255,6 +1268,13 @@ samlet[-c(1,2), 2] <- ""
 row.names(samlet) <- names(a[-1])
 
 knitr::kable(samlet)
+
+# yohannes <- c(mod1[1], mod2[1], mod3[1], mod4[1])
+# yohannes <- data.frame("inkludert" = c("robot", "robot+nystomi",
+#                                        "alt", "alt utenom nystomi"),
+#                        "estimat"=yohannes)
+# 
+# knitr::kable(yohannes)
 
 ```
 

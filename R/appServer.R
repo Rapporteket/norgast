@@ -23,6 +23,26 @@ appServer <- function(input, output, session) {
     # map_orgname = shiny::req(map_avdeling)
   )
 
+  # Metadata
+  meta <- shiny::reactive({
+    rapbase::describeRegistryDb("data")
+  })
+
+  output$metaControl <- shiny::renderUI({
+    tabs <- names(meta())
+    selectInput("metaTab", "Velg tabell:", tabs)
+  })
+
+
+  output$metaDataTable <- DT::renderDataTable(
+    meta()[[input$metaTab]], rownames = FALSE,
+    options = list(lengthMenu=c(25, 50, 100, 200, 400))
+  )
+
+  output$metaData <- shiny::renderUI({
+    DT::dataTableOutput("metaDataTable")
+  })
+
   # skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   # skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   # RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)

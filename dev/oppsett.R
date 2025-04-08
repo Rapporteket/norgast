@@ -11,8 +11,25 @@ norgast::norgastApp()
 
 RegData <- rapbase::loadRegData(
   registryName = "data",
-  query="SELECT * FROM eq5dlformdatacontract",
+  query="SELECT * FROM allevarnum",
   dbType="mysql")
+
+RegData2 <- rapbase::loadRegData(
+  registryName = "norgast",
+  query="SELECT * FROM allevarnum_materialized",
+  dbType="mysql")
+
+registration <- rapbase::loadRegData(
+  registryName = "norgast",
+  query="SELECT * FROM registration",
+  dbType="mysql")
+
+readmission <- rapbase::loadRegData(
+  registryName = "norgast",
+  query="SELECT * FROM readmission",
+  dbType="mysql")
+
+
 
 tmp_yml <- yaml::read_yaml("./dev/test.yml")
 tmp_json <- jsonlite::serializeJSON(tmp_yml)
