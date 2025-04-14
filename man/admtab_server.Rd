@@ -2,7 +2,8 @@
 % Please edit documentation in R/modul_admtab.R
 \name{admtab_server}
 \alias{admtab_server}
-\title{Serverdel av modul for Administrative tabeller-fane i NORGAST sin shiny-app på Rapporteket}
+\title{Serverdel av modul for Administrative tabeller-fane i NORGAST sin shiny-app
+på Rapporteket}
 \usage{
 admtab_server(id, RegData, userRole, hvd_session, skjemaoversikt, BrValg)
 }

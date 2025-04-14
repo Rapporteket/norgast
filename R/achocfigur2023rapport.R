@@ -192,6 +192,8 @@ norgastFordelingOpGruppert <- function(outfile = "",
     pivot_wider(names_from = Grvar2, values_from = N) %>%
     arrange(!! sym(Grvar1 ))
 
+  antall[is.na(antall)] <- 0
+
   legendTxt <- paste0(names(colSums(antall[,-1])),
                       paste0(" (N = ", colSums(antall[,-1]), ")"))
 

@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 \usepackage[a4paper]{geometry}
 
-\title{Figurer og tabeller for årsrapport NORGAST 2023 - Lever og pankreas}
+\title{Figurer og tabeller for årsrapport NORGAST 2024 - Lever og pankreas}
 \author{NORGAST}
 
 \renewcommand\thempfootnote{\fnsymbol{mpfootnote}}
@@ -41,7 +41,7 @@ RegData <- NorgastPreprosess(RegData)
 # RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
 RegData <- RegData %>% dplyr::filter(AvdRESH %in% c(114271, 700922, 103312, 107440, 601225))
 
-rap_aar <- 2023 # Året rapporten skal kjøres for
+rap_aar <- 2024 # Året rapporten skal kjøres for
 ant_aar <- 3 # Hvor mange år som skal inkluderes i flerårsfigurer
 
 reshID <- 0
@@ -50,20 +50,6 @@ datoTil= paste0(rap_aar, '-12-31')
 
 RegDataAll <- RegData[RegData$Aar<=rap_aar, ]
 RegData <- RegData[RegData$Aar==rap_aar, ]
-
-# DG <- read.csv2('~/mydata/norgast/dg_opgr_shus.csv')
-# DG <- DG[!is.na(DG$AvdRESH), ]
-# # DG <- DG[DG$n_norgast != 0, ]
-# graaUt_lever <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 5]
-# graaUt_whipple <- DG$Sykehusnavn[DG$DG < 60 & DG$Op_gr == 6]
-#
-# DG2 <- DG[DG$Op_gr %in% 7:8, ] %>% group_by(sh) %>%
-#   summarise(n_norgast = sum(n_norgast),
-#             n_npr = sum(n_npr),
-#             DG = n_norgast/n_npr*100,
-#             AvdRESH = first(AvdRESH),
-#             Sykehusnavn = first(Sykehusnavn))
-# graaUt_pankreas <- DG2$Sykehusnavn[DG2$DG < 60]
 
 sh_norgast <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH), c("AvdRESH", "Sykehusnavn")]
 
@@ -88,12 +74,6 @@ DG <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),
   merge(sh_norgast, by = "AvdRESH", all.x = TRUE) |>
   dplyr::filter(!is.na(Sykehusnavn))
 graaUt_pankreas <- DG$Sykehusnavn[DG$DG < dgterskel]
-
-# DG <- read.csv2('~/mydata/norgast/DG_Sykehus/Andre_pankreas_sh.csv') %>%
-#   merge(sh_norgast, by = "AvdRESH", all.x = TRUE) %>%
-#   dplyr::filter(!is.na(Sykehusnavn))
-# graaUt_pankreas <- DG$Sykehusnavn[DG$DG_norgast < 70]
-
 
 figstr <- 1
 tmp <- Sys.setlocale(category = "LC_ALL", locale = "nb_NO.UTF-8")
@@ -143,7 +123,7 @@ op_gruppe <- ''
 malign <- 99
 annet_format_ut <- T
 ut_format <- 'svg'
-figfolder <- "~/mydata/norgast/fig_aarsrapp2023/pankreas_lever/"
+figfolder <- "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/aarsrapp2024/pankreas_lever/"
 if (!dir.exists(figfolder)) {
   dir.create(figfolder)
 }
