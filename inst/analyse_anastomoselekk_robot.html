@@ -123,35 +123,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    FerdigForlop_v2 <span class="sc">==</span> <span class="dv">1</span>)</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>frafall <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumreseksjoner"</span> <span class="ot">=</span> <span class="fu">n</span>(),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ikke-maligne"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"WHOECOG &gt; 1"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)),</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Akuttkirugi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Hastegrad <span class="sc">==</span> <span class="dv">2</span>),          </span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Utenfor normalarbeidstid"</span> <span class="ot">=</span> <span class="fu">sum</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span>),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Åpen kirurgi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Tilgang <span class="sc">==</span> <span class="dv">1</span>),</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operert robotassistert på sykehus uten robot"</span> <span class="ot">=</span> <span class="fu">sum</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                                                           Robotassistanse <span class="sc">==</span> <span class="dv">1</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumor &gt;15 cm fra analkant"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(AvstandAnalVerge_kat)),</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumoperert på sykehus som ikke opererer rektum"</span> <span class="ot">=</span> </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(<span class="fu">is.na</span>(erfaringsnivaa)),</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Oppfyller én eller flere eksklusjonsskriterier"</span> <span class="ot">=</span> </span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>((<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>) <span class="sc">|</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>            (<span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)) <span class="sc">|</span> (Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|</span> </span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>            (Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">|</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>            (Tilgang <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> (NyAnastomose <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>            (erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            <span class="fu">is.na</span>(AvstandAnalVerge_kat) <span class="sc">|</span> <span class="fu">is.na</span>(erfaringsnivaa))</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>frafall <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">"var"</span> <span class="ot">=</span> <span class="fu">names</span>(frafall),</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Antall"</span> <span class="ot">=</span> <span class="fu">unlist</span>(frafall))</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(frafall)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">""</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(frafall, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">caption =</span> <span class="st">"Ekskluderte av ulike årsaker"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>), <span class="co"># Fjerner umulige robotop.</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(erfaringsnivaa), <span class="co"># Fjerner sykehus som ikke op. rektum</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat)) <span class="sc">|&gt;</span>  <span class="co"># Fjerner tumor &gt;15 cm fra analkant) |&gt; </span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumreseksjoner"</span> <span class="ot">=</span> <span class="fu">n</span>(),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ikke-maligne"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"WHOECOG &gt; 1"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Akuttkirugi"</span> <span class="ot">=</span> <span class="fu">sum</span>((Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Åpen kirurgi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Tilgang <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="at">na.rm =</span> T),</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="at">na.rm =</span> T),</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operert robotassistert på sykehus uten robot"</span> <span class="ot">=</span> <span class="fu">sum</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                                                           Robotassistanse <span class="sc">==</span> <span class="dv">1</span>, <span class="at">na.rm =</span> T),</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumor &gt;15 cm fra analkant"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(AvstandAnalVerge_kat)),</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumoperert på sykehus som ikke opererer rektum"</span> <span class="ot">=</span> </span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(<span class="fu">is.na</span>(erfaringsnivaa)),</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Oppfyller én eller flere eksklusjonsskriterier"</span> <span class="ot">=</span> </span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>((<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>) <span class="sc">|</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>            (<span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)) <span class="sc">|</span> (Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|</span> </span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>            (Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">|</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            (Tilgang <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> (NyAnastomose <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            (erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>            <span class="fu">is.na</span>(AvstandAnalVerge_kat) <span class="sc">|</span> <span class="fu">is.na</span>(erfaringsnivaa))</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>frafall <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">"var"</span> <span class="ot">=</span> <span class="fu">names</span>(frafall),</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Antall"</span> <span class="ot">=</span> <span class="fu">unlist</span>(frafall))</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(frafall)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">""</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(frafall, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">caption =</span> <span class="st">"Ekskluderte av ulike årsaker"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Ekskluderte av ulike årsaker</caption>
@@ -168,62 +170,58 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Rektumreseksjoner</td>
-<td style="text-align: right;">5480</td>
+<td style="text-align: right;">4939</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Ikke-maligne</td>
-<td style="text-align: right;">1299</td>
+<td style="text-align: right;">1023</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">WHOECOG &gt; 1</td>
-<td style="text-align: right;">357</td>
+<td style="text-align: right;">229</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Akuttkirugi</td>
-<td style="text-align: right;">125</td>
+<td style="text-align: right;">93</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Utenfor normalarbeidstid</td>
-<td style="text-align: right;">178</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">Åpen kirurgi</td>
-<td style="text-align: right;">684</td>
+<td style="text-align: right;">267</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)</td>
-<td style="text-align: right;">869</td>
+<td style="text-align: right;">501</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)</td>
-<td style="text-align: right;">1033</td>
+<td style="text-align: right;">819</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">Operert robotassistert på sykehus uten robot</td>
-<td style="text-align: right;">4</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Tumor &gt;15 cm fra analkant</td>
-<td style="text-align: right;">204</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Rektumoperert på sykehus som ikke opererer rektum</td>
-<td style="text-align: right;">297</td>
+<td style="text-align: left;">Tumor &gt;15 cm fra analkant</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Rektumoperert på sykehus som ikke opererer rektum</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Oppfyller én eller flere eksklusjonsskriterier</td>
-<td style="text-align: right;">3473</td>
+<td style="text-align: right;">2932</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData <span class="sc">%&gt;%</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>,          <span class="co"># WHOECOG &gt; 1 fjernes</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    Hastegrad <span class="sc">==</span> <span class="dv">1</span>,            <span class="co"># Elektive operasjoner</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    Hastegrad_tid <span class="sc">==</span> <span class="dv">1</span>,        <span class="co"># På ukedag og med anestesistart i normalarbeidstid</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># NyAnastomose == 1,         # Ny anastomomse</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="co"># Kun malign</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="co"># Kun malign</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>,          <span class="co"># WHOECOG &gt; 1 fjernes</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    Hastegrad <span class="sc">==</span> <span class="dv">1</span>,            <span class="co"># Elektive operasjoner</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    Hastegrad_tid <span class="sc">==</span> <span class="dv">1</span>,        <span class="co"># På ukedag og med anestesistart i normalarbeidstid</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># NyAnastomose == 1,         # Ny anastomomse</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,           <span class="co"># Laparoskopiske inngrep, inkludert konverterte</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>), <span class="co"># Fjerner umulige robotop.</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(erfaringsnivaa), <span class="co"># Fjerner sykehus som ikke op. rektum</span></span>
@@ -231,10 +229,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>nyanastomosetab <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">UtenNyAnastomose =</span> <span class="fu">sum</span>(NyAnastomose<span class="sc">==</span><span class="dv">0</span>),</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"Andel uten ny anastomose (%)"</span> <span class="ot">=</span> </span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">round</span>(UtenNyAnastomose<span class="sc">/</span><span class="fu">n</span>()<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>),</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">N =</span> <span class="fu">n</span>(),</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.by =</span> Robotassistanse) <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="st">"Andel uten ny anastomose (%)"</span> <span class="ot">=</span> </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                                          <span class="fu">round</span>(UtenNyAnastomose<span class="sc">/</span><span class="fu">n</span>()<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">N =</span> <span class="fu">n</span>(),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">.by =</span> Robotassistanse) <span class="sc">|&gt;</span> </span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">"Antall uten ny anastomose"</span> <span class="ot">=</span> UtenNyAnastomose)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(nyanastomosetab, <span class="at">row.names =</span> <span class="cn">FALSE</span>, </span>
@@ -1275,6 +1273,209 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Modell 1 er uten justering, modell 2 er justert for avlastende stomi, mens modell 3 er justert for avlastende stomi, kjønn, Alder, ASA-grad, type forbehandling (KunCytostatika=1, KunStraaleterapi=2, KjemoRadioKombo=3, Ingen = 4) og avstand fra analkanten, samt BMI. Modell 3 er filtrert til å kun bruke registreringene som har en verdi på AvstandAnalVerge og BMI.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Regresjonsanalyse av risikofaktorer for anastomoselekkasje eller død innen 30 dager.</caption>
+<colgroup>
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 24%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Anastomoselekkasje</th>
+<th style="text-align: left;">univar</th>
+<th style="text-align: left;">multvar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;">161/2007 (8)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Robotassistanse</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">46/902 (5.1)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">115/1105 (10.4)</td>
+<td style="text-align: left;">2.16 (1.53-3.11)</td>
+<td style="text-align: left;">1.68 (1.17-2.44)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ny stomi</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">133/1043 (12.8)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">28/964 (2.9)</td>
+<td style="text-align: left;">0.2 (0.13-0.31)</td>
+<td style="text-align: left;">0.18 (0.11-0.28)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Alder</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(0,65]</td>
+<td style="text-align: left;">76/869 (8.7)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(65,80]</td>
+<td style="text-align: left;">78/954 (8.2)</td>
+<td style="text-align: left;">0.93 (0.67-1.29)</td>
+<td style="text-align: left;">0.86 (0.6-1.23)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">(80,140]</td>
+<td style="text-align: left;">7/184 (3.8)</td>
+<td style="text-align: left;">0.41 (0.17-0.85)</td>
+<td style="text-align: left;">0.42 (0.17-0.92)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kjønn</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kvinne</td>
+<td style="text-align: left;">37/805 (4.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mann</td>
+<td style="text-align: left;">124/1202 (10.3)</td>
+<td style="text-align: left;">2.39 (1.65-3.53)</td>
+<td style="text-align: left;">2.76 (1.87-4.16)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Preop. bestrålt</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">124/1515 (8.2)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">37/492 (7.5)</td>
+<td style="text-align: left;">0.91 (0.61-1.32)</td>
+<td style="text-align: left;">1.36 (0.89-2.04)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Avstand analkant</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6.0-10.9 cm</td>
+<td style="text-align: left;">65/885 (7.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0-5.9 cm</td>
+<td style="text-align: left;">4/156 (2.6)</td>
+<td style="text-align: left;">0.33 (0.1-0.82)</td>
+<td style="text-align: left;">0.49 (0.14-1.24)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">11.0-15.9 cm</td>
+<td style="text-align: left;">68/717 (9.5)</td>
+<td style="text-align: left;">1.32 (0.93-1.89)</td>
+<td style="text-align: left;">0.81 (0.55-1.19)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ikke målt</td>
+<td style="text-align: left;">24/249 (9.6)</td>
+<td style="text-align: left;">1.35 (0.81-2.17)</td>
+<td style="text-align: left;">1 (0.58-1.66)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BMI</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">normal</td>
+<td style="text-align: left;">50/793 (6.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">undervekt</td>
+<td style="text-align: left;">2/28 (7.1)</td>
+<td style="text-align: left;">1.14 (0.18-3.98)</td>
+<td style="text-align: left;">1.08 (0.17-4.09)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">overvekt</td>
+<td style="text-align: left;">72/818 (8.8)</td>
+<td style="text-align: left;">1.43 (0.99-2.1)</td>
+<td style="text-align: left;">1.29 (0.87-1.91)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">fedme</td>
+<td style="text-align: left;">35/355 (9.9)</td>
+<td style="text-align: left;">1.63 (1.03-2.54)</td>
+<td style="text-align: left;">1.55 (0.95-2.49)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ASA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1/2</td>
+<td style="text-align: left;">122/1534 (8)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3/4</td>
+<td style="text-align: left;">39/473 (8.2)</td>
+<td style="text-align: left;">1.04 (0.71-1.5)</td>
+<td style="text-align: left;">1.1 (0.72-1.65)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <!-- ```{r, include=FALSE} -->
 <!-- tab1 <- RegData %>% -->
 <!--   mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, -->

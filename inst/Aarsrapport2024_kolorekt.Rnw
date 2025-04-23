@@ -668,16 +668,16 @@ outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                  Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                  tittel = "Andel nye stomier",
-                                 RegData = RegDataAll, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 99,
+                                 RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
+                                 datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1, ny_anastomose = 99,
                                  malign=0, ytxt = "Diagnose")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                    Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                    tittel = "Andel nye stomier",
-                                   RegData = RegDataAll, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 99,
+                                   RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
+                                   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1, ny_anastomose = 99,
                                    malign=0, ytxt = "Diagnose")
 }
 
@@ -686,16 +686,16 @@ outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                  Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                  tittel = "Andel anastomoselekkasjer",
-                                 RegData = RegDataAll, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                 RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
+                                 datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1, ny_anastomose = 1,
                                  malign=0, ytxt = "Diagnose")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                    Grvar1 = "UK_MC", Grvar2 = "hgrad",
                                    tittel = "Andel anastomoselekkasjer",
-                                   RegData = RegDataAll, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=1, ny_anastomose = 1,
+                                   RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
+                                   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1, ny_anastomose = 1,
                                    malign=0, ytxt = "Diagnose")
 }
 
@@ -1289,8 +1289,8 @@ outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert1Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                  Grvar1 = "Robot",
                                  tittel = "Andel anastomoselekkasjer, ny anastomose",
-                                 RegData = aux, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=2,
+                                 RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                 datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                  malign=1, ytxt = "",
                                  hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
@@ -1298,8 +1298,8 @@ if (annet_format_ut) {
   norgast::norgastAndelGruppert1Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                    Grvar1 = "Robot",
                                    tittel = "Andel anastomoselekkasjer, ny anastomose",
-                                   RegData = aux, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=2,
+                                   RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                    malign=1, ytxt = "",
                                    hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
@@ -1310,8 +1310,8 @@ outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                  Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "robot_nystomi",
                                  tittel = "Andel anastomoselekkasjer, ny anastomose",
-                                 RegData = aux, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=2,
+                                 RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                 datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                  malign=1, ytxt = "Avstand analkanten",
                                  hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
@@ -1319,8 +1319,8 @@ if (annet_format_ut) {
   norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfile,
                                    Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "robot_nystomi",
                                    tittel = "Andel anastomoselekkasjer, ny anastomose",
-                                   RegData = aux, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=2,
+                                   RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                    malign=1, ytxt = "Avstand analkanten",
                                    hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
@@ -1331,8 +1331,8 @@ outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                  Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "Robot",
                                  tittel = "Andel nye stomier",
-                                 RegData = aux, datoFra="2021-01-01",
-                                 datoTil="2023-12-31",op_gruppe=2,
+                                 RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                 datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                  malign=1, ytxt = "Avstand analkanten",
                                  hastegrad = 1, whoEcog = 0:1,
                                  ny_anastomose =1, inkl_konf = TRUE)
@@ -1341,8 +1341,8 @@ if (annet_format_ut) {
   norgast::norgastAndelGruppert2Gr(valgtVar="NyStomi", outfile = outfile,
                                    Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "Robot",
                                    tittel = "Andel nye stomier",
-                                   RegData = aux, datoFra="2021-01-01",
-                                   datoTil="2023-12-31",op_gruppe=2,
+                                   RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
+                                   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
                                    malign=1, ytxt = "Avstand analkanten",
                                    hastegrad = 1, whoEcog = 0:1,
                                    ny_anastomose =1, inkl_konf = TRUE)
