@@ -145,3 +145,15 @@ tr_summarize_output <- function(x, kolnavn1 = ""){
 
   return(y)
 }
+
+#' Bryt tekst til ønsket lengde
+#'
+#' @export
+#'
+wrap.it <- function(x, len)
+{
+  sapply(x, function(y) paste(strwrap(y, len),
+                              collapse = "\n"),
+         USE.NAMES = FALSE)
+}
+

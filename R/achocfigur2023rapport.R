@@ -20,12 +20,15 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
     dplyr::filter(!is.na(!! sym(valgtVar )),
                   !is.na(!! sym(Grvar1 )),
                   !is.na(!! sym(Grvar2 ))) %>%
-    dplyr::summarise(N = dplyr::n(),
-                     Antall = sum(!! sym(valgtVar )),
-                     Andel = Antall/N*100,
-                     konf_lav = binom.test(Antall,N, alternative = 'two.sided')$conf.int[1]*100,
-                     konf_hoy = binom.test(Antall,N, alternative = 'two.sided')$conf.int[2]*100,
-                     .by = c(!! sym(Grvar1 ), !! sym(Grvar2 )))
+    dplyr::summarise(
+      N = dplyr::n(),
+      Antall = sum(!! sym(valgtVar )),
+      Andel = Antall/N*100,
+      konf_lav = binom.test(Antall,N,
+                            alternative = 'two.sided')$conf.int[1]*100,
+      konf_hoy = binom.test(Antall,N,
+                            alternative = 'two.sided')$conf.int[2]*100,
+      .by = c(!! sym(Grvar1 ), !! sym(Grvar2 )))
 
 
   Andeler <- aux %>% dplyr::select(!! sym(Grvar1 ), !! sym(Grvar2 ), Andel) %>%
@@ -57,21 +60,24 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
     xmax <- min(max(aux$konf_hoy, na.rm = T)*1.2, 100)
   } else {xmax <- min(max(PlotAndeler, na.rm = T)*1.2, 100)}
 
-  pos <- barplot(PlotAndeler, horiz=T, beside=TRUE, border=NA, col=farger[1:ngrvar2level],
+  pos <- barplot(PlotAndeler, horiz=T, beside=TRUE, border=NA,
+                 col=farger[1:ngrvar2level],
                  main='', font.main=1, ylim = c(0,ymax),
                  xlim = c(0, xmax),
                  xlab=xtxt, las=1, cex.names = 1.2,
                  names.arg=rep('',dim(PlotAndeler)[2]))
 
-  mtext(colnames(PlotAndeler), side=2, line=0.2, las=1, at=colMeans(pos), col=1, cex=1)
+  mtext(norgast::wrap.it(colnames(PlotAndeler), 15), side=2, line=0.2, las=1,
+        at=colMeans(pos), col=1, cex=1)
   mtext(ytxt, side=2, line=5, las=0, col=1, cex=1)
 
 
   Nlang <- N %>% pivot_longer(cols = -1,
                               names_to = Grvar2, values_to = "N")
   Nlang$pos <- as.vector(pos)
-  # Nlang$N <- paste0("N=", Nlang$N)
-  Nlang <- merge(Nlang, aux[, c(Grvar1, Grvar2, "Andel", "konf_lav", "konf_hoy")], by = c(Grvar1, Grvar2))
+  Nlang <- merge(Nlang,
+                 aux[, c(Grvar1, Grvar2, "Andel", "konf_lav", "konf_hoy")],
+                 by = c(Grvar1, Grvar2))
   Nlang$pst_txt <- paste0(sprintf("%.1f", Nlang$Andel), " %")
   Nlang <- Nlang %>% arrange(-pos)
   text(x = 0, y = Nlang$pos, labels = Nlang$pst_txt, pos = 4)
@@ -81,8 +87,10 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
         col=1, cex=0.75, adj = 1, xpd = T)
 
   if (inkl_konf){
-    arrows(x0 = Nlang$konf_lav, y0 = Nlang$pos, x1 = Nlang$konf_hoy, y1 = Nlang$pos,
-           length=0.5/max(Nlang$pos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
+    arrows(x0 = Nlang$konf_lav, y0 = Nlang$pos,
+           x1 = Nlang$konf_hoy, y1 = Nlang$pos,
+           length=0.5/max(Nlang$pos), code=3, angle=90, lwd=1.8,
+           col='gray') #, col=farger[1])
     legend('bottom', cex=0.9, bty='n',
            lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
            legend= 'Konfidensintervall')
@@ -94,7 +102,8 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
          pch=15, col=farger[1:ngrvar2level], ncol = ngrvar2level,
          bty='n')
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4], line=(NutvTxt-1):0, outer=TRUE)
+  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4],
+        line=(NutvTxt-1):0, outer=TRUE)
 
   if ( outfile != '') {dev.off()}
 
