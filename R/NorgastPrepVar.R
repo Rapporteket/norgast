@@ -69,6 +69,18 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
+  if (valgtVar=='konvertert') {
+    tittel <- 'Andel konvertert til åpen kirurgi'
+    RegData$Variabel <- RegData$konvertert
+    RegData <- RegData[!is.na(RegData$konvertert), ]
+    grtxt <- c('Nei', 'Ja')
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=0:1, labels = grtxt)
+    retn <- 'V'
+    VarTxt <- 'konvertert til åpen kirurgi'
+
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
   if (valgtVar=='laerebok') {
     tittel <- c('Lærebokforløp')
     # Referansepasient:

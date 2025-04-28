@@ -321,20 +321,6 @@ norgastIndikator_gruppert <-
            Grvar1 = "Sykehusnavn", Grvar2 = "Malign", ltop=2, lbunn=1,rotermaaltxt=45,
            ny_anastomose=99, pst_kolonne=TRUE, kun_oblig=FALSE)
   {
-    # RegData<-aux %>% filter(Op_gr==2); valgtVar<-"Anastomoselekkasje"; tittel=''; width=800; height=700;
-    # decreasing=F; terskel=5; minstekrav = NA;
-    # maal = NA; skriftStr=1.3; pktStr=1.4; legPlass='topleft'; minstekravTxt='Moderat \nmåloppnåelse';
-    # maalTxt='Høy \nmåloppnåelse'; graaUt=NA; inkl_konf=T; datoFra='2014-01-01'; datoTil='2050-12-31';
-    # minald=0; maxald=130; erMann=99; outfile=''; preprosess=F; malign=99; elektiv=99;
-    # hastegrad=99; BMI=''; tilgang=''; minPRS=0; maxPRS=2.2; ASA=''; whoEcog= '';
-    # forbehandling=''; dagtid =99; hentData=0; op_gruppe=''; ncsp=''; maalretn='hoy';
-    # lavDG=''; lavDGtekst='Dekningsgrad < 60 %'; hastegrad_hybrid=99;
-    # robotassiastanse=99; kun_ferdigstilte=TRUE; prikktall=TRUE;
-    # Grvar1 = "Sykehusnavn"; Grvar2 = "Tilgang_utvidet"; ltop=2; lbunn=1; inset=0; #Grvar2 = "maligndiag";
-    # prikktall = FALSE; inkl_N = FALSE; valgtVar = "mortalitet90"; ny_anastomose=99;
-    # minstekrav = 8; maal = 5; rotermaaltxt=45; lavDG=graaUt_rektum;pst_kolonne=T
-    # RegData$Malign<-factor(RegData$Malign, levels = 0:1, labels = c("Benign", "Malign"))
-    # RegData[,Grvar2] <- as.factor(RegData[,Grvar2])
 
     RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
     RegData <- RegData %>% dplyr::filter(!is.na( !! sym(Grvar1 )),
