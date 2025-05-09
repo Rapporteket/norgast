@@ -4,7 +4,12 @@
 \alias{norgastApp}
 \title{Run the NORGAST Shiny Application}
 \usage{
-norgastApp(logAsJson = TRUE)
+norgastApp(logAsJson = TRUE, browser = FALSE)
+}
+\arguments{
+\item{logAsJson}{Logical indicating whether to log messages as JSON}
+
+\item{browser}{Logical indicating whether to open the app in a browser}
 }
 \value{
 An object representing the NORGAST app

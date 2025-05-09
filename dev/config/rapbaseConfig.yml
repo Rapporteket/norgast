@@ -1,0 +1,31 @@
+r:
+  libpath: /usr/lib64/R/library
+  raplog:
+    archiveDir: logArchive
+    eolDays: 730
+    target: db
+    key: raplog
+  autoReport:
+    target: db
+    key: autoreport
+  staging:
+    target: db
+    key: staging
+  schedule:
+    nocturnal:
+      startHour: 0
+      endHour: 8
+      funs:
+      - rapbase::runAutoReport
+      - rapbase::sanitizeLog
+    diurnal:
+      startHour: 8
+      endHour: 24
+      funs: rapbase::runBulletin
+network:
+  smtp:
+    server:
+    port:
+  sender:
+github:
+  organization: Rapporteket
