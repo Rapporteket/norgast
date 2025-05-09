@@ -20,7 +20,30 @@ appUi <- function() {
     regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
-
+    header = shiny::modalDialog(
+      shiny::h3("ADVARSEL"),
+      "Som bruker av Rapporteket i NORGAST får du tilgang til aggregerte tall
+      for hele landet i tillegg til din egen avdeling. Dette gir et verdifullt
+      sammenligningsgrunnlag for den enkelte avdeling.",
+      shiny::hr(),
+      "Ved å klikke deg videre i Rapporteket nå godkjenner du det nedenfor
+      stående som en bindende avtale:",
+      shiny::hr(),
+      "Det er IKKE tillatt å dele aggregerte nasjonale tall i fora som er
+       tilgjengelig for andre enn kolleger og ledelse i den institusjon du
+      representerer som bruker av Rapporteket. Offentliggjøring av aggregerte
+      nasjonale tall skal kun gjøres med eksplisitt tillatelse fra NORGAST
+      etter formell søknad til registeret. Som offentliggjøring regnes enhver
+      gjengivelse av ethvert nasjonalt resultat eller av data for annen
+      institusjon enn den du representerer, i aviser, foredrag, sosiale medier,
+      tidsskrifter, konferansepostere, offentlig tilgjengelige rapporter og
+      rundskriv, samt i intervjuer med media og andre fora som er tilgjengelig
+      for andre enn kolleger og ledelse i din institusjon.",
+      size = "l",
+      label = "Godkjenn",
+      easyClose = FALSE,
+      footer = shiny::modalButton("Godta og forsett")
+    ),
     shiny::tabPanel(
       "Startside",
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
