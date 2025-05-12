@@ -182,7 +182,7 @@ admtab_server <- function(id, RegData, userRole,
                          c("ForlopsID", "SkjemaStatus", "HovedDato",
                            "OpprettetDato", "Sykehusnavn", "AvdRESH",
                            "Op_gr", "Hovedoperasjon")],
-          skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl',
+          skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfolging/Innleggelse',
                          c("ForlopsID", "SkjemaStatus")],
           by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
@@ -273,7 +273,7 @@ admtab_server <- function(id, RegData, userRole,
                            c("ForlopsID", "SkjemaStatus", "HovedDato",
                              "OpprettetDato", "Sykehusnavn", "AvdRESH",
                              "Op_gr", "Hovedoperasjon")],
-            skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl',
+            skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfolging/Innleggelse',
                            c("ForlopsID", "SkjemaStatus")],
             by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 
@@ -334,7 +334,7 @@ admtab_server <- function(id, RegData, userRole,
                            c("ForlopsID", "SkjemaStatus", "HovedDato",
                              "OpprettetDato", "Sykehusnavn", "AvdRESH",
                              "Op_gr", "Hovedoperasjon")],
-            skjemaoversikt[skjemaoversikt$Skjemanavn=='Reinnleggelse/oppføl',
+            skjemaoversikt[skjemaoversikt$Skjemanavn=='Oppfolging/Innleggelse',
                            c("ForlopsID", "SkjemaStatus")],
             by = 'ForlopsID', all.x = T, suffixes = c('', '_oppf'))
 

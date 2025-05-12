@@ -32,7 +32,7 @@ appServer <- function(input, output, session) {
   RegData <- RegData[which(RegData$RegistreringStatus==1),]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   query <- "SELECT * FROM user"
-  brukerinfo <- rapbase::loadRegData("data", query, "mysql") %>%
+  brukerinfo <- rapbase::loadRegData("data", query, "mysql") |>
     dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
   RegData$ForstLukketAv <-
     brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
@@ -209,34 +209,6 @@ appServer <- function(input, output, session) {
     user = user
   )
 
-  # kjor_autorapport <- shiny::observeEvent(input$run_autoreport, {
-  #   dato <- input$rapportdato
-  #   dryRun <- !(input$dryRun)
-  #   withCallingHandlers({
-  #     shinyjs::html("sysMessage", "")
-  #     shinyjs::html("funMessage", "")
-  #     shinyjs::html("funMessage",
-  #                   rapbase::runAutoReport(group = "norgast",
-  #                                          dato = dato, dryRun = dryRun))
-  #   },
-  #   message = function(m) {
-  #     shinyjs::html(id = "sysMessage", html = m$message, add = TRUE)
-  #   })
-  # })
-
-  # output$confgreier1 <- shiny::renderText({
-  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$sender:",
-  #         rapbase::getConfig("rapbaseConfig.yml")$network$sender)
-  # })
-  # output$confgreier2 <- shiny::renderText({
-  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$server:",
-  #         rapbase::getConfig("rapbaseConfig.yml")$network$smtp$server)
-  # })
-  # output$confgreier3 <- shiny::renderText({
-  #   paste("rapbase::getConfig(\"rapbaseConfig.yml\")$network$smtp$port:",
-  #         rapbase::getConfig("rapbaseConfig.yml")$network$smtp$port)
-  # })
-
   ## Metadata
   meta <- shiny::reactive({
     rapbase::describeRegistryDb("data")
@@ -278,95 +250,5 @@ appServer <- function(input, output, session) {
   ##############################################################################
 
 
-
-
-  # autos <- rapbase::readAutoReportData(target = "db") %>%
-  #   rapbase::filterAutoRep(by = "type", pass = type, target = "db") %>%
-  #   rapbase::filterAutoRep(by = "package", pass = "norgast", target = "db") %>%
-  #   dplyr::summarise(
-  #     email = list(unique(email)),
-  #     .by = c(owner, ownerName, package, organization, type, fun,
-  #             params, startDate, terminateDate, interval, synopsis)
-  #   )
-  # output$autoraptab <- shiny::renderTable(autos)
-
-
 }
-
-
-# reports <- list(
-#   Kvartalsrapport = list(
-#     synopsis = "NORGAST: Kvartalsrapport",
-#     fun = "abonnement_kvartal_norgast",
-#     paramNames = c("baseName", "reshID"),
-#     paramValues = c("NorgastKvartalsrapport_abonnement", user$org())
-#   )
-# )
-# output$tabeller <- shiny::renderTable({
-#   query <- paste0("SELECT table_name FROM information_schema.tables
-#                   WHERE table_schema = '", Sys.getenv("MYSQL_DB_DATA"), "';")
-#   tabell <- try(rapbase::loadRegData("data", query, "mysql"), TRUE)
-# })
-# # Environment
-# output$user <- shiny::renderText({
-#   paste("rapbase::getUserName(session):",
-#         user$name())
-# })
-# output$group <- shiny::renderText({
-#   paste("rapbase::getUserGroups(session):",
-#         user$group())
-# })
-# output$resh_id <- shiny::renderText({
-#   paste("rapbase::getUserReshId(session):",
-#         user$org())
-# })
-# output$role <- shiny::renderText({
-#   paste("rapbase::getUserRole(session):",
-#         user$role())
-# })
-# output$database <- shiny::renderText({
-#   Sys.getenv("MYSQL_DB_DATA")
-# })
-# output$full_name <- shiny::renderText({
-#   paste("rapbase::getUserFullName(session):",
-#         user$name())
-# })
-# output$instance <- shiny::renderText({
-#   Sys.getenv("R_RAP_INSTANCE")
-# })
-# output$config_path <- shiny::renderText({
-#   Sys.getenv("R_RAP_CONFIG_PATH")
-# })
-# output$sp_usergroups <- shiny::renderText({
-#   paste("Sys.getenv('SHINYPROXY_USERGROUPS'):",
-#         Sys.getenv("SHINYPROXY_USERGROUPS"))
-# })
-# output$locale <- shiny::renderText({
-#   Sys.getlocale()
-# })
-#
-# skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
-# skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
-# output$skjemaoversikt <- shiny::renderTable({
-#   head(skjemaoversikt)
-# })
-#
-# query <- paste0("SELECT * FROM allevarnum")
-# allevarnum <- rapbase::loadRegData("data", query, "mysql")
-# output$allevarnum <- shiny::renderTable(
-#   head(allevarnum[,1:10])
-# )
-#
-# query <- paste0("SELECT * FROM forlopsoversikt")
-# forlopsoversikt <- rapbase::loadRegData("data", query, "mysql")
-# output$forlopsoversikt <- shiny::renderTable(
-#   head(forlopsoversikt[,1:10])
-# )
-#
-# query <- paste0("SELECT * FROM user")
-# user_tab <- rapbase::loadRegData("data", query, "mysql")
-# output$user_tab <- shiny::renderTable(
-#   head(user_tab)
-# )
-
 

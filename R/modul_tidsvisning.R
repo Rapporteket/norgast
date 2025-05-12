@@ -102,10 +102,10 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
         shinyjs::reset("id_tid_panel")
       })
 
-      observe(
-        if (userRole() != 'SC') {
-          shinyjs::hide(id = 'valgtShus_ui')
-        })
+      # observe(
+      #   if (userRole() != 'SC') {
+      #     shinyjs::hide(id = 'valgtShus_ui')
+      #   })
 
       output$ncsp <- renderUI({
         ns <- session$ns

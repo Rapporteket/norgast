@@ -67,15 +67,17 @@ samledok_server <- function(id, reshID, RegData, userRole,
         shinyjs::reset("id_samledok_panel")
       })
 
-      observe(
-        if (userRole() != 'SC') {
-          shinyjs::hide(id = 'valgtShus_ui')
-        })
+      # observe(
+      #   if (userRole() != 'SC') {
+      #     shinyjs::hide(id = 'valgtShus_ui')
+      #   })
 
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
+        if (userRole() == 'SC') {
         selectInput(inputId = ns("valgtShus"), label = "Velg sykehus",
                     choices = BrValg$sykehus, multiple = TRUE)
+        }
       })
 
       output$kvartal <- renderUI({
