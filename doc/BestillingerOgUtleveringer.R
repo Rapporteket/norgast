@@ -3,6 +3,59 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+##### Tall for å berolige register 16.05.2025 ##################################
+RegData <- norgast::NorgastHentRegData()
+RegData <- norgast::NorgastPreprosess(RegData)
+
+utvalg1 <- RegData |> dplyr::filter(
+  Op_gr == 2,
+  Aar %in% 2022:2024,
+  Malign == 1,
+  WHOECOG %in% 0:1,
+  Hastegrad == 1,
+  NyAnastomose == 1,
+  OppfStatus != -1 | is.na(OppfStatus)
+) |>
+  mutate(Robot = factor(Robotassistanse, levels = c(1,0),
+                     labels = c("Robot", "Ikke-robot")))
+
+sammenstilling1 <- utvalg1 |>
+  dplyr::filter(Tilgang != 1) |>
+  summarise(ant = sum(Anastomoselekkasje == 1),
+            N = n(),
+            .by = c(SykehusNavn, Aar, Robot)) |>
+  group_by(Aar, Robot) |>
+  group_modify(~ .x |> janitor::adorn_totals()) |>
+  group_by(Aar, SykehusNavn) |>
+  group_modify(~ .x |> janitor::adorn_totals()) |>
+  mutate(andel = ant/N*100,
+         andel = paste0(sprintf("%.1f", andel), "% (", N, ")")) |>
+  select(-ant, -N) |>
+  tidyr::pivot_wider(names_from = c(Aar, Robot), values_from = andel)
+
+sammenstilling2 <- utvalg1 |>
+  dplyr::filter(Tilgang != 1) |>
+  summarise(ant = sum(Anastomoselekkasje == 1),
+            N = n(),
+            .by = c(SykehusNavn, Robot)) |>
+  group_by(Robot) |>
+  group_modify(~ .x |> janitor::adorn_totals()) |>
+  group_by(SykehusNavn) |>
+  group_modify(~ .x |> janitor::adorn_totals()) |>
+  mutate(andel = ant/N*100,
+         andel = paste0(sprintf("%.1f", andel), "% (", N, ")")) |>
+  select(-ant, -N) |>
+  tidyr::pivot_wider(names_from = c(Robot), values_from = andel)
+
+write.csv2(
+  sammenstilling1,
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_pr_aar.csv",
+  row.names = F, fileEncoding = "Latin1", na = "")
+write.csv2(
+  sammenstilling2,
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_samlet.csv",
+  row.names = F, fileEncoding = "Latin1", na = "")
+
 ##### Uttrekk Søreide, pankreas 2016-2022, 22.10.2024 ##########################
 varnavn_kobl <- data.frame(
   kol = c("mce.MCEID AS ForlopsID",
