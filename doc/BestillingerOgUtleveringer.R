@@ -16,11 +16,15 @@ utvalg1 <- RegData |> dplyr::filter(
   NyAnastomose == 1,
   OppfStatus != -1 | is.na(OppfStatus)
 ) |>
-  mutate(Robot = factor(Robotassistanse, levels = c(1,0),
-                     labels = c("Robot", "Ikke-robot")))
+  dplyr::mutate(#Robot = factor(Robotassistanse, levels = c(1,0),
+                #     labels = c("Robot", "Ikke-robot")),
+         Robot = ifelse(is.na(Robotassistanse), 2, Robotassistanse) |>
+           factor(levels = c(1,0, 2),
+                  labels = c("Robot", "Ikke-robot", "Åpen")))
+
 
 sammenstilling1 <- utvalg1 |>
-  dplyr::filter(Tilgang != 1) |>
+  # dplyr::filter(Tilgang != 1) |>
   summarise(ant = sum(Anastomoselekkasje == 1),
             N = n(),
             .by = c(SykehusNavn, Aar, Robot)) |>
@@ -30,11 +34,11 @@ sammenstilling1 <- utvalg1 |>
   group_modify(~ .x |> janitor::adorn_totals()) |>
   mutate(andel = ant/N*100,
          andel = paste0(sprintf("%.1f", andel), "% (", N, ")")) |>
-  select(-ant, -N) |>
+  dplyr::select(-ant, -N) |>
   tidyr::pivot_wider(names_from = c(Aar, Robot), values_from = andel)
 
 sammenstilling2 <- utvalg1 |>
-  dplyr::filter(Tilgang != 1) |>
+  # dplyr::filter(Tilgang != 1) |>
   summarise(ant = sum(Anastomoselekkasje == 1),
             N = n(),
             .by = c(SykehusNavn, Robot)) |>
@@ -49,11 +53,11 @@ sammenstilling2 <- utvalg1 |>
 
 write.csv2(
   sammenstilling1,
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_pr_aar.csv",
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_pr_aar_m_aapen.csv",
   row.names = F, fileEncoding = "Latin1", na = "")
 write.csv2(
   sammenstilling2,
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_samlet.csv",
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/robot_rektum_2022_2024_samlet_m_aapen.csv",
   row.names = F, fileEncoding = "Latin1", na = "")
 
 ##### Uttrekk Søreide, pankreas 2016-2022, 22.10.2024 ##########################
