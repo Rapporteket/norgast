@@ -3,6 +3,34 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+#### KRG 07.12.2023 ############################################################
+kobling_krg <- read.csv2("~/regdata/norgast/utleveringer/liste_norgast.csv",
+                         colClasses = c("character"))
+
+kobling_hnikt <- read.csv2(
+  "~/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_27.05.2025.csv",
+                           colClasses = c("integer", "character"))
+
+felles  <- merge(kobling_krg, kobling_hnikt, by.x = "FNR", by.y = "SSN",
+                 suffixes = c("", "_hnikt")) %>%
+  dplyr::select(-FNR)
+
+RegData <- norgast::NorgastHentRegData() %>%
+  norgast::NorgastPreprosess() |>
+  dplyr::filter(OperasjonsDato >= "2019-01-01" & OperasjonsDato < "2025-01-01") %>%
+  dplyr::filter(PasientId %in% felles$PID) |>
+  dplyr::rename(PID = PasientId) |>
+  # merge(felles, by.x = "PasientId", by.y = "PID_hnikt") %>%
+  dplyr::select(PID, OperasjonsDato, BMI, ASA, Vekt6MndFoer, Hoyde,
+                VektVedInnleggelse, WHOECOG, MedDiabetes, Albumin, CRP,
+                Hjertesykdom, Lungesykdom, Hovedoperasjon, PostopLiggedogn,
+                UtskrevetTil)
+
+write.csv2(RegData, "~/regdata/norgast/utleveringer/pdac_mai2025.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
+
+
 ##### Tall for å berolige register 16.05.2025 ##################################
 RegData <- norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
@@ -186,16 +214,16 @@ utlevering <- RegData %>%
 
 openxlsx::write.xlsx(
   utlevering,
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/textbook_outcomes_pancreas_feb2025.xlsx")
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/textbook_outcomes_pancreas_mai2025.xlsx")
 write.csv2(
   utlevering,
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/textbook_outcomes_pancreas_feb2025.csv",
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/textbook_outcomes_pancreas_mai2025.csv",
   row.names = F, fileEncoding = "Latin1", na = "")
 
 
 
 utlevernavn <- readr::read_csv2(
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/GI.POP_SOREIDE_UTVALG.VARIABLER_2025.NORGAST_klokeboken_28.01.2025.csv",
+  "~/regdata/norgast/GI.POP_SOREIDE_UTVALG.VARIABLER_2025.NORGAST_klokeboken_28.01.2025.csv",
   locale = readr::locale(encoding = "UTF-8")) |>
   dplyr::filter(UTVALG_GIPOP_Soreide == 1)
 utlevernavn <- utlevernavn[
@@ -216,10 +244,10 @@ utlevernavn <- utlevernavn[
 
 allevarnum <- rapbase::loadRegData("data", "SELECT * FROM allevarnum")
 forlopsoversikt <- rapbase::loadRegData(
-  "data", "SELECT ForlopsID, Fodselsdato, PasientKjonn FROM forlopsoversikt")
+  "data", "SELECT ForlopsID, SykehusNavn, Fodselsdato, PasientKjonn FROM forlopsoversikt")
 utlevering <- merge(allevarnum, forlopsoversikt, by = "ForlopsID") |>
   dplyr::filter(RegistreringStatus == 1) |>
-  dplyr::select(ForlopsID, utlevernavn$rapnavn) |>
+  dplyr::select(ForlopsID, SykehusNavn, SenterNavn, utlevernavn$rapnavn) |>
   dplyr::mutate(
     ncsp_kode = stringr::str_extract(Hovedoperasjon, "^[^\\s]+"),
     ncsp_tekst = stringr::str_extract(Hovedoperasjon, "\\s.+"),
