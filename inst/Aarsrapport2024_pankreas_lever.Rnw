@@ -221,6 +221,28 @@ if (annet_format_ut) {
     outfile=outfile, Ngrense=terskel, lavDG = graaUt_lever)
 }
 
+outfile <- figfolder %>% paste0('norgast_accStr3_lever.pdf')
+indikatordata <- norgastBeregnIndikator(RegDataAll,
+                                        ind_id = "norgast_accStr3_lever")
+norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                     N = indikatordata$N,
+                     andeler = indikatordata$andeler,
+                     decreasing = indikatordata$decreasing,
+                     terskel = indikatordata$terskel,
+                     minstekrav = indikatordata$minstekrav,
+                     maal = indikatordata$maal,
+                     utvalgTxt = indikatordata$utvalgTxt,
+                     tittel = indikatordata$tittel,
+                     # skriftStr = input$skriftStr,
+                     lavDG = graaUt_lever,
+                     maalretn = indikatordata$maalretn,
+                     # prikktall = !input$pst_kolonne,
+                     pst_kolonne = FALSE,
+                     outfile = outfile)
+
+
+
+
 outfile <- figfolder %>% paste0('Tilgang_lever_aar.pdf')
 valgtVar <- 'LapTilgang2'
 norgastIndikator_rapporteket(
@@ -294,6 +316,12 @@ if (annet_format_ut) {
 \centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_lever.pdf}
 \caption{AccordionGrad\_lever.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}norgast_accStr3_lever.pdf}
+\caption{norgast\_accStr3\_lever.pdf}
 \end{figure}
 
 \begin{figure}[ht]

@@ -9,7 +9,9 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
                                     xtxt = "Andel (%)",
                                     ytxt = "",
                                     inkl_konf = FALSE,
-                                    outfile='', ...)
+                                    pst_kol = TRUE,
+                                    outfile='',
+                                    farger=NA, ...)
 {
   NorgastUtvalg <- NorgastUtvalg(...)
   RegData <- NorgastUtvalg$RegData
@@ -52,9 +54,11 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
 
   FigTypUt <- rapFigurer::figtype(outfile=outfile,
                                   pointsizePDF=11, fargepalett='BlaaOff')
-  farger <- rev(FigTypUt$farger)
+  if (is.na(farger[1])){
+    farger <- rev(FigTypUt$farger)
+  }
   par('oma'=c(0,1,NutvTxt,0))
-  par('mar'=c(5.1, 5.1, 5.1, 3.1))
+  par('mar'=c(5.1, 5.1, 5.1, 4.1))
 
   if (inkl_konf) {
     xmax <- min(max(aux$konf_hoy, na.rm = T)*1.2, 100)
@@ -80,10 +84,17 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
                  by = c(Grvar1, Grvar2))
   Nlang$pst_txt <- paste0(sprintf("%.1f", Nlang$Andel), " %")
   Nlang <- Nlang %>% arrange(-pos)
-  text(x = 0, y = Nlang$pos, labels = Nlang$pst_txt, pos = 4)
-  mtext(Nlang$N , side=4, line=1, las=1,
+  if (pst_kol){
+    mtext(Nlang$pst_txt , side=4, line=1, las=1,
+          at=Nlang$pos, col=1, cex=0.75, adj = 1, xpd = T)
+    mtext(expression(bold("Andel")), side=4, line=1, las=1, at=Nlang$pos[1]+1,
+          col=1, cex=0.75, adj = 1, xpd = T)
+  } else {
+    text(x = 0, y = Nlang$pos, labels = Nlang$pst_txt, pos = 4)
+  }
+  mtext(Nlang$N , side=4, line=3, las=1,
         at=Nlang$pos, col=1, cex=0.75, adj = 1, xpd = T)
-  mtext(expression(bold("N")), side=4, line=1, las=1, at=Nlang$pos[1]+1,
+  mtext(expression(bold("N")), side=4, line=3, las=1, at=Nlang$pos[1]+1,
         col=1, cex=0.75, adj = 1, xpd = T)
 
   if (inkl_konf){
@@ -98,11 +109,11 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
 
   title(tittel)
   legend("top",
-         legend = levels(RegData[, Grvar2]),
-         pch=15, col=farger[1:ngrvar2level], ncol = ngrvar2level,
+         legend = rev(levels(RegData[, Grvar2])),
+         pch=15, col=rev(farger[1:ngrvar2level]), ncol = ngrvar2level,
          bty='n')
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4],
+  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col="darkgray",
         line=(NutvTxt-1):0, outer=TRUE)
 
   if ( outfile != '') {dev.off()}

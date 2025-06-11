@@ -21,7 +21,7 @@ norgastIndikator_rapporteket <-
            forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, icd_kode='',
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, pst_kolonne=FALSE,
-           ny_anastomose=99, desimaler_pst = 0, kun_oblig = FALSE)
+           ny_anastomose=99, desimaler_pst = 0, kun_oblig = FALSE, mrom=0.3)
   {
     ## Hvis spørring skjer fra R på server. ######################
     if(hentData){
@@ -147,7 +147,7 @@ norgastIndikator_rapporteket <-
     ypos <- barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
                      xlim=c(0,xmax),
                      names.arg=rep('',dim(andeler)[1]),
-                     horiz=T, axes=F, space=c(0,0.3),
+                     horiz=T, axes=F, space=c(0,mrom),
                      col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
 
     fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
@@ -167,7 +167,7 @@ norgastIndikator_rapporteket <-
 
     barplot( t(andeler[,dim(andeler)[2]]), beside=T, las=1,
              names.arg=rep('',dim(andeler)[1]),
-             horiz=T, axes=F, space=c(0,0.3),
+             horiz=T, axes=F, space=c(0,mrom),
              col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
 
     # title(main = tittel, outer=T)
@@ -185,7 +185,7 @@ norgastIndikator_rapporteket <-
       lines(x=rep(maal, 2), y=c(-1, yposOver), col=fargerMaalNiva[1], lwd=2)
       barplot( t(andeler[, dim(andeler)[2]]), beside=T, las=1,
                names.arg=rep('',dim(andeler)[1]),
-               horiz=T, axes=F, space=c(0,0.3),
+               horiz=T, axes=F, space=c(0,mrom),
                col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
       par(xpd=TRUE)
       text(x=maal, y=yposOver, labels = maalTxt, pos = 4, cex=cexgr*0.65, srt = 90) #paste0(maalTxt,maal,'%')
@@ -319,7 +319,7 @@ norgastIndikator_gruppert <-
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, inset = 0,
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, inkl_N = FALSE,
            Grvar1 = "Sykehusnavn", Grvar2 = "Malign", ltop=2, lbunn=1,rotermaaltxt=45,
-           ny_anastomose=99, pst_kolonne=TRUE, kun_oblig=FALSE)
+           ny_anastomose=99, pst_kolonne=TRUE, kun_oblig=FALSE, mrom=0.3)
   {
 
     RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
@@ -487,7 +487,7 @@ norgastIndikator_gruppert <-
     ypos <- barplot( plotdata, beside=T, las=1,
                      xlim=c(0,xmax),
                      names.arg=rep('',dim(plotdata)[2]),
-                     horiz=T, axes=F, space=c(0,0.3),
+                     horiz=T, axes=F, space=c(0,mrom),
                      col=soyleFarger, border=NA, xlab = 'Andel (%)') # '#96BBE7'
 
     fargerMaalNiva <-  c('aquamarine3','#fbf850', 'red')
@@ -521,7 +521,7 @@ norgastIndikator_gruppert <-
       barplot( plotdata, beside=T, las=1,
                xlim=c(0,xmax),
                names.arg=rep('',dim(plotdata)[2]),
-               horiz=T, axes=F, space=c(0,0.3),
+               horiz=T, axes=F, space=c(0,mrom),
                col=soyleFarger, border=NA, xlab = 'Andel (%)', add=TRUE)
       par(xpd=TRUE)
       text(x=maal, y=yposOver, labels = maalTxt, pos = 4, cex=cexgr*0.6, srt = rotermaaltxt) #paste0(maalTxt,maal,'%')
@@ -635,7 +635,7 @@ norgastIndikator_nasjonal <-
            forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
            lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, icd_kode='',
            robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, pst_kolonne=FALSE,
-           ny_anastomose=99, Grvar = "Robotassistanse")
+           ny_anastomose=99, Grvar = "Robotassistanse", mrom=0.3)
   {
 
     # RegData<-RegDataAll;

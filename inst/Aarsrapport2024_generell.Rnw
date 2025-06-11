@@ -743,7 +743,7 @@ outfile <- paste0(figfolder, outfile)
 
 TabellData <- norgast::NorgastBeregnAndeler(
   RegData = RegDataAll,
-  valgtVar = "Aktualitet_oppf",
+  valgtVar = "Aktualitet_oppf_v2",
   datoFra = paste0(rap_aar-1, "-01-01"),
   datoTil = paste0(rap_aar-1, "-12-31"),
   reshID = 0, enhetsUtvalg = 0,
@@ -762,7 +762,7 @@ outfile <- 'Aktualitet_oppf_rapaar.pdf'
 outfile <- paste0(figfolder, outfile)
 TabellData <- norgast::NorgastBeregnAndeler(
   RegData = RegDataAll,
-  valgtVar = "Aktualitet_oppf",
+  valgtVar = "Aktualitet_oppf_v2",
   datoFra = paste0(rap_aar, "-01-01"),
   datoTil = paste0(rap_aar, "-12-31"),
   reshID = 0, enhetsUtvalg = 0,
@@ -775,6 +775,44 @@ norgast::NorgastPlotAndeler(
   fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
   shtxt=TabellData$shtxt
 )
+
+outfile <- 'Aktualitet_oppf60_indikator.pdf'
+outfile <- paste0(figfolder, outfile)
+indikatordata <- norgast::norgastBeregnIndikator(RegDataAll, "norgast_oppf_foer_60d")
+norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                     N = indikatordata$N,
+                     andeler = indikatordata$andeler,
+                     decreasing = indikatordata$decreasing,
+                     terskel = indikatordata$terskel,
+                     minstekrav = indikatordata$minstekrav,
+                     maal = indikatordata$maal,
+                     utvalgTxt = indikatordata$utvalgTxt,
+                     tittel = indikatordata$tittel,
+                     # skriftStr = input$skriftStr,
+                     # lavDG = graaUt_lever,
+                     maalretn = indikatordata$maalretn,
+                     prikktall = FALSE,
+                     pst_kolonne = TRUE,
+                     outfile = outfile)
+
+outfile <- 'Aktualitet_oppf180_indikator.pdf'
+outfile <- paste0(figfolder, outfile)
+indikatordata <- norgast::norgastBeregnIndikator(RegDataAll, "norgast_oppf_ettr_180d")
+norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                     N = indikatordata$N,
+                     andeler = indikatordata$andeler,
+                     decreasing = indikatordata$decreasing,
+                     terskel = indikatordata$terskel,
+                     minstekrav = indikatordata$minstekrav,
+                     maal = indikatordata$maal,
+                     utvalgTxt = indikatordata$utvalgTxt,
+                     tittel = indikatordata$tittel,
+                     # skriftStr = input$skriftStr,
+                     # lavDG = graaUt_lever,
+                     maalretn = indikatordata$maalretn,
+                     prikktall = FALSE,
+                     pst_kolonne = TRUE,
+                     outfile = outfile)
 
 @
 
@@ -790,5 +828,41 @@ norgast::NorgastPlotAndeler(
 \caption{Aktualitet\_oppf\_rapaar.pdf}
 \end{figure}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf60_indikator.pdf}
+\caption{Aktualitet\_oppf60\_indikator.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Aktualitet_oppf180_indikator.pdf}
+\caption{Aktualitet\_oppf180\_indikator.pdf}
+\end{figure}
+
+
+<<'DG-tabell', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+DG <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),
+                fileEncoding = "UTF-8") |>
+  dplyr::filter(Op_gr != 99) |>
+  merge(sh_norgast, by = "AvdRESH", all.x = TRUE) |>
+  merge(RegDataAll[match(1:8, RegDataAll$Op_gr), c("Op_gr", "Operasjonsgrupper")],
+        by = "Op_gr", all.x = TRUE) |>
+  dplyr::mutate(Sykehusnavn = case_when(
+    orgnr_sh == 974631776 ~ "Ahus-Kongsvinger",
+    orgnr_sh == 974795396 ~ "UNN-Narvik",
+    orgnr_sh == 974633159 ~ "Notodden",
+    orgnr_sh == 974631385 ~ "VV-Kongsberg",
+    orgnr_sh == 974795930 ~ "Kirkenes",
+    .default = Sykehusnavn
+  ) ) |>
+  dplyr::filter(!is.na(Sykehusnavn)) |>
+  dplyr::select(Sykehusnavn, Operasjonsgrupper, n_norgast, n_npr, DG)
+
+write.csv2(DG, paste0(tabfolder, "DG_norgast2024.csv"), row.names = F,
+           fileEncoding = "Latin1")
+
+
+@
 
 \end{document}

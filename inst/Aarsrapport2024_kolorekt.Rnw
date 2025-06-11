@@ -808,6 +808,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfil
                                  RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                  datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                  malign=1, ytxt = "",
+                                 farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                  hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -817,6 +818,7 @@ if (annet_format_ut) {
                                    RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                    datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                    malign=1, ytxt = "",
+                                   farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                    hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
 ################################################################################
@@ -897,6 +899,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="konvertert", outfile = outfile,
                                  RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                  datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                  malign=1, ytxt = "",
+                                 farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                  hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -906,6 +909,7 @@ if (annet_format_ut) {
                                    RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                    datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                    malign=1, ytxt = "",
+                                   farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                    hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
 
@@ -1465,7 +1469,7 @@ norgastIndikator_gruppert(
   pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
   graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1, ny_anastomose=1,
-  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2")
+  kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2", mrom = 0.5)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_gruppert(
@@ -1475,7 +1479,7 @@ if (annet_format_ut) {
     pktStr=pktStr, legPlass=legPlass, minstekravTxt=minstekravTxt, maalTxt=maalTxt,
     graaUt=graaUt, inkl_konf=inkl_konf, op_gruppe=op_gruppe, datoFra=datoFra,
     datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid, malign=1,ny_anastomose=1,
-    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2")
+    kun_ferdigstilte = T, prikktall = FALSE, Grvar2 = "AvstandAnalVerge_kat2", mrom = 0.5)
 }
 
 

@@ -3,13 +3,28 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
-#### KRG 07.12.2023 ############################################################
+#### x2ffer mai 2025 ###########################################################
+
+gml <- read.csv2(
+  "~/regdata/norgast/utleveringer/x2fertall21mai2025.csv")
+
+kobling_hnikt <- read.csv2(
+  "~/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_27.05.2025.csv",
+  colClasses = c("integer", "character"))
+
+ny <- merge(gml, kobling_hnikt, by.x = "PasientId", by.y = "PID")
+write.csv2(ny, "~/regdata/norgast/utleveringer/x2fertall21mai2025_m_fnr.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
+
+
+#### KRG mai 2025 ############################################################
 kobling_krg <- read.csv2("~/regdata/norgast/utleveringer/liste_norgast.csv",
                          colClasses = c("character"))
 
 kobling_hnikt <- read.csv2(
   "~/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_27.05.2025.csv",
-                           colClasses = c("integer", "character"))
+  colClasses = c("integer", "character"))
 
 felles  <- merge(kobling_krg, kobling_hnikt, by.x = "FNR", by.y = "SSN",
                  suffixes = c("", "_hnikt")) %>%
@@ -45,10 +60,10 @@ utvalg1 <- RegData |> dplyr::filter(
   OppfStatus != -1 | is.na(OppfStatus)
 ) |>
   dplyr::mutate(#Robot = factor(Robotassistanse, levels = c(1,0),
-                #     labels = c("Robot", "Ikke-robot")),
-         Robot = ifelse(is.na(Robotassistanse), 2, Robotassistanse) |>
-           factor(levels = c(1,0, 2),
-                  labels = c("Robot", "Ikke-robot", "Åpen")))
+    #     labels = c("Robot", "Ikke-robot")),
+    Robot = ifelse(is.na(Robotassistanse), 2, Robotassistanse) |>
+      factor(levels = c(1,0, 2),
+             labels = c("Robot", "Ikke-robot", "Åpen")))
 
 
 sammenstilling1 <- utvalg1 |>

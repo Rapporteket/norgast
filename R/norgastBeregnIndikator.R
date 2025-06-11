@@ -9,7 +9,7 @@
 norgastBeregnIndikator <- function(RegData, ind_id) {
 
   map_resh_orgnr <- data.frame(
-    orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
+    orgnr_sh = c(974733013, 974557746, 974632535,
                  974795787, 974705788, 974633574, 974795639,
                  974724960, 974795361, 993467049, 974631326,
                  974749025, 974706490, 974703300, 974633752,
@@ -18,8 +18,8 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                  974724774, 974631091, 974795477, 974329506,
                  974316285, 974753898, 974631407, 974795558,
                  974795574, 874716782, 974707152, 974589095,
-                 974754118, 974747545, 983974732),
-    resh = c(100353,4204126, 700922, 108355,
+                 974754118, 974747545, 983974732), #, 974631407
+    resh = c(100353, 700922, 108355,
              601225, 103091, 100100, 601231,
              108354, 706264, 700413, 4204082,
              107440, 108162, 114271,4209222,
@@ -28,11 +28,78 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
              701402, 100354, 102145,4211928,
              100170,4212917, 4204084, 700840,
              700841, 103312, 4205289, 106168,
-             4207594, 4216823, 100315))
+             4207594, 4216823, 100315)) #, 4204126
   map_resh_orgnr$Sykehus <- RegData$Sykehusnavn[match(map_resh_orgnr$resh,
                                                       RegData$AvdRESH)]
 
   maalretn <- 'hoy'
+
+
+  ##UNDER ARBEID
+  if (ind_id == "norgast_oppf_foer_60d") {
+    Indikator <- RegData  |>
+      dplyr::filter(FerdigForlop_v2 == 1,
+                    Op_gr %in% 1:8)  |>
+      dplyr::mutate(
+        var = ifelse(is.na(tid_op_lukk_oppf), tid_op_lukk, tid_op_lukk_oppf),
+        var = as.numeric(var < 60),
+        context = "caregiver",
+        denominator = 1,
+        ind_id = "norgast_oppf_foer_60d",
+        orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) |>
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    terskel <- 10
+    minstekrav <- NA
+    maal <- NA
+    decreasing <- FALSE
+    tittel <- c("Andel med ferdigstilt forløp innen", "60 dager etter operasjon")
+    utvalgTxt <- c("Obligatoriske reseksjoner")
+  }
+
+  if (ind_id == "norgast_oppf_ettr_180d") {
+    Indikator <- RegData  |>
+      dplyr::filter(FerdigForlop_v2 == 1,
+                    Op_gr %in% 1:8)  |>
+      dplyr::mutate(
+        var = ifelse(is.na(tid_op_lukk_oppf), tid_op_lukk, tid_op_lukk_oppf),
+        var = as.numeric(var > 180),
+        context = "caregiver",
+        denominator = 1,
+        ind_id = "norgast_oppf_ettr_180d",
+        orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) |>
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    terskel <- 10
+    minstekrav <- NA
+    maal <- NA
+    decreasing <- TRUE
+    tittel <- c("Andel med ferdigstilt forløp senere", "enn 180 dager etter operasjon")
+    utvalgTxt <- c("Obligatoriske reseksjoner")
+  }
+
+  if (ind_id == "norgast_accStr3_lever") {
+    Indikator <- RegData  |>
+      dplyr::filter(Op_gr == 5, # Kun obligatoriske
+                    OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
+                    Hastegrad_hybrid==1)  |>
+      dplyr::mutate(var = KumAcc,
+                    context = "caregiver",
+                    denominator = 1,
+                    ind_id = "norgast_accStr3_lever",
+                    orgnr = map_resh_orgnr$orgnr_sh[match(AvdRESH, map_resh_orgnr$resh)]) |>
+      dplyr::filter(!is.na(var)) %>%
+      dplyr::rename(year = Aar) %>%
+      dplyr::select(context, orgnr, year, var, denominator, ind_id)
+    terskel <- 10
+    minstekrav <- NA
+    maal <- NA
+    decreasing <- TRUE
+    tittel <- "Andel med accordion score \u2265 3"
+    utvalgTxt <- c("Operasjonsgruppe: Leverreseksjoner", "Hastegrad: Elektiv")
+  }
 
   if (ind_id == "norgast_vekt_reg") {
     Indikator <- RegData %>%

@@ -249,6 +249,20 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     retn <- "H"
   }
 
+  if (valgtVar=='Aktualitet_oppf_v2') { # bruker tid_op_lukk når tid_op_lukk_oppf mangler
+    RegData <- RegData[which(RegData$FerdigForlop_v2 == 1), ]
+    tittel <- c('Tid fra operasjon til ferdigstilt oppfølging')
+    RegData$Variabel <- RegData$tid_op_lukk_oppf
+    RegData$Variabel[is.na(RegData$Variabel)] <- RegData$tid_op_lukk[is.na(RegData$Variabel)]
+    gr <- c(0, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,100,110,
+            120,130,160,210, 240, 10000)
+    RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
+    grtxt <- levels(RegData$VariabelGr)
+    grtxt[length(grtxt)] <- paste0('>', as.character(gr[length(gr)-1])) # Større eller lik unicode symbol
+    subtxt <- 'Tid i dager'
+    retn <- "H"
+  }
+
   if (valgtVar=='Vektendring') {  # NA fikset
     RegData <- RegData[!is.na(RegData$Variabel), ]
     tittel <- 'Fra premorbid til preoperativ vektendring'
