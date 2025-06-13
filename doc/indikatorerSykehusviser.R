@@ -6,7 +6,7 @@ rap_aar <- 2024
 
 RegData <-  norgast::NorgastHentRegData()
 RegData <- norgast::NorgastPreprosess(RegData)
-RegData$AvdRESH[RegData$AvdRESH == 4204126] <- 4204084 # Tull med Ringerike
+RegData$AvdRESH[RegData$AvdRESH == 4204084] <- 4204126 # Tull med Ringerike
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
 RegDataOblig <- RegDataOblig[RegDataOblig$Aar <= rap_aar, ]
@@ -28,6 +28,15 @@ for (ind_id in ind[-1]) {
 indikator <- indikator %>% select(-Sykehus)
 
 ### Tilbered dekningsgrad for sykehusviser
+dg_imong <- read.csv2("~/regdata/norgast/imongr_juni2025.csv") |>
+  dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
+
+# DG2024 <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),
+#                 fileEncoding = "UTF-8")
+
+# setdiff(DG2024$orgnr_sh, dg_imong$orgnr)
+# setdiff(dg_imong$orgnr, DG2024$orgnr_sh)
+
 dg_kobl_resh_orgnr <- data.frame(
   orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
                974795787, 974705788, 974633574, 974795639,
@@ -38,7 +47,7 @@ dg_kobl_resh_orgnr <- data.frame(
                974724774, 974631091, 974795477, 974329506,
                974316285, 974753898, 974795558,
                974795574, 874716782, 974707152, 974589095,
-               974754118, 974747545, 983974732),
+               974754118, 974747545, 974744570),
   resh = c(100353,4204126, 700922, 108355,
            601225, 103091, 100100, 601231,
            108354, 706264, 700413, 4204082,
@@ -65,17 +74,17 @@ dg_kobl_resh_orgnr$Sykehus <-
 npr2024 <- read.csv2(
   system.file("extdata/frekvens_norgast_2024.csv", package = "norgast"),
   fileEncoding = "Latin1") |>
-  dplyr::mutate(sh = case_when(sh == 974744570 ~ 983974732,
-                               sh == 974588951 ~ 974589095,
-                               .default = sh),
-                Op_gr = case_when(hierarki == "Kolon" ~ 1,
-                                  hierarki == "Rektum" ~ 2,
-                                  hierarki == "Øsofagus" ~ 3,
-                                  hierarki == "Ventrikkel" ~ 4,
-                                  hierarki == "Lever" ~ 5,
-                                  hierarki == "Whipple" ~ 6,
-                                  hierarki == "Distal_pankreas" ~ 7,
-                                  hierarki == "Andre_pankreas" ~ 8)) |>
+  dplyr::mutate(sh = case_when(#sh == 974744570 ~ 983974732,
+    sh == 974588951 ~ 974589095,
+    .default = sh),
+    Op_gr = case_when(hierarki == "Kolon" ~ 1,
+                      hierarki == "Rektum" ~ 2,
+                      hierarki == "Øsofagus" ~ 3,
+                      hierarki == "Ventrikkel" ~ 4,
+                      hierarki == "Lever" ~ 5,
+                      hierarki == "Whipple" ~ 6,
+                      hierarki == "Distal_pankreas" ~ 7,
+                      hierarki == "Andre_pankreas" ~ 8)) |>
   dplyr::summarise(n_npr = sum(n),
                    .by = c(Op_gr, sh))
 
@@ -105,11 +114,32 @@ dg_norgast_samlet <- dg_norgast |>
   mutate(Op_gr = 99)
 
 samlet <- bind_rows(dg_norgast, dg_norgast_samlet) |>
-  mutate(DG = ifelse(DG > 100, 100, DG))
+  mutate(var = ifelse(n_norgast > n_npr, n_npr, n_norgast),
+         context = "caregiver",
+         year = 2024,
+         ind_id = case_when(
+           Op_gr == 1 ~ "norgast_dg_tykktarm",
+           Op_gr == 2 ~ "norgast_dg_endetarm",
+           Op_gr == 3 ~ "norgast_dg_spiseroer",
+           Op_gr == 4 ~ "norgast_dg_magesekk",
+           Op_gr == 5 ~ "norgast_dg_lever",
+           Op_gr %in% 6:8 ~ "norgast_dg_pankreas",
+           Op_gr == 99 ~ "norgast_dg_total"
+         )
+  ) |>
+  rename(denominator = n_npr,
+         orgnr = orgnr_sh) |>
+  select(context, orgnr, year, var, denominator, ind_id) |>
+  bind_rows(indikator)
 
-write.csv2(samlet, "inst/extdata/dg2024.csv",
+
+write.csv2(samlet, "~/regdata/norgast/behandlingskvalitet/beh_kval_2024.csv",
            fileEncoding = "UTF-8", row.names = F)
 
+
+# write.csv2(samlet, "inst/extdata/dg2024.csv",
+#            fileEncoding = "UTF-8", row.names = F)
+#
 
 # intersect(npr2024$sh, dg_kobl_resh_orgnr$orgnr_sh)
 # setdiff(npr2024$sh, dg_kobl_resh_orgnr$orgnr_sh)
