@@ -127,7 +127,9 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     Indikator <- RegData %>%
       dplyr::filter(Op_gr %in% 1:8, # Kun obligatoriske
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
-                    Hastegrad_hybrid==1) %>%
+                    Hastegrad_hybrid==1,
+                    Malign == 1
+                    ) %>%
       dplyr::mutate(var = ifelse(is.na(VekttapProsent), 0, 1),
                     context = "caregiver",
                     denominator = 1,
@@ -141,7 +143,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     maal <- 90
     decreasing <- F
     tittel <- "Andel med premorbid vekttap registrert"
-    utvalgTxt <- c("Hastegrad: Elektiv")
+    utvalgTxt <- c("Hastegrad: Elektiv", "Diagnose: malign")
   }
 
   if (ind_id == "norgast_aktivkontroll") {

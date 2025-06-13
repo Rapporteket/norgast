@@ -27,6 +27,10 @@ for (ind_id in ind[-1]) {
 
 indikator <- indikator %>% select(-Sykehus)
 
+ind_tmp <- indikator |> dplyr::filter(ind_id == "norgast_vekt_reg")
+write.csv2(ind_tmp, "~/regdata/norgast/behandlingskvalitet/vekttap.csv",
+           fileEncoding = "UTF-8", row.names = F)
+
 ### Tilbered dekningsgrad for sykehusviser
 dg_imong <- read.csv2("~/regdata/norgast/imongr_juni2025.csv") |>
   dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
