@@ -808,7 +808,7 @@ norgast::norgastAndelGruppert2Gr(valgtVar="Anastomoselekkasje", outfile = outfil
                                  RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                  datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                  malign=1, ytxt = "",
-                                 farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
+                                 # farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                  hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
@@ -818,7 +818,7 @@ if (annet_format_ut) {
                                    RegData = RegDataAll, datoFra=paste0(rap_aar-2, "-01-01"),
                                    datoTil=paste0(rap_aar, "-12-31"),op_gruppe=1,
                                    malign=1, ytxt = "",
-                                   farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
+                                   # farger = c("darkgreen", "lightgreen", "darkblue", "lightblue"),
                                    hastegrad = 1, whoEcog = 0:1, inkl_konf = TRUE)
 }
 ################################################################################

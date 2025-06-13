@@ -239,7 +239,24 @@ norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
                      # prikktall = !input$pst_kolonne,
                      pst_kolonne = FALSE,
                      outfile = outfile)
-
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                     N = indikatordata$N,
+                     andeler = indikatordata$andeler,
+                     decreasing = indikatordata$decreasing,
+                     terskel = indikatordata$terskel,
+                     minstekrav = indikatordata$minstekrav,
+                     maal = indikatordata$maal,
+                     utvalgTxt = indikatordata$utvalgTxt,
+                     tittel = indikatordata$tittel,
+                     # skriftStr = input$skriftStr,
+                     lavDG = graaUt_lever,
+                     maalretn = indikatordata$maalretn,
+                     # prikktall = !input$pst_kolonne,
+                     pst_kolonne = FALSE,
+                     outfile = outfile)
+}
 
 
 

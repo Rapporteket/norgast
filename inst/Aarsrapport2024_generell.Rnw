@@ -492,8 +492,8 @@ print(xtable::xtable(
 #   tidyr::pivot_wider(names_from = Operasjonsgrupper, values_from = N,values_fill = 0) %>%
 #   arrange(Hoveddiagnose) %>%
 #   janitor::adorn_totals(where = c("row", "col"), name = c("Total", "Total"))# %>%
-  # write.csv2("~/norgast/doc/inflames.csv",
-  #            fileEncoding = 'Latin1')
+# write.csv2("~/norgast/doc/inflames.csv",
+#            fileEncoding = 'Latin1')
 
 
 # write.csv2(Tabell, paste0(tabfolder, "RegistrenrendeAvd.csv"),
@@ -756,6 +756,16 @@ norgast::NorgastPlotAndeler(
   fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
   shtxt=TabellData$shtxt
 )
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::NorgastPlotAndeler(
+    outfile = outfile,
+    PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+    Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+    fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+    shtxt=TabellData$shtxt
+  )
+}
 
 
 outfile <- 'Aktualitet_oppf_rapaar.pdf'
@@ -775,6 +785,16 @@ norgast::NorgastPlotAndeler(
   fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
   shtxt=TabellData$shtxt
 )
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgast::NorgastPlotAndeler(
+    outfile = outfile,
+    PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+    Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+    fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+    shtxt=TabellData$shtxt
+  )
+}
 
 outfile <- 'Aktualitet_oppf60_indikator.pdf'
 outfile <- paste0(figfolder, outfile)
@@ -794,6 +814,24 @@ norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
                      prikktall = FALSE,
                      pst_kolonne = TRUE,
                      outfile = outfile)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                       N = indikatordata$N,
+                       andeler = indikatordata$andeler,
+                       decreasing = indikatordata$decreasing,
+                       terskel = indikatordata$terskel,
+                       minstekrav = indikatordata$minstekrav,
+                       maal = indikatordata$maal,
+                       utvalgTxt = indikatordata$utvalgTxt,
+                       tittel = indikatordata$tittel,
+                       # skriftStr = input$skriftStr,
+                       # lavDG = graaUt_lever,
+                       maalretn = indikatordata$maalretn,
+                       prikktall = FALSE,
+                       pst_kolonne = TRUE,
+                       outfile = outfile)
+}
 
 outfile <- 'Aktualitet_oppf180_indikator.pdf'
 outfile <- paste0(figfolder, outfile)
@@ -813,6 +851,76 @@ norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
                      prikktall = FALSE,
                      pst_kolonne = TRUE,
                      outfile = outfile)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
+                       N = indikatordata$N,
+                       andeler = indikatordata$andeler,
+                       decreasing = indikatordata$decreasing,
+                       terskel = indikatordata$terskel,
+                       minstekrav = indikatordata$minstekrav,
+                       maal = indikatordata$maal,
+                       utvalgTxt = indikatordata$utvalgTxt,
+                       tittel = indikatordata$tittel,
+                       # skriftStr = input$skriftStr,
+                       # lavDG = graaUt_lever,
+                       maalretn = indikatordata$maalretn,
+                       prikktall = FALSE,
+                       pst_kolonne = TRUE,
+                       outfile = outfile)
+}
+
+valgtVar <- "straaling"
+outfile <- "bestraalt.pdf"
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  datoFra=datoFra, datoTil=datoTil,
+  malign=malign, icd_kode = "C20", kun_oblig = TRUE) #
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    datoFra=datoFra, datoTil=datoTil,
+    malign=malign, icd_kode = "C20", kun_oblig = TRUE)
+}
+
+# mapping <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH),
+#                       c("AvdRESH", "SykehusNavn")] |>
+#   write.csv2("map_hf.csv", row.names = F, fileEncoding = "Latin1")
+
+mapping <- read.csv2("~/regdata/norgast/map_hf.csv", fileEncoding = "Latin1")
+aux <- RegDataAll |>
+  dplyr::mutate(Sykehusnavn = mapping$HF[match(AvdRESH, mapping$AvdRESH)])
+outfile <- "bestraalt_hf.pdf"
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+  lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+  datoFra=datoFra, datoTil=datoTil,
+  malign=malign, icd_kode = "C20", kun_oblig = TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
+    lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
+    datoFra=datoFra, datoTil=datoTil,
+    malign=malign, icd_kode = "C20", kun_oblig = TRUE)
+}
 
 @
 
@@ -859,8 +967,31 @@ DG <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),
   dplyr::filter(!is.na(Sykehusnavn)) |>
   dplyr::select(Sykehusnavn, Operasjonsgrupper, n_norgast, n_npr, DG)
 
-write.csv2(DG, paste0(tabfolder, "DG_norgast2024.csv"), row.names = F,
+DG <- DG |> dplyr::select(-DG) |>
+  janitor::adorn_totals(name = "Samlet") |>
+  dplyr::group_by(Operasjonsgrupper) |>
+  dplyr::group_modify(~ .x |> janitor::adorn_totals(name = "Norge")) |>
+  dplyr::filter(Sykehusnavn != "Samlet") |>
+  dplyr::mutate(
+    Operasjonsgrupper= ifelse(Operasjonsgrupper == "-", "Samlet", Operasjonsgrupper),
+    DG = pmin(100, n_norgast/n_npr*100))
+
+
+write.csv2(DG, paste0(tabfolder, "DG_norgast2024_v2.csv"), row.names = F,
            fileEncoding = "Latin1")
+
+DG_tab_opgr <- DG |>
+  dplyr::filter(Sykehusnavn == "Norge",
+                Operasjonsgrupper != "Samlet") |>
+  dplyr::select(-Sykehusnavn) |>
+  dplyr::arrange(-DG) |>
+  janitor::adorn_totals() |>
+  dplyr::mutate(DG = ifelse(Operasjonsgrupper == "Total", n_norgast/n_npr*100, DG))
+
+print(xtable::xtable(
+  DG_tab_opgr, digits=c(0,0,0,0,1), align=c('l', 'l', rep('r', ncol(DG_tab_opgr)-1)),
+  caption='Dekningsgrad per operasjonsgruppe'),
+  include.rownames=FALSE)
 
 
 @
