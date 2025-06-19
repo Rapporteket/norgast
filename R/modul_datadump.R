@@ -21,7 +21,7 @@ datadump_ui <- function(id){
                                                     unit = "year"),
                      end = Sys.Date(), separator = " til "),
       selectInput(inputId = ns("dumptype"), label = "Velg type datadump",
-                  choices = c('AlleVar', 'allevarnum', 'forlopsoversikt',
+                  choices = c('allevarnum', 'forlopsoversikt',
                               'skjemaoversikt')),
       shinyjs::hidden(uiOutput(outputId = ns('op_gruppe_ui'))),
       shinyjs::hidden(uiOutput(outputId = ns('ncsp'))),
@@ -41,8 +41,6 @@ datadump_ui <- function(id){
              registreringer i kladd er inkludert i datadump.'),
           br(),
           h4(tags$b(tags$u('Forklaring til de ulike datadump-typene:'))),
-          h4(tags$b('AlleVar '), 'inneholder alle kliniske variabler i registeret
-             og benytter etikettene til kategoriske variabler.'),
           h4(tags$b('allevarnum '), 'inneholder alle kliniske variabler i
              registeret og benytter tallkodene til kategoriske variabler.'),
           h4(tags$b('forlopsoversikt '), 'inneholder en del administrative data
@@ -179,7 +177,7 @@ datadump_server <- function(id, reshID, RegData,
           } else {
             tmpData <- read.table(paste0('I:/norgast/', input$dumptype, '2021-06-02 08-20-32.txt'), header=TRUE, sep=";", encoding = 'UTF-8', stringsAsFactors = F)
           }
-          if (input$dumptype %in% c('AlleVar', 'allevarnum')) {
+          if (input$dumptype %in% c('allevarnum')) {
             tmpData$HovedDato <- tmpData$OpDato
           }
           dumpdata <- tmpData[as.Date(tmpData$HovedDato) >= input$datovalg[1] &

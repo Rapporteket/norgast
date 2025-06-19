@@ -28,9 +28,10 @@ overlevelse_ui <- function(id){
         start  = lubridate::floor_date(lubridate::today() -
                                          lubridate::years(5), unit = "year"),
         end = Sys.Date(), language = "nb", separator = " til "),
-      selectInput(inputId = ns("enhetsUtvalg"),
-                  label = "Velg enhet",
-                  choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      # selectInput(inputId = ns("enhetsUtvalg"),
+      #             label = "Velg enhet",
+      #             choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      uiOutput(outputId = ns('enhetsUtvalg_ui')),
       uiOutput(ns("valgtShus_ui")),
       uiOutput(ns("tilgang_utvidet_ui")),
       sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
@@ -89,6 +90,7 @@ overlevelse_ui <- function(id){
       tabsetPanel(
         tabPanel("Versjon 1",
                  h2("Kaplan-Meier overlevelseskurver", align='center'),
+                 h3("(Under arbeid)", align='center', style = "color:red"),
                  h4("Her kan du plotte overlevelseskurver for to distinkte utvalg. Det er
       ikke helt rett frem å bruke verktøyet, og brukeren bør være oppmerksom på
          måten utvalgene gjøres: "),
@@ -180,8 +182,9 @@ overlevelse_ui <- function(id){
         start  = lubridate::floor_date(lubridate::today() - lubridate::years(5),
                                        unit = "year"),
         end = Sys.Date(), language = "nb", separator = " til "),
-      selectInput(inputId = ns("enhetsUtvalg2"), label = "Velg enhet",
-                  choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      # selectInput(inputId = ns("enhetsUtvalg2"), label = "Velg enhet",
+      #             choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      uiOutput(outputId = ns('enhetsUtvalg2_ui')),
       uiOutput(ns("valgtShus2_ui")),
       uiOutput(ns("tilgang_utvidet2_ui")),
       sliderInput(inputId=ns("alder2"), label = "Alder", min = 0,
@@ -299,8 +302,22 @@ overlevelse_server <- function(id, reshID, RegData,
         }
       })
 
-
-
+      output$enhetsUtvalg_ui <- renderUI({
+        ns <- session$ns
+        if (userRole() != 'SC') {
+          selectInput(inputId = ns("enhetsUtvalg"),
+                      label = "Velg enhet",
+                      choices = c('Hele landet'=0, 'Egen avdeling'=2))
+        }
+      })
+      output$enhetsUtvalg2_ui <- renderUI({
+        ns <- session$ns
+        if (userRole() != 'SC') {
+          selectInput(inputId = ns("enhetsUtvalg2"),
+                      label = "Velg enhet",
+                      choices = c('Hele landet'=0, 'Egen avdeling'=2))
+        }
+      })
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
         if (userRole() == 'SC') {
@@ -308,7 +325,6 @@ overlevelse_server <- function(id, reshID, RegData,
                       choices = BrValg$sykehus, multiple = TRUE)
         }
       })
-
       output$valgtShus2_ui <- renderUI({
         ns <- session$ns
         if (userRole() == 'SC') {

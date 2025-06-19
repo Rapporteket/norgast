@@ -14,9 +14,10 @@ saml_andeler_ui <- function(id){
            id = ns("id_overlevelse_panel"),
            h4(tags$b('Utvalg 1')),
            br(),
-           selectInput(inputId = ns("enhetsUtvalg"),
-                       label = "Velg enhet",
-                       choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+           # selectInput(inputId = ns("enhetsUtvalg"),
+           #             label = "Velg enhet",
+           #             choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+           uiOutput(outputId = ns('enhetsUtvalg_ui')),
            uiOutput(outputId = ns('valgtShus_ui')),
            uiOutput(outputId = ns('tilgang_utvidet_ui')),
            sliderInput(inputId=ns("alder"), label = "Alder", min = 0,
@@ -59,6 +60,7 @@ saml_andeler_ui <- function(id){
     ),
     column(8,
            h2("Sammenlign andeler over tid", align='center'),
+           h3("(Under arbeid)", align='center', style = "color:red"),
            h4("Her kan du sammenligne andeler over tid for to distinkte utvalg.
            Det er ikke helt rett frem å bruke verktøyet, og
               brukeren bør være oppmerksom på måten utvalgene gjøres: "),
@@ -144,9 +146,10 @@ saml_andeler_ui <- function(id){
       id = ns("id_overlevelse_panel2"),
       h4(tags$b('Utvalg 2')),
       br(),
-      selectInput(inputId = ns("enhetsUtvalg2"),
-                  label = "Velg enhet",
-                  choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      # selectInput(inputId = ns("enhetsUtvalg2"),
+      #             label = "Velg enhet",
+      #             choices = c('Hele landet'=0, 'Egen avdeling'=2)),
+      uiOutput(outputId = ns('enhetsUtvalg2_ui')),
       uiOutput(outputId = ns('valgtShus2_ui')),
       uiOutput(outputId = ns('tilgang_utvidet2_ui')),
       sliderInput(inputId=ns("alder2"), label = "Alder", min = 0,
@@ -210,18 +213,15 @@ saml_andeler_server <- function(id, reshID, RegData,
         shinyjs::reset("id_overlevelse_panel2")
       })
 
-      # observe(
-      #   if (userRole() != 'SC') {
-      #     shinyjs::hide(id = 'valgtShus')
-      #     shinyjs::hide(id = 'valgtShus2')
-      #   })
-
-      observe(
-        if (userRole() == 'SC') {
-          shinyjs::hide(id = 'enhetsUtvalg')
-          shinyjs::hide(id = 'enhetsUtvalg2')
-        })
-
+      # observeEvent(userRole(), {
+      #   if (userRole() == 'SC') {
+      #     shinyjs::hide(id = 'enhetsUtvalg')
+      #     shinyjs::hide(id = 'enhetsUtvalg2')
+      #   } else {
+      #     shinyjs::show(id = 'enhetsUtvalg')
+      #     shinyjs::show(id = 'enhetsUtvalg2')
+      #   }}
+      # )
 
       output$ncsp <- renderUI({
         ns <- session$ns
@@ -246,7 +246,22 @@ saml_andeler_server <- function(id, reshID, RegData,
       })
 
 
-
+      output$enhetsUtvalg_ui <- renderUI({
+        ns <- session$ns
+        if (userRole() != 'SC') {
+          selectInput(inputId = ns("enhetsUtvalg"),
+                      label = "Velg enhet",
+                      choices = c('Hele landet'=0, 'Egen avdeling'=2))
+        }
+      })
+      output$enhetsUtvalg2_ui <- renderUI({
+        ns <- session$ns
+        if (userRole() != 'SC') {
+          selectInput(inputId = ns("enhetsUtvalg2"),
+                      label = "Velg enhet",
+                      choices = c('Hele landet'=0, 'Egen avdeling'=2))
+        }
+      })
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
         if (userRole() == 'SC') {
@@ -254,7 +269,6 @@ saml_andeler_server <- function(id, reshID, RegData,
                       choices = BrValg$sykehus, multiple = TRUE)
         }
       })
-
       output$valgtShus2_ui <- renderUI({
         ns <- session$ns
         if (userRole() == 'SC') {
