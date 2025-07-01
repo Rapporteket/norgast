@@ -9,7 +9,7 @@ COPY *.tar.gz .
 
 RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))" \
   && rm ./*.tar.gz \
-  && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"generaliser_exportapp\")"
+  && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"ant_linjer_autorapport\")"
 
 EXPOSE 3838
 
