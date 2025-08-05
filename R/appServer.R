@@ -167,6 +167,7 @@ appServer <- function(input, output, session) {
 
   ## Stats
   rapbase::statsServer("norgastStats", registryName = "norgast",
+                       app_id = Sys.getenv("FALK_APP_ID"),
                        eligible = (userRole == "SC"))
   rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
 
