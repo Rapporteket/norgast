@@ -259,7 +259,8 @@ utlevernavn <- utlevernavn[
 
 allevarnum <- rapbase::loadRegData("data", "SELECT * FROM allevarnum")
 forlopsoversikt <- rapbase::loadRegData(
-  "data", "SELECT ForlopsID, SykehusNavn, Fodselsdato, PasientKjonn FROM forlopsoversikt")
+  "data", "SELECT ForlopsID, SykehusNavn, Fodselsdato,
+  PasientKjonn FROM forlopsoversikt")
 utlevering <- merge(allevarnum, forlopsoversikt, by = "ForlopsID") |>
   dplyr::filter(RegistreringStatus == 1) |>
   dplyr::select(ForlopsID, SykehusNavn, SenterNavn, utlevernavn$rapnavn) |>
