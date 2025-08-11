@@ -16,6 +16,8 @@ Imports:
   DT,
   tidyverse,
   kableExtra,
+  lubridate,
+  magrittr,
   shinyjs,
   rapbase,
   rapFigurer,
