@@ -70,10 +70,10 @@ sammenstilling1 <- utvalg1 |>
   # dplyr::filter(Tilgang != 1) |>
   summarise(ant = sum(Anastomoselekkasje == 1),
             N = n(),
-            .by = c(SykehusNavn, Aar, Robot)) |>
+            .by = c(Sykehusnavn, Aar, Robot)) |>
   group_by(Aar, Robot) |>
   group_modify(~ .x |> janitor::adorn_totals()) |>
-  group_by(Aar, SykehusNavn) |>
+  group_by(Aar, Sykehusnavn) |>
   group_modify(~ .x |> janitor::adorn_totals()) |>
   mutate(andel = ant/N*100,
          andel = paste0(sprintf("%.1f", andel), "% (", N, ")")) |>
@@ -84,10 +84,10 @@ sammenstilling2 <- utvalg1 |>
   # dplyr::filter(Tilgang != 1) |>
   summarise(ant = sum(Anastomoselekkasje == 1),
             N = n(),
-            .by = c(SykehusNavn, Robot)) |>
+            .by = c(Sykehusnavn, Robot)) |>
   group_by(Robot) |>
   group_modify(~ .x |> janitor::adorn_totals()) |>
-  group_by(SykehusNavn) |>
+  group_by(Sykehusnavn) |>
   group_modify(~ .x |> janitor::adorn_totals()) |>
   mutate(andel = ant/N*100,
          andel = paste0(sprintf("%.1f", andel), "% (", N, ")")) |>
@@ -218,7 +218,7 @@ utlevering <- RegData %>%
   dplyr::filter(Aar %in% 2016:2023 &
                   ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+                  "PasientID", "PasientKjonn", "AvdRESH", "Sykehusnavn", "ForlopsID", "Alder")) %>%
   merge(kobling, by.x = "PasientID", by.y = "PID") %>%
   mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
   select(-"SSN") %>%
@@ -259,11 +259,11 @@ utlevernavn <- utlevernavn[
 
 allevarnum <- rapbase::loadRegData("data", "SELECT * FROM allevarnum")
 forlopsoversikt <- rapbase::loadRegData(
-  "data", "SELECT ForlopsID, SykehusNavn, Fodselsdato,
+  "data", "SELECT ForlopsID, Sykehusnavn, Fodselsdato,
   PasientKjonn FROM forlopsoversikt")
 utlevering <- merge(allevarnum, forlopsoversikt, by = "ForlopsID") |>
   dplyr::filter(RegistreringStatus == 1) |>
-  dplyr::select(ForlopsID, SykehusNavn, SenterNavn, utlevernavn$rapnavn) |>
+  dplyr::select(ForlopsID, Sykehusnavn, SenterNavn, utlevernavn$rapnavn) |>
   dplyr::mutate(
     ncsp_kode = stringr::str_extract(Hovedoperasjon, "^[^\\s]+"),
     ncsp_tekst = stringr::str_extract(Hovedoperasjon, "\\s.+"),
@@ -485,7 +485,7 @@ utlevering <- RegData %>%
   dplyr::filter(Aar %in% 2016:2022 &
                   ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+                  "PasientID", "PasientKjonn", "AvdRESH", "Sykehusnavn", "ForlopsID", "Alder")) %>%
   merge(kobling, by.x = "PasientID", by.y = "PID") %>%
   mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
   select(-"SSN") %>%
@@ -531,7 +531,7 @@ RegData_proc <- norgast::NorgastPreprosess(RegData)
 galler1 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
   summarise(N = n(), .by = AvdRESH)
 galler2 <- RegData %>% filter(substr(toupper(Hovedoperasjon), 1,2) == "JK") %>%
-  summarise(N = n(), .by = SykehusNavn)
+  summarise(N = n(), .by = Sykehusnavn)
 
 
 ###### DG-analysetall NPR  2024-04-30 ##########################################
@@ -566,7 +566,7 @@ kobling_hnikt <- read.csv2("~/mydata/norgast/NoRGast_koblingstabell_datadump_04.
                            colClasses = c("integer", "character"))
 
 pid <- merge(allevarnum, forlop, by = "ForlopsID") %>%
-  dplyr::filter(substr(SykehusNavn, 1,3) == "OUS",
+  dplyr::filter(substr(Sykehusnavn, 1,3) == "OUS",
                 tolower(substr(Hovedoperasjon, 1,3)) == "jjb",
                 tolower(substr(Hoveddiagnose, 1,4)) == "c221",
                 OpDato >= "2019-01-01") %>%
@@ -704,7 +704,7 @@ utlevering <- RegData %>%
   dplyr::filter(Aar %in% 2016:2022 &
                   ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+                  "PasientID", "PasientKjonn", "AvdRESH", "Sykehusnavn", "ForlopsID", "Alder")) %>%
   merge(kobling, by.x = "PasientID", by.y = "PID") %>%
   mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
   select(-"SSN") %>%
@@ -1010,7 +1010,7 @@ RegData <- RegData %>%
 
 mapping_npr <- dplyr::bind_cols(
   mapping_npr,
-  "Sykehusnavn"=RegData$SykehusNavn[match(mapping_npr$AvdRESH, RegData$AvdRESH)])
+  "Sykehusnavn"=RegData$Sykehusnavn[match(mapping_npr$AvdRESH, RegData$AvdRESH)])
 
 norgasttall <- RegData %>% group_by(Op_gr, sh) %>%
   summarise(N_norgast = n())
@@ -1179,7 +1179,7 @@ utlevering <- RegData %>%
   dplyr::filter(Aar %in% 2016:2021 &
                   ncsp_lowercase %in% c("jlc10", "jlc11", "jlc30", "jlc31")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID", "Alder")) %>%
+                  "PasientID", "PasientKjonn", "AvdRESH", "Sykehusnavn", "ForlopsID", "Alder")) %>%
   merge(kobling, by.x = "PasientID", by.y = "PID") %>%
   mutate(fdato = paste0(substr(SSN, 1,2), ".", substr(SSN, 3,4), ".", substr(SSN, 5,6))) %>%
   select(-"SSN")
@@ -1207,10 +1207,10 @@ RegData <- norgast::NorgastPreprosess(RegData)
 
 utlevering <- RegData %>%
   dplyr::filter(Aar == 2019 &
-                  SykehusNavn %in% c("OUS-Radiumhospitalet", "OUS-Rikshospitalet", "OUS-Ullevål") &
+                  Sykehusnavn %in% c("OUS-Radiumhospitalet", "OUS-Rikshospitalet", "OUS-Ullevål") &
                   ncsp_lowercase %in% c("jka20", "jka21", "jka96", "jka97")) %>%
   dplyr::select(c(rappnavn_utlevering$rapporteket,
-                  "PasientID", "PasientKjonn", "AvdRESH", "SykehusNavn", "ForlopsID"))
+                  "PasientID", "PasientKjonn", "AvdRESH", "Sykehusnavn", "ForlopsID"))
 
 write.csv2(utlevering, "~/mydata/norgast/kolocytectomi_ous_2019.csv", row.names = F, fileEncoding = "Latin1")
 
@@ -1265,7 +1265,7 @@ RegData <- rapbase::loadStagingData("norgast", "RegData")
 
 krissdata <- RegData %>% filter(HovedDato >= "2016-01-01" &
                                   HovedDato < "2023-01-01") %>%
-  filter(SykehusNavn == "OUS-Rikshospitalet") %>%
+  filter(Sykehusnavn == "OUS-Rikshospitalet") %>%
   filter(substr(Hoveddiagnose, 1, 3) == "C22")
 
 fnr <- readr::read_csv2("~/mydata/NoRGast_koblingstabell_datadump_06.02.2023.csv")
@@ -1452,7 +1452,7 @@ RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                       "AvstandAnalVerge")]
-names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+names(ForlopData)[match(c("Sykehusnavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess(RegData)
@@ -1484,7 +1484,7 @@ RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                       "AvstandAnalVerge")]
-names(ForlopData)[match(c("SykehusNavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
+names(ForlopData)[match(c("Sykehusnavn", "erMann"), names(ForlopData))] <- c("Sykehusnavn", "ErMann")
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess_behold_kladd(RegData)
@@ -1503,7 +1503,7 @@ RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                       "AvstandAnalVerge")]
-names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+names(ForlopData)[names(ForlopData) %in% c("Sykehusnavn", "erMann")] <- c("Sykehusnavn", "ErMann")
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 RegData <- NorgastPreprosess_behold_kladd(RegData)
@@ -1539,7 +1539,7 @@ RegData <- RegData[,c('ForlopsID','VekttapProsent','MedDiabetes','KunCytostatika
                       'AccordionGrad', 'PRSScore','RegistreringStatus', 'OppfStatus', 'OppfAccordionGrad',
                       'OppfReLapNarkose', 'OppfViktigsteFunn', 'Avdod', 'AvdodDato', 'BMI', 'Hoveddiagnose', "Hastegrad",
                       "AvstandAnalVerge")]
-names(ForlopData)[names(ForlopData) %in% c("SykehusNavn", "erMann")] <- c("Sykehusnavn", "ErMann")
+names(ForlopData)[names(ForlopData) %in% c("Sykehusnavn", "erMann")] <- c("Sykehusnavn", "ErMann")
 ForlopData <- ForlopData[,c('ErMann', 'AvdRESH', 'Sykehusnavn', 'PasientAlder', 'HovedDato', 'BasisRegStatus', 'ForlopsID', 'PasientID')]
 RegData <- merge(RegData, ForlopData, by.x = "ForlopsID", by.y = "ForlopsID")
 

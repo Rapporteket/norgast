@@ -894,7 +894,7 @@ if (annet_format_ut) {
 }
 
 # mapping <- RegDataAll[match(unique(RegDataAll$AvdRESH), RegDataAll$AvdRESH),
-#                       c("AvdRESH", "SykehusNavn")] |>
+#                       c("AvdRESH", "Sykehusnavn")] |>
 #   write.csv2("map_hf.csv", row.names = F, fileEncoding = "Latin1")
 
 mapping <- read.csv2("~/regdata/norgast/map_hf.csv", fileEncoding = "Latin1")
