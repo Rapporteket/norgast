@@ -10,7 +10,6 @@
 appServer <- function(input, output, session) {
   rapbase::logShinyInputChanges(input)
 
-  # RegData <-  norgast::NorgastHentRegData()
   appdata <- norgast::NorgastHentData()
   RegData <- appdata$RegData
   map_avdeling <- data.frame(
@@ -25,29 +24,20 @@ appServer <- function(input, output, session) {
     map_orgname = shiny::req(map_avdeling)
   )
 
-  # skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   skjemaoversikt <- appdata$skjemaoversikt
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
   skjemaoversikt <- merge(skjemaoversikt,
                           RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")],
                           by = "ForlopsID", all.x = T)
-  RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  RegData <- RegData[which(RegData$RegistreringStatus==1), ]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
-  # query <- "SELECT * FROM user"
-  # brukerinfo <- rapbase::loadRegData("data", query, "mysql") |>
-  #   dplyr::mutate(fullname = paste0(FIRSTNAME, " ", LASTNAME))
-  # RegData$ForstLukketAv <-
-  #   brukerinfo$fullname[match(RegData$ForstLukketAv, brukerinfo$ID)]
-  # RegData$OppfForstLukketAv <-
-  #   brukerinfo$fullname[match(RegData$OppfForstLukketAv, brukerinfo$ID)]
   BrValg <- norgast::BrValgNorgastShiny(RegData)
 
   rapbase::appLogger(session = session, msg = 'Starter NORGAST')
 
   shiny::observeEvent(
     shiny::req(user$role()), {
-      # print(user$role())
       if (user$role() != 'SC') {
         shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
         shiny::hideTab("norgast_app_id", target = "Utsending")
