@@ -15,5 +15,5 @@ NorgastHentData(datoFra = "2014-01-01", datoTil = "2099-01-01")
 RegData data frame
 }
 \description{
-Provides NORGAST data from database
+Provides NORGAST data from staging
 }

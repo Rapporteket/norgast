@@ -12,6 +12,17 @@ varnavn <- readxl::read_xlsx(
   tidyr::separate(col="Databasereferanse",
                   into=c("tabell", "var_navn"),
                   extra = "merge")
+krg_pas_alle <- read.csv(
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/utleveringer/H_1101_du4356_norderval_nokkel.csv",
+  colClasses = c("character", "integer")
+)
+kobl_fnr <- read.csv2(
+  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
+  colClasses = c("integer", "character")
+) |>
+  dplyr::rename(FNR = SSN)
+krg_pas <- merge(krg_pas_alle, kobl_fnr, by = "FNR")
+
 varnavn_kobl <-
   data.frame(
     kol =
@@ -122,16 +133,21 @@ varnavn_kobl <-
 
 appdata <- norgast::NorgastHentData()
 RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
-  dplyr::select(varnavn_kobl$rapporteket) |>
-  dplyr::filter(OpDato <= "2023-12-31")
+  dplyr::select(varnavn_kobl$rapporteket, PasientID) |>
+  dplyr::filter(OpDato <= "2023-12-31",
+                PasientID %in% krg_pas$PID)
 
+til_krg <- krg_pas |> dplyr::filter(PID %in% RegData$PasientID) |>
+  dplyr::select(P_pidKrg)
 
-# registration <- rapbase::loadRegData(
-#   "data", "SELECT * FROM registration")
-# readmission <- rapbase::loadRegData(
-#   "data", "SELECT * FROM readmission")
-# patient <- rapbase::loadRegData(
-#   "data", "SELECT * FROM patient")
+write.csv2(til_krg, "~/regdata/norgast/utleveringer/til_krg.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
+
+write.csv2(RegData |> dplyr::select(-PasientID),
+           "~/regdata/norgast/utleveringer/til_stig_kolon.csv",
+           row.names = FALSE, na = "",
+           fileEncoding = "Latin1")
 
 #### x2ffer mai 2025 ###########################################################
 
