@@ -12,7 +12,7 @@
 NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
 
 {
-  RegData$Sykehusnavn <- trimws(RegData$SykehusNavn)
+  RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
   RegData$AvdRESH[RegData$AvdRESH == 4204084] <- 4204126 # Tull med Ringerike
   RegData$erMann <- as.numeric(RegData$erMann)

@@ -52,7 +52,8 @@ norgastIndikator_nasjonal(
   prikktall = TRUE,
   pst_kolonne = FALSE,
   ny_anastomose = 99,
-  Grvar = "Robotassistanse"
+  Grvar = "Robotassistanse",
+  mrom = 0.3
 )
 }
 \arguments{

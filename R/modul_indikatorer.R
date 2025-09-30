@@ -93,7 +93,7 @@ indikatorfig_server <- function(id, RegData,
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
         selectInput(inputId = ns("valgtShus"), label = "Fjern sykehus pga. lav dekningsgrad",
-                    choices = sort(unique(RegData$SykehusNavn)), multiple = TRUE)
+                    choices = sort(unique(RegData$Sykehusnavn)), multiple = TRUE)
       })
 
       output$tilAar_ui <- renderUI({
