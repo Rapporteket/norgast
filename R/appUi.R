@@ -42,7 +42,7 @@ appUi <- function() {
       size = "l",
       label = "Godkjenn",
       easyClose = FALSE,
-      footer = shiny::modalButton("Godta og forsett")
+      footer = shiny::modalButton("Godta og fortsett")
     ),
     shiny::tabPanel(
       "Startside",
