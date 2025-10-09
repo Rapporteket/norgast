@@ -3,21 +3,153 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+#### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
+#### tykktarmskreft i Norge. Korrigert versjon 09.10.2025 ####################
+varnavn <- readxl::read_xlsx(
+  "C:/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
+  sheet = 1) |>
+  tidyr::separate(col="Databasereferanse",
+                  into=c("tabell", "var_navn"),
+                  extra = "merge")
+krg_pas_alle <- read.csv(
+  "C:/regdata/norgast/utleveringer/du4356_h_1101_norderval_kobling.csv",
+  colClasses = c("character", "integer")
+)
+kobl_fnr <- read.csv2(
+  "C:/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
+  colClasses = c("integer", "character")
+) |>
+  dplyr::rename(FNR = SSN)
+krg_pas <- merge(krg_pas_alle, kobl_fnr, by = "FNR")
+
+varnavn_kobl <-
+  data.frame(
+    kol =
+      c("mce.MCEID AS ForlopsID",
+        "mce.PATIENT_ID AS PasientID",
+        "mce.CENTREID AS AvdRESH",
+        "patient.SSN AS Fodselsnummer",
+        "patient.DECEASED AS Avdod",
+        "patient.DECEASED_DATE AS AvdodDato",
+        "centre.CENTRENAME AS SenterNavn",
+        "registration.PREVIOUS_WEIGHT AS Vekt6MndFoer",
+        "registration.PREVIOUS_WEIGHT_MISS AS Vekt6MndFoerUkjent",
+        "registration.ADMISSION_WEIGHT AS VektVedInnleggelse",
+        "registration.ADMISSION_WEIGHT_MISS AS VektVedInnleggelseUkjent",
+        "registration.HEIGHT AS Hoyde",
+        "registration.HEIGHT_MISS AS HoydeUkjent",
+        "registration.BMI AS BMI",
+        "registration.BMI_CATEGORY AS BMIKategori",
+        "registration.WEIGHTLOSS AS VekttapProsent",
+        "registration.DIABETES AS MedDiabetes",
+        "registration.CHEMOTHERAPY_ONLY AS KunCytostatika",
+        "registration.RADIATION_THERAPY_ONLY AS KunStraaleterapi",
+        "registration.CHEMORADIOTHERAPY AS KjemoRadioKombo",
+        "registration.WHO_ECOG_SCORE AS WHOECOG",
+        "registration.ALBUMIN AS Albumin",
+        "registration.CRP AS CRP",
+        "registration.GLASGOW_SCORE AS GlasgowScore",
+        "registration.MODIFIED_GLASGOW_SCORE AS ModGlasgowScore",
+        "registration.ASA AS ASA",
+        "registration.LUNG_DISEASE AS Lungesykdom",
+        "registration.HEART_DISEASE AS Hjertesykdom",
+        "registration.URGENCY AS Hastegrad",
+        "registration.ANESTHESIA_START AS AnestesiStartKl",
+        "registration.PRS_SCORE AS PRSScore",
+        "registration.OPERATION_DATE AS OpDato",
+        "registration.NCSP AS Hovedoperasjon",
+        "registration.NCSP_VERSION AS NCSP_VERSION",
+        "registration.ABLATION AS LeverAblasjon",
+        "registration.RECONSTRUCTION AS Rekonstruksjon",
+        "registration.RECONSTRUCTION_TYPE AS Rekonstruksjonstype",
+        "registration.ANASTOMOSIS_LEVEL AS Anastomoseniva",
+        "registration.ANASTOMOSIS AS NyAnastomose",
+        "registration.ANAL_GUARD_DISTANCE AS AvstandAnalVerge",
+        "registration.ANAL_GUARD_DISTANCE_MISS AS AvstandAnalVergeIkkeAkt",
+        "registration.TATME AS TaTME",
+        "registration.OSTOMY AS NyStomi",
+        "registration.ABDOMINAL_ACCESS AS Tilgang",
+        "registration.ROBOTASSISTANCE AS Robotassistanse",
+        "registration.THORAX_ACCESS AS ThoraxTilgang",
+        "registration.RELAPAROTOMY AS ReLapNarkose",
+        "registration.RELAPAROTOMY_YES AS ViktigsteFunn",
+        "registration.FINDINGS_SPESIFISER AS FunnSpesifiser",
+        "registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi",
+        "registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi",
+        "registration.PERCUTANEOUS_DRAINAGE AS PerkDrenasje",
+        "registration.HIGH_AMYLASE_CONCENTRATION AS HoyAmylaseKons",
+        "registration.LEAK_INTERVENTION AS EndoInterLekkasje",
+        "registration.BLEED_INTERVENTION AS EndoInterBlod",
+        "registration.ANGIO_INTERVENTION AS AngioInter",
+        "registration.LIQUID_DRAINAGE AS KunDrenasje",
+        "registration.SINGLE_ORGAN_FAILURE AS EttOrganSvikt",
+        "registration.MULTI_ORGAN_FAILURE AS MultiOrganSvikt",
+        "registration.IN_HOUSE_DEATH AS DodUnderOpphold",
+        "registration.IN_HOUSE_DEATH_DATE AS DodUnderOppholdDato",
+        "registration.ACCORDION_SCORE AS AccordionGrad",
+        "registration.DISCHARGE_DATE AS UtskrivelseDato",
+        "registration.BED_DAYS AS PostopLiggedogn",
+        "registration.ICD10 AS Hoveddiagnose",
+        "registration.ICD10_VERSION AS ICD10_VERSION",
+        "registration.DISCHARGE_TO AS UtskrevetTil",
+        "registration.FIRST_TIME_CLOSED AS ForstLukket",
+        "registration.FIRST_TIME_CLOSED_BY AS ForstLukketAv",
+        "registration.STATUS AS RegistreringStatus",
+        "readmission.OWN_INSTITUTION AS ReinnlEgenInst",
+        "readmission.OTHER_INSTITUTIONS AS ReinnlAndreInst",
+        "readmission.CONTROL AS AktivKontroll",
+        "readmission.PHYSICAL_CONTROL AS FysiskKontroll",
+        "readmission.PHONE_CONTROL AS TelefonKontroll",
+        "readmission.RELAPAROTOMY AS OppfReLapNarkose",
+        "readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn",
+        "readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser",
+        "readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi",
+        "readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi",
+        "readmission.PERCUTANEOUS_DRAINAGE AS OppfPerkDrenasje",
+        "readmission.HIGH_AMYLASE_CONCENTRATION AS OppfHoyAmylaseKons",
+        "readmission.LEAK_INTERVENTION AS OppfEndoInterLekkasje",
+        "readmission.BLEED_INTERVENTION AS OppfEndoInterBlod",
+        "readmission.ANGIO_INTERVENTION AS OppfAngioInter",
+        "readmission.LIQUID_DRAINAGE AS OppfKunDrenasje",
+        "readmission.SINGLE_ORGAN_FAILURE AS OppfEttOrganSvikt",
+        "readmission.MULTI_ORGAN_FAILURE AS OppfMultiOrganSvikt",
+        "readmission.IN_HOUSE_DEATH AS OppfDodUnderOpphold",
+        "readmission.IN_HOUSE_DEATH_DATE AS OppfDodUnderOppholdDato",
+        "readmission.FIRST_TIME_CLOSED AS OppfForstLukket",
+        "readmission.FIRST_TIME_CLOSED_BY AS OppfForstLukketAv",
+        "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
+        "readmission.STATUS AS OppfStatus")
+  )|>
+  tidyr::separate(col="kol",
+                  into=c("dbnavn", "rapporteket"),
+                  sep = " AS ") |>
+  tidyr::separate(col="dbnavn",
+                  into=c("tabell", "var_navn"),
+                  extra = "merge") |>
+  dplyr::mutate(tabell = toupper(tabell)) |>
+  merge(varnavn |> dplyr::select(tabell, var_navn),
+        by = c("tabell", "var_navn"), all.y = TRUE)
+
+appdata <- norgast::NorgastHentData()
+RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
+  dplyr::select(varnavn_kobl$rapporteket, PasientID) |>
+  dplyr::filter(OpDato <= "2023-12-31",
+                PasientID %in% krg_pas$PID)
 
 #### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
 #### tykktarmskreft i Norge 10.09.2025 #######################################
 varnavn <- readxl::read_xlsx(
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
+  "C:/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
                      sheet = 1) |>
   tidyr::separate(col="Databasereferanse",
                   into=c("tabell", "var_navn"),
                   extra = "merge")
 krg_pas_alle <- read.csv(
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/utleveringer/H_1101_du4356_norderval_nokkel.csv",
+  "C:/regdata/norgast/utleveringer/H_1101_du4356_norderval_nokkel.csv",
   colClasses = c("character", "integer")
 )
 kobl_fnr <- read.csv2(
-  "C:/Users/kth200/OneDrive - Helse Nord RHF/Dokumenter/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
+  "C:/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
   colClasses = c("integer", "character")
 ) |>
   dplyr::rename(FNR = SSN)
