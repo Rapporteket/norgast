@@ -115,7 +115,8 @@ library(norgast)
 library(dplyr)
 # rm(list = ls())
 
-RegData_raa <- norgast::NorgastHentRegData() # Laster rådata
+# RegData_raa <- norgast::NorgastHentRegData() # Laster rådata
+RegData_raa <- norgast::NorgastHentData()$RegData
 RegData <- NorgastPreprosess(RegData_raa) |> 
   mutate(ASA = ifelse(ASA==1, 2, ASA),
          straaling = (KunStraaleterapi | KjemoRadioKombo),
@@ -180,11 +181,12 @@ RegData <- RegData %>%
     !is.na(AvstandAnalVerge_kat) # Fjerner tumor >15 cm fra analkant
   )
 
-nyanastomosetab <- RegData |> summarise(UtenNyAnastomose = sum(NyAnastomose==0),
-                                        "Andel uten ny anastomose (%)" = 
-                                          round(UtenNyAnastomose/n()*100, 1),
-                                        N = n(),
-                                        .by = Robotassistanse) |> 
+nyanastomosetab <- RegData |> 
+  summarise(UtenNyAnastomose = sum(NyAnastomose==0),
+            "Andel uten ny anastomose (%)" = 
+              round(UtenNyAnastomose/n()*100, 1),
+            N = n(),
+            .by = Robotassistanse) |> 
   rename("Antall uten ny anastomose" = UtenNyAnastomose)
 
 knitr::kable(nyanastomosetab, row.names = FALSE, 
@@ -225,7 +227,9 @@ RegData$Straaling <-
 RegData <- RegData |> 
   mutate(ASA_kat = case_when(ASA %in% 1:2 ~ "1/2",
                              ASA %in% 3:4 ~ "3/4"))
-RegData$bmi_forenklet <- cut(RegData$BMI_kodet, breaks = c(0,3,4,5,8), labels = c("undervekt", "normal", "overvekt", "fedme"))
+RegData$bmi_forenklet <- cut(
+  RegData$BMI_kodet, breaks = c(0,3,4,5,8), 
+  labels = c("undervekt", "normal", "overvekt", "fedme"))
 RegData$bmi_forenklet <- relevel(RegData$bmi_forenklet, "normal")
 RegData$AvstandAnalVerge_kat <- 
   relevel(RegData$AvstandAnalVerge_kat, "6.0-10.9 cm")

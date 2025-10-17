@@ -59,7 +59,8 @@ norgastIndikator_gruppert(
   rotermaaltxt = 45,
   ny_anastomose = 99,
   pst_kolonne = TRUE,
-  kun_oblig = FALSE
+  kun_oblig = FALSE,
+  mrom = 0.3
 )
 }
 \arguments{
