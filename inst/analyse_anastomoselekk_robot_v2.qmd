@@ -768,158 +768,30 @@ knitr::kable(
 ```
 
 
-```{r, anastomoselekkasje per sykehus}
 
-
-
-model_samlet <- lme4::glmer(Anastomoselekkasje ~ 1 +  
-                              erMann + alder_kat + Robotassistanse +
-                              ASA_kat + straaling + (1 | Sykehusnavn) +
-                              AvstandAnalVerge_kat + bmi_forenklet + NyStomi,
-                            data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
-                                                      !is.na(BMI)), 
-                            family = "binomial")
-summary(model_samlet)
-
-
-
-
-```
-
-
-
-
-```{r, propensity score}
-
-RegData <- RegData_alle |> filter(
-  Sykehusnavn %in% c("Ahus", "Haukeland", "OUS-Ullevål", 
-                     "SI-Hamar", "SS-Kristiansand",
-                     "St.Olavs", "Stavanger", "Skien", 
-                     "UNN-Tromsø", "VV-Drammen")
-)
-
-
-ps.formula <- Robotassistanse ~ 1 +  
-  erMann + alder_kat +
-  ASA_kat + straaling +
-  AvstandAnalVerge_kat + bmi_forenklet + Sykehusnavn + Aar
-outcome.formula <- Anastomoselekkasje ~ 1 + Robotassistanse + 
-  erMann + alder_kat +
-  ASA_kat + straaling + NyStomi +
-  AvstandAnalVerge_kat + bmi_forenklet 
-balance.vars <- c("erMann", "alder_kat", "ASA_kat", "straaling",
-                  "AvstandAnalVerge_kat", "bmi_forenklet",  
-                  "Sykehusnavn", "Aar")
-
-ps.test <- ps.analysis(
-  ps.formula = ps.formula,
-  outcome.formula = outcome.formula,
-  input.data = RegData %>% mutate(erMann = as.factor(erMann)) |>
-    filter(!is.na(AvstandAnalVerge_kat),
-           !is.na(BMI)),
-  treatment = "Robotassistanse",
-  balance.vars = balance.vars
-)
-
-ps.test$post.match.balance
-df.coef.robot.mStomi <- ps.test$outcome.model$coefficients %>% exp()
-df.confint.robot.mStomi <- confint(ps.test$outcome.model) %>% exp()
-graf <- ps.test$graphs
-
-prematch <- ps.test$pre.match.balance
-postmatch <- ps.test$post.match.balance
-
-outcome.formula <- Anastomoselekkasje ~ 1 + Robotassistanse + 
-  erMann + alder_kat +
-  ASA_kat + straaling + 
-  AvstandAnalVerge_kat + bmi_forenklet 
-balance.vars <- c("erMann", "alder_kat", "ASA_kat", "straaling",
-                  "AvstandAnalVerge_kat", "bmi_forenklet" )
-
-ps.test <- ps.analysis(
-  ps.formula = ps.formula,
-  outcome.formula = outcome.formula,
-  input.data = RegData %>% mutate(erMann = as.factor(erMann)) |>
-    filter(!is.na(AvstandAnalVerge_kat),
-           !is.na(BMI)),
-  treatment = "Robotassistanse",
-  balance.vars = balance.vars
-)
-
-df.coef.robot.uStomi <- ps.test$outcome.model$coefficients
-df.confint.robot.uStomi <- confint(ps.test$outcome.model)
-
-# ps.test$graphs$balance
-
-###########
-
-RegData <- RegData |> mutate(PostopStr7 = ifelse(PostopLiggedogn <= 7, 0, 1))
-
-outcome.formula <- PostopStr7 ~ 1 + Robotassistanse + 
-  erMann + alder_kat +
-  ASA_kat + straaling + NyStomi +
-  AvstandAnalVerge_kat + bmi_forenklet 
-balance.vars <- c("erMann", "alder_kat", "ASA_kat", "straaling",
-                  "AvstandAnalVerge_kat", "bmi_forenklet" )
-
-ps.test <- ps.analysis(
-  ps.formula = ps.formula,
-  outcome.formula = outcome.formula,
-  input.data = RegData %>% mutate(erMann = as.factor(erMann),
-                                  Tilgang = as.factor(Tilgang)) |>
-    filter(!is.na(AvstandAnalVerge_kat),
-           !is.na(BMI)),
-  treatment = "Robotassistanse",
-  balance.vars = balance.vars
-)
-
-df.coef.postopliggetid <- ps.test$outcome.model$coefficients
-df.confint.postopliggetid <- confint(ps.test$outcome.model)
-#####
-
-outcome.formula <- Tilgang ~ 1 + Robotassistanse + 
-  erMann + alder_kat +
-  ASA_kat + straaling + NyStomi +
-  AvstandAnalVerge_kat + bmi_forenklet 
-balance.vars <- c("erMann", "alder_kat", "ASA_kat", "straaling",
-                  "AvstandAnalVerge_kat", "bmi_forenklet" )
-
-ps.test <- ps.analysis(
-  ps.formula = ps.formula,
-  outcome.formula = outcome.formula,
-  input.data = RegData %>% mutate(erMann = as.factor(erMann),
-                                  Tilgang = as.factor(Tilgang)) |>
-    filter(!is.na(AvstandAnalVerge_kat),
-           !is.na(BMI)),
-  treatment = "Robotassistanse",
-  balance.vars = balance.vars
-)
-
-df.coef.konvertering <- ps.test$outcome.model$coefficients
-df.confint.konvertering <- confint(ps.test$outcome.model)
-
-
-```
 
 ```{r, propensity score 2}
 library(xgboost)
-RegData <- RegData_alle
+RegData <- RegData_alle|>  
+  filter(erfaringsnivaa == "A")
 
-tmp <- RegData |> select("erMann", "Alder", "ASA_kat", "straaling",
+tmp <- RegData |>  
+  filter(erfaringsnivaa == "A") |>
+  select("erMann", "Alder", "ASA_kat", "straaling",
                          "AvstandAnalVerge_kat", "bmi_forenklet",  
-                         "Aar", "Sykehusnavn") |> 
+                         "Aar") |>
   mutate(ASA_kat = as.factor(ASA_kat) |> as.numeric(),
          straaling = as.numeric(straaling),
          AvstandAnalVerge_kat = as.numeric(AvstandAnalVerge_kat),
          bmi_forenklet = as.numeric(bmi_forenklet),
-         Sykehusnavn = as.factor(Sykehusnavn) |> as.numeric()) |> 
+        ) |> 
   as.matrix()
 
 training_data <- xgb.DMatrix(
   data = tmp, 
   label = RegData$Robotassistanse)
 
-seed = 42
+seed = 45
 
 params_list <- list(
   
@@ -972,14 +844,12 @@ tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
                          data = RegData, smd = T)|> 
   print(smd = T)
 
-pak::pkg_install("ngreifer/MatchIt")
 
 matched_data <- MatchIt::matchit(formula = Robotassistanse ~ 1,
                                  data = RegData, distance = ps, 
-                                 caliper = 0.25, std.caliper = T,
-                                 # method = "optimal", replace = F,
-                                 ratio = 3)
-
+                                 caliper = 0.2, std.caliper = T,
+                                  ratio = 2,
+                                 )
 matched_data <- MatchIt::match_data(matched_data)
 
 tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
@@ -990,10 +860,10 @@ tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
   print(smd = T)
 
 outcome.formula <- Anastomoselekkasje ~ 1 + Robotassistanse +
-  AvstandAnalVerge_kat
-  # erMann + alder_kat +
-  # ASA_kat + straaling + # NyStomi +
-  # AvstandAnalVerge_kat + bmi_forenklet 
+  #AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat #+  # NyStomi +
+   #bmi_forenklet  #+ AvstandAnalVerge_kat  
 
 outcome.model <- glm(
   formula = outcome.formula,
