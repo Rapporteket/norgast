@@ -54,7 +54,8 @@ norgastIndikator_rapporteket(
   pst_kolonne = FALSE,
   ny_anastomose = 99,
   desimaler_pst = 0,
-  kun_oblig = FALSE
+  kun_oblig = FALSE,
+  mrom = 0.3
 )
 }
 \arguments{

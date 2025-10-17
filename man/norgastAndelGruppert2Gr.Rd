@@ -12,7 +12,9 @@ norgastAndelGruppert2Gr(
   xtxt = "Andel (\%)",
   ytxt = "",
   inkl_konf = FALSE,
+  pst_kol = TRUE,
   outfile = "",
+  farger = NA,
   ...
 )
 }
