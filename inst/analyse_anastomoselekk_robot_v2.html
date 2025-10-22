@@ -117,165 +117,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"Førde"</span>, <span class="st">"VV-Bærum"</span>, <span class="st">"Sykehuset Levanger"</span>) <span class="sc">~</span> <span class="st">"C"</span>)</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    HovedDato <span class="sc">&gt;=</span> <span class="st">"2019-01-01"</span>,</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    HovedDato <span class="sc">&lt;=</span> <span class="st">"2025-06-30"</span>, <span class="co"># Filtrer på operasjonsdato</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># HovedDato &gt;= "2019-01-01",</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># HovedDato &lt;= "2025-06-30", # Filtrer på operasjonsdato</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    Op_gr <span class="sc">==</span> <span class="dv">2</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    FerdigForlop_v2 <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>frafall <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>), <span class="co"># Fjerner umulige robotop.</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(erfaringsnivaa), <span class="co"># Fjerner sykehus som ikke op. rektum</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat)) <span class="sc">|&gt;</span>  <span class="co"># Fjerner tumor &gt;15 cm fra analkant) |&gt; </span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumreseksjoner"</span> <span class="ot">=</span> <span class="fu">n</span>(),</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ikke-maligne"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"WHOECOG &gt; 1"</span> <span class="ot">=</span> <span class="fu">sum</span>(</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Akuttkirugi"</span> <span class="ot">=</span> <span class="fu">sum</span>(</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>      (Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Åpen kirurgi"</span> <span class="ot">=</span> <span class="fu">sum</span>(Tilgang <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>),</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)"</span> <span class="ot">=</span> </span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(NyAnastomose <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span> <span class="sc">&amp;</span> <span class="sc">!</span>(Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">&amp;</span> WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span> <span class="sc">&amp;</span> <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operert robotassistert på sykehus uten robot"</span> <span class="ot">=</span> <span class="fu">sum</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                                                           Robotassistanse <span class="sc">==</span> <span class="dv">1</span>, <span class="at">na.rm =</span> T),</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tumor &gt;15 cm fra analkant"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(AvstandAnalVerge_kat)),</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rektumoperert på sykehus som ikke opererer rektum"</span> <span class="ot">=</span> </span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(<span class="fu">is.na</span>(erfaringsnivaa)),</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Oppfyller én eller flere eksklusjonsskriterier"</span> <span class="ot">=</span> </span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>((<span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">!=</span> <span class="st">"C20"</span>) <span class="sc">|</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            (<span class="sc">!</span>(WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)) <span class="sc">|</span> (Hastegrad <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|</span> </span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>            (Hastegrad_tid <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">|</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>            (Tilgang <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> (NyAnastomose <span class="sc">!=</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>            (erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span> </span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>            <span class="fu">is.na</span>(AvstandAnalVerge_kat) <span class="sc">|</span> <span class="fu">is.na</span>(erfaringsnivaa))</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>frafall <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">"var"</span> <span class="ot">=</span> <span class="fu">names</span>(frafall),</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Antall"</span> <span class="ot">=</span> <span class="fu">unlist</span>(frafall))</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(frafall)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">""</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(frafall, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">caption =</span> <span class="st">"Ekskluderte av ulike årsaker"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>Ekskluderte av ulike årsaker</caption>
-<colgroup>
-<col style="width: 90%">
-<col style="width: 9%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;"></th>
-<th style="text-align: right;">Antall</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Rektumreseksjoner</td>
-<td style="text-align: right;">6169</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Ikke-maligne</td>
-<td style="text-align: right;">1346</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">WHOECOG &gt; 1</td>
-<td style="text-align: right;">283</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Akuttkirugi</td>
-<td style="text-align: right;">109</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Åpen kirurgi</td>
-<td style="text-align: right;">331</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)</td>
-<td style="text-align: right;">625</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)</td>
-<td style="text-align: right;">1012</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Operert robotassistert på sykehus uten robot</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Tumor &gt;15 cm fra analkant</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Rektumoperert på sykehus som ikke opererer rektum</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Oppfyller én eller flere eksklusjonsskriterier</td>
-<td style="text-align: right;">3706</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData <span class="sc">%&gt;%</span> </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="co"># Kun malign</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>,          <span class="co"># WHOECOG &gt; 1 fjernes</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    Hastegrad <span class="sc">==</span> <span class="dv">1</span>,            <span class="co"># Elektive operasjoner</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    Hastegrad_tid <span class="sc">==</span> <span class="dv">1</span>,        <span class="co"># På ukedag og med anestesistart i normalarbeidstid</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># NyAnastomose == 1,         # Ny anastomomse</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,           <span class="co"># Laparoskopiske inngrep, inkludert konverterte</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>), <span class="co"># Fjerner umulige robotop.</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(erfaringsnivaa), <span class="co"># Fjerner sykehus som ikke op. rektum</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat) <span class="co"># Fjerner tumor &gt;15 cm fra analkant</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>nyanastomosetab <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">UtenNyAnastomose =</span> <span class="fu">sum</span>(NyAnastomose<span class="sc">==</span><span class="dv">0</span>),</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Andel uten ny anastomose (%)"</span> <span class="ot">=</span> </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>              <span class="fu">round</span>(UtenNyAnastomose<span class="sc">/</span><span class="fu">n</span>()<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>),</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">N =</span> <span class="fu">n</span>(),</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">.by =</span> Robotassistanse) <span class="sc">|&gt;</span> </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">"Antall uten ny anastomose"</span> <span class="ot">=</span> UtenNyAnastomose)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(nyanastomosetab, <span class="at">row.names =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">"Antall uten ny anastomose"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>Antall uten ny anastomose</caption>
-<colgroup>
-<col style="width: 21%">
-<col style="width: 34%">
-<col style="width: 38%">
-<col style="width: 6%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: right;">Robotassistanse</th>
-<th style="text-align: right;">Antall uten ny anastomose</th>
-<th style="text-align: right;">Andel uten ny anastomose (%)</th>
-<th style="text-align: right;">N</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1012</td>
-<td style="text-align: right;">42.9</td>
-<td style="text-align: right;">2361</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">625</td>
-<td style="text-align: right;">35.9</td>
-<td style="text-align: right;">1739</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(NyAnastomose <span class="sc">==</span> <span class="dv">1</span>) <span class="co"># Ny anastomomse</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    FerdigForlop_v2 <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"C"</span> <span class="sc">&amp;</span> Robotassistanse <span class="sc">==</span> <span class="dv">1</span>), <span class="co"># Fjerner umulige robotop.</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(erfaringsnivaa)) <span class="sc">|&gt;</span>  <span class="co"># Fjerner sykehus som ikke op. rektum) |&gt; </span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">forste_robot =</span> <span class="fu">min</span>(Aar[Robotassistanse <span class="sc">==</span> <span class="dv">1</span>], <span class="at">na.rm =</span> T), <span class="at">.by=</span> Sykehusnavn) <span class="sc">|&gt;</span> </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">forste_robot =</span> <span class="fu">ifelse</span>(forste_robot <span class="sc">==</span> <span class="cn">Inf</span>, <span class="dv">3000</span>, forste_robot)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">aar_erfaring_shus =</span> Aar<span class="sc">-</span>forste_robot<span class="sc">+</span><span class="dv">1</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">aar_erfaring_shus =</span> <span class="fu">ifelse</span>(aar_erfaring_shus <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="dv">0</span>, aar_erfaring_shus)) <span class="sc">|&gt;</span> </span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(HovedDato <span class="sc">&gt;=</span> <span class="st">"2019-01-01"</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>         HovedDato <span class="sc">&lt;=</span> <span class="st">"2025-06-30"</span>) <span class="sc">|&gt;</span> <span class="co"># Filtrer på operasjonsdato)</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">substr</span>(<span class="fu">toupper</span>(Hoveddiagnose), <span class="dv">1</span>, <span class="dv">3</span>) <span class="sc">==</span> <span class="st">"C20"</span>, <span class="co"># Kun malign</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    WHOECOG <span class="sc">%in%</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>,          <span class="co"># WHOECOG &gt; 1 fjernes</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    Hastegrad <span class="sc">==</span> <span class="dv">1</span>,            <span class="co"># Elektive operasjoner</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    Hastegrad_tid <span class="sc">==</span> <span class="dv">1</span>,        <span class="co"># På ukedag og med anestesistart i normalarbeidstid</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    NyAnastomose <span class="sc">==</span> <span class="dv">1</span>,         <span class="co"># Ny anastomomse</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    Tilgang <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>,           <span class="co"># Laparoskopiske inngrep, inkludert konverterte</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat) <span class="co"># Fjerner tumor &gt;15 cm fra analkant</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">aar_erfaring_shus2 =</span> <span class="fu">case_when</span>(</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    aar_erfaring_shus <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    aar_erfaring_shus <span class="sc">%in%</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    aar_erfaring_shus <span class="sc">%in%</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">12</span> <span class="sc">~</span> <span class="dv">3</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># frafall &lt;- RegData |&gt; </span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(!(erfaringsnivaa == "C" &amp; Robotassistanse == 1), # Fjerner umulige robotop.</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">#          !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co">#          !is.na(AvstandAnalVerge_kat)) |&gt;  # Fjerner tumor &gt;15 cm fra analkant) |&gt; </span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="co">#   summarise(</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Rektumreseksjoner" = n(),</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Ikke-maligne" = sum(substr(toupper(Hoveddiagnose), 1, 3) != "C20"),</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">#     "WHOECOG &gt; 1" = sum(</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#       !(WHOECOG %in% 0:1) &amp; substr(toupper(Hoveddiagnose), 1, 3) == "C20"),</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Akuttkirugi" = sum(</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#       (Hastegrad_tid == 0 | Hastegrad == 2) &amp; WHOECOG %in% 0:1 &amp;</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="co">#         substr(toupper(Hoveddiagnose), 1, 3) == "C20"),</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Åpen kirurgi" = sum(Tilgang == 1 &amp; !(Hastegrad_tid == 0 | Hastegrad == 2) &amp; WHOECOG %in% 0:1 &amp; substr(toupper(Hoveddiagnose), 1, 3) == "C20"),</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)" = </span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="co">#       sum(NyAnastomose != 1 &amp; Robotassistanse == 0 &amp; Tilgang %in% 2:3 &amp; !(Hastegrad_tid == 0 | Hastegrad == 2) &amp; WHOECOG %in% 0:1 &amp; substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)" = </span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="co">#       sum(NyAnastomose != 1 &amp; Robotassistanse == 1 &amp; Tilgang %in% 2:3 &amp; !(Hastegrad_tid == 0 | Hastegrad == 2) &amp; WHOECOG %in% 0:1 &amp; substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Operert robotassistert på sykehus uten robot" = sum(erfaringsnivaa == "C" &amp;</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="co">#                                                            Robotassistanse == 1, na.rm = T),</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Tumor &gt;15 cm fra analkant" = sum(is.na(AvstandAnalVerge_kat)),</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Rektumoperert på sykehus som ikke opererer rektum" = </span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="co">#       sum(is.na(erfaringsnivaa)),</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="co">#     "Oppfyller én eller flere eksklusjonsskriterier" = </span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="co">#       sum((substr(toupper(Hoveddiagnose), 1, 3) != "C20") |</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="co">#             (!(WHOECOG %in% 0:1)) | (Hastegrad == 2) | </span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="co">#             (Hastegrad_tid == 0) |</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="co">#             (Tilgang == 1) | (NyAnastomose != 1) | </span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="co">#             (erfaringsnivaa == "C" &amp; Robotassistanse == 1) | </span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="co">#             is.na(AvstandAnalVerge_kat) | is.na(erfaringsnivaa))</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a><span class="co"># frafall &lt;- data.frame("var" = names(frafall),</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="co">#                       "Antall" = unlist(frafall))</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="co"># names(frafall)[1] &lt;- ""</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a><span class="co"># knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsaker")</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="co"># RegData &lt;- RegData %&gt;% </span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="co">#     substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="co">#     WHOECOG %in% 0:1,          # WHOECOG &gt; 1 fjernes</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="co">#     Hastegrad == 1,            # Elektive operasjoner</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="co">#     Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="co">#     # NyAnastomose == 1,         # Ny anastomomse</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="co">#     Tilgang %in% 2:3,           # Laparoskopiske inngrep, inkludert konverterte</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="co">#     !(erfaringsnivaa == "C" &amp; Robotassistanse == 1), # Fjerner umulige robotop.</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a><span class="co">#     !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="co">#     !is.na(AvstandAnalVerge_kat) # Fjerner tumor &gt;15 cm fra analkant</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a><span class="co">#   )</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="co"># nyanastomosetab &lt;- RegData |&gt; </span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a><span class="co">#   summarise(UtenNyAnastomose = sum(NyAnastomose==0),</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a><span class="co">#             "Andel uten ny anastomose (%)" = </span></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="co">#               round(UtenNyAnastomose/n()*100, 1),</span></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="co">#             N = n(),</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="co">#             .by = Robotassistanse) |&gt; </span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="co">#   rename("Antall uten ny anastomose" = UtenNyAnastomose)</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="co"># knitr::kable(nyanastomosetab, row.names = FALSE, </span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="co">#              caption = "Antall uten ny anastomose")</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a><span class="co"># RegData &lt;- RegData %&gt;%</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(NyAnastomose == 1) |&gt; # Ny anastomomse</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(forste_robot = min(Aar[Robotassistanse == 1], na.rm = T), .by= Sykehusnavn) |&gt; </span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a><span class="co">#     forste_robot = ifelse(forste_robot == Inf, 3000, forste_robot)) |&gt; </span></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(aar_erfaring_shus = Aar-forste_robot+1,</span></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="co">#          aar_erfaring_shus = ifelse(aar_erfaring_shus &lt; 0, 0, aar_erfaring_shus))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
@@ -777,7 +714,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'xgboost'</code></pre>
@@ -787,278 +724,1070 @@ Attaching package: 'xgboost'</code></pre>
 
     slice</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData_alle<span class="sc">|&gt;</span>  </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"A"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span>  </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(erfaringsnivaa <span class="sc">==</span> <span class="st">"A"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Aar"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA_kat =</span> <span class="fu">as.factor</span>(ASA_kat) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> <span class="fu">as.numeric</span>(straaling),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">AvstandAnalVerge_kat =</span> <span class="fu">as.numeric</span>(AvstandAnalVerge_kat),</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">bmi_forenklet =</span> <span class="fu">as.numeric</span>(bmi_forenklet),</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">|&gt;</span> </span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> tmp, </span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> RegData<span class="sc">$</span>Robotassistanse)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>seed <span class="ot">=</span> <span class="dv">45</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>params_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"binary:logistic"</span>,</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="fu">c</span>(<span class="st">"logloss"</span>),</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta =</span> <span class="fl">0.1</span>,</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_depth =</span> <span class="dv">4</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(seed)</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>model_xgbcv <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params_list,</span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> training_data,</span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">1000</span>,</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">nfold =</span> <span class="dv">5</span>, </span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">stratified =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">50</span>,</span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">maximize =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">prediction =</span> <span class="cn">TRUE</span>,       </span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">1</span></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] train-logloss:0.644393+0.001182 test-logloss:0.647028+0.001195 
-Multiple eval metrics are present. Will use test_logloss for early stopping.
-Will train until test_logloss hasn't improved in 50 rounds.
-
-[2] train-logloss:0.604432+0.001873 test-logloss:0.609007+0.002321 
-[3] train-logloss:0.570947+0.002442 test-logloss:0.577780+0.003625 
-[4] train-logloss:0.542739+0.002801 test-logloss:0.551529+0.004707 
-[5] train-logloss:0.518936+0.003147 test-logloss:0.529800+0.005540 
-[6] train-logloss:0.498627+0.003271 test-logloss:0.511659+0.006226 
-[7] train-logloss:0.481050+0.003401 test-logloss:0.496450+0.007670 
-[8] train-logloss:0.465992+0.003716 test-logloss:0.483341+0.008401 
-[9] train-logloss:0.453039+0.004011 test-logloss:0.472255+0.008994 
-[10]    train-logloss:0.441718+0.004177 test-logloss:0.462718+0.009315 
-[11]    train-logloss:0.431943+0.004260 test-logloss:0.454861+0.010339 
-[12]    train-logloss:0.423392+0.004295 test-logloss:0.448130+0.011092 
-[13]    train-logloss:0.415978+0.004251 test-logloss:0.442238+0.011444 
-[14]    train-logloss:0.409390+0.004286 test-logloss:0.437437+0.012244 
-[15]    train-logloss:0.403636+0.004085 test-logloss:0.433579+0.013161 
-[16]    train-logloss:0.398468+0.003966 test-logloss:0.429856+0.013417 
-[17]    train-logloss:0.394020+0.004048 test-logloss:0.427290+0.014034 
-[18]    train-logloss:0.389948+0.004140 test-logloss:0.424482+0.014474 
-[19]    train-logloss:0.386347+0.004206 test-logloss:0.422092+0.014558 
-[20]    train-logloss:0.382950+0.004388 test-logloss:0.420396+0.014689 
-[21]    train-logloss:0.379729+0.004344 test-logloss:0.418666+0.014695 
-[22]    train-logloss:0.376924+0.004330 test-logloss:0.417116+0.014498 
-[23]    train-logloss:0.374543+0.004375 test-logloss:0.415907+0.014299 
-[24]    train-logloss:0.372001+0.004398 test-logloss:0.414935+0.014114 
-[25]    train-logloss:0.369757+0.004503 test-logloss:0.414015+0.014242 
-[26]    train-logloss:0.367669+0.004398 test-logloss:0.413553+0.014480 
-[27]    train-logloss:0.365765+0.004436 test-logloss:0.413673+0.015129 
-[28]    train-logloss:0.363579+0.004567 test-logloss:0.412581+0.014844 
-[29]    train-logloss:0.361803+0.004600 test-logloss:0.412127+0.015186 
-[30]    train-logloss:0.359918+0.004327 test-logloss:0.411692+0.014970 
-[31]    train-logloss:0.358681+0.004361 test-logloss:0.411100+0.015127 
-[32]    train-logloss:0.357314+0.004456 test-logloss:0.411055+0.014955 
-[33]    train-logloss:0.355897+0.004189 test-logloss:0.410886+0.014843 
-[34]    train-logloss:0.354725+0.004033 test-logloss:0.410666+0.014722 
-[35]    train-logloss:0.353905+0.004202 test-logloss:0.410371+0.014740 
-[36]    train-logloss:0.352841+0.003897 test-logloss:0.410753+0.014727 
-[37]    train-logloss:0.351903+0.004074 test-logloss:0.410218+0.014882 
-[38]    train-logloss:0.350881+0.004006 test-logloss:0.410842+0.014820 
-[39]    train-logloss:0.350011+0.003997 test-logloss:0.411361+0.015099 
-[40]    train-logloss:0.349113+0.003730 test-logloss:0.411748+0.015040 
-[41]    train-logloss:0.348211+0.003450 test-logloss:0.412174+0.015294 
-[42]    train-logloss:0.347289+0.003438 test-logloss:0.411715+0.015526 
-[43]    train-logloss:0.346595+0.003350 test-logloss:0.411764+0.015895 
-[44]    train-logloss:0.345737+0.003023 test-logloss:0.411826+0.016124 
-[45]    train-logloss:0.344937+0.003162 test-logloss:0.412032+0.016423 
-[46]    train-logloss:0.344159+0.003010 test-logloss:0.412200+0.016613 
-[47]    train-logloss:0.343355+0.003237 test-logloss:0.412265+0.016931 
-[48]    train-logloss:0.342459+0.003485 test-logloss:0.412460+0.017137 
-[49]    train-logloss:0.341811+0.003667 test-logloss:0.412441+0.017322 
-[50]    train-logloss:0.340689+0.003682 test-logloss:0.412796+0.017682 
-[51]    train-logloss:0.340276+0.003700 test-logloss:0.412988+0.017753 
-[52]    train-logloss:0.339131+0.003677 test-logloss:0.413044+0.018027 
-[53]    train-logloss:0.338086+0.003611 test-logloss:0.413529+0.017974 
-[54]    train-logloss:0.337412+0.003573 test-logloss:0.413985+0.018076 
-[55]    train-logloss:0.336623+0.003444 test-logloss:0.414065+0.017957 
-[56]    train-logloss:0.335727+0.003211 test-logloss:0.413697+0.017965 
-[57]    train-logloss:0.335285+0.003010 test-logloss:0.413806+0.017993 
-[58]    train-logloss:0.334389+0.003207 test-logloss:0.413747+0.018338 
-[59]    train-logloss:0.333887+0.003109 test-logloss:0.413952+0.018450 
-[60]    train-logloss:0.333151+0.003053 test-logloss:0.414000+0.017933 
-[61]    train-logloss:0.332296+0.003143 test-logloss:0.413891+0.018592 
-[62]    train-logloss:0.331686+0.003200 test-logloss:0.413923+0.018552 
-[63]    train-logloss:0.331075+0.003045 test-logloss:0.413983+0.018779 
-[64]    train-logloss:0.330322+0.003197 test-logloss:0.414207+0.019010 
-[65]    train-logloss:0.329639+0.003152 test-logloss:0.414763+0.019392 
-[66]    train-logloss:0.328650+0.003114 test-logloss:0.415142+0.019526 
-[67]    train-logloss:0.327782+0.002883 test-logloss:0.415984+0.019491 
-[68]    train-logloss:0.326886+0.002678 test-logloss:0.415377+0.019648 
-[69]    train-logloss:0.325851+0.002896 test-logloss:0.415530+0.019503 
-[70]    train-logloss:0.325058+0.003005 test-logloss:0.415972+0.019499 
-[71]    train-logloss:0.324382+0.003040 test-logloss:0.415778+0.019684 
-[72]    train-logloss:0.323626+0.002839 test-logloss:0.416059+0.019262 
-[73]    train-logloss:0.323194+0.002757 test-logloss:0.416317+0.019383 
-[74]    train-logloss:0.322470+0.002631 test-logloss:0.416358+0.019318 
-[75]    train-logloss:0.322054+0.002714 test-logloss:0.416646+0.019339 
-[76]    train-logloss:0.321212+0.002725 test-logloss:0.416989+0.019137 
-[77]    train-logloss:0.320248+0.003007 test-logloss:0.417152+0.019048 
-[78]    train-logloss:0.319628+0.002998 test-logloss:0.417390+0.019139 
-[79]    train-logloss:0.318846+0.003096 test-logloss:0.417704+0.019294 
-[80]    train-logloss:0.318105+0.003247 test-logloss:0.417405+0.018938 
-[81]    train-logloss:0.317204+0.003613 test-logloss:0.417233+0.018710 
-[82]    train-logloss:0.316706+0.003534 test-logloss:0.417659+0.018584 
-[83]    train-logloss:0.315818+0.003663 test-logloss:0.417935+0.018163 
-[84]    train-logloss:0.315053+0.003812 test-logloss:0.418227+0.018255 
-[85]    train-logloss:0.314682+0.003812 test-logloss:0.418252+0.018407 
-[86]    train-logloss:0.314473+0.003845 test-logloss:0.418535+0.018607 
-[87]    train-logloss:0.313903+0.003772 test-logloss:0.418794+0.018752 
-Stopping. Best iteration:
-[37]    train-logloss:0.351903+0.004074 test-logloss:0.410218+0.014882</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>best_iter <span class="ot">=</span> model_xgbcv<span class="sc">$</span>best_iteration</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(params_list, training_data, <span class="at">nrounds =</span> best_iter)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_model, training_data)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Aar"</span>, <span class="st">"Sykehusnavn"</span>), </span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> RegData, <span class="at">smd =</span> T)<span class="sc">|&gt;</span> </span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData_alle <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(BMI))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>         <span class="st">"Aar"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA_kat =</span> <span class="fu">as.factor</span>(ASA_kat) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> <span class="fu">as.numeric</span>(straaling),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">AvstandAnalVerge_kat =</span> <span class="fu">as.numeric</span>(AvstandAnalVerge_kat),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">bmi_forenklet =</span> <span class="fu">as.numeric</span>(bmi_forenklet),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> tmp, </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> RegData<span class="sc">$</span>Robotassistanse)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>params_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"binary:logistic"</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="fu">c</span>(<span class="st">"logloss"</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta =</span> <span class="fl">0.1</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_depth =</span> <span class="dv">4</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">45</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>model_xgbcv <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params_list,</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> training_data,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">1000</span>,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">nfold =</span> <span class="dv">5</span>, </span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">stratified =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">50</span>,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">maximize =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">prediction =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>best_iter <span class="ot">=</span> model_xgbcv<span class="sc">$</span>best_iteration</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(params_list, training_data, <span class="at">nrounds =</span> best_iter)</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_model, training_data)</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>formel <span class="ot">&lt;-</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>  <span class="sc">+</span> </span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  ASA_kat <span class="sc">+</span> straaling <span class="sc">+</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span> bmi_forenklet</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>matched_data_complete <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">matchit</span>(<span class="at">formula =</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> RegData, <span class="at">distance =</span> ps, </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">caliper =</span> <span class="fl">0.2</span>, <span class="at">std.caliper =</span> T,</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">ratio =</span> <span class="dv">1</span>,</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">match_data</span>(matched_data_complete)</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Aar"</span>), </span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> RegData, <span class="at">smd =</span> T, <span class="at">test =</span> F)<span class="sc">|&gt;</span> </span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T) <span class="sc">|&gt;</span> </span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"tab_unmatched.xlsx"</span>, <span class="at">rowNames =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                          Stratified by Robotassistanse
-                           0               1               p      test SMD   
-  n                            214            1138                           
-  erMann (mean (SD))          0.50 (0.50)     0.63 (0.48)  &lt;0.001       0.266
-  Alder (mean (SD))          66.98 (10.84)   63.70 (11.59) &lt;0.001       0.292
-  ASA_kat = 3/4 (%)             46 (21.5)      232 (20.4)   0.783       0.027
-  straaling = TRUE (%)          36 (16.8)      322 (28.3)   0.001       0.277
-  AvstandAnalVerge_kat (%)                                 &lt;0.001       0.299
-     6.0-10.9 cm                75 (35.0)      488 (42.9)                    
-     0-5.9 cm                   12 ( 5.6)       85 ( 7.5)                    
-     11.0-15.9 cm               77 (36.0)      423 (37.2)                    
-     Ikke målt                  50 (23.4)      142 (12.5)                    
-  bmi_forenklet (%)                                         0.319       0.139
-     normal                     90 (42.5)      432 (38.2)                    
-     undervekt                   5 ( 2.4)       17 ( 1.5)                    
-     overvekt                   77 (36.3)      483 (42.7)                    
-     fedme                      40 (18.9)      200 (17.7)                    
-  Aar (mean (SD))          2021.09 (1.73)  2022.10 (1.81)  &lt;0.001       0.571
-  Sykehusnavn (%)                                          &lt;0.001       1.200
-     Haukeland                  40 (18.7)      288 (25.3)                    
-     NS-Bodø                     0 ( 0.0)      115 (10.1)                    
-     OUS-Radiumhospitalet        1 ( 0.5)       74 ( 6.5)                    
-     OUS-Ullevål                96 (44.9)      109 ( 9.6)                    
-     SI-Hamar                   12 ( 5.6)       99 ( 8.7)                    
-     Stavanger                  46 (21.5)      136 (12.0)                    
-     Tønsberg                    5 ( 2.3)      134 (11.8)                    
-     UNN-Tromsø                 14 ( 6.5)      183 (16.1)                    </code></pre>
+                           0               1               SMD   
+  n                           1106            1340               
+  erMann (mean (SD))          0.58 (0.49)     0.62 (0.48)   0.093
+  Alder (mean (SD))          66.92 (10.73)   63.87 (11.57)  0.273
+  ASA_kat = 3/4 (%)            287 (25.9)      290 (21.6)   0.101
+  straaling = TRUE (%)         227 (20.5)      381 (28.4)   0.185
+  AvstandAnalVerge_kat (%)                                  0.055
+     6.0-10.9 cm               495 (44.8)      589 (44.0)        
+     0-5.9 cm                   91 ( 8.2)       97 ( 7.2)        
+     11.0-15.9 cm              385 (34.8)      497 (37.1)        
+     Ikke målt                 135 (12.2)      157 (11.7)        
+  bmi_forenklet (%)                                         0.063
+     normal                    459 (41.5)      519 (38.7)        
+     undervekt                  18 ( 1.6)       21 ( 1.6)        
+     overvekt                  436 (39.4)      567 (42.3)        
+     fedme                     193 (17.5)      233 (17.4)        
+  Aar (mean (SD))          2021.65 (1.75)  2022.28 (1.78)   0.360</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">matchit</span>(<span class="at">formula =</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">data =</span> RegData, <span class="at">distance =</span> ps, </span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">caliper =</span> <span class="fl">0.2</span>, <span class="at">std.caliper =</span> T,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">ratio =</span> <span class="dv">2</span>,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                                 )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Aar"</span>), </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> matched_data, <span class="at">smd =</span> T, <span class="at">test =</span> F) <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T) <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"tab_matched.xlsx"</span>, <span class="at">rowNames =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0               1               SMD   
+  n                            923             923               
+  erMann (mean (SD))          0.61 (0.49)     0.63 (0.48)   0.040
+  Alder (mean (SD))          65.84 (10.59)   66.39 (10.44)  0.053
+  ASA_kat = 3/4 (%)            202 (21.9)      222 (24.1)   0.052
+  straaling = TRUE (%)         197 (21.3)      200 (21.7)   0.008
+  AvstandAnalVerge_kat (%)                                  0.052
+     6.0-10.9 cm               420 (45.5)      425 (46.0)        
+     0-5.9 cm                   76 ( 8.2)       67 ( 7.3)        
+     11.0-15.9 cm              324 (35.1)      317 (34.3)        
+     Ikke målt                 103 (11.2)      114 (12.4)        
+  bmi_forenklet (%)                                         0.046
+     normal                    377 (40.8)      358 (38.8)        
+     undervekt                  11 ( 1.2)       13 ( 1.4)        
+     overvekt                  384 (41.6)      393 (42.6)        
+     fedme                     151 (16.4)      159 (17.2)        
+  Aar (mean (SD))          2021.87 (1.72)  2021.82 (1.72)   0.028</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">bal.plot</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  matched_data_complete,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">"both"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.name =</span> <span class="st">"distance"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"histogram"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mirror =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%201-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">love.plot</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  formel,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> <span class="fu">list</span>(<span class="at">w1 =</span> cobalt<span class="sc">::</span><span class="fu">get.w</span>(matched_data_complete)),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> RegData,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">binary =</span> <span class="st">"std"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">thresholds =</span> <span class="fu">c</span>(<span class="at">m =</span> .<span class="dv">1</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">abs =</span> T</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Fewer control units than treated units; not all treated units will get
-a match.</code></pre>
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">match_data</span>(matched_data)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,  </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Aar"</span>, <span class="st">"Sykehusnavn"</span>), </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> matched_data, <span class="at">smd =</span> T, <span class="at">test =</span> T) <span class="sc">|&gt;</span> </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%201-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>outcome.formula1 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>outcome.formula2 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span> Aar <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span> </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>outcome.formula3 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span> Aar <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span> </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet <span class="sc">+</span> NyStomi</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>outcome.model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula1,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>outcome.model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula2,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>outcome.model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula3,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                          Stratified by Robotassistanse
-                           0               1               p      test SMD   
-  n                            205             198                           
-  erMann (mean (SD))          0.50 (0.50)     0.56 (0.50)   0.287       0.106
-  Alder (mean (SD))          66.77 (10.95)   66.04 (11.17)  0.508       0.066
-  ASA_kat = 3/4 (%)             45 (22.0)       48 (24.2)   0.669       0.054
-  straaling = TRUE (%)          34 (16.6)       30 (15.2)   0.797       0.039
-  AvstandAnalVerge_kat (%)                                  0.395       0.173
-     6.0-10.9 cm                75 (36.6)       62 (31.3)                    
-     0-5.9 cm                   12 ( 5.9)        8 ( 4.0)                    
-     11.0-15.9 cm               76 (37.1)       76 (38.4)                    
-     Ikke målt                  42 (20.5)       52 (26.3)                    
-  bmi_forenklet (%)                                         0.776       0.105
-     normal                     88 (43.1)       88 (44.4)                    
-     undervekt                   4 ( 2.0)        2 ( 1.0)                    
-     overvekt                   73 (35.8)       75 (37.9)                    
-     fedme                      39 (19.1)       33 (16.7)                    
-  Aar (mean (SD))          2021.17 (1.72)  2020.87 (1.62)   0.080       0.175
-  Sykehusnavn (%)                                          &lt;0.001       1.115
-     Haukeland                  39 (19.0)       53 (26.8)                    
-     NS-Bodø                     0 ( 0.0)       20 (10.1)                    
-     OUS-Radiumhospitalet        1 ( 0.5)        2 ( 1.0)                    
-     OUS-Ullevål                94 (45.9)       15 ( 7.6)                    
-     SI-Hamar                   12 ( 5.9)       18 ( 9.1)                    
-     Stavanger                  41 (20.0)       41 (20.7)                    
-     Tønsberg                    5 ( 2.4)       17 ( 8.6)                    
-     UNN-Tromsø                 13 ( 6.3)       32 (16.2)                    </code></pre>
+<pre><code>    (Intercept) Robotassistanse 
+     0.05485714      2.06699839 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>outcome.formula <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#AvstandAnalVerge_kat +</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span> Aar <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="co">#+  # NyStomi +</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>   <span class="co">#bmi_forenklet  #+ AvstandAnalVerge_kat  </span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>outcome.model <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula,</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      (Intercept)   Robotassistanse            erMann  alder_kat(65,80] 
-     1.439546e-87      2.164584e+00      2.971781e+00      1.790672e+00 
-alder_kat(80,140]               Aar     straalingTRUE        ASA_kat3/4 
-     7.875809e-01      1.101957e+00      1.200994e+00      1.065742e+00 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Waiting for profiling to be done...</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                          2.5 %       97.5 %
-(Intercept)       2.959747e-269 9.987927e+97
-Robotassistanse    1.072637e+00 4.559408e+00
-erMann             1.379061e+00 6.990686e+00
-alder_kat(65,80]   8.478966e-01 3.947254e+00
-alder_kat(80,140]  1.150781e-01 3.252627e+00
-Aar                8.927341e-01 1.355247e+00
-straalingTRUE      4.211466e-01 2.972828e+00
-ASA_kat3/4         4.664636e-01 2.297656e+00</code></pre>
+<pre><code>                     2.5 %     97.5 %
+(Intercept)     0.04048365 0.07247903
+Robotassistanse 1.44907717 2.98465582</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    7.863883e+28                     2.059113e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    3.893236e-01                     1.425254e+00 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    1.149862e+00                     2.393809e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    8.061709e-01                     5.417494e-01 
+                             Aar                    straalingTRUE 
+                    9.658863e-01                     9.383692e-01 
+                      ASA_kat3/4           bmi_forenkletundervekt 
+                    9.215112e-01                     1.584552e+00 
+           bmi_forenkletovervekt               bmi_forenkletfedme 
+                    1.303429e+00                     1.433034e+00 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                        2.5 %        97.5 %
+(Intercept)                      2.248185e-62 2.679044e+119
+Robotassistanse                  1.438007e+00  2.984216e+00
+AvstandAnalVerge_kat0-5.9 cm     1.161999e-01  9.732743e-01
+AvstandAnalVerge_kat11.0-15.9 cm 9.698914e-01  2.096610e+00
+AvstandAnalVerge_katIkke målt    6.449798e-01  1.969382e+00
+erMann                           1.591355e+00  3.699802e+00
+alder_kat(65,80]                 5.555203e-01  1.167772e+00
+alder_kat(80,140]                2.007565e-01  1.227113e+00
+Aar                              8.712477e-01  1.070803e+00
+straalingTRUE                    5.899842e-01  1.446166e+00
+ASA_kat3/4                       5.914632e-01  1.404387e+00
+bmi_forenkletundervekt           2.429110e-01  5.896594e+00
+bmi_forenkletovervekt            8.736797e-01  1.961156e+00
+bmi_forenkletfedme               8.526424e-01  2.377131e+00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    2.734498e+15                     1.687083e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    5.690671e-01                     8.333049e-01 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    8.821728e-01                     2.759972e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    7.420287e-01                     5.331231e-01 
+                             Aar                    straalingTRUE 
+                    9.811713e-01                     1.268360e+00 
+                      ASA_kat3/4           bmi_forenkletundervekt 
+                    9.573413e-01                     1.814142e+00 
+           bmi_forenkletovervekt               bmi_forenkletfedme 
+                    1.346322e+00                     1.493905e+00 
+                         NyStomi 
+                    1.633909e-01 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                        2.5 %        97.5 %
+(Intercept)                      4.074607e-79 1.581310e+109
+Robotassistanse                  1.165954e+00  2.467921e+00
+AvstandAnalVerge_kat0-5.9 cm     1.663873e-01  1.475363e+00
+AvstandAnalVerge_kat11.0-15.9 cm 5.540886e-01  1.253408e+00
+AvstandAnalVerge_katIkke målt    4.864328e-01  1.539192e+00
+erMann                           1.819038e+00  4.300575e+00
+alder_kat(65,80]                 5.067621e-01  1.084187e+00
+alder_kat(80,140]                1.957485e-01  1.224185e+00
+Aar                              8.817867e-01  1.091822e+00
+straalingTRUE                    7.847196e-01  1.993725e+00
+ASA_kat3/4                       6.084740e-01  1.474872e+00
+bmi_forenkletundervekt           2.667932e-01  7.337253e+00
+bmi_forenkletovervekt            8.962596e-01  2.039565e+00
+bmi_forenkletfedme               8.788136e-01  2.509431e+00
+NyStomi                          9.695490e-02  2.642870e-01</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData_alle <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat),</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(BMI),</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>         aar_erfaring_shus2 <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> Robotassistanse <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>         <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA_kat =</span> <span class="fu">as.factor</span>(ASA_kat) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> <span class="fu">as.numeric</span>(straaling),</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">AvstandAnalVerge_kat =</span> <span class="fu">as.numeric</span>(AvstandAnalVerge_kat),</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">bmi_forenklet =</span> <span class="fu">as.numeric</span>(bmi_forenklet)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> tmp, </span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> RegData<span class="sc">$</span>Robotassistanse)</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>params_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"binary:logistic"</span>,</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="fu">c</span>(<span class="st">"logloss"</span>),</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta =</span> <span class="fl">0.1</span>,</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_depth =</span> <span class="dv">4</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">45</span>)</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>model_xgbcv <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params_list,</span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> training_data,</span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">1000</span>,</span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">nfold =</span> <span class="dv">5</span>, </span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">stratified =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">50</span>,</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">maximize =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">prediction =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>best_iter <span class="ot">=</span> model_xgbcv<span class="sc">$</span>best_iteration</span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(params_list, training_data, <span class="at">nrounds =</span> best_iter)</span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_model, training_data)</span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>formel <span class="ot">&lt;-</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>  <span class="sc">+</span> </span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>  ASA_kat <span class="sc">+</span> straaling <span class="sc">+</span></span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span> bmi_forenklet</span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a>matched_data_complete <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">matchit</span>(<span class="at">formula =</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> RegData, <span class="at">distance =</span> ps, </span>
+<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">caliper =</span> <span class="fl">0.125</span>, <span class="at">std.caliper =</span> T</span>
+<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">match_data</span>(matched_data_complete)</span>
+<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>), </span>
+<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> RegData, <span class="at">smd =</span> T, <span class="at">test =</span> F)<span class="sc">|&gt;</span> </span>
+<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0             1             SMD   
+  n                         1106          1207               
+  erMann (mean (SD))        0.58 (0.49)   0.62 (0.49)   0.091
+  Alder (mean (SD))        66.92 (10.73) 63.84 (11.57)  0.276
+  ASA_kat = 3/4 (%)          287 (25.9)    252 (20.9)   0.120
+  straaling = TRUE (%)       227 (20.5)    339 (28.1)   0.177
+  AvstandAnalVerge_kat (%)                              0.080
+     6.0-10.9 cm             495 (44.8)    526 (43.6)        
+     0-5.9 cm                 91 ( 8.2)     80 ( 6.6)        
+     11.0-15.9 cm            385 (34.8)    457 (37.9)        
+     Ikke målt               135 (12.2)    144 (11.9)        
+  bmi_forenklet (%)                                     0.071
+     normal                  459 (41.5)    464 (38.4)        
+     undervekt                18 ( 1.6)     16 ( 1.3)        
+     overvekt                436 (39.4)    509 (42.2)        
+     fedme                   193 (17.5)    218 (18.1)        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>), </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> matched_data, <span class="at">smd =</span> T, <span class="at">test =</span> F) <span class="sc">|&gt;</span> </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0             1             SMD   
+  n                          955           955               
+  erMann (mean (SD))        0.63 (0.48)   0.61 (0.49)   0.045
+  Alder (mean (SD))        65.84 (10.34) 66.41 (10.32)  0.055
+  ASA_kat = 3/4 (%)          219 (22.9)    227 (23.8)   0.020
+  straaling = TRUE (%)       196 (20.5)    206 (21.6)   0.026
+  AvstandAnalVerge_kat (%)                              0.054
+     6.0-10.9 cm             441 (46.2)    432 (45.2)        
+     0-5.9 cm                 76 ( 8.0)     65 ( 6.8)        
+     11.0-15.9 cm            338 (35.4)    355 (37.2)        
+     Ikke målt               100 (10.5)    103 (10.8)        
+  bmi_forenklet (%)                                     0.077
+     normal                  393 (41.2)    372 (39.0)        
+     undervekt                13 ( 1.4)     11 ( 1.2)        
+     overvekt                397 (41.6)    394 (41.3)        
+     fedme                   152 (15.9)    178 (18.6)        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">bal.plot</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  matched_data_complete,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">"both"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.name =</span> <span class="st">"distance"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"histogram"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mirror =</span> <span class="cn">TRUE</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%202-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">love.plot</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  formel,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> <span class="fu">list</span>(<span class="at">w1 =</span> cobalt<span class="sc">::</span><span class="fu">get.w</span>(matched_data_complete)),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> RegData,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">binary =</span> <span class="st">"std"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">thresholds =</span> <span class="fu">c</span>(<span class="at">m =</span> .<span class="dv">1</span>),</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">abs =</span> T</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%202-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>outcome.formula1 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>outcome.formula2 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>outcome.formula3 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span> </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet <span class="sc">+</span> NyStomi</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>outcome.model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula1,</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>outcome.model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula2,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>outcome.model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula3,</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    (Intercept) Robotassistanse 
+     0.05993341      2.17203594 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     2.5 %     97.5 %
+(Intercept)     0.04501186 0.07803844
+Robotassistanse 1.55528914 3.06753745</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                      0.03001453                       2.19727888 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                      0.45442338                       1.43440055 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                      1.16743607                       2.00109817 
+                alder_kat(65,80]                alder_kat(80,140] 
+                      0.80515601                       0.50654018 
+                   straalingTRUE                       ASA_kat3/4 
+                      0.98544413                       0.84241027 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                      2.47962715                       1.38064575 
+              bmi_forenkletfedme 
+                      1.79307137 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                      2.5 %     97.5 %
+(Intercept)                      0.01735704 0.05022267
+Robotassistanse                  1.56718995 3.11496755
+AvstandAnalVerge_kat0-5.9 cm     0.15606840 1.05273624
+AvstandAnalVerge_kat11.0-15.9 cm 1.00349881 2.05408138
+AvstandAnalVerge_katIkke målt    0.66085588 1.97661095
+erMann                           1.38199714 2.95064506
+alder_kat(65,80]                 0.56800940 1.14057821
+alder_kat(80,140]                0.18903928 1.13569912
+straalingTRUE                    0.64184133 1.47432169
+ASA_kat3/4                       0.55579703 1.25106052
+bmi_forenkletundervekt           0.55676237 7.86272946
+bmi_forenkletovervekt            0.93866339 2.04759120
+bmi_forenkletfedme               1.12419683 2.84971601</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                      0.05926219                       1.82082907 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                      0.68909736                       0.87403283 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                      0.90763567                       2.29920798 
+                alder_kat(65,80]                alder_kat(80,140] 
+                      0.77456658                       0.52316837 
+                   straalingTRUE                       ASA_kat3/4 
+                      1.49228870                       0.90141622 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                      2.69192898                       1.37287796 
+              bmi_forenkletfedme                          NyStomi 
+                      1.87887347                       0.17716095 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                      2.5 %    97.5 %
+(Intercept)                      0.03381318 0.1007285
+Robotassistanse                  1.28722341 2.6018977
+AvstandAnalVerge_kat0-5.9 cm     0.23150219 1.6562506
+AvstandAnalVerge_kat11.0-15.9 cm 0.59906539 1.2764609
+AvstandAnalVerge_katIkke målt    0.50563785 1.5636666
+erMann                           1.57605801 3.4147077
+alder_kat(65,80]                 0.54224473 1.1055244
+alder_kat(80,140]                0.19333412 1.1907581
+straalingTRUE                    0.95227210 2.2900393
+ASA_kat3/4                       0.58846957 1.3543641
+bmi_forenkletundervekt           0.58827439 8.9728299
+bmi_forenkletovervekt            0.92690260 2.0495365
+bmi_forenkletfedme               1.16566309 3.0197690
+NyStomi                          0.10924059 0.2781026</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="do">## både robot og konv &gt;= 5</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData_alle <span class="sc">|&gt;</span> </span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat),</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(BMI),</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>         Sykehusnavn <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Ahus"</span>, <span class="st">"Haukeland"</span>, <span class="st">"SI-Hamar"</span>, <span class="st">"Skien"</span>, </span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"SI-Kristiansand"</span>, <span class="st">"Tønsberg"</span>,<span class="st">"OUS-Ullevål"</span>, <span class="st">"Stavanger"</span>, <span class="st">"St. Olavs"</span>,</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"UNN-Tromsø"</span>, <span class="st">"VV-Drammen"</span>))</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>         <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>, <span class="st">"Aar"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA_kat =</span> <span class="fu">as.factor</span>(ASA_kat) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> <span class="fu">as.numeric</span>(straaling),</span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">AvstandAnalVerge_kat =</span> <span class="fu">as.numeric</span>(AvstandAnalVerge_kat),</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">bmi_forenklet =</span> <span class="fu">as.numeric</span>(bmi_forenklet)</span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(</span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> tmp, </span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> RegData<span class="sc">$</span>Robotassistanse)</span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a>params_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"binary:logistic"</span>,</span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="fu">c</span>(<span class="st">"logloss"</span>),</span>
+<span id="cb49-28"><a href="#cb49-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta =</span> <span class="fl">0.01</span>,</span>
+<span id="cb49-29"><a href="#cb49-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_depth =</span> <span class="dv">4</span></span>
+<span id="cb49-30"><a href="#cb49-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb49-31"><a href="#cb49-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-32"><a href="#cb49-32" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">46</span>)</span>
+<span id="cb49-33"><a href="#cb49-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a>model_xgbcv <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params_list,</span>
+<span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> training_data,</span>
+<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">1000</span>,</span>
+<span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">nfold =</span> <span class="dv">5</span>, </span>
+<span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">stratified =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">50</span>,</span>
+<span id="cb49-41"><a href="#cb49-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">maximize =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb49-42"><a href="#cb49-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">prediction =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb49-43"><a href="#cb49-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb49-44"><a href="#cb49-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb49-45"><a href="#cb49-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-46"><a href="#cb49-46" aria-hidden="true" tabindex="-1"></a>best_iter <span class="ot">=</span> model_xgbcv<span class="sc">$</span>best_iteration</span>
+<span id="cb49-47"><a href="#cb49-47" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(params_list, training_data, <span class="at">nrounds =</span> best_iter)</span>
+<span id="cb49-48"><a href="#cb49-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-49"><a href="#cb49-49" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_model, training_data)</span>
+<span id="cb49-50"><a href="#cb49-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-51"><a href="#cb49-51" aria-hidden="true" tabindex="-1"></a>formel <span class="ot">&lt;-</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>  <span class="sc">+</span> </span>
+<span id="cb49-52"><a href="#cb49-52" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb49-53"><a href="#cb49-53" aria-hidden="true" tabindex="-1"></a>  ASA_kat <span class="sc">+</span> straaling <span class="sc">+</span></span>
+<span id="cb49-54"><a href="#cb49-54" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span> bmi_forenklet <span class="sc">+</span> Aar</span>
+<span id="cb49-55"><a href="#cb49-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-56"><a href="#cb49-56" aria-hidden="true" tabindex="-1"></a>matched_data_complete <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">matchit</span>(<span class="at">formula =</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb49-57"><a href="#cb49-57" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> RegData, <span class="at">distance =</span> ps, </span>
+<span id="cb49-58"><a href="#cb49-58" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">caliper =</span> <span class="fl">0.01</span>, <span class="at">std.caliper =</span> T</span>
+<span id="cb49-59"><a href="#cb49-59" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb49-60"><a href="#cb49-60" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">match_data</span>(matched_data_complete)</span>
+<span id="cb49-61"><a href="#cb49-61" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb49-62"><a href="#cb49-62" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>, <span class="st">"Aar"</span>), </span>
+<span id="cb49-63"><a href="#cb49-63" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb49-64"><a href="#cb49-64" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> RegData, <span class="at">smd =</span> T, <span class="at">test =</span> F)<span class="sc">|&gt;</span> </span>
+<span id="cb49-65"><a href="#cb49-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0               1               SMD   
+  n                            490            1069               
+  erMann (mean (SD))          0.56 (0.50)     0.62 (0.49)   0.126
+  Alder (mean (SD))          66.37 (10.61)   63.74 (11.61)  0.236
+  ASA_kat = 3/4 (%)            112 (22.9)      218 (20.4)   0.060
+  straaling = TRUE (%)          75 (15.3)      264 (24.7)   0.236
+  AvstandAnalVerge_kat (%)                                  0.070
+     6.0-10.9 cm               216 (44.1)      486 (45.5)        
+     0-5.9 cm                   33 ( 6.7)       63 ( 5.9)        
+     11.0-15.9 cm              190 (38.8)      392 (36.7)        
+     Ikke målt                  51 (10.4)      128 (12.0)        
+  bmi_forenklet (%)                                         0.069
+     normal                    201 (41.0)      409 (38.3)        
+     undervekt                  10 ( 2.0)       18 ( 1.7)        
+     overvekt                  192 (39.2)      450 (42.1)        
+     fedme                      87 (17.8)      192 (18.0)        
+  Aar (mean (SD))          2021.44 (1.72)  2022.10 (1.79)   0.377</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>, <span class="st">"Aar"</span>), </span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> matched_data, <span class="at">smd =</span> T, <span class="at">test =</span> F) <span class="sc">|&gt;</span> </span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0               1               SMD   
+  n                            410             410               
+  erMann (mean (SD))          0.60 (0.49)     0.57 (0.50)   0.074
+  Alder (mean (SD))          65.78 (10.60)   67.29 (10.05)  0.146
+  ASA_kat = 3/4 (%)             88 (21.5)       90 (22.0)   0.012
+  straaling = TRUE (%)          56 (13.7)       52 (12.7)   0.029
+  AvstandAnalVerge_kat (%)                                  0.048
+     6.0-10.9 cm               182 (44.4)      184 (44.9)        
+     0-5.9 cm                   27 ( 6.6)       29 ( 7.1)        
+     11.0-15.9 cm              160 (39.0)      152 (37.1)        
+     Ikke målt                  41 (10.0)       45 (11.0)        
+  bmi_forenklet (%)                                         0.091
+     normal                    169 (41.2)      182 (44.4)        
+     undervekt                   7 ( 1.7)        8 ( 2.0)        
+     overvekt                  168 (41.0)      150 (36.6)        
+     fedme                      66 (16.1)       70 (17.1)        
+  Aar (mean (SD))          2021.64 (1.64)  2021.47 (1.63)   0.104</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">bal.plot</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  matched_data_complete,</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">"both"</span>,</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.name =</span> <span class="st">"distance"</span>,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"histogram"</span>,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mirror =</span> <span class="cn">TRUE</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%203-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">love.plot</span>(</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  formel,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> <span class="fu">list</span>(<span class="at">w1 =</span> cobalt<span class="sc">::</span><span class="fu">get.w</span>(matched_data_complete)),</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> RegData,</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">binary =</span> <span class="st">"std"</span>,</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">thresholds =</span> <span class="fu">c</span>(<span class="at">m =</span> .<span class="dv">1</span>),</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">abs =</span> T</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%203-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>outcome.formula1 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>outcome.formula2 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet </span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>outcome.formula3 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span> </span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet <span class="sc">+</span> NyStomi</span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>outcome.model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula1,</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb56-16"><a href="#cb56-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb56-17"><a href="#cb56-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-18"><a href="#cb56-18" aria-hidden="true" tabindex="-1"></a>outcome.model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb56-19"><a href="#cb56-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula2,</span>
+<span id="cb56-20"><a href="#cb56-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb56-21"><a href="#cb56-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb56-22"><a href="#cb56-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-23"><a href="#cb56-23" aria-hidden="true" tabindex="-1"></a>outcome.model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb56-24"><a href="#cb56-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula3,</span>
+<span id="cb56-25"><a href="#cb56-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb56-26"><a href="#cb56-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb56-27"><a href="#cb56-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-28"><a href="#cb56-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-29"><a href="#cb56-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-30"><a href="#cb56-30" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    (Intercept) Robotassistanse 
+     0.05943152      1.92036862 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    2.5 %    97.5 %
+(Intercept)     0.0379359 0.0883341
+Robotassistanse 1.1430202 3.3033422</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    2.127505e-02                     2.070179e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    1.345941e-07                     1.691001e+00 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    9.681492e-01                     1.562697e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    1.094410e+00                     1.171542e+00 
+                   straalingTRUE                       ASA_kat3/4 
+                    7.549130e-01                     5.148111e-01 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                    1.829465e-07                     2.473401e+00 
+              bmi_forenkletfedme 
+                    3.406416e+00 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         2.5 %       97.5 %
+(Intercept)                       8.474328e-03 4.884545e-02
+Robotassistanse                   1.216567e+00 3.606142e+00
+AvstandAnalVerge_kat0-5.9 cm     2.498981e-136 3.115913e+07
+AvstandAnalVerge_kat11.0-15.9 cm  9.654153e-01 2.998255e+00
+AvstandAnalVerge_katIkke målt     3.413234e-01 2.378141e+00
+erMann                            8.975266e-01 2.797375e+00
+alder_kat(65,80]                  6.245912e-01 1.931306e+00
+alder_kat(80,140]                 3.202281e-01 3.404855e+00
+straalingTRUE                     2.781537e-01 1.730057e+00
+ASA_kat3/4                        2.404278e-01 1.018794e+00
+bmi_forenkletundervekt                      NA 2.076194e+39
+bmi_forenkletovervekt             1.318804e+00 4.836945e+00
+bmi_forenkletfedme                1.588393e+00 7.391634e+00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    4.061152e-02                     1.868175e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    2.079466e-07                     9.053027e-01 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    6.185508e-01                     1.916326e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    1.093700e+00                     1.378188e+00 
+                   straalingTRUE                       ASA_kat3/4 
+                    8.418112e-01                     5.023459e-01 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                    1.827352e-07                     2.565582e+00 
+              bmi_forenkletfedme                          NyStomi 
+                    3.708532e+00                     1.374748e-01 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         2.5 %       97.5 %
+(Intercept)                       1.592175e-02 9.534365e-02
+Robotassistanse                   1.084376e+00 3.289342e+00
+AvstandAnalVerge_kat0-5.9 cm     1.785355e-128 6.055517e+06
+AvstandAnalVerge_kat11.0-15.9 cm  4.949178e-01 1.671485e+00
+AvstandAnalVerge_katIkke målt     2.114920e-01 1.576765e+00
+erMann                            1.080534e+00 3.499794e+00
+alder_kat(65,80]                  6.138709e-01 1.961774e+00
+alder_kat(80,140]                 3.704616e-01 4.116675e+00
+straalingTRUE                     3.055662e-01 1.972308e+00
+ASA_kat3/4                        2.327096e-01 1.003539e+00
+bmi_forenkletundervekt                      NA 1.223224e+38
+bmi_forenkletovervekt             1.354427e+00 5.066191e+00
+bmi_forenkletfedme                1.695761e+00 8.232045e+00
+NyStomi                           5.029256e-02 3.169113e-01</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="do">##sykehus inkludert i matchingen</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>RegData <span class="ot">&lt;-</span> RegData_alle <span class="sc">|&gt;</span> </span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AvstandAnalVerge_kat),</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(BMI),</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>         Sykehusnavn <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Ahus"</span>, <span class="st">"Haukeland"</span>, <span class="st">"SI-Hamar"</span>, <span class="st">"Skien"</span>, </span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"SI-Kristiansand"</span>, <span class="st">"Tønsberg"</span>,<span class="st">"OUS-Ullevål"</span>, <span class="st">"Stavanger"</span>, <span class="st">"St. Olavs"</span>,</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"UNN-Tromsø"</span>, <span class="st">"VV-Drammen"</span>))</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> RegData <span class="sc">|&gt;</span> </span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>         <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>, <span class="st">"Sykehusnavn"</span>, <span class="st">"Aar"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ASA_kat =</span> <span class="fu">as.factor</span>(ASA_kat) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">straaling =</span> <span class="fu">as.numeric</span>(straaling),</span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">AvstandAnalVerge_kat =</span> <span class="fu">as.numeric</span>(AvstandAnalVerge_kat),</span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">bmi_forenklet =</span> <span class="fu">as.numeric</span>(bmi_forenklet),</span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>         <span class="at">Sykehusnavn =</span> <span class="fu">as.factor</span>(Sykehusnavn) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a>training_data <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(</span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> tmp, </span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> RegData<span class="sc">$</span>Robotassistanse)</span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-26"><a href="#cb71-26" aria-hidden="true" tabindex="-1"></a>params_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb71-27"><a href="#cb71-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">objective =</span> <span class="st">"binary:logistic"</span>,</span>
+<span id="cb71-28"><a href="#cb71-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">eval_metric =</span> <span class="fu">c</span>(<span class="st">"logloss"</span>),</span>
+<span id="cb71-29"><a href="#cb71-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">eta =</span> <span class="fl">0.01</span>,</span>
+<span id="cb71-30"><a href="#cb71-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_depth =</span> <span class="dv">4</span></span>
+<span id="cb71-31"><a href="#cb71-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-32"><a href="#cb71-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-33"><a href="#cb71-33" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">46</span>)</span>
+<span id="cb71-34"><a href="#cb71-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-35"><a href="#cb71-35" aria-hidden="true" tabindex="-1"></a>model_xgbcv <span class="ot">&lt;-</span> <span class="fu">xgb.cv</span>(</span>
+<span id="cb71-36"><a href="#cb71-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">params =</span> params_list,</span>
+<span id="cb71-37"><a href="#cb71-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> training_data,</span>
+<span id="cb71-38"><a href="#cb71-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrounds =</span> <span class="dv">1000</span>,</span>
+<span id="cb71-39"><a href="#cb71-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">nfold =</span> <span class="dv">5</span>, </span>
+<span id="cb71-40"><a href="#cb71-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">stratified =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb71-41"><a href="#cb71-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">early_stopping_rounds =</span> <span class="dv">50</span>,</span>
+<span id="cb71-42"><a href="#cb71-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">maximize =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb71-43"><a href="#cb71-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">prediction =</span> <span class="cn">TRUE</span>,       </span>
+<span id="cb71-44"><a href="#cb71-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span></span>
+<span id="cb71-45"><a href="#cb71-45" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-46"><a href="#cb71-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-47"><a href="#cb71-47" aria-hidden="true" tabindex="-1"></a>best_iter <span class="ot">=</span> model_xgbcv<span class="sc">$</span>best_iteration</span>
+<span id="cb71-48"><a href="#cb71-48" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(params_list, training_data, <span class="at">nrounds =</span> best_iter)</span>
+<span id="cb71-49"><a href="#cb71-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-50"><a href="#cb71-50" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_model, training_data)</span>
+<span id="cb71-51"><a href="#cb71-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-52"><a href="#cb71-52" aria-hidden="true" tabindex="-1"></a>formel <span class="ot">&lt;-</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>  <span class="sc">+</span> </span>
+<span id="cb71-53"><a href="#cb71-53" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb71-54"><a href="#cb71-54" aria-hidden="true" tabindex="-1"></a>  ASA_kat <span class="sc">+</span> straaling <span class="sc">+</span></span>
+<span id="cb71-55"><a href="#cb71-55" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span> bmi_forenklet <span class="sc">+</span> Sykehusnavn <span class="sc">+</span>Aar</span>
+<span id="cb71-56"><a href="#cb71-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-57"><a href="#cb71-57" aria-hidden="true" tabindex="-1"></a>matched_data_complete <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">matchit</span>(<span class="at">formula =</span> Robotassistanse <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb71-58"><a href="#cb71-58" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> RegData, <span class="at">distance =</span> ps, </span>
+<span id="cb71-59"><a href="#cb71-59" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">caliper =</span> <span class="fl">0.03</span>, <span class="at">std.caliper =</span> T</span>
+<span id="cb71-60"><a href="#cb71-60" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-61"><a href="#cb71-61" aria-hidden="true" tabindex="-1"></a>matched_data <span class="ot">&lt;-</span> MatchIt<span class="sc">::</span><span class="fu">match_data</span>(matched_data_complete)</span>
+<span id="cb71-62"><a href="#cb71-62" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb71-63"><a href="#cb71-63" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,<span class="st">"Sykehusnavn"</span>, <span class="st">"Aar"</span>), </span>
+<span id="cb71-64"><a href="#cb71-64" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb71-65"><a href="#cb71-65" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> RegData, <span class="at">smd =</span> T, <span class="at">test =</span> F)<span class="sc">|&gt;</span> </span>
+<span id="cb71-66"><a href="#cb71-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0               1               SMD   
+  n                            490            1069               
+  erMann (mean (SD))          0.56 (0.50)     0.62 (0.49)   0.126
+  Alder (mean (SD))          66.37 (10.61)   63.74 (11.61)  0.236
+  ASA_kat = 3/4 (%)            112 (22.9)      218 (20.4)   0.060
+  straaling = TRUE (%)          75 (15.3)      264 (24.7)   0.236
+  AvstandAnalVerge_kat (%)                                  0.070
+     6.0-10.9 cm               216 (44.1)      486 (45.5)        
+     0-5.9 cm                   33 ( 6.7)       63 ( 5.9)        
+     11.0-15.9 cm              190 (38.8)      392 (36.7)        
+     Ikke målt                  51 (10.4)      128 (12.0)        
+  bmi_forenklet (%)                                         0.069
+     normal                    201 (41.0)      409 (38.3)        
+     undervekt                  10 ( 2.0)       18 ( 1.7)        
+     overvekt                  192 (39.2)      450 (42.1)        
+     fedme                      87 (17.8)      192 (18.0)        
+  Sykehusnavn (%)                                           1.472
+     Ahus                       89 (18.2)       85 ( 8.0)        
+     Haukeland                  40 ( 8.2)      287 (26.8)        
+     OUS-Ullevål                95 (19.4)      108 (10.1)        
+     SI-Hamar                   12 ( 2.4)       99 ( 9.3)        
+     Skien                      78 (15.9)        5 ( 0.5)        
+     Stavanger                  45 ( 9.2)      133 (12.4)        
+     Tønsberg                    5 ( 1.0)      133 (12.4)        
+     UNN-Tromsø                 14 ( 2.9)      183 (17.1)        
+     VV-Drammen                112 (22.9)       36 ( 3.4)        
+  Aar (mean (SD))          2021.44 (1.72)  2022.10 (1.79)   0.377</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>tableone<span class="sc">::</span><span class="fu">CreateTableOne</span>(<span class="at">vars =</span> <span class="fu">c</span>(<span class="st">"erMann"</span>, <span class="st">"Alder"</span>, <span class="st">"ASA_kat"</span>, <span class="st">"straaling"</span>,</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"AvstandAnalVerge_kat"</span>, <span class="st">"bmi_forenklet"</span>,<span class="st">"Sykehusnavn"</span>, <span class="st">"Aar"</span>), </span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strata =</span> <span class="st">"Robotassistanse"</span>,</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> matched_data, <span class="at">smd =</span> T, <span class="at">test =</span> F) <span class="sc">|&gt;</span> </span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">smd =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          Stratified by Robotassistanse
+                           0               1               SMD   
+  n                            208             208               
+  erMann (mean (SD))          0.59 (0.49)     0.63 (0.48)   0.089
+  Alder (mean (SD))          66.58 (10.29)   66.18 (10.55)  0.038
+  ASA_kat = 3/4 (%)             49 (23.6)       46 (22.1)   0.034
+  straaling = TRUE (%)          39 (18.8)       31 (14.9)   0.103
+  AvstandAnalVerge_kat (%)                                  0.094
+     6.0-10.9 cm                80 (38.5)       85 (40.9)        
+     0-5.9 cm                   15 ( 7.2)       15 ( 7.2)        
+     11.0-15.9 cm               76 (36.5)       78 (37.5)        
+     Ikke målt                  37 (17.8)       30 (14.4)        
+  bmi_forenklet (%)                                         0.077
+     normal                     84 (40.4)       90 (43.3)        
+     undervekt                   3 ( 1.4)        4 ( 1.9)        
+     overvekt                   79 (38.0)       76 (36.5)        
+     fedme                      42 (20.2)       38 (18.3)        
+  Sykehusnavn (%)                                           0.404
+     Ahus                       34 (16.3)       35 (16.8)        
+     Haukeland                  40 (19.2)       37 (17.8)        
+     OUS-Ullevål                47 (22.6)       47 (22.6)        
+     SI-Hamar                   12 ( 5.8)       19 ( 9.1)        
+     Skien                       4 ( 1.9)        5 ( 2.4)        
+     Stavanger                  40 (19.2)       31 (14.9)        
+     Tønsberg                    5 ( 2.4)        1 ( 0.5)        
+     UNN-Tromsø                 14 ( 6.7)        5 ( 2.4)        
+     VV-Drammen                 12 ( 5.8)       28 (13.5)        
+  Aar (mean (SD))          2021.54 (1.77)  2021.40 (1.65)   0.081</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">bal.plot</span>(</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  matched_data_complete,</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">which =</span> <span class="st">"both"</span>,</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.name =</span> <span class="st">"distance"</span>,</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"histogram"</span>,</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mirror =</span> <span class="cn">TRUE</span></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%204-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>cobalt<span class="sc">::</span><span class="fu">love.plot</span>(</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>  formel,</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> <span class="fu">list</span>(<span class="at">w1 =</span> cobalt<span class="sc">::</span><span class="fu">get.w</span>(matched_data_complete)),</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> RegData,</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">binary =</span> <span class="st">"std"</span>,</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">thresholds =</span> <span class="fu">c</span>(<span class="at">m =</span> .<span class="dv">1</span>),</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">abs =</span> T</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analyse_anastomoselekk_robot_v2_files/figure-html/propensity%20score%204-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>outcome.formula1 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>outcome.formula2 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>outcome.formula3 <span class="ot">&lt;-</span> Anastomoselekkasje <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Robotassistanse <span class="sc">+</span> </span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>  AvstandAnalVerge_kat <span class="sc">+</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>  erMann <span class="sc">+</span> alder_kat <span class="sc">+</span></span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  straaling <span class="sc">+</span> ASA_kat <span class="sc">+</span> </span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>  bmi_forenklet <span class="sc">+</span> NyStomi</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>outcome.model1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula1,</span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>outcome.model2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula2,</span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb78-22"><a href="#cb78-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-23"><a href="#cb78-23" aria-hidden="true" tabindex="-1"></a>outcome.model3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb78-24"><a href="#cb78-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> outcome.formula3,</span>
+<span id="cb78-25"><a href="#cb78-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb78-26"><a href="#cb78-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> matched_data</span>
+<span id="cb78-27"><a href="#cb78-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-28"><a href="#cb78-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-29"><a href="#cb78-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-30"><a href="#cb78-30" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    (Intercept) Robotassistanse 
+     0.07772021      1.07222222 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     2.5 %    97.5 %
+(Intercept)     0.04400563 0.1267954
+Robotassistanse 0.51350156 2.2501417</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    1.161630e-02                     1.079520e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    2.497676e-07                     1.960919e+00 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    1.511507e+00                     3.099449e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    1.231090e+00                     3.716384e-01 
+                   straalingTRUE                       ASA_kat3/4 
+                    1.268481e+00                     1.410063e+00 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                    4.384240e-07                     1.824705e+00 
+              bmi_forenkletfedme 
+                    3.441128e+00 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model2)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         2.5 %        97.5 %
+(Intercept)                       2.369797e-03  4.430973e-02
+Robotassistanse                   5.040505e-01  2.323424e+00
+AvstandAnalVerge_kat0-5.9 cm     1.961564e-174  7.318579e+13
+AvstandAnalVerge_kat11.0-15.9 cm  8.233614e-01  4.948739e+00
+AvstandAnalVerge_katIkke målt     4.637347e-01  4.658324e+00
+erMann                            1.209543e+00  9.614659e+00
+alder_kat(65,80]                  5.400199e-01  2.864547e+00
+alder_kat(80,140]                 1.933701e-02  2.188483e+00
+straalingTRUE                     3.948050e-01  3.463582e+00
+ASA_kat3/4                        5.790944e-01  3.280203e+00
+bmi_forenkletundervekt                      NA 1.334417e+103
+bmi_forenkletovervekt             7.060134e-01  5.087896e+00
+bmi_forenkletfedme                1.207011e+00  1.040140e+01</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     (Intercept)                  Robotassistanse 
+                    1.618879e-02                     1.153132e+00 
+    AvstandAnalVerge_kat0-5.9 cm AvstandAnalVerge_kat11.0-15.9 cm 
+                    4.861122e-07                     1.338406e+00 
+   AvstandAnalVerge_katIkke målt                           erMann 
+                    1.171261e+00                     3.440127e+00 
+                alder_kat(65,80]                alder_kat(80,140] 
+                    1.284451e+00                     3.595572e-01 
+                   straalingTRUE                       ASA_kat3/4 
+                    1.314838e+00                     1.390333e+00 
+          bmi_forenkletundervekt            bmi_forenkletovervekt 
+                    4.911727e-07                     2.058916e+00 
+              bmi_forenkletfedme                          NyStomi 
+                    4.065286e+00                     2.720391e-01 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">confint</span>((outcome.model3)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                         2.5 %        97.5 %
+(Intercept)                       3.241582e-03  6.405021e-02
+Robotassistanse                   5.307072e-01  2.521659e+00
+AvstandAnalVerge_kat0-5.9 cm     2.698442e-147  5.264587e+18
+AvstandAnalVerge_kat11.0-15.9 cm  5.370335e-01  3.502099e+00
+AvstandAnalVerge_katIkke målt     3.458385e-01  3.729685e+00
+erMann                            1.311824e+00  1.090186e+01
+alder_kat(65,80]                  5.558174e-01  3.038057e+00
+alder_kat(80,140]                 1.858834e-02  2.154661e+00
+straalingTRUE                     4.042294e-01  3.660312e+00
+ASA_kat3/4                        5.732748e-01  3.224423e+00
+bmi_forenkletundervekt                      NA 5.671048e+100
+bmi_forenkletovervekt             7.877761e-01  5.811567e+00
+bmi_forenkletfedme                1.401407e+00  1.256655e+01
+NyStomi                           8.536821e-02  7.199873e-01</code></pre>
 </div>
 </div>
 </section>

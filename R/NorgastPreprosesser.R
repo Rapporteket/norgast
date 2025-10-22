@@ -56,11 +56,12 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$BMI_kodet <- as.numeric(RegData$BMI_kategori)
 
   # Definer operasjonsgrupper basert på NCSP kode
-  RegData <- RegData[which(RegData$ncsp_lowercase!=''),]    # Fjerner registreringer uten operasjonskode
+  RegData <- RegData[which(RegData$ncsp_lowercase != ''),]    # Fjerner registreringer uten operasjonskode
   RegData$Operasjonsgrupper <- "Annet"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
-  RegData$Operasjonsgrupper[intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-                                      which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
+  RegData$Operasjonsgrupper[
+    intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
+              which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
   RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"

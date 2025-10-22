@@ -3,6 +3,41 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+
+###### Bestilling Kjerstin/Stig robot 22.10.2025 #############################
+RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
+RegData <- NorgastPreprosess(RegData_raa)
+
+tmp1 <- RegData |>
+  dplyr::filter(
+    Aar >= 2019,
+    Sykehusnavn %in% c("St.Olavs-Orkdal", "SI-Lillehammer", "SI-Gjøvik",
+                       "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
+                       "VV-Bærum", "HB-Voss", "Namsos"),
+    Robotassistanse == 1
+    ) |>
+  dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
+                Sykehusnavn, Tilgang, Robotassistanse, SistLagretAv,
+                Anastomoselekkasje)
+
+tmp2 <- RegData |>
+  dplyr::filter(
+    Aar >= 2019,
+    !(Sykehusnavn %in% c("St.Olavs-Orkdal", "SI-Lillehammer", "SI-Gjøvik",
+                       "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
+                       "VV-Bærum", "HB-Voss", "Namsos")),
+    Robotassistanse == 1) |>
+  dplyr::filter(sum(Robotassistanse) < 3, .by = Sykehusnavn) |>
+  dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
+                Sykehusnavn, Tilgang, Robotassistanse, SistLagretAv,
+                Anastomoselekkasje)
+
+til_register <- dplyr::bind_rows(tmp1, tmp2)
+write.csv2(til_register, "C:/regdata/norgast/utleveringer/feilreg_robot.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
+
+
 #### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
 #### tykktarmskreft i Norge. Korrigert versjon 09.10.2025 ####################
 varnavn <- readxl::read_xlsx(
@@ -140,7 +175,7 @@ RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
 #### tykktarmskreft i Norge 10.09.2025 #######################################
 varnavn <- readxl::read_xlsx(
   "C:/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
-                     sheet = 1) |>
+  sheet = 1) |>
   tidyr::separate(col="Databasereferanse",
                   into=c("tabell", "var_navn"),
                   extra = "merge")
