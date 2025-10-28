@@ -2,17 +2,17 @@
 library(norgast)
 library(dplyr)
 
-testdata <- read.csv2("C:/regdata/norgast/NORGAST_skjemaoversikt_datadump_06.10.2025.csv")
+testdata <- read.csv2("C:/regdata/norgast/NORGAST_skjemaoversikt_datadump_28.10.2025.csv")
 
 tabell <- testdata |>
-  summarise(status = SkjemaStatus,
-            .by = c(OpprettetAv,Skjemanavn, HovedDato)) |>
+  summarise(status = unique(SkjemaStatus),
+            .by = c(OpprettetAv, Skjemanavn, HovedDato)) |>
   mutate(HovedDato = case_when(
     HovedDato == "2025-06-12" ~ "Case2",
     HovedDato == "2025-06-24" ~ "Case3",
     HovedDato == "2025-07-01" ~ "Case1",
     HovedDato == "2025-07-25" ~ "Case4",
-    .default = "Ikke.reg."),
+    .default = "Feil.dato"),
     Skjemanavn = case_when(
       Skjemanavn == "Registrering" ~ "Skjema1",
       Skjemanavn == "Oppfolging/Innleggelse" ~ "Skjema2",

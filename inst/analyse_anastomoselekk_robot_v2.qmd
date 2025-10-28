@@ -1057,9 +1057,9 @@ RegData <- RegData_alle |>
   filter(!is.na(AvstandAnalVerge_kat),
          !is.na(BMI),
          Sykehusnavn %in% c(
-            "Ahus", "Haukeland", "SI-Hamar", "Skien", 
-            "SI-Kristiansand", "Tønsberg","OUS-Ullevål", "Stavanger", "St. Olavs",
-            "UNN-Tromsø", "VV-Drammen"))
+           "Ahus", "Haukeland", "SI-Hamar", "Skien", 
+           "SI-Kristiansand", "Tønsberg","OUS-Ullevål", "Stavanger", "St. Olavs",
+           "UNN-Tromsø", "VV-Drammen"))
 
 tmp <- RegData |> 
   select("erMann", "Alder", "ASA_kat", "straaling",
@@ -1183,9 +1183,9 @@ RegData <- RegData_alle |>
   filter(!is.na(AvstandAnalVerge_kat),
          !is.na(BMI),
          Sykehusnavn %in% c(
-            "Ahus", "Haukeland", "SI-Hamar", "Skien", 
-            "SI-Kristiansand", "Tønsberg","OUS-Ullevål", "Stavanger", "St. Olavs",
-            "UNN-Tromsø", "VV-Drammen"))
+           "Ahus", "Haukeland", "SI-Hamar", "Skien", 
+           "SI-Kristiansand", "Tønsberg","OUS-Ullevål", "Stavanger", "St. Olavs",
+           "UNN-Tromsø", "VV-Drammen"))
 
 tmp <- RegData |> 
   select("erMann", "Alder", "ASA_kat", "straaling",
@@ -1302,6 +1302,41 @@ exp(coef((outcome.model3)))
 exp(confint((outcome.model3)))
 
 ```
+
+
+```{r, regresjon ny, warning=FALSE}
+RegData <- RegData_alle |> 
+  filter(!is.na(AvstandAnalVerge_kat),
+         !is.na(BMI))
+# dplyr::filter(aar_erfaring_shus2 == 3 | Robotassistanse == 0)
+
+model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet +
+                      Sykehusnavn + aar_erfaring_shus2,
+                    data = RegData |> 
+                      mutate(aar_erfaring_shus2=as.factor(aar_erfaring_shus2)), 
+                    family = "binomial")
+
+
+exp(coef((model_samlet)))
+exp(confint((model_samlet)))
+
+model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet +
+                      Sykehusnavn + NyStomi,
+                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
+                                              !is.na(BMI)), 
+                    family = "binomial")
+exp(coef((model_samlet)))
+exp(confint((model_samlet)))
+
+
+```
+
 
 
 
