@@ -202,7 +202,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
   ) |> merge(
     registration |>
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
-                    MCEID) |>
+                    MCEID, ICD10_VERSION, NCSP_VERSION) |>
       dplyr::rename(!!!varnavn_registration),
     by.x = "ForlopsID", by.y = "MCEID", all = TRUE
   ) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>

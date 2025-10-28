@@ -1,0 +1,25 @@
+---
+title: "Charlson vs. ASA"
+format: html
+---
+
+## Quarto
+
+Av praktiske hensyn har ASA-grad vært brukt som et mål for komorbiditet i flere registre. Vi ønsker å undersøke i hvor stor grad ASA samsvarer med Charlson comorbidity index, som regnes som gullstandard for comorbiditet.
+
+
+```{r}
+#| echo=FALSE
+regdata <- 
+
+
+
+```
+
+You can add options to executable code like this 
+
+```{r}
+#| echo: false
+2 * 2
+```
+
