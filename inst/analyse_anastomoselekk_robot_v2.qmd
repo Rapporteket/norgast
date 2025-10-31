@@ -117,8 +117,6 @@ RegData <- NorgastPreprosess(RegData_raa) |>
                               "Førde", "VV-Bærum", "Sykehuset Levanger") ~ "C")
   ) |> 
   filter(
-    # HovedDato >= "2019-01-01",
-    # HovedDato <= "2025-06-30", # Filtrer på operasjonsdato
     Op_gr == 2,
     FerdigForlop_v2 == 1,
     !(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
@@ -127,7 +125,8 @@ RegData <- NorgastPreprosess(RegData_raa) |>
   mutate(
     forste_robot = ifelse(forste_robot == Inf, 3000, forste_robot)) |> 
   mutate(aar_erfaring_shus = Aar-forste_robot+1,
-         aar_erfaring_shus = ifelse(aar_erfaring_shus < 0, 0, aar_erfaring_shus)) |> 
+         aar_erfaring_shus = ifelse(
+           aar_erfaring_shus < 0, 0, aar_erfaring_shus)) |> 
   filter(HovedDato >= "2019-01-01",
          HovedDato <= "2025-06-30") |> # Filtrer på operasjonsdato)
   filter(
@@ -145,75 +144,68 @@ RegData <- NorgastPreprosess(RegData_raa) |>
     aar_erfaring_shus %in% 4:12 ~ 3)
   )
 
+frafall <- NorgastPreprosess(RegData_raa) |> 
+  mutate(ASA = ifelse(ASA==1, 2, ASA),
+         straaling = (KunStraaleterapi | KjemoRadioKombo),
+         erfaringsnivaa = case_when(
+           Sykehusnavn %in% c("OUS-Radiumhospitalet", "OUS-Ullevål", 
+                              "Tønsberg", "SI-Hamar", "Haukeland", 
+                              "Stavanger", "NS-Bodø", "UNN-Tromsø") ~ "A",
+           Sykehusnavn %in% c("VV-Drammen", "SS-Kristiansand", 
+                              "Skien", "St.Olavs", "Ahus") ~ "B",
+           Sykehusnavn %in% c("SI-Gjøvik", "Haugesund", "Ålesund", 
+                              "Førde", "VV-Bærum", "Sykehuset Levanger") ~ "C")
+  ) |> 
+  filter(
+    HovedDato >= "2020-01-01",
+    HovedDato <= "2025-06-30", # Filtrer på operasjonsdato
+    Op_gr == 2,
+    FerdigForlop_v2 == 1) |>
+  filter(!(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
+         !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
+         !is.na(AvstandAnalVerge_kat)) |>  # Fjerner tumor >15 cm fra analkant) |>
+  summarise(
+    "Rektumreseksjoner" = n(),
+    "Ikke-maligne" = sum(substr(toupper(Hoveddiagnose), 1, 3) != "C20"),
+    "WHOECOG > 1" = sum(
+      !(WHOECOG %in% 0:1) & substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
+    "Akuttkirugi" = sum(
+      (Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 &
+        substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
+    "Åpen kirurgi" = sum(Tilgang == 1 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
+    "Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)" =
+      sum(NyAnastomose != 1 & Robotassistanse == 0 & Tilgang %in% 2:3 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),
+    "Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)" =
+      sum(NyAnastomose != 1 & Robotassistanse == 1 & Tilgang %in% 2:3 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),
+    "Operert robotassistert på sykehus uten robot" = sum(erfaringsnivaa == "C" &
+                                                           Robotassistanse == 1, na.rm = T),
+    "Tumor >15 cm fra analkant" = sum(is.na(AvstandAnalVerge_kat)),
+    "Rektumoperert på sykehus som ikke opererer rektum" =
+      sum(is.na(erfaringsnivaa)),
+    "Oppfyller én eller flere eksklusjonsskriterier" =
+      sum((substr(toupper(Hoveddiagnose), 1, 3) != "C20") |
+            (!(WHOECOG %in% 0:1)) | (Hastegrad == 2) |
+            (Hastegrad_tid == 0) |
+            (Tilgang == 1) | (NyAnastomose != 1) |
+            (erfaringsnivaa == "C" & Robotassistanse == 1) |
+            is.na(AvstandAnalVerge_kat) | is.na(erfaringsnivaa))
+  )
 
-# frafall <- RegData |> 
-#   filter(!(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
-#          !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
-#          !is.na(AvstandAnalVerge_kat)) |>  # Fjerner tumor >15 cm fra analkant) |> 
-#   summarise(
-#     "Rektumreseksjoner" = n(),
-#     "Ikke-maligne" = sum(substr(toupper(Hoveddiagnose), 1, 3) != "C20"),
-#     "WHOECOG > 1" = sum(
-#       !(WHOECOG %in% 0:1) & substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
-#     "Akuttkirugi" = sum(
-#       (Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 &
-#         substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
-#     "Åpen kirurgi" = sum(Tilgang == 1 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20"),
-#     "Uten ny anastomose, konvensjonell laparoskopi (inkl. konverterte)" = 
-#       sum(NyAnastomose != 1 & Robotassistanse == 0 & Tilgang %in% 2:3 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),
-#     "Uten ny anastomose, robotassistert laparoskopi (inkl. konverterte)" = 
-#       sum(NyAnastomose != 1 & Robotassistanse == 1 & Tilgang %in% 2:3 & !(Hastegrad_tid == 0 | Hastegrad == 2) & WHOECOG %in% 0:1 & substr(toupper(Hoveddiagnose), 1, 3) == "C20", na.rm = T),
-#     "Operert robotassistert på sykehus uten robot" = sum(erfaringsnivaa == "C" &
-#                                                            Robotassistanse == 1, na.rm = T),
-#     "Tumor >15 cm fra analkant" = sum(is.na(AvstandAnalVerge_kat)),
-#     "Rektumoperert på sykehus som ikke opererer rektum" = 
-#       sum(is.na(erfaringsnivaa)),
-#     "Oppfyller én eller flere eksklusjonsskriterier" = 
-#       sum((substr(toupper(Hoveddiagnose), 1, 3) != "C20") |
-#             (!(WHOECOG %in% 0:1)) | (Hastegrad == 2) | 
-#             (Hastegrad_tid == 0) |
-#             (Tilgang == 1) | (NyAnastomose != 1) | 
-#             (erfaringsnivaa == "C" & Robotassistanse == 1) | 
-#             is.na(AvstandAnalVerge_kat) | is.na(erfaringsnivaa))
-#   )
-# 
-# frafall <- data.frame("var" = names(frafall),
-#                       "Antall" = unlist(frafall))
-# names(frafall)[1] <- ""
-# knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsaker")
-# 
-# RegData <- RegData %>% 
-#   filter(
-#     substr(toupper(Hoveddiagnose), 1, 3) == "C20", # Kun malign
-#     WHOECOG %in% 0:1,          # WHOECOG > 1 fjernes
-#     Hastegrad == 1,            # Elektive operasjoner
-#     Hastegrad_tid == 1,        # På ukedag og med anestesistart i normalarbeidstid
-#     # NyAnastomose == 1,         # Ny anastomomse
-#     Tilgang %in% 2:3,           # Laparoskopiske inngrep, inkludert konverterte
-#     !(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
-#     !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
-#     !is.na(AvstandAnalVerge_kat) # Fjerner tumor >15 cm fra analkant
-#   )
-# 
-# nyanastomosetab <- RegData |> 
-#   summarise(UtenNyAnastomose = sum(NyAnastomose==0),
-#             "Andel uten ny anastomose (%)" = 
-#               round(UtenNyAnastomose/n()*100, 1),
-#             N = n(),
-#             .by = Robotassistanse) |> 
-#   rename("Antall uten ny anastomose" = UtenNyAnastomose)
-# 
-# knitr::kable(nyanastomosetab, row.names = FALSE, 
-#              caption = "Antall uten ny anastomose")
-# 
-# RegData <- RegData %>%
-#   filter(NyAnastomose == 1) |> # Ny anastomomse
-#   mutate(forste_robot = min(Aar[Robotassistanse == 1], na.rm = T), .by= Sykehusnavn) |> 
-#   mutate(
-#     forste_robot = ifelse(forste_robot == Inf, 3000, forste_robot)) |> 
-#   mutate(aar_erfaring_shus = Aar-forste_robot+1,
-#          aar_erfaring_shus = ifelse(aar_erfaring_shus < 0, 0, aar_erfaring_shus))
+frafall <- data.frame("var" = names(frafall),
+                      "Antall" = unlist(frafall))
+names(frafall)[1] <- ""
+knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsaker")
 
+nyanastomosetab <- RegData |>
+  summarise(UtenNyAnastomose = sum(NyAnastomose==0),
+            "Andel uten ny anastomose (%)" =
+              round(UtenNyAnastomose/n()*100, 1),
+            N = n(),
+            .by = Robotassistanse) |>
+  rename("Antall uten ny anastomose" = UtenNyAnastomose)
+
+knitr::kable(nyanastomosetab, row.names = FALSE,
+             caption = "Antall uten ny anastomose")
 
 ```
 
@@ -1338,7 +1330,41 @@ exp(confint((model_samlet)))
 ```
 
 
+```{r, nye analyser, warning=FALSE}
+
+# lekkasjerate i begge grupper over år
+# tidsplot
+# oppdater flytskjema
+library(ggplot2)
+
+RegData <- RegData_alle
+
+tidsplotdata <- RegData |> 
+  mutate(Robotassistanse = factor(Robotassistanse, levels=0:1, 
+                                  labels=c("Laparoscopic", "Robotic"))) |> 
+  summarise(ant_lekk = sum(Anastomoselekkasje),
+            N = n(),
+            andel = ant_lekk/N,
+            .by = c(Aar, Robotassistanse)) |> 
+  mutate(pkt_tekst = paste0(ant_lekk, "/", N))
+
+p <- ggplot(tidsplotdata, aes(x = Aar, y = andel, color = Robotassistanse)) +
+  geom_line(size = 1) +
+  geom_point() + 
+  geom_text(aes(label = pkt_tekst), # Map the denominator column to the label
+            vjust = -2,
+            size = 3,                  # Adjust label size
+            color = "black") +         # Set label color
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Anastomotic leakage",
+       x = "Year",
+       y = "Proportion",
+       color = "Abdominal access") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5))
 
 
+p
 
 
+```
