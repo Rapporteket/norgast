@@ -3,6 +3,41 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+###### Telling til prosjekt ORACOL, 05.11.2025 ################################
+
+RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
+RegData <- NorgastPreprosess(RegData_raa) |>
+  dplyr::filter(!is.na(Hovedoperasjon))
+
+Tabell <- RegData |>
+  dplyr::mutate(reseksjon = dplyr::case_when(
+    substr(ncsp_lowercase, 1, 3) == "jfb" &
+      as.numeric(substr(ncsp_lowercase, 4, 5)) %in% 20:34 ~ "Høyre",
+    substr(ncsp_lowercase, 1, 3) == "jfb" &
+      as.numeric(substr(ncsp_lowercase, 4, 5)) %in% 40:51 ~ "Venstre",
+    .default = "Annet"
+  )) |>
+  dplyr::filter(
+    Aar %in% 2019:2024,
+    Hastegrad == 1,
+    reseksjon != "Annet",
+    NyAnastomose == 1,
+    NyStomi == 0,
+    FerdigForlop_v2 == 1
+  ) |>
+  dplyr::summarise(
+    alvorlig_komplikasjon = sum(KumAcc),
+    N = dplyr::n(),
+    .by = c(Sykehusnavn, reseksjon)
+  ) |>
+  tidyr::pivot_wider(names_from = reseksjon,
+                     values_from = c(alvorlig_komplikasjon, N)) |>
+  dplyr::mutate(Sykehusnavn = paste0("Senter ", 1:dim(Tabell)[1])) |>
+  janitor::adorn_totals()
+
+write.csv2(Tabell, "C:/regdata/norgast/utleveringer/ORACOL.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
 
 ###### Bestilling Kjerstin/Stig robot 22.10.2025 #############################
 RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
@@ -15,7 +50,7 @@ tmp1 <- RegData |>
                        "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
                        "VV-Bærum", "HB-Voss", "Namsos"),
     Robotassistanse == 1
-    ) |>
+  ) |>
   dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
                 Sykehusnavn, Tilgang, Robotassistanse, SistLagretAv,
                 Anastomoselekkasje)
@@ -24,8 +59,8 @@ tmp2 <- RegData |>
   dplyr::filter(
     Aar >= 2019,
     !(Sykehusnavn %in% c("St.Olavs-Orkdal", "SI-Lillehammer", "SI-Gjøvik",
-                       "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
-                       "VV-Bærum", "HB-Voss", "Namsos")),
+                         "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
+                         "VV-Bærum", "HB-Voss", "Namsos")),
     Robotassistanse == 1) |>
   dplyr::filter(sum(Robotassistanse) < 3, .by = Sykehusnavn) |>
   dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
