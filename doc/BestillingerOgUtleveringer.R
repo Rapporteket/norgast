@@ -204,7 +204,13 @@ appdata <- norgast::NorgastHentData()
 RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
   dplyr::select(varnavn_kobl$rapporteket, PasientID) |>
   dplyr::filter(OpDato <= "2023-12-31",
-                PasientID %in% krg_pas$PID)
+                PasientID %in% krg_pas$PID) |>
+  merge(krg_pas[, c("PID", "P_pidKrg")], by.x = "PasientID", by.y = "PID")
+
+write.csv2(RegData,
+           "C:/regdata/norgast/utleveringer/til_stig_T4_studien.csv",
+           row.names = FALSE, na = "",
+           fileEncoding = "Latin1")
 
 #### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
 #### tykktarmskreft i Norge 10.09.2025 #######################################
