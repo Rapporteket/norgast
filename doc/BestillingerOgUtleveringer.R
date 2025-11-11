@@ -3,6 +3,28 @@ library(norgast)
 # library(tidyverse)
 rm(list=ls())
 
+###### Aktualitetsfigur Kjerstin 11.11.2025 ###################################
+RegData <- norgast::NorgastHentData()$RegData |>
+  NorgastPreprosess()
+
+outfile <- 'Aktualitet_oppf_2025.pdf'
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegData,
+  valgtVar = "Aktualitet_oppf_v2",
+  datoFra = "2025-01-01",
+  # datoTil = "2024-12-31",
+  datoTil = "2025-06-30",
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
 ###### Telling til prosjekt ORACOL, 05.11.2025 ################################
 
 RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
