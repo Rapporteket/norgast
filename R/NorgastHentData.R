@@ -224,7 +224,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
     dplyr::rename(erMann = GENDER,
                   Fodselsdato = BIRTH_DATE) |>
     dplyr::mutate(
-      PasientAlder = norgast::age(Fodselsdato, OpDato),
+      PasientAlder = norgast::age(Fodselsdato, OpDato, floor = FALSE),
       erMann = 2 - erMann,
       Sykehusnavn = skjemaoversikt$Sykehusnavn[
         match(AvdRESH, skjemaoversikt$AvdRESH)],

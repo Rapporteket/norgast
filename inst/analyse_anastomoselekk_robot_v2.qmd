@@ -103,15 +103,19 @@ library(norgast)
 library(dplyr)
 # rm(list = ls())
 
-RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
-RegData <- NorgastPreprosess(RegData_raa) |> 
+# RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
+RegData_raa <- norgast::NorgastHentData()$RegData
+RegData <- RegData_raa |>
+  # rename(Sykehusnavn = SykehusNavn) |>
+  NorgastPreprosess() |> 
   mutate(ASA = ifelse(ASA==1, 2, ASA),
          straaling = (KunStraaleterapi | KjemoRadioKombo),
          erfaringsnivaa = case_when(
-           Sykehusnavn %in% c("OUS-Radiumhospitalet", "OUS-Ullevål", 
+           Sykehusnavn %in% c("OUS-Ullevål", 
                               "Tønsberg", "SI-Hamar", "Haukeland", 
                               "Stavanger", "NS-Bodø", "UNN-Tromsø") ~ "A",
-           Sykehusnavn %in% c("VV-Drammen", "SS-Kristiansand", 
+           Sykehusnavn %in% c("OUS-Radiumhospitalet", "VV-Drammen",
+                              "SS-Kristiansand", "SØ-Kalnes", 
                               "Skien", "St.Olavs", "Ahus") ~ "B",
            Sykehusnavn %in% c("SI-Gjøvik", "Haugesund", "Ålesund", 
                               "Førde", "VV-Bærum", "Sykehuset Levanger") ~ "C")
@@ -144,14 +148,16 @@ RegData <- NorgastPreprosess(RegData_raa) |>
     aar_erfaring_shus %in% 4:12 ~ 3)
   )
 
-frafall <- NorgastPreprosess(RegData_raa) |> 
+frafall <- RegData_raa |> 
+  NorgastPreprosess() |> 
   mutate(ASA = ifelse(ASA==1, 2, ASA),
          straaling = (KunStraaleterapi | KjemoRadioKombo),
          erfaringsnivaa = case_when(
-           Sykehusnavn %in% c("OUS-Radiumhospitalet", "OUS-Ullevål", 
+           Sykehusnavn %in% c("OUS-Ullevål", 
                               "Tønsberg", "SI-Hamar", "Haukeland", 
                               "Stavanger", "NS-Bodø", "UNN-Tromsø") ~ "A",
-           Sykehusnavn %in% c("VV-Drammen", "SS-Kristiansand", 
+           Sykehusnavn %in% c("OUS-Radiumhospitalet", "VV-Drammen",
+                              "SS-Kristiansand", "SØ-Kalnes", 
                               "Skien", "St.Olavs", "Ahus") ~ "B",
            Sykehusnavn %in% c("SI-Gjøvik", "Haugesund", "Ålesund", 
                               "Førde", "VV-Bærum", "Sykehuset Levanger") ~ "C")
@@ -161,9 +167,9 @@ frafall <- NorgastPreprosess(RegData_raa) |>
     HovedDato <= "2025-06-30", # Filtrer på operasjonsdato
     Op_gr == 2,
     FerdigForlop_v2 == 1) |>
-  # filter(!(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
-  #        !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
-  #        !is.na(AvstandAnalVerge_kat)) |>  # Fjerner tumor >15 cm fra analkant) |>
+  filter(!(erfaringsnivaa == "C" & Robotassistanse == 1), # Fjerner umulige robotop.
+         !is.na(erfaringsnivaa), # Fjerner sykehus som ikke op. rektum
+         !is.na(AvstandAnalVerge_kat)) |>  # Fjerner tumor >15 cm fra analkant) |>
   summarise(
     "Rektumreseksjoner" = n(),
     "Ikke-maligne" = sum(substr(toupper(Hoveddiagnose), 1, 3) != "C20"),
@@ -209,6 +215,41 @@ nyanastomosetab <- RegData |>
 
 knitr::kable(nyanastomosetab, row.names = FALSE,
              caption = "Antall uten ny anastomose")
+
+other_findings <- RegData |> 
+  summarise(lekkaskje = sum(Anastomoselekkasje),
+            N = n(),
+            .by = c(Robotassistanse, erfaringsnivaa))
+
+x <- c(other_findings |> filter(Robotassistanse == 1 & erfaringsnivaa == "A") |> 
+         select(lekkaskje) |> unlist(), 
+       other_findings |> filter(Robotassistanse == 1 & erfaringsnivaa == "B") |> 
+         select(lekkaskje) |> unlist()) # Vector of success counts
+n <- c(other_findings |> filter(Robotassistanse == 1 & erfaringsnivaa == "A") |> 
+         select(N) |> unlist(), 
+       other_findings |> filter(Robotassistanse == 1 & erfaringsnivaa == "B") |> 
+         select(N) |> unlist()) # Vector of total sample sizes
+# Perform the two-proportion test
+results_robot <- prop.test(x, n, alternative = "two.sided", conf.level = 0.95)
+
+x <- c(other_findings |> filter(Robotassistanse == 0 & erfaringsnivaa == "A") |> 
+         select(lekkaskje) |> unlist(), 
+       other_findings |> filter(Robotassistanse == 0 & erfaringsnivaa == "B") |> 
+         select(lekkaskje) |> unlist()) # Vector of success counts
+n <- c(other_findings |> filter(Robotassistanse == 0 & erfaringsnivaa == "A") |> 
+         select(N) |> unlist(), 
+       other_findings |> filter(Robotassistanse == 0 & erfaringsnivaa == "B") |> 
+         select(N) |> unlist()) # Vector of total sample sizes
+# Perform the two-proportion test
+results_conv <- prop.test(x, n, alternative = "two.sided", conf.level = 0.95)
+
+other_findings |> filter(erfaringsnivaa %in% c("A", "B")) |> 
+  tidyr::pivot_wider(names_from = erfaringsnivaa, values_from = c(lekkaskje, N))
+  
+
+# Print the results
+print(results_robot)
+print(results_conv)
 
 ```
 
@@ -1179,7 +1220,8 @@ RegData <- RegData_alle |>
          !is.na(BMI),
          Sykehusnavn %in% c(
            "Ahus", "Haukeland", "SI-Hamar", "Skien", 
-           "SI-Kristiansand", "Tønsberg","OUS-Ullevål", "Stavanger", "St. Olavs",
+           "SI-Kristiansand", "Tønsberg","OUS-Ullevål", 
+           "Stavanger", "St. Olavs", "SØ-Kalnes",
            "UNN-Tromsø", "VV-Drammen"))
 
 tmp <- RegData |> 
@@ -1358,7 +1400,9 @@ p <- ggplot(tidsplotdata, aes(x = Aar, y = andel, color = Robotassistanse)) +
             vjust = -2,
             size = 3,                  # Adjust label size
             color = "black") +         # Set label color
-  scale_y_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent,
+                     expand = expansion(mult = c(0, 0.2))) +
+  expand_limits(y = 0) +
   scale_x_continuous(breaks = sort(unique(tidsplotdata$Aar))) +
   labs(title = "Anastomotic leakage",
        x = "Year",
@@ -1366,7 +1410,6 @@ p <- ggplot(tidsplotdata, aes(x = Aar, y = andel, color = Robotassistanse)) +
        color = "Abdominal access") +
   theme_classic() +
   theme(plot.title = element_text(hjust = 0.5))
-
 
 p
 
