@@ -1,6 +1,8 @@
 ---
 title: "Anastomoselekkasje ved robotkirurgi"
-format: pdf
+format:
+  html: 
+    embed-resources: true
 editor: visual
 ---
 
@@ -245,7 +247,7 @@ results_conv <- prop.test(x, n, alternative = "two.sided", conf.level = 0.95)
 
 other_findings |> filter(erfaringsnivaa %in% c("A", "B")) |> 
   tidyr::pivot_wider(names_from = erfaringsnivaa, values_from = c(lekkaskje, N))
-  
+
 
 # Print the results
 print(results_robot)
