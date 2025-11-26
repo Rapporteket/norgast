@@ -1,6 +1,7 @@
 
 library(norgast)
 library(dplyr)
+rm(list = ls())
 
 testdata <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_skjemaoversikt_datadump_20.11.2025.csv")
 
@@ -30,116 +31,63 @@ tabell <- testdata |>
 #   na = "", fileEncoding = "Latin1", row.names = F)
 
 
-registration <- read.csv2(
-  "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv")
-readmission <- read.csv2(
-  "C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv")
+# registration <- read.csv2(
+#   "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv")
+# readmission <- read.csv2(
+#   "C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv")
 
-
-# =============================
-# R TEMPLATE FOR INTER-RATER RELIABILITY
-# =============================
-
-# Load required packages
-library(tidyr)
-library(dplyr)
-library(irr)
-
-# 1. Load your data
-data <- read.csv2(
-  "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") |>
-  filter(STATUS == 1) %>%
-  filter(!duplicated(select(., CASENUMBER, CREATEDBY))) |>
-  filter(CREATEDBY != "krlass@ous-hf.no")
-
-
-# 2. Choose variable of interest (example: BMI_CATEGORY)
-variable_of_interest <- "BMI_CATEGORY"
-
-# 3. Reshape data to wide format
-irr_data <- data %>%
-  select(CASENUMBER, CREATEDBY, !!sym(variable_of_interest)) %>%
-  pivot_wider(names_from = CREATEDBY, values_from = !!sym(variable_of_interest))
-
-
-# Function to filter columns based on first n rows having no NA
-keep_non_na_columns <- function(df, n) {
-  # Check each column: are the first n elements all non-NA?
-  cols_to_keep <- sapply(df, function(col) all(!is.na(head(col, n))))
-
-  # Subset the data frame to keep only those columns
-  df_filtered <- df[, cols_to_keep, drop = FALSE]
-
-  return(df_filtered)
-}
-
-irr_data2 <- keep_non_na_columns(irr_data, 3)
-irr_data3 <- keep_non_na_columns(irr_data, 4)
-
-# 4. Prepare ratings matrix (remove CASENUMBER)
-ratings <- irr_data3[,-1]
-
-
-# ratings[] <- lapply(ratings, function(x) {
-#   if (is.numeric(x)) {
-#     x[is.na(x)] <- mean(x, na.rm = TRUE)
-#   } else {
-#     x[is.na(x)] <- names(sort(table(x), decreasing = TRUE))[1]
-#   }
-#   x
-# })
-
-
-# 5. Compute IRR
-# Fleiss' Kappa for >2 raters (nominal data)
-kappa_result <- kappam.fleiss(ratings)
-print(kappa_result)
-
-# Cohen's Kappa for 2 raters
-# kappa_result <- kappa2(ratings)
-
-# ICC for continuous data
-# icc_result <- icc(ratings, model = "twoway", type = "agreement", unit = "single")
-# print(icc_result)
-
-# =============================
-# Interpretation:
-# Kappa: <0 Poor, 0-0.20 Slight, 0.21-0.40 Fair, 0.41-0.60 Moderate, 0.61-0.80 Substantial, 0.81-1 Almost perfect
-# ICC: <0.5 Poor, 0.5-0.75 Moderate, 0.75-0.9 Good, >0.9 Excellent
-# =============================
 
 # =============================
 # FULL IRR ANALYSIS WITH KRIPPENDORFF'S ALPHA
 # =============================
 
-library(dplyr)
 library(tidyr)
 library(irr)
 
 # 1. Load and clean data
-data <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
+data_reg <- read.csv2(
+  "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
   filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
   filter(CREATEDBY != "krlass@ous-hf.no") %>%
-  select(where(~ !all(is.na(.)))) |>
-  mutate(ROBOTASSISTANCE = ifelse(is.na(ROBOTASSISTANCE), 9, ROBOTASSISTANCE),
-         TATME = ifelse(is.na(TATME), 9, TATME),
-         RELAPAROTOMY_YES = ifelse(is.na(RELAPAROTOMY_YES), 9, RELAPAROTOMY_YES),
-         RELAPAROTOMY_NO = ifelse(is.na(RELAPAROTOMY_NO), 9, RELAPAROTOMY_NO),
-         PERCUTANEOUS_DRAINAGE = ifelse(is.na(PERCUTANEOUS_DRAINAGE), 9, PERCUTANEOUS_DRAINAGE),
-         LEAK_INTERVENTION = ifelse(is.na(LEAK_INTERVENTION), 9, LEAK_INTERVENTION),
-         BLEED_INTERVENTION = ifelse(is.na(BLEED_INTERVENTION), 9, BLEED_INTERVENTION),
-         ANGIO_INTERVENTION = ifelse(is.na(ANGIO_INTERVENTION), 9, ANGIO_INTERVENTION),
-         LIQUID_DRAINAGE = ifelse(is.na(LIQUID_DRAINAGE), 9, LIQUID_DRAINAGE)
-         )
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(ROBOTASSISTANCE, TATME, RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE),
+                ~replace_na(., -1))) %>%
+  mutate(across(c(PREVIOUS_WEIGHT, ADMISSION_WEIGHT, HEIGHT,
+                  ALBUMIN, CRP),
+                ~replace_na(., -1)))
+data_readm <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE,
+                  PHYSICAL_CONTROL, PHONE_CONTROL, RELAPAROTOMY,
+                  INTERVENTION_WITHOUT_ANESTHESIA, SINGLE_ORGAN_FAILURE,
+                  MULTI_ORGAN_FAILURE, IN_HOUSE_DEATH),
+                ~replace_na(., -1)))
+
 klokebok <- read.csv2("C:/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
 
 # 2. Define variables of interest
-categorical_vars <- klokebok |> filter(skjemanavn == "Registrering",
-                                       type == "Listevariabel") |>
-  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data))
-# categorical_vars <- c("BMI_CATEGORY", "ASA")       # Example categorical
-numeric_vars <- c("ADMISSION_WEIGHT", "HEIGHT")    # Example numeric
+categorical_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                           type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg)) |>
+  c("NCSP", "ICD10")
+categorical_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                             type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
+numeric_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                       type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg))
+numeric_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                         type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
 
 # Function to filter columns based on first n rows having no NA
 keep_non_na_columns <- function(df, n) {
@@ -153,7 +101,7 @@ keep_non_na_columns <- function(df, n) {
 }
 
 # 3. Function to compute IRR for categorical variables
-compute_categorical_IRR <- function(var, n) {
+compute_categorical_IRR <- function(data, var, n) {
   cat("\n=== Inter-Rater Reliability for", var, "===\n")
 
   irr_data <- data %>%
@@ -184,7 +132,7 @@ compute_categorical_IRR <- function(var, n) {
 }
 
 # 4. Function to compute IRR for numeric variables
-compute_numeric_IRR <- function(var, n) {
+compute_numeric_IRR <- function(data, var, n) {
   cat("\n=== Inter-Rater Reliability for", var, "===\n")
 
   irr_data <- data %>%
@@ -201,34 +149,140 @@ compute_numeric_IRR <- function(var, n) {
   icc_result <- icc(ratings, model = "twoway", type = "agreement", unit = "single")
 
   # Krippendorff's alpha for interval data
-  # kripp_result <- kripp.alpha(t(ratings), method = "interval")
+  kripp_result <- kripp.alpha(t(ratings), method = "interval")
 
-  print(icc_result)
-  # print(kripp_result)
+  list(icc_result = icc_result,
+       kripp_result = kripp_result)
 }
 
 # 5. Run analysis
-tabell_kategorisk <- data.frame(Variabel = NULL,
+tabell_kategorisk <- data.frame(Tabell = NULL,
+                                Variabel = NULL,
                                 Kappa = NULL,
                                 Krippendorff = NULL,
                                 Samsvar = NULL,
                                 ant_ratere = NULL,
                                 ant_caser = NULL)
 k <- 0
-for (var in categorical_vars) {
+for (var in categorical_vars_reg) {
   k <- k+1
-  analyse <- compute_categorical_IRR(var, 3)
+  analyse <- compute_categorical_IRR(data_reg, var, 3)
   tabell_kategorisk <- bind_rows(
     tabell_kategorisk,
-    data.frame(Variabel = var,
+    data.frame(Tabell = "Registrering",
+               Variabel = var,
                Kappa = analyse$kappa_result$value,
                Krippendorff = analyse$kripp_result$value,
                Samsvar = analyse$samsvar$value,
                ant_ratere = analyse$samsvar$raters,
                ant_caser = analyse$samsvar$subjects)
-    )
-  }
-for (var in numeric_vars) compute_numeric_IRR(var, 3)
+  )
+  analyse <- compute_categorical_IRR(data_reg, var, 4)
+  tabell_kategorisk <- bind_rows(
+    tabell_kategorisk,
+    data.frame(Tabell = "Registrering",
+               Variabel = var,
+               Kappa = analyse$kappa_result$value,
+               Krippendorff = analyse$kripp_result$value,
+               Samsvar = analyse$samsvar$value,
+               ant_ratere = analyse$samsvar$raters,
+               ant_caser = analyse$samsvar$subjects)
+  )
+}
+# k <- 0
+for (var in categorical_vars_readm) {
+  k <- k+1
+  analyse <- compute_categorical_IRR(data_readm, var, 3)
+  tabell_kategorisk <- bind_rows(
+    tabell_kategorisk,
+    data.frame(Tabell = "Oppfølging",
+               Variabel = var,
+               Kappa = analyse$kappa_result$value,
+               Krippendorff = analyse$kripp_result$value,
+               Samsvar = analyse$samsvar$value,
+               ant_ratere = analyse$samsvar$raters,
+               ant_caser = analyse$samsvar$subjects)
+  )
+  analyse <- compute_categorical_IRR(data_readm, var, 4)
+  tabell_kategorisk <- bind_rows(
+    tabell_kategorisk,
+    data.frame(Tabell = "Oppfølging",
+               Variabel = var,
+               Kappa = analyse$kappa_result$value,
+               Krippendorff = analyse$kripp_result$value,
+               Samsvar = analyse$samsvar$value,
+               ant_ratere = analyse$samsvar$raters,
+               ant_caser = analyse$samsvar$subjects)
+  )
+}
+
+
+
+tabell_numerisk <- data.frame(Tabell = NULL,
+                              Variabel = NULL,
+                              ICC = NULL,
+                              Krippendorff = NULL,
+                              ant_ratere = NULL,
+                              ant_caser = NULL)
+k <- 0
+for (var in numeric_vars_reg[1:5]) {
+  k <- k+1
+  analyse <- compute_numeric_IRR(data_reg, var, 3)
+  tabell_numerisk <- bind_rows(
+    tabell_numerisk,
+    data.frame(Tabell = "Registrering",
+               Variabel = var,
+               ICC = analyse$icc_result$value,
+               Krippendorff = analyse$kripp_result$value,
+               ant_ratere = analyse$icc_result$raters,
+               ant_caser = analyse$icc_result$subjects)
+  )
+  analyse <- compute_numeric_IRR(data_reg, var, 4)
+  tabell_numerisk <- bind_rows(
+    tabell_numerisk,
+    data.frame(Tabell = "Registrering",
+               Variabel = var,
+               ICC = analyse$icc_result$value,
+               Krippendorff = analyse$kripp_result$value,
+               ant_ratere = analyse$icc_result$raters,
+               ant_caser = analyse$icc_result$subjects)
+  )
+}
+# for (var in numeric_vars_readm) {
+#   k <- k+1
+#   analyse <- compute_numeric_IRR(data_readm, var, 3)
+#   tabell_numerisk <- bind_rows(
+#     tabell_numerisk,
+#     data.frame(Tabell = "Oppfølging",
+#                Variabel = var,
+#                ICC = analyse$icc_result$value,
+#                Krippendorff = analyse$kripp_result$value,
+#                ant_ratere = analyse$icc_result$raters,
+#                ant_caser = analyse$icc_result$subjects)
+#   )
+#   analyse <- compute_numeric_IRR(data_readm, var, 4)
+#   tabell_numerisk <- bind_rows(
+#     tabell_numerisk,
+#     data.frame(Tabell = "Oppfølging",
+#                Variabel = var,
+#                ICC = analyse$icc_result$value,
+#                Krippendorff = analyse$kripp_result$value,
+#                ant_ratere = analyse$icc_result$raters,
+#                ant_caser = analyse$icc_result$subjects)
+#   )
+# }
+
+write.csv2(
+  tabell_kategorisk,
+  "C:/regdata/norgast/reliabilitet/tabell_kategorisk.csv",
+  row.names = F, na = "",
+  fileEncoding = "Latin1")
+
+write.csv2(
+  tabell_numerisk,
+  "C:/regdata/norgast/reliabilitet/tabell_numerisk.csv",
+  row.names = F, na = "",
+  fileEncoding = "Latin1")
 
 # =============================
 # Interpretation:
@@ -238,9 +292,4 @@ for (var in numeric_vars) compute_numeric_IRR(var, 3)
 # =============================
 
 
-
-irr_data <- data %>%
-  select(CASENUMBER, CREATEDBY, CHEMOTHERAPY_ONLY) %>%
-  pivot_wider(names_from = CREATEDBY, values_from = CHEMOTHERAPY_ONLY) |>
-  keep_non_na_columns(n)
 
