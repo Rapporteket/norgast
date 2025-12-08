@@ -57,7 +57,23 @@ data_reg <- read.csv2(
                 ~replace_na(., -1))) %>%
   mutate(across(c(PREVIOUS_WEIGHT, ADMISSION_WEIGHT, HEIGHT,
                   ALBUMIN, CRP),
-                ~replace_na(., -1)))
+                ~replace_na(., -1))) |>
+  mutate(ncsp_lowercase = tolower(NCSP)) |>
+  dplyr::mutate(
+    op_gr = dplyr::case_when(
+      substr(ncsp_lowercase,1,3)=="jfh" |
+        (substr(ncsp_lowercase,1,3)=="jfb" &
+           substr(ncsp_lowercase,4,5) %in% 20:64 ) ~ "Kolon",
+      substr(ncsp_lowercase,1,3)=="jgb" ~ "Rektum",
+      substr(ncsp_lowercase,1,3)=="jcc" ~ "Øsofagus",
+      substr(ncsp_lowercase,1,3)=="jdc" |
+        substr(ncsp_lowercase,1,3)=="jdd" ~ "Ventrikkel",
+      substr(ncsp_lowercase,1,3)=="jjb" ~ "Lever",
+      substr(ncsp_lowercase,1,5) %in% c('jlc10','jlc11') ~ "Distale",
+      substr(ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96') ~ "Andre pankreas",
+      substr(ncsp_lowercase,1,5) %in% c("jlc30","jlc31") ~ "Whipples",
+      .default = "Annet"
+    ))
 data_readm <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
   merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
@@ -78,7 +94,7 @@ klokebok <- read.csv2("C:/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025
 categorical_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
                                            type %in% c("Listevariabel", "Avkrysningsboks")) |>
   select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg)) |>
-  c("NCSP", "ICD10")
+  c("NCSP", "ICD10", "op_gr")
 categorical_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
                                              type %in% c("Listevariabel", "Avkrysningsboks")) |>
   select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
@@ -284,6 +300,30 @@ write.csv2(
   row.names = F, na = "",
   fileEncoding = "Latin1")
 
+
+### Brukerkommentarer
+
+kommentarer_reg <- data_reg |>
+  dplyr::filter(USERCOMMENT != "") |>
+  dplyr::select(CREATEDBY, CASENUMBER, USERCOMMENT) |>
+  dplyr::mutate(skjema = "Registrering")
+
+kommentarer_readm <- data_readm |>
+  dplyr::filter(USERCOMMENT != "") |>
+  merge(data_reg |> dplyr::select(MCEID, CASENUMBER),
+        by = "MCEID", all.x = TRUE) |>
+  dplyr::select(CREATEDBY, CASENUMBER, USERCOMMENT) |>
+  dplyr::mutate(skjema = "Oppfølging")
+
+kommentarer <- dplyr::bind_rows(kommentarer_reg, kommentarer_readm) |>
+  dplyr::relocate(skjema)
+
+write.csv2(
+  kommentarer,
+  "C:/regdata/norgast/reliabilitet/kommentarer.csv",
+  row.names = F, na = "",
+  fileEncoding = "Latin1")
+
 # =============================
 # Interpretation:
 # Kappa: <0 Poor, 0-0.20 Slight, 0.21-0.40 Fair, 0.41-0.60 Moderate, 0.61-0.80 Substantial, 0.81-1 Almost perfect
@@ -292,4 +332,28 @@ write.csv2(
 # =============================
 
 
-
+#
+# library(dplyr)
+# library(tidyr)
+# library(stringr)
+# library(purrr)
+#
+# s <- "0, 0. Fully active, able to carry on all pre-disease performance without restriction. | 1, 1.  Restricted in physically strenuous activity but ambulatory and able to carry out work of a light or sedentary nature e.g., light housework, officer work. | 2, 2.  Ambulatory and capable of all selfcare but unable to carry out any work activities; up and about more than 50 % of waking hours. | 3, 3.  Capable of only limited selfcare; confined to bed or chair more than 50% of waking hours. | 4, 4. Completely disabled; cannot carry on any selfcare; totally confined to bed or chair."
+#
+# map_koder <- function(s) {
+#   data.frame(raw = s) %>%
+#     mutate(rows = str_split(raw, "\\|")) %>%
+#     select(rows) %>%
+#     unnest(rows) %>%
+#     mutate(rows = str_trim(rows)) %>%
+#     # split only on the first comma
+#     separate_wider_delim(
+#       rows, delim = ",",
+#       names = c("col1", "col2"),
+#       too_many = "merge"  # keep later commas in col2
+#     ) %>%
+#     mutate(
+#       col1 = str_trim(col1),
+#       col2 = str_trim(col2)
+#     )
+# }
