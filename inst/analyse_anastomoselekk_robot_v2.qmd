@@ -207,16 +207,16 @@ knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsake
 write.csv2(frafall, "C:/regdata/norgast/robotartikkel/frafall.csv", 
            row.names = F, fileEncoding = "Latin1")
 
-nyanastomosetab <- RegData |>
-  summarise(UtenNyAnastomose = sum(NyAnastomose==0),
-            "Andel uten ny anastomose (%)" =
-              round(UtenNyAnastomose/n()*100, 1),
-            N = n(),
-            .by = Robotassistanse) |>
-  rename("Antall uten ny anastomose" = UtenNyAnastomose)
-
-knitr::kable(nyanastomosetab, row.names = FALSE,
-             caption = "Antall uten ny anastomose")
+# nyanastomosetab <- RegData |>
+#   summarise(UtenNyAnastomose = sum(NyAnastomose==0),
+#             "Andel uten ny anastomose (%)" =
+#               round(UtenNyAnastomose/n()*100, 1),
+#             N = n(),
+#             .by = Robotassistanse) |>
+#   rename("Antall uten ny anastomose" = UtenNyAnastomose)
+# 
+# knitr::kable(nyanastomosetab, row.names = FALSE,
+#              caption = "Antall uten ny anastomose")
 
 other_findings <- RegData |> 
   summarise(lekkaskje = sum(Anastomoselekkasje),
@@ -751,8 +751,7 @@ model_samlet <- glm(Anastomoselekkasje ~ 1 + Robotassistanse +
                       erMann + alder_kat +
                       ASA_kat + straaling +
                       AvstandAnalVerge_kat + bmi_forenklet + NyStomi,
-                    data = RegData %>% filter(!is.na(AvstandAnalVerge_kat),
-                                              !is.na(BMI)), 
+                    data = RegData %>% filter(!is.na(BMI)), 
                     family = "binomial")
 
 a <- exp(coef(model_samlet))
@@ -1417,5 +1416,279 @@ p
 
 ggsave(filename = "C:/regdata/norgast/robotartikkel/lekkasje_tid.svg", plot = p, width = 7, height = 5, units = "in")
 
+
+```
+
+```{r, nye sensitivitetsanalyser, warning=FALSE}
+
+RegData <- RegData_alle |> 
+  filter(AvstandAnalVerge_kat != "Ikke målt",
+         !is.na(BMI))
+
+tmp <- RegData |> 
+  select("erMann", "Alder", "ASA_kat", "straaling",
+         "AvstandAnalVerge_kat", "bmi_forenklet",  
+         "Aar") |>
+  mutate(ASA_kat = as.factor(ASA_kat) |> as.numeric(),
+         straaling = as.numeric(straaling),
+         AvstandAnalVerge_kat = as.numeric(AvstandAnalVerge_kat),
+         bmi_forenklet = as.numeric(bmi_forenklet),
+  ) |> 
+  as.matrix()
+
+training_data <- xgb.DMatrix(
+  data = tmp, 
+  label = RegData$Robotassistanse)
+
+params_list <- list(
+  objective = "binary:logistic",
+  eval_metric = c("logloss"),
+  eta = 0.1,
+  max_depth = 4
+)
+
+set.seed(45)
+
+model_xgbcv <- xgb.cv(
+  params = params_list,
+  data = training_data,
+  nrounds = 1000,
+  nfold = 5, 
+  stratified = TRUE,
+  early_stopping_rounds = 50,
+  maximize = FALSE,
+  prediction = TRUE,       
+  verbose = 0
+)
+
+best_iter = model_xgbcv$best_iteration
+final_model <- xgb.train(params_list, training_data, nrounds = best_iter)
+
+ps <- predict(final_model, training_data)
+
+formel <- Robotassistanse ~ 1  + 
+  erMann + alder_kat +
+  ASA_kat + straaling +
+  AvstandAnalVerge_kat + bmi_forenklet
+
+matched_data_complete <- MatchIt::matchit(formula = Robotassistanse ~ 1,
+                                          data = RegData, distance = ps, 
+                                          caliper = 0.15, std.caliper = T,
+                                          # ratio = 1,
+)
+matched_data <- MatchIt::match_data(matched_data_complete)
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge_kat", "bmi_forenklet",  
+                                  "Aar"), 
+                         strata = "Robotassistanse",
+                         data = RegData, smd = T, test = F)|> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_unmatched.xlsx", rowNames = T)
+
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge_kat", "bmi_forenklet",  
+                                  "Aar"), 
+                         strata = "Robotassistanse",
+                         data = matched_data, smd = T, test = F) |> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_matched.xlsx", rowNames = T)
+
+cobalt::bal.plot(
+  matched_data_complete,
+  which = "both",
+  var.name = "distance",
+  type = "histogram",
+  mirror = TRUE
+)
+cobalt::love.plot(
+  formel,
+  weights = list(w1 = cobalt::get.w(matched_data_complete)),
+  data = RegData,
+  binary = "std",
+  thresholds = c(m = .1),
+  abs = T
+)
+
+
+outcome.formula1 <- Anastomoselekkasje ~ 1 + Robotassistanse
+outcome.formula2 <- Anastomoselekkasje ~ 1 + Robotassistanse + 
+  AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat + 
+  bmi_forenklet
+outcome.formula3 <- Anastomoselekkasje ~ 1 + Robotassistanse + 
+  AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat + 
+  bmi_forenklet + NyStomi
+
+outcome.model1 <- glm(
+  formula = outcome.formula1,
+  family = binomial,
+  data = matched_data
+)
+outcome.model2 <- glm(
+  formula = outcome.formula2,
+  family = binomial,
+  data = matched_data
+)
+outcome.model3 <- glm(
+  formula = outcome.formula3,
+  family = binomial,
+  data = matched_data
+)
+
+
+exp(coef((outcome.model1)))
+exp(confint((outcome.model1)))
+exp(coef((outcome.model2)))
+exp(confint((outcome.model2)))
+exp(coef((outcome.model3)))
+exp(confint((outcome.model3)))
+
+```
+
+```{r, nye sensitivitetsanalyser 2, warning=FALSE}
+
+RegData <- RegData_alle |> 
+  filter(!is.na(BMI))
+
+
+tmp <- RegData |> 
+  select("erMann", "Alder", "ASA_kat", "straaling",
+         "AvstandAnalVerge_kat", "bmi_forenklet",  
+         "Aar") |>
+  mutate(ASA_kat = as.factor(ASA_kat) |> as.numeric(),
+         straaling = as.numeric(straaling),
+         AvstandAnalVerge_kat = as.numeric(AvstandAnalVerge_kat),
+         bmi_forenklet = as.numeric(bmi_forenklet),
+  ) |> 
+  as.matrix()
+
+training_data <- xgb.DMatrix(
+  data = tmp, 
+  label = RegData$Robotassistanse)
+
+params_list <- list(
+  objective = "binary:logistic",
+  eval_metric = c("logloss"),
+  eta = 0.1,
+  max_depth = 4
+)
+
+set.seed(45)
+
+model_xgbcv <- xgb.cv(
+  params = params_list,
+  data = training_data,
+  nrounds = 1000,
+  nfold = 5, 
+  stratified = TRUE,
+  early_stopping_rounds = 50,
+  maximize = FALSE,
+  prediction = TRUE,       
+  verbose = 0
+)
+
+best_iter = model_xgbcv$best_iteration
+final_model <- xgb.train(params_list, training_data, nrounds = best_iter)
+
+ps <- predict(final_model, training_data)
+
+formel <- Robotassistanse ~ 1  + 
+  erMann + alder_kat +
+  ASA_kat + straaling +
+  AvstandAnalVerge_kat + bmi_forenklet
+
+matched_data_complete <- MatchIt::matchit(formula = Robotassistanse ~ 1,
+                                          data = RegData, distance = ps, 
+                                          caliper = 0.15, std.caliper = T,
+                                          # ratio = 1,
+)
+matched_data <- MatchIt::match_data(matched_data_complete)
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge_kat", "bmi_forenklet",  
+                                  "Aar"), 
+                         strata = "Robotassistanse",
+                         data = RegData, smd = T, test = F)|> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_unmatched.xlsx", rowNames = T)
+
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge_kat", "bmi_forenklet",  
+                                  "Aar"), 
+                         strata = "Robotassistanse",
+                         data = matched_data, smd = T, test = F) |> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_matched.xlsx", rowNames = T)
+
+cobalt::bal.plot(
+  matched_data_complete,
+  which = "both",
+  var.name = "distance",
+  type = "histogram",
+  mirror = TRUE
+)
+cobalt::love.plot(
+  formel,
+  weights = list(w1 = cobalt::get.w(matched_data_complete)),
+  data = RegData,
+  binary = "std",
+  thresholds = c(m = .1),
+  abs = T
+)
+
+
+outcome.formula1 <- Anastomoselekkasje ~ 1 + Robotassistanse
+outcome.formula2 <- Anastomoselekkasje ~ 1 + Robotassistanse + 
+  AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat + 
+  bmi_forenklet
+outcome.formula3 <- Anastomoselekkasje ~ 1 + Robotassistanse + 
+  AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat + 
+  bmi_forenklet + NyStomi
+
+outcome.model1 <- glm(
+  formula = outcome.formula1,
+  family = binomial,
+  data = matched_data
+)
+outcome.model2 <- glm(
+  formula = outcome.formula2,
+  family = binomial,
+  data = matched_data
+)
+outcome.model3 <- glm(
+  formula = outcome.formula3,
+  family = binomial,
+  data = matched_data
+)
+
+
+exp(coef((outcome.model1)))
+exp(confint((outcome.model1)))
+exp(coef((outcome.model2)))
+exp(confint((outcome.model2)))
+exp(coef((outcome.model3)))
+exp(confint((outcome.model3)))
+
+```
+
+
+```{r, utvikling robot, warning=FALSE}
+library(tidyr)
+
+andel_robot_aar <- RegData |> 
+  summarise(andel_rob = sum(Robotassistanse)/ n()*100, 
+            N = n(), 
+            .by = c(Sykehusnavn, Aar)) |> 
+  mutate(andel_rob = paste0(round(andel_rob, 1), " (", N, ")")) |> 
+  select(-N) |> 
+  pivot_wider(names_from = c(Aar), values_from = andel_rob)
+
+knitr::kable(andel_robot_aar)
 
 ```
