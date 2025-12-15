@@ -2,15 +2,15 @@ library(norgast)
 library(tidyverse)
 rm(list = ls())
 
-rap_aar <- 2024
+rap_aar <- 2025
 
-RegData <-  norgast::NorgastHentRegData()
+RegData <-  norgast::NorgastHentData()$RegData
 RegData <- norgast::NorgastPreprosess(RegData)
 RegData$AvdRESH[RegData$AvdRESH == 4204084] <- 4204126 # Tull med Ringerike
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
 RegDataOblig <- RegDataOblig[RegDataOblig$Aar <= rap_aar, ]
-# RegDataOblig <- RegDataOblig %>% filter(OpDato < "2023-07-01") ## Ad hoc, desemberpublisering
+RegDataOblig <- RegDataOblig %>% filter(OpDato < "2025-07-01") ## Ad hoc, desemberpublisering
 
 ind <- c("norgast_saarruptur", "norgast_aktivkontroll", "norgast_vekt_reg",
          "norgast_avdoede_spiseroer", "norgast_avdoede_magesekk",
@@ -27,9 +27,9 @@ for (ind_id in ind[-1]) {
 
 indikator <- indikator %>% select(-Sykehus)
 
-ind_tmp <- indikator |> dplyr::filter(ind_id == "norgast_vekt_reg")
-write.csv2(ind_tmp, "~/regdata/norgast/behandlingskvalitet/vekttap.csv",
-           fileEncoding = "UTF-8", row.names = F)
+# ind_tmp <- indikator |> dplyr::filter(ind_id == "norgast_vekt_reg")
+# write.csv2(ind_tmp, "~/regdata/norgast/behandlingskvalitet/vekttap.csv",
+#            fileEncoding = "UTF-8", row.names = F)
 
 ### Tilbered dekningsgrad for sykehusviser
 dg_imong <- read.csv2("~/regdata/norgast/imongr_juni2025.csv") |>
@@ -137,8 +137,10 @@ samlet <- bind_rows(dg_norgast, dg_norgast_samlet) |>
   bind_rows(indikator)
 
 
-write.csv2(samlet, "~/regdata/norgast/behandlingskvalitet/beh_kval_2024.csv",
-           fileEncoding = "UTF-8", row.names = F)
+write.csv2(
+  indikator,
+  paste0("C:/regdata/norgast/behandlingskvalitet/norgast_indikator_", lubridate::today(), ".csv"),
+  fileEncoding = "UTF-8", row.names = F)
 
 
 # write.csv2(samlet, "inst/extdata/dg2024.csv",
