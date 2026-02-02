@@ -3,7 +3,7 @@ library(norgast)
 library(dplyr)
 rm(list = ls())
 
-testdata <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_skjemaoversikt_datadump_20.11.2025.csv")
+testdata <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_skjemaoversikt_datadump_20.11.2025.csv")
 
 tabell <- testdata |>
   summarise(status = unique(SkjemaStatus),
@@ -27,14 +27,14 @@ tabell <- testdata |>
 
 # write.csv2(
 #   tabell,
-#   paste0("C:/regdata/norgast/status_datakvalreg_norgast_", Sys.Date(), ".csv"),
+#   paste0("C:/Users/kth200/regdata/norgast/status_datakvalreg_norgast_", Sys.Date(), ".csv"),
 #   na = "", fileEncoding = "Latin1", row.names = F)
 
 
 # registration <- read.csv2(
-#   "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv")
+#   "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv")
 # readmission <- read.csv2(
-#   "C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv")
+#   "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv")
 
 
 # =============================
@@ -46,7 +46,7 @@ library(irr)
 
 # 1. Load and clean data
 data_reg <- read.csv2(
-  "C:/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
+  "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
   filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
   filter(CREATEDBY != "krlass@ous-hf.no") %>%
@@ -74,7 +74,7 @@ data_reg <- read.csv2(
       substr(ncsp_lowercase,1,5) %in% c("jlc30","jlc31") ~ "Whipples",
       .default = "Annet"
     ))
-data_readm <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
+data_readm <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
   merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
   filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
@@ -88,7 +88,7 @@ data_readm <- read.csv2("C:/regdata/norgast/reliabilitet/NORGAST_readmission_dat
                   MULTI_ORGAN_FAILURE, IN_HOUSE_DEATH),
                 ~replace_na(., -1)))
 
-klokebok <- read.csv2("C:/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
+klokebok <- read.csv2("C:/Users/kth200/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
 
 # 2. Define variables of interest
 categorical_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
@@ -290,13 +290,13 @@ for (var in numeric_vars_reg[1:5]) {
 
 write.csv2(
   tabell_kategorisk,
-  "C:/regdata/norgast/reliabilitet/tabell_kategorisk.csv",
+  "C:/Users/kth200/regdata/norgast/reliabilitet/tabell_kategorisk.csv",
   row.names = F, na = "",
   fileEncoding = "Latin1")
 
 write.csv2(
   tabell_numerisk,
-  "C:/regdata/norgast/reliabilitet/tabell_numerisk.csv",
+  "C:/Users/kth200/regdata/norgast/reliabilitet/tabell_numerisk.csv",
   row.names = F, na = "",
   fileEncoding = "Latin1")
 
@@ -320,7 +320,7 @@ kommentarer <- dplyr::bind_rows(kommentarer_reg, kommentarer_readm) |>
 
 write.csv2(
   kommentarer,
-  "C:/regdata/norgast/reliabilitet/kommentarer.csv",
+  "C:/Users/kth200/regdata/norgast/reliabilitet/kommentarer.csv",
   row.names = F, na = "",
   fileEncoding = "Latin1")
 
@@ -330,6 +330,91 @@ write.csv2(
 # ICC: <0.5 Poor, 0.5-0.75 Moderate, 0.75-0.9 Good, >0.9 Excellent
 # Krippendorff's alpha: >0.8 good, >0.667 acceptable
 # =============================
+
+
+library(dplyr)
+library(tidyr)
+library(krippendorffsalpha)
+
+compute_alpha_for_all <- function(data, variables, metrics, nodes = 20) {
+
+  # safety check
+  if (length(variables) != length(metrics)) {
+    stop("Length of 'variables' must match length of 'metrics'")
+  }
+
+  results <- list()
+
+  for (i in seq_along(variables)) {
+    var <- variables[i]
+    metric <- metrics[i]
+
+    message("Processing variable: ", var, " (", metric, ")")
+
+    # pivot: case-by-rater
+    wide <- data %>%
+      select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+      mutate(
+        CASENUMBER = as.character(CASENUMBER),
+        CREATEDBY  = as.character(CREATEDBY)
+      ) %>%
+      distinct() %>%   # protect against duplicates
+      pivot_wider(
+        names_from  = CREATEDBY,
+        values_from = all_of(var)
+      )
+
+    rating_matrix <- wide %>% select(-CASENUMBER) %>% as.matrix()
+
+    # compute Krippendorff's alpha with confidence intervals
+    fit <- krippendorffs.alpha(
+      rating_matrix,
+      level = metric,
+      confint = TRUE,
+      control  = list(nodes = nodes)
+    )
+
+    # Store result
+    results[[var]] <- list(
+      alpha     = fit$alpha,
+      confint   = confint(fit),
+      full_fit  = fit
+    )
+  }
+
+  return(results)
+}
+
+
+
+variables <- c("ASA", "WHO_ECOG_SCORE", "URGENCY")
+metrics   <- c("ordinal", "ordinal", "nominal")
+
+results <- compute_alpha_for_all(data_reg, variables, metrics)
+
+
+
+results$URGENCY$alpha
+results$URGENCY$confint
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #

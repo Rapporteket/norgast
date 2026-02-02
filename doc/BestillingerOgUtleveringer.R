@@ -1,7 +1,72 @@
 # setwd('C:/GIT/norgast/doc/')
 library(norgast)
+library(dplyr)
 # library(tidyverse)
 rm(list=ls())
+
+###### Koble krg-data Stig 02.02.2026 #################################
+
+filsti <- "C:/Users/kth200/regdata/norgast/utleveringer/stig/"
+
+crc_kir_mld_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_kir_mld_variabler_utlevering_2_4356_v2.csv"))
+
+crc_var_pat_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_var_pat_utlevering_2_4356.csv"))
+
+crc_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_variabler_utlevering_2_4356.csv"))
+
+post_op_strale_var_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "post_op_strale_var_utlevering_2_4356.csv"))
+
+old <- Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+krg_crc_variabler_4356 <-
+  read.csv2(paste0(filsti, "krg_crc_variabler_4356.csv")) |>
+  mutate(opdato = as.Date(S_datoOprPrimar, format = "%d%b%Y"))
+Sys.setlocale("LC_TIME", old)  # restore
+
+NORGAST_datasett <-
+  read.csv2(paste0(filsti, "NORGAST_datasett.csv")) |>
+  mutate(OpDato2 = as.Date(OpDato, format = "%d.%m.%Y"),
+         OpDato2 = as.Date(format(OpDato2, "%Y-%m-15")))
+
+
+kobletdata <- merge(crc_kir_mld_variabler_utlevering_2_4356,
+                    crc_var_pat_utlevering_2_4356,
+                    by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(post_op_strale_var_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_kir_mld_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(krg_crc_variabler_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE)
+
+kobletdata_m_norgast <- merge(kobletdata,
+                              NORGAST_datasett,
+                              by.x = c("P_pidKrg", "opdato"),
+                              by.y = c("P_pidKrg", "OpDato2"),
+                              all = TRUE) |>
+  relocate(P_pidKrg, opdato, S_datoOprPrimar, OpDato, M_kirKolon1.x,
+           M_kirKolon1.y, M_kirKolon2.x, M_kirKolon2.y, Hovedoperasjon) |>
+  arrange(P_pidKrg, opdato, S_datoOprPrimar, OpDato)
+
+
+write.csv2(kobletdata_m_norgast, paste0(filsti, "kobletdata_krg_feb26.csv"),
+           row.names = F,
+           fileEncoding = "Latin1")
+
+
+kobletdata |> summarise(N=n(), .by = P_pidKrg) |> filter(N>1)
+tmp <- NORGAST_datasett |> summarise(N=n(), .by = P_pidKrg) |> filter(N>1) |>
+  arrange(N)
+
+tmp2 <- NORGAST_datasett |> filter(P_pidKrg %in% tmp$P_pidKrg) |>
+  summarise(N = n(), .by = Hovedoperasjon) |> arrange(-N)
+
 
 ###### Aktualitetsfigur Kjerstin 11.11.2025 ###################################
 RegData <- norgast::NorgastHentData()$RegData |>
@@ -104,11 +169,11 @@ varnavn <- readxl::read_xlsx(
                   into=c("tabell", "var_navn"),
                   extra = "merge")
 krg_pas_alle <- read.csv(
-  "C:/regdata/norgast/utleveringer/du4356_h_1101_norderval_kobling.csv",
+  "C:/Users/kth200/regdata/norgast/utleveringer/du4356_h_1101_norderval_kobling.csv",
   colClasses = c("character", "integer")
 )
 kobl_fnr <- read.csv2(
-  "C:/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
+  "C:/Users/kth200/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
   colClasses = c("integer", "character")
 ) |>
   dplyr::rename(FNR = SSN)
@@ -230,7 +295,7 @@ RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
   merge(krg_pas[, c("PID", "P_pidKrg")], by.x = "PasientID", by.y = "PID")
 
 write.csv2(RegData,
-           "C:/regdata/norgast/utleveringer/til_stig_T4_studien.csv",
+           "C:/Users/kth200/regdata/norgast/utleveringer/til_stig_T4_studien.csv",
            row.names = FALSE, na = "",
            fileEncoding = "Latin1")
 
