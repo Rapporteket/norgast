@@ -1,0 +1,101 @@
+---
+title: "Reliabilitet NORGAST"
+author: "NORGAST"
+format:
+  html:
+    embed-resources: true
+---
+
+## Formål
+Formålet med prosjektet er ...
+
+## Bakgrunn
+
+
+## Metode
+
+
+## Resultater
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(norgast)
+library(dplyr)
+library(tidyr)
+library(irr)
+rm(list = ls())
+
+# 1. Load and clean data
+data_reg <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(ROBOTASSISTANCE, TATME, RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE),
+                ~replace_na(., -1))) %>%
+  mutate(across(c(PREVIOUS_WEIGHT, ADMISSION_WEIGHT, HEIGHT,
+                  ALBUMIN, CRP),
+                ~replace_na(., -1))) |>
+  mutate(ncsp_lowercase = tolower(NCSP)) |>
+  dplyr::mutate(
+    op_gr = dplyr::case_when(
+      substr(ncsp_lowercase,1,3)=="jfh" |
+        (substr(ncsp_lowercase,1,3)=="jfb" &
+           substr(ncsp_lowercase,4,5) %in% 20:64 ) ~ "Kolon",
+      substr(ncsp_lowercase,1,3)=="jgb" ~ "Rektum",
+      substr(ncsp_lowercase,1,3)=="jcc" ~ "Øsofagus",
+      substr(ncsp_lowercase,1,3)=="jdc" |
+        substr(ncsp_lowercase,1,3)=="jdd" ~ "Ventrikkel",
+      substr(ncsp_lowercase,1,3)=="jjb" ~ "Lever",
+      substr(ncsp_lowercase,1,5) %in% c('jlc10','jlc11') ~ "Distale",
+      substr(ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96') ~ "Andre pankreas",
+      substr(ncsp_lowercase,1,5) %in% c("jlc30","jlc31") ~ "Whipples",
+      .default = "Annet"
+    ))
+data_readm <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE,
+                  PHYSICAL_CONTROL, PHONE_CONTROL, RELAPAROTOMY,
+                  INTERVENTION_WITHOUT_ANESTHESIA, SINGLE_ORGAN_FAILURE,
+                  MULTI_ORGAN_FAILURE, IN_HOUSE_DEATH),
+                ~replace_na(., -1)))
+
+klokebok <- read.csv2("C:/Users/kth200/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
+
+# 2. Define variables of interest
+categorical_vars_reg <- klokebok |> 
+  filter(skjemanavn == "Registrering",
+         type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> 
+  intersect(names(data_reg)) |>
+  c("NCSP", "ICD10", "op_gr")
+categorical_vars_readm <- klokebok |> 
+  filter(skjemanavn == "Reinnleggelse/oppfølging",
+         type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> 
+  intersect(names(data_readm))
+numeric_vars_reg <- klokebok |> 
+  filter(skjemanavn == "Registrering",
+         type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> 
+  intersect(names(data_reg))
+numeric_vars_readm <- klokebok |> 
+  filter(skjemanavn == "Reinnleggelse/oppfølging",
+         type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> 
+  intersect(names(data_readm))
+
+
+```

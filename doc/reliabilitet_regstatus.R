@@ -123,6 +123,8 @@ compute_categorical_IRR <- function(data, var, n) {
   irr_data <- data %>%
     select(CASENUMBER, CREATEDBY, all_of(var)) %>%
     pivot_wider(names_from = CREATEDBY, values_from = all_of(var)) |>
+    mutate(rekkefolge = factor(CASENUMBER, levels = c(1,2,3,5,6,7,4,8))) |>
+    arrange(rekkefolge) |> select(-rekkefolge) |>
     keep_non_na_columns(n)
 
   ratings <- irr_data[,-1]
@@ -336,7 +338,60 @@ library(dplyr)
 library(tidyr)
 library(krippendorffsalpha)
 
-compute_alpha_for_all <- function(data, variables, metrics, nodes = 20) {
+# 1. Load and clean data
+data_reg <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(ncsp_lowercase = tolower(NCSP)) |>
+  dplyr::mutate(
+    op_gr = dplyr::case_when(
+      substr(ncsp_lowercase,1,3)=="jfh" |
+        (substr(ncsp_lowercase,1,3)=="jfb" &
+           substr(ncsp_lowercase,4,5) %in% 20:64 ) ~ "Kolon",
+      substr(ncsp_lowercase,1,3)=="jgb" ~ "Rektum",
+      substr(ncsp_lowercase,1,3)=="jcc" ~ "Øsofagus",
+      substr(ncsp_lowercase,1,3)=="jdc" |
+        substr(ncsp_lowercase,1,3)=="jdd" ~ "Ventrikkel",
+      substr(ncsp_lowercase,1,3)=="jjb" ~ "Lever",
+      substr(ncsp_lowercase,1,5) %in% c('jlc10','jlc11') ~ "Distale",
+      substr(ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96') ~ "Andre pankreas",
+      substr(ncsp_lowercase,1,5) %in% c("jlc30","jlc31") ~ "Whipples",
+      .default = "Annet"
+    ))
+data_readm <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.))))
+
+klokebok <- read.csv2("C:/Users/kth200/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
+
+# 2. Define variables of interest
+categorical_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                           type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg)) |>
+  c("NCSP", "ICD10", "op_gr")
+categorical_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                             type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
+numeric_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                       type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg))
+numeric_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                         type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
+
+
+
+
+
+compute_alpha_for_all <- function(data, variables,
+                                  metrics, nodes = 20,
+                                  method = "analytical") {
 
   # safety check
   if (length(variables) != length(metrics)) {
@@ -371,7 +426,8 @@ compute_alpha_for_all <- function(data, variables, metrics, nodes = 20) {
       rating_matrix,
       level = metric,
       confint = TRUE,
-      control  = list(nodes = nodes)
+      control  = list(nodes = nodes),
+      method = method
     )
 
     # Store result
@@ -385,6 +441,27 @@ compute_alpha_for_all <- function(data, variables, metrics, nodes = 20) {
   return(results)
 }
 
+felles <- data_readm |>
+  select(intersect(names(data_readm), names(data_reg))) |>
+  mutate(CASENUMBER = CASENUMBER + 4) |>
+  bind_rows(data_reg |>
+              select(intersect(names(data_readm), names(data_reg))))
+
+felles_kat <- felles |>
+  select(CASENUMBER, CREATEDBY, intersect(names(felles), categorical_vars_reg))
+
+felles_num <- felles |>
+  select(CASENUMBER, CREATEDBY, intersect(names(felles), numeric_vars_reg))
+
+variables <- intersect(names(felles), categorical_vars_reg)
+metrics   <- rep("nominal", length(variables))
+
+results <- compute_alpha_for_all(felles_kat, variables, metrics)
+results2 <- compute_alpha_for_all(felles_kat, variables, metrics, nodes = 100)
+results3 <- compute_alpha_for_all(felles_kat, variables, metrics, nodes = 100,
+                                  method = "customary")
+
+
 
 
 variables <- c("ASA", "WHO_ECOG_SCORE", "URGENCY")
@@ -392,10 +469,182 @@ metrics   <- c("ordinal", "ordinal", "nominal")
 
 results <- compute_alpha_for_all(data_reg, variables, metrics)
 
+tabell_kat <- data.frame(Variabel = NULL,
+                              alpha = NULL,
+                              ant_ratere = NULL,
+                              ant_caser = NULL)
+k <- 0
+for (var in variables) {
+  k <- k+1
+  irr_data <- felles_kat %>%
+    select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+    pivot_wider(names_from = CREATEDBY, values_from = all_of(var))
+  ratings <- irr_data[,-1]
+  kripp_result <- kripp.alpha(t(ratings), method = "nominal")
+  tabell_kat <- bind_rows(
+    tabell_kat,
+    data.frame(Variabel = var,
+               alpha = kripp_result$value,
+               ant_ratere = kripp_result$raters,
+               ant_caser = kripp_result$subjects)
+  )
+}
+
+ratings <- irr_data[,-1]
+kripp_result <- kripp.alpha(t(ratings), method = "nominal")
 
 
-results$URGENCY$alpha
-results$URGENCY$confint
+
+################### Ny start ####################################
+#################################################################
+
+library(norgast)
+library(dplyr)
+library(tidyr)
+library(irr)
+rm(list = ls())
+
+# 1. Load and clean data
+data_reg <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(ROBOTASSISTANCE, TATME, RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE),
+                ~replace_na(., -1))) %>%
+  mutate(across(c(PREVIOUS_WEIGHT, ADMISSION_WEIGHT, HEIGHT,
+                  ALBUMIN, CRP),
+                ~replace_na(., -1))) |>
+  mutate(ncsp_lowercase = tolower(NCSP)) |>
+  dplyr::mutate(
+    op_gr = dplyr::case_when(
+      substr(ncsp_lowercase,1,3)=="jfh" |
+        (substr(ncsp_lowercase,1,3)=="jfb" &
+           substr(ncsp_lowercase,4,5) %in% 20:64 ) ~ "Kolon",
+      substr(ncsp_lowercase,1,3)=="jgb" ~ "Rektum",
+      substr(ncsp_lowercase,1,3)=="jcc" ~ "Øsofagus",
+      substr(ncsp_lowercase,1,3)=="jdc" |
+        substr(ncsp_lowercase,1,3)=="jdd" ~ "Ventrikkel",
+      substr(ncsp_lowercase,1,3)=="jjb" ~ "Lever",
+      substr(ncsp_lowercase,1,5) %in% c('jlc10','jlc11') ~ "Distale",
+      substr(ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96') ~ "Andre pankreas",
+      substr(ncsp_lowercase,1,5) %in% c("jlc30","jlc31") ~ "Whipples",
+      .default = "Annet"
+    ))
+data_readm <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
+  filter(STATUS == 1) |>
+  merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(where(~ !all(is.na(.)))) %>%
+  mutate(across(c(RELAPAROTOMY_YES,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
+                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE,
+                  PHYSICAL_CONTROL, PHONE_CONTROL, RELAPAROTOMY,
+                  INTERVENTION_WITHOUT_ANESTHESIA, SINGLE_ORGAN_FAILURE,
+                  MULTI_ORGAN_FAILURE, IN_HOUSE_DEATH),
+                ~replace_na(., -1)))
+
+klokebok <- read.csv2("C:/Users/kth200/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
+
+# 2. Define variables of interest
+categorical_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                           type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg)) |>
+  c("NCSP", "ICD10", "op_gr")
+categorical_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                             type %in% c("Listevariabel", "Avkrysningsboks")) |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
+numeric_vars_reg <- klokebok |> filter(skjemanavn == "Registrering",
+                                       type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_reg))
+numeric_vars_readm <- klokebok |> filter(skjemanavn == "Reinnleggelse/oppfølging",
+                                         type == "Tallvariabel") |>
+  select(fysisk_feltnavn) |> unique() |> unlist() |> intersect(names(data_readm))
+
+# Function to filter columns keeping only columns with a max of n NA
+keep_non_na_columns2 <- function(df, n) {
+  # Check each column: are there n NA elements or less?
+  cols_to_keep <- sapply(df, function(col) sum(is.na(col)) <= n)
+
+  # Subset the data frame to keep only those columns
+  df_filtered <- df[, cols_to_keep, drop = FALSE]
+
+  return(df_filtered)
+}
+
+# 3. Function to compute IRR for categorical variables
+compute_categorical_IRR <- function(data, var, n) {
+  cat("\n=== Inter-Rater Reliability for", var, "===\n")
+
+  irr_data <- data %>%
+    select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+    pivot_wider(names_from = CREATEDBY, values_from = all_of(var)) |>
+    # mutate(rekkefolge = factor(CASENUMBER, levels = c(1,2,3,5,6,7,4,8))) |>
+    # arrange(rekkefolge) |> select(-rekkefolge) |>
+    keep_non_na_columns2(n)
+
+  ratings <- irr_data[,-1]
+
+  # Drop rows with missing values
+  # ratings <- na.omit(ratings)
+  #
+  # Fleiss' or Cohen's Kappa
+  # if (ncol(ratings) > 2) {
+  #   kappa_result <- kappam.fleiss(ratings)
+  # } else {
+  #   kappa_result <- kappa2(ratings)
+  # }
+
+  # samsvar = agree(ratings)
+
+  # Krippendorff's alpha (transpose required)
+  kripp_result <- kripp.alpha(t(ratings), method = "nominal")
+
+  # list(kappa_result = kappa_result,
+  #      kripp_result = kripp_result,
+  #      samsvar = samsvar)
+}
+
+felles <- data_readm |>
+  select(intersect(names(data_readm), names(data_reg))) |>
+  mutate(CASENUMBER = CASENUMBER + 4) |>
+  bind_rows(data_reg |>
+              select(intersect(names(data_readm), names(data_reg))))
+
+felles_kat <- felles |>
+  select(CASENUMBER, CREATEDBY, intersect(names(felles), categorical_vars_reg))
+
+felles_num <- felles |>
+  select(CASENUMBER, CREATEDBY, intersect(names(felles), numeric_vars_reg))
+
+
+
+
+tabell_kategorisk <- data.frame(Variabel = NULL,
+                                Krippendorff = NULL,
+                                ant_ratere = NULL,
+                                ant_caser = NULL)
+k <- 0
+for (var in intersect(names(felles), categorical_vars_reg)) {
+  k <- k+1
+  analyse <- compute_categorical_IRR(felles_kat, var, 2)
+  tabell_kategorisk <- bind_rows(
+    tabell_kategorisk,
+    data.frame(Variabel = var,
+               Krippendorff = analyse$value,
+               ant_ratere = analyse$raters,
+               ant_caser = analyse$subjects)
+  )
+}
+
+
+
+
+
 
 
 
