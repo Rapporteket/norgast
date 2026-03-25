@@ -36,26 +36,120 @@ appServer <- function(input, output, session) {
 
   rapbase::appLogger(session = session, msg = 'Starter NORGAST')
 
+  # Legg til SC-spesifikke faner, og fjern dem for andre roller
+  tabs_added <- shiny::reactiveVal(FALSE)
+
   shiny::observeEvent(
     shiny::req(user$role()), {
       if (user$role() != 'SC') {
-        shiny::hideTab("norgast_app_id", target = "Sykehusvisning")
-        shiny::hideTab("norgast_app_id", target = "Utsending")
-        # shiny::hideTab("norgast_app_id", target = "Datakvalitet")
-        shiny::hideTab("norgast_app_id", target = "Eksport")
-        shiny::hideTab("norgast_app_id", target = "Traktplott")
-        shiny::hideTab("norgast_app_id", target = "Indikatorer")
-        shiny::hideTab("norgast_app_id", target = "Verktøy")
+        if (tabs_added()) {
+          shiny::removeTab("norgast_app_id", target = "Sykehusvisning")
+          shiny::removeTab("norgast_app_id", target = "Traktplott")
+          shiny::removeTab("norgast_app_id", target = "Indikatorer")
+          tabs_added(FALSE)
+        }
       } else {
-        shiny::showTab("norgast_app_id", target = "Sykehusvisning")
-        shiny::showTab("norgast_app_id", target = "Utsending")
-        # shiny::showTab("norgast_app_id", target = "Datakvalitet")
-        shiny::showTab("norgast_app_id", target = "Eksport")
-        shiny::showTab("norgast_app_id", target = "Traktplott")
-        shiny::showTab("norgast_app_id", target = "Indikatorer")
-        shiny::showTab("norgast_app_id", target = "Verktøy")
+        if (!tabs_added()) {
+          shiny::insertTab(
+            "norgast_app_id",
+            tab = shiny::tabPanel("Sykehusvisning",
+              norgast::sykehusvisning_ui("sykehusvisning_id")),
+            target = "Fordeling", position = "after"
+          )
+          shiny::insertTab(
+            "norgast_app_id",
+            tab = shiny::tabPanel("Traktplott",
+              norgast::traktplot_ui("traktplot_id")),
+            target = "Sykehusvisning", position = "after"
+          )
+          shiny::insertTab(
+            "norgast_app_id",
+            tab = shiny::tabPanel("Indikatorer",
+              norgast::indikatorfig_ui("indikator_id")),
+            target = "Sammenlign utvalg", position = "after"
+          )
+          tabs_added(TRUE)
+        }
       }
-    })
+    }
+  )
+  
+  # Legg til verktøy-fanen for SC-brukere, og fjern den for andre roller
+  tool_tabs_added <- shiny::reactiveVal(FALSE)
+
+  shiny::observeEvent(user$role(), {
+    if (user$role() == "SC") {
+      if (!tool_tabs_added()) {
+        shiny::insertTab(
+          inputId = "norgast_app_id",
+          tab = shiny::tabPanel(
+            "Utsending",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::autoReportOrgInput("norgastDispatch"),
+                rapbase::autoReportInput("norgastDispatch")
+              ),
+              shiny::mainPanel(
+                rapbase::autoReportUI("norgastDispatch")
+              )
+            )
+          ),
+          menuName = "Verktøy"
+        )
+        shiny::insertTab(
+          inputId = "norgast_app_id",
+          tab = shiny::tabPanel(
+            "Metadata",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(shiny::uiOutput("metaControl")),
+              shiny::mainPanel(shiny::htmlOutput("metaData"))
+            )
+          ),
+          menuName = "Verktøy"
+        )
+        shiny::insertTab(
+          inputId = "norgast_app_id",
+          tab = shiny::tabPanel(
+            "Eksport",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::exportUCInput("norgastExport")
+              ),
+              shiny::mainPanel(
+                rapbase::exportGuideUI("norgastExportGuide")
+              )
+            )
+          ),
+          menuName = "Verktøy"
+        )
+        shiny::insertTab(
+          inputId = "norgast_app_id",
+          tab = shiny::tabPanel(
+            "Bruksstatistikk",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
+              shiny::mainPanel(
+                rapbase::statsUI("norgastStats"),
+                rapbase::statsGuideUI("norgastStatsGuide")
+              )
+            )
+          ),
+          menuName = "Verktøy"
+        )
+        tool_tabs_added(TRUE)
+      }
+      shiny::showTab(inputId = "norgast_app_id", target = "Verktøy")
+    } else {
+      if (tool_tabs_added()) {
+        shiny::removeTab(inputId = "norgast_app_id", target = "Utsending")
+        shiny::removeTab(inputId = "norgast_app_id", target = "Metadata")
+        shiny::removeTab(inputId = "norgast_app_id", target = "Eksport")
+        shiny::removeTab(inputId = "norgast_app_id", target = "Bruksstatistikk")
+        tool_tabs_added(FALSE)
+      }
+      shiny::hideTab(inputId = "norgast_app_id", target = "Verktøy")
+    }
+  })
 
   norgast::startside_server("startside", usrRole=user$role)
 
