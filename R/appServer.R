@@ -80,7 +80,7 @@ appServer <- function(input, output, session) {
   shiny::observeEvent(user$role(), {
     if (user$role() == "SC") {
       if (!tool_tabs_added()) {
-        shiny::insertTab(
+        shiny::appendTab(
           inputId = "norgast_app_id",
           tab = shiny::tabPanel(
             "Utsending",
@@ -94,7 +94,7 @@ appServer <- function(input, output, session) {
               )
             )
           ),
-          target = "Verktøy"
+          manuName = "Verktøy"
         )
         shiny::insertTab(
           inputId = "norgast_app_id",
