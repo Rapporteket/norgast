@@ -94,7 +94,7 @@ appServer <- function(input, output, session) {
               )
             )
           ),
-          menuName = "Verktøy"
+          target = "Verktøy"
         )
         shiny::insertTab(
           inputId = "norgast_app_id",
@@ -105,7 +105,8 @@ appServer <- function(input, output, session) {
               shiny::mainPanel(shiny::htmlOutput("metaData"))
             )
           ),
-          menuName = "Verktøy"
+          target = "Utsending",
+          position = "after"
         )
         shiny::insertTab(
           inputId = "norgast_app_id",
@@ -120,7 +121,8 @@ appServer <- function(input, output, session) {
               )
             )
           ),
-          menuName = "Verktøy"
+          target = "Metadata",
+          position = "after"
         )
         shiny::insertTab(
           inputId = "norgast_app_id",
@@ -134,7 +136,8 @@ appServer <- function(input, output, session) {
               )
             )
           ),
-          menuName = "Verktøy"
+          target = "Eksport",
+          position = "after"
         )
         tool_tabs_added(TRUE)
       }
