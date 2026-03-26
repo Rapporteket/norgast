@@ -193,18 +193,19 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
              varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"])
 
   allevarnum <- merge(
-    mce |> dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"]) |>
+    mce |>
+      dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"]) |>
       dplyr::rename(!!!varnavn_mce),
     patient |>
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"], ID) |>
       dplyr::rename(!!!varnavn_patient),
-    by.x = "PasientID", by.y = "ID"
+    by.x = "PasientID", by.y = "ID", all.x = TRUE
   ) |> merge(
     registration |>
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
                     MCEID, ICD10_VERSION, NCSP_VERSION) |>
       dplyr::rename(!!!varnavn_registration),
-    by.x = "ForlopsID", by.y = "MCEID", all = TRUE
+    by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
   ) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
     merge(
       readmission |>

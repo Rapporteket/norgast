@@ -948,7 +948,7 @@ tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
 
 tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
                                   "AvstandAnalVerge_kat", "bmi_forenklet",  
-                                  "Aar"), 
+                                  "Aar", "Anastomoselekkasje"), 
                          strata = "Robotassistanse",
                          data = matched_data, smd = T, test = F) |> 
   print(smd = T) |> 

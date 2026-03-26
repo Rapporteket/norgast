@@ -4,6 +4,31 @@ library(dplyr)
 # library(tidyverse)
 rm(list=ls())
 
+###### Beriking NPR og KPR 25.03.2026 ##########################################
+RegData <- norgast::NorgastHentData() |>
+  purrr::pluck("RegData") |>
+  norgast::NorgastPreprosess()|>
+  dplyr::filter(Op_gr %in% c(1:8, 14),
+                Aar %in% 2014:2025) |>
+  dplyr::select(PasientID, OperasjonsDato)
+
+fid <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
+  colClasses = c("integer", "character")) |>
+  dplyr::filter(PID %in% RegData$PasientID) |>
+  dplyr::rename(PasientID = PID,
+                Fnr = SSN)
+
+write.csv2(
+  RegData,
+  "C:/Users/kth200/regdata/norgast/utleveringer/aktivitetsdata_beriking_norgast.csv",
+  row.names = F, fileEncoding = 'Latin1')
+write.csv2(
+  fid,
+  "C:/Users/kth200/regdata/norgast/utleveringer/kobling_beriking_norgast.csv",
+  row.names = F, fileEncoding = 'Latin1')
+
+
 ###### Nytt forsøk: Koble krg-data Stig 02.02.2026 #############################
 
 filsti <- "C:/Users/kth200/regdata/norgast/utleveringer/stig/"
@@ -137,13 +162,13 @@ tmp <- read.csv2(
 
 ###### DG-tall 2025 16.03.2026 #################################
 
-# appdata <- norgast::NorgastHentData()
-# RegData <- appdata$RegData |>
-#   norgast::NorgastPreprosess()
-
-RegData <- norgast::NorgastHentRegData() |>
-  dplyr::rename(Sykehusnavn = SykehusNavn) |>
+appdata <- norgast::NorgastHentData()
+RegData <- appdata$RegData |>
   norgast::NorgastPreprosess()
+
+# RegData <- norgast::NorgastHentRegData() |>
+#   dplyr::rename(Sykehusnavn = SykehusNavn) |>
+#   norgast::NorgastPreprosess()
 
 fid <- read.csv2(
   "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
@@ -166,35 +191,6 @@ write.csv2(
   fid,
   "C:/Users/kth200/regdata/norgast/utleveringer/kobling_norgast_2025.csv",
   row.names = F, fileEncoding = 'Latin1')
-
-# appdata <- norgast::NorgastHentData()
-# allevanum <- appdata$RegData |>
-#   norgast::NorgastPreprosess()
-# regdata_gml <- norgast::NorgastHentRegData() |>
-#   dplyr::rename(Sykehusnavn = SykehusNavn) |>
-#   norgast::NorgastPreprosess()
-#
-# mangler <- RegData |> filter(is.na(PasientID)) |> select(ForlopsID) |> unlist()
-# tmp <- regdata_gml |> filter(ForlopsID %in% mangler)
-#
-# query1 <- "SELECT * FROM allevarnum"
-# allevarnum_gml <- rapbase::loadRegData(registryName, query1, dbType)
-# begge <- allevarnum_gml |> filter(ForlopsID %in% tmp$ForlopsID) |>
-#   select(ForlopsID, RegistreringStatus)
-#
-# write.csv2(begge, "status1_norgast.csv", row.names = F,
-#            fileEncoding = "Latin1")
-
-
-
-# manglerpid <- allevarnum |>
-#   dplyr::filter(is.na(PasientID)) |>
-#   merge(forlopsoversikt |>
-#           select(ForlopsID, PasientID, Avdod, AvdodDato),
-#         by = "ForlopsID") %>%
-#   relocate(sort(names(.)))
-
-
 
 
 ###### Koble krg-data Stig 02.02.2026 #################################

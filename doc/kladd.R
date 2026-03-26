@@ -1,4 +1,110 @@
 
+# appdata <- norgast::NorgastHentData()
+# allevanum <- appdata$RegData |>
+#   norgast::NorgastPreprosess()
+regdata_gml <- norgast::NorgastHentRegData() |>
+  dplyr::rename(Sykehusnavn = SykehusNavn) |>
+  norgast::NorgastPreprosess()
+
+mangler <- RegData |> filter(is.na(PasientID)) |>
+  select(ForlopsID) |> unlist()
+tmp <- regdata_gml |> filter(ForlopsID %in% mangler)
+tmp2 <- RegData |> filter(ForlopsID %in% mangler)
+#
+query1 <- "SELECT * FROM allevarnum"
+allevarnum_gml <- rapbase::loadRegData(registryName, query1, dbType) |>
+  filter(#RegistreringStatus==1,
+    as.Date(OpDato) >= "2014-01-01") |>
+  rename(PasientID = PasientId)
+query2 <- "SELECT * FROM registration"
+registration <- rapbase::loadRegData(registryName, query2, dbType) |>
+  filter(STATUS==1,
+         as.Date(OPERATION_DATE) >= "2014-01-01")
+mce <- rapbase::loadRegData("data", "SELECT * FROM mce")
+
+samlet <- merge(allevarnum |>
+                  select(-c(ICD10_VERSION, NCSP_VERSION)) |>
+                  filter(RegistreringStatus==1),
+                allevarnum_gml |> filter(RegistreringStatus==1),
+                by = "ForlopsID",
+                suffixes = c("_ny", "_gml")) %>%
+  relocate(sort(names(.)))
+
+agreement_simple <- function(df, vars) {
+  results <- lapply(vars, function(v) {
+    reg  <- df[[paste0(v, "_ny")]]
+    na_reg <- sum(is.na(reg) | reg == -1 | as.character(reg) == "")
+    utfylt_norvas <- length(reg) - na_reg
+    reg[is.na(reg)] <- -1
+    gold <- df[[paste0(v, "_gml")]]
+    na_gold <- sum(is.na(gold) | gold == -1 | as.character(gold) == "")
+    utfylt_val <- length(gold) - na_gold
+    gold[is.na(gold)] <- -1
+    utfylt_begge <- length(reg) -
+      sum( (is.na(reg) |
+              reg == -1 | as.character(reg) == "") |
+             (is.na(gold) | gold == -1 | as.character(gold) == ""))
+    ## FEIL, finn ut av!
+
+    # exact match including NA
+    matches <- reg == gold | (is.na(reg) & is.na(gold))
+
+    percent_agreement <- mean(matches) * 100
+
+    data.frame(
+      variabel = v,
+      samsvar = percent_agreement,
+      utfylt_ny = utfylt_norvas,
+      utfylt_gml = utfylt_val,
+      utfylt_begge = utfylt_begge
+    )
+  })
+
+  do.call(rbind, results)
+}
+
+agreement_simple(samlet, names(allevarnum_gml))
+
+ulik <- samlet |> filter(is.na(Fodselsnummer_ny))
+
+
+
+
+
+length(intersect(registration$MCEID, mce$MCEID))
+
+patient <- rapbase::loadRegData("data", "SELECT * FROM patient")
+
+feilsok <- mce |> filter(PATIENT_ID %in% setdiff(mce$PATIENT_ID, patient$ID))
+write.csv2(feilsok, "feilsok_norgast.csv", row.names = F,
+           fileEncoding = "Latin1")
+# begge <- allevarnum_gml |> filter(ForlopsID %in% tmp$ForlopsID) |>
+#   select(ForlopsID, RegistreringStatus)
+#
+# write.csv2(begge, "status1_norgast.csv", row.names = F,
+#            fileEncoding = "Latin1")
+
+
+
+# manglerpid <- allevarnum |>
+#   dplyr::filter(is.na(PasientID)) |>
+#   merge(forlopsoversikt |>
+#           select(ForlopsID, PasientID, Avdod, AvdodDato),
+#         by = "ForlopsID") %>%
+#   relocate(sort(names(.)))
+
+
+
+
+
+
+
+
+
+
+
+#############################################
+
 norgast::norgastIndikator_rapporteket(RegData = RegData[which(RegData$Aar <= as.numeric(2021)), ], valgtVar = "Saarruptur",
                                       minald=as.numeric(0),
                                       maxald=as.numeric(120), outfile="", tittel="tittel",  width=600, height=700,
