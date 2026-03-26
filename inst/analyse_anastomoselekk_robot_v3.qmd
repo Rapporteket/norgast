@@ -872,6 +872,20 @@ knitr::kable(
   caption = "Regresjonsanalyse av risikofaktorer for anastomoselekkasje.",
   row.names = FALSE)
 
+
+model_samlet_ustomi <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                      erMann + alder_kat +
+                      ASA_kat + straaling +
+                      AvstandAnalVerge_kat + bmi_forenklet,
+                    data = RegData %>% filter(!is.na(BMI)), 
+                    family = "binomial")
+
+a <- exp(coef(model_samlet_ustomi))
+b <- exp(confint(model_samlet_ustomi))
+
+print(a)
+print(b)
+
 ```
 
 ```{r, propensity score 1, warning=FALSE}
