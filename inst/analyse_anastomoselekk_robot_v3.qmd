@@ -3,11 +3,9 @@ title: "Anastomoselekkasje ved robotkirurgi"
 format:
   html: 
     embed-resources: true
-editor: visual
 ---
 
 ## Lesing og filtrering av data
-
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ps.analysis <- function(
@@ -97,7 +95,6 @@ ps.analysis <- function(
 }
 
 ```
-
 
 ```{r}
 #| warning: false
@@ -254,7 +251,6 @@ print(results_robot)
 print(results_conv)
 
 ```
-
 
 ```{r, echo=FALSE}
 
@@ -606,7 +602,6 @@ RegData_alle <- RegData
 
 ## Analyse: anastomoselekkasje
 
-
 ```{r "anastomoselekkasje", echo=FALSE, warning=FALSE, message=FALSE}
 
 alder <- RegData |> summarise(
@@ -879,7 +874,6 @@ knitr::kable(
 
 ```
 
-
 ```{r, propensity score 1, warning=FALSE}
 library(xgboost)
 RegData <- RegData_alle |> 
@@ -999,6 +993,7 @@ outcome.model3 <- glm(
   data = matched_data
 )
 
+matched_data |> summarise(lekk = sum(Anastomoselekkasje)/n(), N = n(), .by = Robotassistanse)
 
 exp(coef((outcome.model1)))
 exp(confint((outcome.model1)))
@@ -1136,8 +1131,6 @@ write.csv2(param5, "param5.csv")
 
 
 ```
-
-
 
 ```{r, propensity score 2, warning=FALSE}
 library(xgboost)
@@ -1548,7 +1541,6 @@ exp(confint((outcome.model3)))
 
 ```
 
-
 ```{r, regresjon ny, warning=FALSE}
 RegData <- RegData_alle |> 
   filter(!is.na(AvstandAnalVerge_kat),
@@ -1581,7 +1573,6 @@ exp(confint((model_samlet)))
 
 
 ```
-
 
 ```{r, nye analyser, warning=FALSE}
 
@@ -1883,7 +1874,6 @@ exp(coef((outcome.model3)))
 exp(confint((outcome.model3)))
 
 ```
-
 
 ```{r, utvikling robot, warning=FALSE}
 library(tidyr)

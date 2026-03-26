@@ -10,9 +10,11 @@ norgastApp <- function(logAsJson = TRUE, browser = FALSE) {
   if (logAsJson) {
     rapbase::loggerSetup()
   }
+  if (browser) {
+    options(shiny.launch.browser = TRUE)
+  }
   shiny::shinyApp(
     ui = appUi,
-    server = appServer,
-    options = list(launch.browser = browser)
+    server = appServer
   )
 }
