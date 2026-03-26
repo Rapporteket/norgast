@@ -105,9 +105,7 @@ appUi <- function() {
           rapbase::autoReportUI("norgastSubscription")
         )
       )
-    ),
-
-    shiny::navbarMenu("Verktøy")
+    )
   )
 
 }

@@ -77,67 +77,54 @@ appServer <- function(input, output, session) {
   # Legg til verktøy-fanen for SC-brukere, og fjern den for andre roller
   tool_tabs_added <- shiny::reactiveVal(FALSE)
 
-  shiny::observeEvent(user$role(), {
+  shiny::observeEvent(shiny::req(user$role()), {
     if (user$role() == "SC") {
       if (!tool_tabs_added()) {
         shiny::appendTab(
           inputId = "norgast_app_id",
-          tab = shiny::tabPanel(
-            "Utsending",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::autoReportOrgInput("norgastDispatch"),
-                rapbase::autoReportInput("norgastDispatch")
-              ),
-              shiny::mainPanel(
-                rapbase::autoReportUI("norgastDispatch")
+          tab = shiny::navbarMenu(
+            "Verktøy",
+            shiny::tabPanel(
+              "Utsending",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(
+                  rapbase::autoReportOrgInput("norgastDispatch"),
+                  rapbase::autoReportInput("norgastDispatch")
+                ),
+                shiny::mainPanel(
+                  rapbase::autoReportUI("norgastDispatch")
+                )
+              )
+            ),
+            shiny::tabPanel(
+              "Metadata",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(shiny::uiOutput("metaControl")),
+                shiny::mainPanel(shiny::htmlOutput("metaData"))
+              )
+            ),
+            shiny::tabPanel(
+              "Eksport",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(
+                  rapbase::exportUCInput("norgastExport")
+                ),
+                shiny::mainPanel(
+                  rapbase::exportGuideUI("norgastExportGuide")
+                )
+              )
+            ),
+            shiny::tabPanel(
+              "Bruksstatistikk",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
+                shiny::mainPanel(
+                  rapbase::statsUI("norgastStats"),
+                  rapbase::statsGuideUI("norgastStatsGuide")
+                )
               )
             )
-          ),
-          manuName = "Verktøy"
-        )
-        shiny::insertTab(
-          inputId = "norgast_app_id",
-          tab = shiny::tabPanel(
-            "Metadata",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(shiny::uiOutput("metaControl")),
-              shiny::mainPanel(shiny::htmlOutput("metaData"))
-            )
-          ),
-          target = "Utsending",
-          position = "after"
-        )
-        shiny::insertTab(
-          inputId = "norgast_app_id",
-          tab = shiny::tabPanel(
-            "Eksport",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::exportUCInput("norgastExport")
-              ),
-              shiny::mainPanel(
-                rapbase::exportGuideUI("norgastExportGuide")
-              )
-            )
-          ),
-          target = "Metadata",
-          position = "after"
-        )
-        shiny::insertTab(
-          inputId = "norgast_app_id",
-          tab = shiny::tabPanel(
-            "Bruksstatistikk",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
-              shiny::mainPanel(
-                rapbase::statsUI("norgastStats"),
-                rapbase::statsGuideUI("norgastStatsGuide")
-              )
-            )
-          ),
-          target = "Eksport",
-          position = "after"
+          )
         )
         tool_tabs_added(TRUE)
       }
@@ -148,9 +135,9 @@ appServer <- function(input, output, session) {
         shiny::removeTab(inputId = "norgast_app_id", target = "Metadata")
         shiny::removeTab(inputId = "norgast_app_id", target = "Eksport")
         shiny::removeTab(inputId = "norgast_app_id", target = "Bruksstatistikk")
-        tool_tabs_added(FALSE)
+        shiny::hideTab(inputId = "norgast_app_id", target = "Verktøy")
       }
-      shiny::hideTab(inputId = "norgast_app_id", target = "Verktøy")
+      tool_tabs_added(FALSE)
     }
   })
 
