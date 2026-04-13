@@ -104,6 +104,9 @@ library(dplyr)
 
 # RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
 RegData_raa <- norgast::NorgastHentData()$RegData
+# save(
+#   RegData_raa, 
+#   file = "C:/Users/kth200/regdata/norgast/robotartikkel/RegData_raa.RData")
 RegData <- RegData_raa |>
   # rename(Sykehusnavn = SykehusNavn) |>
   NorgastPreprosess() |> 
@@ -874,11 +877,11 @@ knitr::kable(
 
 
 model_samlet_ustomi <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
-                      erMann + alder_kat +
-                      ASA_kat + straaling +
-                      AvstandAnalVerge_kat + bmi_forenklet,
-                    data = RegData %>% filter(!is.na(BMI)), 
-                    family = "binomial")
+                             erMann + alder_kat +
+                             ASA_kat + straaling +
+                             AvstandAnalVerge_kat + bmi_forenklet,
+                           data = RegData %>% filter(!is.na(BMI)), 
+                           family = "binomial")
 
 a <- exp(coef(model_samlet_ustomi))
 b <- exp(confint(model_samlet_ustomi))
@@ -1273,17 +1276,17 @@ exp(confint((outcome.model3)))
 RegData <- RegData_alle
 
 scatter3 <- RegData |> summarise(N = n(),
-                     .by = c(Sykehusnavn, Aar))
+                                 .by = c(Sykehusnavn, Aar))
 scatter1 <- RegData |> summarise(andel_rob = sum(Robotassistanse)/n()*100,
-                     .by = c(Sykehusnavn, Aar)) #|> 
-  # tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
+                                 .by = c(Sykehusnavn, Aar)) #|> 
+# tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
 
 scatter2 <- RegData |> summarise(andel_lekk = sum(Anastomoselekkasje)/n()*100,
-                     .by = c(Sykehusnavn, Aar)) #|> 
-  # tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
+                                 .by = c(Sykehusnavn, Aar)) #|> 
+# tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
 scatterplotdata <- merge(scatter1, scatter2, by = c("Sykehusnavn", "Aar")) |> 
   merge(scatter3, by = c("Sykehusnavn", "Aar")) #|> 
-  # filter(N>20)
+# filter(N>20)
 
 shusmapping <- data.frame(shus = unique(scatterplotdata$Sykehusnavn),
                           shusnr = 1:length(unique(scatterplotdata$Sykehusnavn)))

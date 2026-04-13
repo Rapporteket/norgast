@@ -32,15 +32,17 @@ rm(list = ls())
 data_reg <- read.csv2(
   "C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_registration_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
-  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
-  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) %>%
+  # filter(CREATEDBY != "krlass@ous-hf.no") %>%
   select(where(~ !all(is.na(.)))) %>%
   mutate(across(c(ROBOTASSISTANCE, TATME, RELAPAROTOMY_YES,
-                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
-                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE),
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE,
+                  LEAK_INTERVENTION, BLEED_INTERVENTION,
+                  ANGIO_INTERVENTION, LIQUID_DRAINAGE),
                 ~replace_na(., -1))) %>%
   mutate(across(c(PREVIOUS_WEIGHT, ADMISSION_WEIGHT, HEIGHT,
-                  ALBUMIN, CRP),
+                  ALBUMIN, CRP, ANAL_GUARD_DISTANCE, GLASGOW_SCORE,
+                  MODIFIED_GLASGOW_SCORE),
                 ~replace_na(., -1))) |>
   mutate(ncsp_lowercase = tolower(NCSP)) |>
   dplyr::mutate(
@@ -61,15 +63,17 @@ data_reg <- read.csv2(
 data_readm <- read.csv2("C:/Users/kth200/regdata/norgast/reliabilitet/NORGAST_readmission_datadump_20.11.2025.csv") %>%
   filter(STATUS == 1) |>
   merge(data_reg |> select(MCEID, CASENUMBER), by = "MCEID") |>
-  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) |>
-  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  filter(!duplicated(paste(CASENUMBER, CREATEDBY))) %>%
+  # filter(CREATEDBY != "krlass@ous-hf.no") %>%
   select(where(~ !all(is.na(.)))) %>%
   mutate(across(c(RELAPAROTOMY_YES,
-                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE, LEAK_INTERVENTION,
-                  BLEED_INTERVENTION, ANGIO_INTERVENTION, LIQUID_DRAINAGE,
+                  RELAPAROTOMY_NO, PERCUTANEOUS_DRAINAGE,
+                  LEAK_INTERVENTION, BLEED_INTERVENTION,
+                  ANGIO_INTERVENTION, LIQUID_DRAINAGE,
                   PHYSICAL_CONTROL, PHONE_CONTROL, RELAPAROTOMY,
-                  INTERVENTION_WITHOUT_ANESTHESIA, SINGLE_ORGAN_FAILURE,
-                  MULTI_ORGAN_FAILURE, IN_HOUSE_DEATH),
+                  INTERVENTION_WITHOUT_ANESTHESIA,
+                  SINGLE_ORGAN_FAILURE, MULTI_ORGAN_FAILURE,
+                  IN_HOUSE_DEATH),
                 ~replace_na(., -1)))
 
 klokebok <- read.csv2("C:/Users/kth200/regdata/norgast/klokebok/NORGAST_klokeboken_02.04.2025.csv")
@@ -97,5 +101,284 @@ numeric_vars_readm <- klokebok |>
   select(fysisk_feltnavn) |> unique() |> unlist() |> 
   intersect(names(data_readm))
 
+# Function to filter columns based on first n rows having no NA
+keep_non_na_columns <- function(df, n) {
+  # Check each column: are the first n elements all non-NA?
+  cols_to_keep <- sapply(df, function(col) all(!is.na(head(col, n))))
+  
+  # Subset the data frame to keep only those columns
+  df_filtered <- df[, cols_to_keep, drop = FALSE]
+  
+  return(df_filtered)
+}
+
+get_mode <- function(v) {
+  # Create a frequency table
+  freq_table <- table(v)
+  
+  # Find the name (value) that corresponds to the maximum frequency
+  most_frequent_value <- names(freq_table)[which.max(freq_table)]
+  
+  # Coerce the result back to the original data type of the vector
+  # This handles cases where the vector contains numbers
+  if (is.numeric(v)) {
+    return(as.numeric(most_frequent_value))
+  } else {
+    return(most_frequent_value)
+  }
+}
+
+# 3. Function to compute IRR for categorical variables
+compute_categorical_IRR <- function(data, var, n) {
+  cat("\n=== Inter-Rater Reliability for", var, "===\n")
+  
+  irr_data <- data %>%
+    select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+    pivot_wider(names_from = CREATEDBY, values_from = all_of(var)) |>
+    mutate(rekkefolge = factor(CASENUMBER, levels = c(1,2,3,5,6,7,4,8))) |>
+    arrange(rekkefolge) |> select(-rekkefolge) |>
+    keep_non_na_columns(n)
+  
+  ratings <- irr_data[,-1]
+  
+  # Drop rows with missing values
+  ratings <- na.omit(ratings)
+  #
+  # Fleiss' or Cohen's Kappa
+  if (ncol(ratings) > 2) {
+    kappa_result <- kappam.fleiss(ratings)
+  } else {
+    kappa_result <- kappa2(ratings)
+  }
+  
+  samsvar = agree(ratings)
+  
+  # Krippendorff's alpha (transpose required)
+  kripp_result <- kripp.alpha(t(ratings), method = "nominal")
+  
+  list(kappa_result = kappa_result,
+       kripp_result = kripp_result,
+       samsvar = samsvar)
+}
+
+samsvar_naiv <- function(data, var) {
+  irr_data <- data %>%
+    select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+    pivot_wider(names_from = CREATEDBY, values_from = all_of(var))
+  
+  ratings <- irr_data[,-1]
+  
+  ant_enige <- apply(
+    ratings, 1, 
+    function(x) {
+      mode_dim <- x |> unlist() |> get_mode()
+      ant_enige <- sum(x == mode_dim, na.rm = T)
+    })
+  ikke_na <- apply(
+    ratings, 1, 
+    function(x) {
+      ikke_na <- sum(!is.na(x))
+    })
+  
+  data.frame(var = var,
+             ant_enige = sum(ant_enige),
+             N = sum(ikke_na))
+}
+
 
 ```
+
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+felles <- data_readm |>
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(intersect(names(data_readm), names(data_reg))) |>
+  mutate(CASENUMBER = CASENUMBER + 4) |>
+  bind_rows(data_reg |>
+              filter(CREATEDBY != "krlass@ous-hf.no") %>%
+              select(intersect(names(data_readm), names(data_reg))))
+
+alle <- felles |> 
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_alle <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(alle), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_naiv(alle, var)
+  samsvar_alle <- bind_rows(samsvar_alle, analyse)
+}
+samsvar_alle <- samsvar_alle |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "begge") |> 
+  relocate(skjema)
+
+reg <- data_reg |> 
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_reg <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(reg), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_naiv(reg, var)
+  samsvar_reg <- bind_rows(samsvar_reg, analyse)
+}
+samsvar_reg <- samsvar_reg |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "basis") |> 
+  relocate(skjema)
+
+
+readm <- data_readm |> 
+  filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_readm <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(readm), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_naiv(readm, var)
+  samsvar_readm <- bind_rows(samsvar_readm, analyse)
+}
+samsvar_readm <- samsvar_readm |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "oppfølging") |> 
+  relocate(skjema)
+
+samsvar_enkel <- bind_rows(
+  samsvar_reg, samsvar_readm, samsvar_alle
+)
+
+knitr::kable(
+  samsvar_enkel,
+  caption = "Prosentvis samsvar registreringer i NORGAST", 
+  digits = 1,
+  align = "l", booktabs = TRUE) |> 
+  kableExtra::kable_styling(full_width = FALSE)
+
+
+```
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+samsvar_xtofer <- function(data, var) {
+  irr_data <- data %>%
+    select(CASENUMBER, CREATEDBY, all_of(var)) %>%
+    pivot_wider(names_from = CREATEDBY, values_from = all_of(var)) |> 
+    relocate(CASENUMBER, `krlass@ous-hf.no`)
+  
+  ratings <- irr_data[,-1]
+  
+  ant_enige <- apply(
+    ratings, 1, 
+    function(x) {
+      mode_dim <- x[1]
+      ant_enige <- sum(x[-1] == mode_dim, na.rm = T)
+    })
+  ikke_na <- apply(
+    ratings, 1, 
+    function(x) {
+      ikke_na <- sum(!is.na(x[-1]))
+    })
+  
+  data.frame(var = var,
+             ant_enige = sum(ant_enige),
+             N = sum(ikke_na))
+}
+
+felles <- data_readm |>
+  # filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(intersect(names(data_readm), names(data_reg))) |>
+  mutate(CASENUMBER = CASENUMBER + 4) |>
+  bind_rows(data_reg |>
+              
+              select(intersect(names(data_readm), names(data_reg))))
+
+alle <- felles |> 
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_alle <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(alle), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_xtofer(alle, var)
+  samsvar_alle <- bind_rows(samsvar_alle, analyse)
+}
+samsvar_alle <- samsvar_alle |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "begge") |> 
+  relocate(skjema)
+
+reg <- data_reg |> 
+  # filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_reg <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(reg), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_xtofer(reg, var)
+  samsvar_reg <- bind_rows(samsvar_reg, analyse)
+}
+samsvar_reg <- samsvar_reg |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "basis") |> 
+  relocate(skjema)
+
+
+readm <- data_readm |> 
+  # filter(CREATEDBY != "krlass@ous-hf.no") %>%
+  select(-MCEID, -CENTREID, -USERCOMMENT,
+         -TSUPDATED, -UPDATEDBY, -FIRST_TIME_CLOSED,
+         -FIRST_TIME_CLOSED_BY, -TSCREATED, -STATUS)
+
+samsvar_readm <- data.frame(
+  var = NULL, ant_enige = NULL,  N = NULL)
+for (var in setdiff(names(readm), c("CASENUMBER", "CREATEDBY"))) {
+  analyse <- samsvar_xtofer(readm, var)
+  samsvar_readm <- bind_rows(samsvar_readm, analyse)
+}
+samsvar_readm <- samsvar_readm |> 
+  mutate(pst_samsvar = ant_enige/N*100,
+         skjema = "oppfølging") |> 
+  relocate(skjema)
+
+samsvar_enkel_xtofer <- bind_rows(
+  samsvar_reg, samsvar_readm, samsvar_alle
+)
+
+samlet <- merge(samsvar_enkel, 
+                samsvar_enkel_xtofer |> select(-N),
+                by = c("skjema", "var"),
+                suffixes = c("", "_xtofer")) |> 
+  relocate(skjema, var, ant_enige, ant_enige_xtofer, N)|> 
+  filter(ant_enige != ant_enige_xtofer)
+
+
+knitr::kable(
+  samlet,
+  caption = "Prosentvis samsvar med Kristoffer sine registreringer i NORGAST. Viser kun variabler der samsvar med Kristoffer er forskjellig fra samsvar med hyppigst valgte svar (altså forrige tabell).", 
+  digits = 1,
+  align = "l", booktabs = TRUE) |> 
+  kableExtra::kable_styling(full_width = FALSE)
+
+
+```
+
+

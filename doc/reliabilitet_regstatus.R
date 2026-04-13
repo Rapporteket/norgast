@@ -589,24 +589,9 @@ compute_categorical_IRR <- function(data, var, n) {
 
   ratings <- irr_data[,-1]
 
-  # Drop rows with missing values
-  # ratings <- na.omit(ratings)
-  #
-  # Fleiss' or Cohen's Kappa
-  # if (ncol(ratings) > 2) {
-  #   kappa_result <- kappam.fleiss(ratings)
-  # } else {
-  #   kappa_result <- kappa2(ratings)
-  # }
-
-  # samsvar = agree(ratings)
-
   # Krippendorff's alpha (transpose required)
   kripp_result <- kripp.alpha(t(ratings), method = "nominal")
 
-  # list(kappa_result = kappa_result,
-  #      kripp_result = kripp_result,
-  #      samsvar = samsvar)
 }
 
 felles <- data_readm |>
