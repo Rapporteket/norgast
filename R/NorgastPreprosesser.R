@@ -214,9 +214,16 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$PermanentStomiColorektal[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==0),which(as.numeric(RegData$NyStomi)==1)),
                                              union(which(RegData$Op_gr==1),which(RegData$Op_gr==2)))] <- 1
 
+  RegData$dummy_LEAK <-
+    pmax(RegData$ANASTOMOTIC_LEAK,
+         RegData$OppfANASTOMOTIC_LEAK,
+         na.rm = TRUE)
+  RegData$dummy_LEAK[is.na(RegData$dummy_LEAK)] <- 0
   RegData$Anastomoselekkasje <- NA
   RegData$Anastomoselekkasje[RegData$NyAnastomose==1] <- 0
   RegData$Anastomoselekkasje[RegData$ViktigsteFunn==1] <- 1
+  RegData$Anastomoselekkasje <- ifelse(
+    RegData$dummy_LEAK == 1, 1, RegData$Anastomoselekkasje)
   RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
   RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 

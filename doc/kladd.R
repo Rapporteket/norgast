@@ -1,3 +1,66 @@
+library(dplyr)
+rm(list = ls())
+
+appdata <- norgast::NorgastHentData()
+
+RegData <- appdata$RegData
+
+
+lagrefolder <- "C:/Users/kth200/regdata/norgast/torkil/"
+mce <- rapbase::loadRegData("data", "SELECT * FROM mce")
+patient <- rapbase::loadRegData("data", "SELECT * FROM patient")
+allevarnum_hnikt <- rapbase::loadRegData("data", "SELECT * FROM allevarnum")
+
+avvik1 <- mce |>
+  filter(PATIENT_ID %in% setdiff(PATIENT_ID, patient$ID))
+avvik2 <- mce |>
+  filter(PATIENT_ID %in% setdiff(allevarnum_hnikt$PasientId, patient$ID))
+write.csv2(avvik1,
+           paste0(lagrefolder, "avvik_pasient_mce.csv"),
+           row.names = F,
+           fileEncoding = "Latin1")
+write.csv2(avvik2,
+           paste0(lagrefolder, "avvik_pasient_allevarnum.csv"),
+           row.names = F,
+           fileEncoding = "Latin1")
+
+setdiff(mce$PATIENT_ID, patient$ID)
+
+allevarnum_hnikt <- rapbase::loadRegData(registryName, "SELECT * FROM allevarnum")
+
+setdiff(mce$PATIENT_ID, patient$ID)
+setdiff(allevarnum_hnikt$PasientId, patient$ID)
+
+### Finn manglende anastomoselekk Kalnes
+
+# appdata <- norgast::NorgastHentData()
+RegData_all <- norgast::NorgastHentRegData()
+RegData <- RegData_all |>
+  filter(PasientID %in% c(75149, 83001, 83153, 83234))
+
+registration <- rapbase::loadRegData(
+  "data", "SELECT * FROM registration")
+readmission <- rapbase::loadRegData(
+  "data", "SELECT * FROM readmission")
+allevarnum_hnikt <- readmission <- rapbase::loadRegData(
+  "data", "SELECT * FROM allevarnum")
+
+RegData <- merge(
+  RegData,
+  registration |> select(MCEID, ANASTOMOTIC_LEAK),
+  by.x = "ForlopsID", by.y = "MCEID") |>
+  merge(readmission |> select(MCEID, ANASTOMOTIC_LEAK),
+        by.x = "ForlopsID", by.y = "MCEID", suffixes = c("", "_Oppf"),
+        all.x = TRUE)
+
+
+betrakt <- RegData |>
+  select(PasientID, OpDato, ViktigsteFunn, OppfViktigsteFunn,
+         ANASTOMOTIC_LEAK, ANASTOMOTIC_LEAK_Oppf, Avdod, AvdodDato)
+
+skjemaoversikt <- appdata$skjemaoversikt
+skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
+RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
 
 # appdata <- norgast::NorgastHentData()
 # allevanum <- appdata$RegData |>
