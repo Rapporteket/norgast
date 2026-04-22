@@ -3,7 +3,54 @@ rm(list = ls())
 
 appdata <- norgast::NorgastHentData()
 
-RegData <- appdata$RegData
+RegData_ufilt <- appdata$RegData
+RegData <- RegData_ufilt |>
+  NorgastPreprosess() #|>
+  # filter(PasientID %in% c(75149, 83001, 83153, 83234)) |>
+  # select(PasientID, OpDato, ViktigsteFunn,
+  #        OppfViktigsteFunn, Anastomoselekkasje,
+  #        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
+  #        Avdod, AvdodDato)
+
+ufilt <- merge(RegData_ufilt |>
+                 select(ForlopsID, PasientID, OpDato, ViktigsteFunn,
+                        OppfViktigsteFunn,
+                        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
+                        Avdod, AvdodDato),
+               RegData |> select(ForlopsID, Anastomoselekkasje),
+               by = "ForlopsID") |>
+  filter(Anastomoselekkasje == 1)
+
+ufilt2 <- merge(RegData_ufilt |>
+                 select(ForlopsID, PasientID, OpDato, ViktigsteFunn,
+                        OppfViktigsteFunn,
+                        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
+                        Avdod, AvdodDato, NyAnastomose),
+               RegData |> select(ForlopsID, Anastomoselekkasje),
+               by = "ForlopsID") |>
+  rowwise() |>
+  filter(1 %in% c(Anastomoselekkasje, ViktigsteFunn, OppfViktigsteFunn,
+                  ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK)) %>%
+  filter(ForlopsID %in% setdiff(ForlopsID, ufilt$ForlopsID))
+
+
+
+
+
+registration <- rapbase::loadRegData(
+  "data", "SELECT * FROM registration")
+readmission <- rapbase::loadRegData(
+  "data", "SELECT * FROM readmission")
+allevarnum_hnikt <- readmission <- rapbase::loadRegData(
+  "data", "SELECT * FROM allevarnum")
+
+# RegData <- merge(
+#   RegData,
+#   registration |> select(MCEID, ANASTOMOTIC_LEAK),
+#   by.x = "ForlopsID", by.y = "MCEID") |>
+#   merge(readmission |> select(MCEID, ANASTOMOTIC_LEAK),
+#         by.x = "ForlopsID", by.y = "MCEID", suffixes = c("", "_Oppf"),
+#         all.x = TRUE)
 
 
 lagrefolder <- "C:/Users/kth200/regdata/norgast/torkil/"
