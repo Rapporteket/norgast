@@ -11,9 +11,9 @@ appUi <- function() {
   ui <- shiny::navbarPage(
     shinyjs::useShinyjs(),
     id = "norgast_app_id",
-    title = rapbase::title(regTitle),
+    title = rapbase::regTitle(regTitle),
     windowTitle = regTitle,
-    theme = rapbase::theme(),
+    theme = rapbase::rapTheme(),
     header = shiny::modalDialog(
       shiny::h3("ADVARSEL"),
       "Som bruker av Rapporteket i NORGAST får du tilgang til aggregerte tall
