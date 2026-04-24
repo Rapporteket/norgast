@@ -19,7 +19,7 @@ Imports:
   lubridate,
   magrittr,
   shinyjs,
-  rapbase,
+  rapbase (>= 3.6.0),
   rapFigurer,
   survival,
   survminer,
