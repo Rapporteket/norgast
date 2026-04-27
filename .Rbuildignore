@@ -1,3 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^docker-compose\.yml$
+^doc$
+^\.github$
+^\.lintr$
