@@ -1,6 +1,53 @@
 library(dplyr)
 rm(list = ls())
 
+query <- "SELECT
+	mce.MCEID AS ForlopsID,
+	mce.PATIENT_ID AS PasientId,
+	mce.CENTREID AS AvdRESH,
+
+	-- Patient stuff
+	patient.DECEASED AS Avdod,
+	patient.DECEASED_DATE AS AvdodDato,
+	registration.OPERATION_DATE AS OpDato,
+
+	-- Registration stuff
+
+	-- Komplikasjoner
+	registration.RELAPAROTOMY_YES AS ViktigsteFunn,
+    registration.ANASTOMOTIC_LEAK AS ANASTOMOTIC_LEAK,
+    CASE
+		WHEN registration.ANASTOMOTIC_LEAK = 1 THEN 1
+        WHEN registration.ANASTOMOTIC_LEAK = 0 THEN registration.RELAPAROTOMY_YES
+        WHEN registration.ANASTOMOTIC_LEAK IS NULL THEN registration.RELAPAROTOMY_YES
+	END AS ViktigsteFunn2,
+    CASE
+		WHEN registration.RELAPAROTOMY_YES IS NULL THEN registration.ANASTOMOTIC_LEAK
+        ELSE registration.RELAPAROTOMY_YES
+	END AS ViktigsteFunn3,
+
+	readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn,
+    readmission.ANASTOMOTIC_LEAK AS OppfANASTOMOTIC_LEAK,
+        CASE
+		WHEN readmission.RELAPAROTOMY_YES IS NULL THEN readmission.ANASTOMOTIC_LEAK
+        ELSE readmission.RELAPAROTOMY_YES
+	END AS OppfViktigsteFunn2
+FROM
+	mce INNER JOIN patient ON mce.PATIENT_ID = patient.ID
+    INNER JOIN registration on mce.MCEID = registration.MCEID
+    INNER JOIN centre on centre.ID=mce.CENTREID
+    LEFT OUTER JOIN readmission on mce.MCEID = readmission.MCEID
+WHERE
+	registration.OPERATION_DATE > '2014.01.01' AND
+    (registration.RELAPAROTOMY_YES IS NOT NULL OR
+    readmission.RELAPAROTOMY_YES IS NOT NULL OR
+    registration.ANASTOMOTIC_LEAK IS NOT NULL OR
+    readmission.ANASTOMOTIC_LEAK IS NOT NULL);"
+
+tmpdata <- rapbase::loadRegData(
+  "data", query)
+
+
 appdata <- norgast::NorgastHentData()
 
 RegData_ufilt <- appdata$RegData
@@ -41,7 +88,7 @@ registration <- rapbase::loadRegData(
   "data", "SELECT * FROM registration")
 readmission <- rapbase::loadRegData(
   "data", "SELECT * FROM readmission")
-allevarnum_hnikt <- readmission <- rapbase::loadRegData(
+allevarnum_hnikt <- rapbase::loadRegData(
   "data", "SELECT * FROM allevarnum")
 
 # RegData <- merge(
@@ -70,6 +117,21 @@ write.csv2(avvik2,
            paste0(lagrefolder, "avvik_pasient_allevarnum.csv"),
            row.names = F,
            fileEncoding = "Latin1")
+
+
+reg_manglerpas <- registration |>
+  filter(MCEID %in% avvik1$MCEID)
+readm_manglerpas <- readmission |>
+  filter(MCEID %in% avvik1$MCEID)
+table(reg_manglerpas$STATUS, useNA = 'ifany')
+table(readm_manglerpas$STATUS, useNA = 'ifany')
+
+manglerpas <- merge(reg_manglerpas,
+                    readm_manglerpas,
+                    by = "MCEID", all = TRUE,
+                    suffixes = c("", "_readm"))
+
+table(manglerpas[,c("STATUS", "STATUS_readm")], useNA = 'ifany')
 
 setdiff(mce$PATIENT_ID, patient$ID)
 
