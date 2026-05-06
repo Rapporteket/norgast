@@ -1,5 +1,331 @@
 library(dplyr)
+
+appdata <- norgast::NorgastHentData()
+
+regdata_gml <- norgast::NorgastHentRegData()
+
+query <- "SELECT
+	mce.MCEID AS ForlopsID,
+	mce.PATIENT_ID AS PasientId,
+	mce.CENTREID AS AvdRESH,
+
+	-- Patient stuff
+	patient.SSN AS Fodselsnummer,
+	patient.DECEASED AS Avdod,
+	patient.DECEASED_DATE AS AvdodDato,
+	centre.CENTRENAME AS SenterNavn,
+
+	-- Registration stuff
+	-- Innleggelse
+	registration.PREVIOUS_WEIGHT AS Vekt6MndFoer,
+	registration.PREVIOUS_WEIGHT_MISS AS Vekt6MndFoerUkjent,
+	registration.ADMISSION_WEIGHT AS VektVedInnleggelse,
+	registration.ADMISSION_WEIGHT_MISS AS VektVedInnleggelseUkjent,
+	registration.HEIGHT AS Hoyde,
+	registration.HEIGHT_MISS AS HoydeUkjent,
+	registration.BMI AS BMI,
+	registration.BMI_CATEGORY AS BMIKategori,
+	registration.WEIGHTLOSS AS VekttapProsent,
+	registration.DIABETES AS MedDiabetes,
+	registration.CHEMOTHERAPY_ONLY AS KunCytostatika,
+	registration.RADIATION_THERAPY_ONLY AS KunStraaleterapi,
+	registration.CHEMORADIOTHERAPY AS KjemoRadioKombo,
+	registration.WHO_ECOG_SCORE AS WHOECOG,
+	registration.ALBUMIN AS Albumin,
+	registration.CRP AS CRP,
+	registration.GLASGOW_SCORE AS GlasgowScore,
+	registration.MODIFIED_GLASGOW_SCORE AS ModGlasgowScore,
+
+	-- Anestesi
+	registration.ASA AS ASA,
+	registration.LUNG_DISEASE AS Lungesykdom,
+	registration.HEART_DISEASE AS Hjertesykdom,
+	registration.URGENCY AS Hastegrad,
+	registration.ANESTHESIA_START AS AnestesiStartKl,
+	registration.PRS_SCORE AS PRSScore,
+
+	-- Intervensjonen
+	registration.OPERATION_DATE AS OpDato,
+	registration.NCSP AS Hovedoperasjon,
+    registration.ABLATION AS LeverAblasjon,
+	registration.RECONSTRUCTION AS Rekonstruksjon,
+	registration.RECONSTRUCTION_TYPE AS Rekonstruksjonstype,
+	registration.ANASTOMOSIS_LEVEL AS Anastomoseniva,
+	registration.ANASTOMOSIS AS NyAnastomose,
+    registration.ANAL_GUARD_DISTANCE AS AvstandAnalVerge,
+    registration.ANAL_GUARD_DISTANCE_MISS AS AvstandAnalVergeIkkeAkt,
+	registration.TATME AS TaTME,
+	registration.OSTOMY AS NyStomi,
+	registration.ABDOMINAL_ACCESS AS Tilgang,
+	registration.ROBOTASSISTANCE AS Robotassistanse,
+	registration.THORAX_ACCESS AS ThoraxTilgang,
+
+	-- Komplikasjoner
+	registration.RELAPAROTOMY AS ReLapNarkose,
+	registration.RELAPAROTOMY_YES AS ViktigsteFunn,
+    registration.FINDINGS_SPESIFISER AS FunnSpesifiser,
+	registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi,
+	registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi,
+	registration.PERCUTANEOUS_DRAINAGE AS PerkDrenasje,
+	registration.HIGH_AMYLASE_CONCENTRATION AS HoyAmylaseKons,
+	registration.LEAK_INTERVENTION AS EndoInterLekkasje,
+	registration.BLEED_INTERVENTION AS EndoInterBlod,
+	registration.ANGIO_INTERVENTION AS AngioInter,
+	registration.LIQUID_DRAINAGE AS KunDrenasje,
+	registration.SINGLE_ORGAN_FAILURE AS EttOrganSvikt,
+	registration.MULTI_ORGAN_FAILURE AS MultiOrganSvikt,
+	registration.IN_HOUSE_DEATH AS DodUnderOpphold,
+	registration.IN_HOUSE_DEATH_DATE AS DodUnderOppholdDato,
+	registration.ACCORDION_SCORE AS AccordionGrad,
+
+	-- Utskrivelse
+	registration.DISCHARGE_DATE AS UtskrivelseDato,
+	registration.BED_DAYS AS PostopLiggedogn,
+	registration.ICD10 AS Hoveddiagnose,
+	registration.DISCHARGE_TO AS UtskrevetTil,
+
+	-- Generelt
+	registration.FIRST_TIME_CLOSED AS ForstLukket,
+	registration.FIRST_TIME_CLOSED_BY AS ForstLukketAv,
+	registration.STATUS AS RegistreringStatus,
+
+	-- Oppfølging
+	-- Reinnleggelse/oppfølging
+	readmission.OWN_INSTITUTION AS ReinnlEgenInst,
+	readmission.OTHER_INSTITUTIONS AS ReinnlAndreInst,
+	readmission.CONTROL AS AktivKontroll,
+	readmission.PHYSICAL_CONTROL AS FysiskKontroll,
+	readmission.PHONE_CONTROL AS TelefonKontroll,
+
+	-- Komplikasjoner
+	readmission.RELAPAROTOMY AS OppfReLapNarkose,
+	readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn,
+    readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser,
+	readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi,
+	readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi,
+	readmission.PERCUTANEOUS_DRAINAGE AS OppfPerkDrenasje,
+	readmission.HIGH_AMYLASE_CONCENTRATION AS OppfHoyAmylaseKons,
+	readmission.LEAK_INTERVENTION AS OppfEndoInterLekkasje,
+	readmission.BLEED_INTERVENTION AS OppfEndoInterBlod,
+	readmission.ANGIO_INTERVENTION AS OppfAngioInter,
+	readmission.LIQUID_DRAINAGE AS OppfKunDrenasje,
+	readmission.SINGLE_ORGAN_FAILURE AS OppfEttOrganSvikt,
+	readmission.MULTI_ORGAN_FAILURE AS OppfMultiOrganSvikt,
+	readmission.IN_HOUSE_DEATH AS OppfDodUnderOpphold,
+	readmission.IN_HOUSE_DEATH_DATE AS OppfDodUnderOppholdDato,
+	readmission.FIRST_TIME_CLOSED AS OppfForstLukket,
+	readmission.FIRST_TIME_CLOSED_BY AS OppfForstLukketAv,
+	readmission.ACCORDION_SCORE AS OppfAccordionGrad
+	-- getStatusText(readmission.STATUS) AS OppfStatus
+
+FROM
+	mce INNER JOIN patient ON mce.PATIENT_ID = patient.ID
+    INNER JOIN registration on mce.MCEID = registration.MCEID
+    INNER JOIN centre on centre.ID=mce.CENTREID
+    LEFT OUTER JOIN readmission on mce.MCEID = readmission.MCEID
+WHERE
+	registration.OPERATION_DATE > '2014.01.01';   -- Konsesjonsdato"
+
+tictoc::tic()
+allevarnum <- rapbase::loadRegData("data", query)
+tictoc::toc()
+
+tictoc::tic()
+allevarnum_gml <- rapbase::loadRegData("data", "SELECT * FROM allevarnum")
+tictoc::toc()
+
+tictoc::tic()
+registryName <- "data"
+datoFra = '2014-01-01'; datoTil = '2099-01-01'
+registration <- rapbase::loadRegData(registryName, "SELECT * FROM registration")
+readmission <- rapbase::loadRegData(registryName, "SELECT * FROM readmission")
+centre <- rapbase::loadRegData(registryName, "SELECT * FROM centre")
+user <- rapbase::loadRegData(registryName, "SELECT * FROM user")
+centreattribute <- rapbase::loadRegData(registryName, "SELECT * FROM centreattribute") |>
+  dplyr::filter(ATTRIBUTENAME == "FRIENDLYNAME")
+mce <- rapbase::loadRegData(registryName, "SELECT * FROM mce")
+patient <- rapbase::loadRegData(registryName, "SELECT * FROM patient")
+
+varnavn_kobl <-
+  data.frame(
+    kol =
+      c("mce.MCEID AS ForlopsID",
+        "mce.PATIENT_ID AS PasientID",
+        "mce.CENTREID AS AvdRESH",
+        "patient.SSN AS Fodselsnummer",
+        "patient.DECEASED AS Avdod",
+        "patient.DECEASED_DATE AS AvdodDato",
+        "centre.CENTRENAME AS SenterNavn",
+        "registration.PREVIOUS_WEIGHT AS Vekt6MndFoer",
+        "registration.PREVIOUS_WEIGHT_MISS AS Vekt6MndFoerUkjent",
+        "registration.ADMISSION_WEIGHT AS VektVedInnleggelse",
+        "registration.ADMISSION_WEIGHT_MISS AS VektVedInnleggelseUkjent",
+        "registration.HEIGHT AS Hoyde",
+        "registration.HEIGHT_MISS AS HoydeUkjent",
+        "registration.BMI AS BMI",
+        "registration.BMI_CATEGORY AS BMIKategori",
+        "registration.WEIGHTLOSS AS VekttapProsent",
+        "registration.DIABETES AS MedDiabetes",
+        "registration.CHEMOTHERAPY_ONLY AS KunCytostatika",
+        "registration.RADIATION_THERAPY_ONLY AS KunStraaleterapi",
+        "registration.CHEMORADIOTHERAPY AS KjemoRadioKombo",
+        "registration.WHO_ECOG_SCORE AS WHOECOG",
+        "registration.ALBUMIN AS Albumin",
+        "registration.CRP AS CRP",
+        "registration.GLASGOW_SCORE AS GlasgowScore",
+        "registration.MODIFIED_GLASGOW_SCORE AS ModGlasgowScore",
+        "registration.ASA AS ASA",
+        "registration.LUNG_DISEASE AS Lungesykdom",
+        "registration.HEART_DISEASE AS Hjertesykdom",
+        "registration.URGENCY AS Hastegrad",
+        "registration.ANESTHESIA_START AS AnestesiStartKl",
+        "registration.PRS_SCORE AS PRSScore",
+        "registration.OPERATION_DATE AS OpDato",
+        "registration.NCSP AS Hovedoperasjon",
+        "registration.ABLATION AS LeverAblasjon",
+        "registration.RECONSTRUCTION AS Rekonstruksjon",
+        "registration.RECONSTRUCTION_TYPE AS Rekonstruksjonstype",
+        "registration.ANASTOMOSIS_LEVEL AS Anastomoseniva",
+        "registration.ANASTOMOSIS AS NyAnastomose",
+        "registration.ANAL_GUARD_DISTANCE AS AvstandAnalVerge",
+        "registration.ANAL_GUARD_DISTANCE_MISS AS AvstandAnalVergeIkkeAkt",
+        "registration.TATME AS TaTME",
+        "registration.OSTOMY AS NyStomi",
+        "registration.ABDOMINAL_ACCESS AS Tilgang",
+        "registration.ROBOTASSISTANCE AS Robotassistanse",
+        "registration.THORAX_ACCESS AS ThoraxTilgang",
+        "registration.RELAPAROTOMY AS ReLapNarkose",
+        "registration.RELAPAROTOMY_YES AS ViktigsteFunn",
+        "registration.ANASTOMOTIC_LEAK AS ANASTOMOTIC_LEAK",
+        "registration.FINDINGS_SPESIFISER AS FunnSpesifiser",
+        "registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi",
+        "registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi",
+        "registration.PERCUTANEOUS_DRAINAGE AS PerkDrenasje",
+        "registration.HIGH_AMYLASE_CONCENTRATION AS HoyAmylaseKons",
+        "registration.LEAK_INTERVENTION AS EndoInterLekkasje",
+        "registration.BLEED_INTERVENTION AS EndoInterBlod",
+        "registration.ANGIO_INTERVENTION AS AngioInter",
+        "registration.LIQUID_DRAINAGE AS KunDrenasje",
+        "registration.SINGLE_ORGAN_FAILURE AS EttOrganSvikt",
+        "registration.MULTI_ORGAN_FAILURE AS MultiOrganSvikt",
+        "registration.IN_HOUSE_DEATH AS DodUnderOpphold",
+        "registration.IN_HOUSE_DEATH_DATE AS DodUnderOppholdDato",
+        "registration.ACCORDION_SCORE AS AccordionGrad",
+        "registration.DISCHARGE_DATE AS UtskrivelseDato",
+        "registration.BED_DAYS AS PostopLiggedogn",
+        "registration.ICD10 AS Hoveddiagnose",
+        "registration.DISCHARGE_TO AS UtskrevetTil",
+        "registration.FIRST_TIME_CLOSED AS ForstLukket",
+        "registration.FIRST_TIME_CLOSED_BY AS ForstLukketAv",
+        "registration.STATUS AS RegistreringStatus",
+        "readmission.OWN_INSTITUTION AS ReinnlEgenInst",
+        "readmission.OTHER_INSTITUTIONS AS ReinnlAndreInst",
+        "readmission.CONTROL AS AktivKontroll",
+        "readmission.PHYSICAL_CONTROL AS FysiskKontroll",
+        "readmission.PHONE_CONTROL AS TelefonKontroll",
+        "readmission.RELAPAROTOMY AS OppfReLapNarkose",
+        "readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn",
+        "readmission.ANASTOMOTIC_LEAK AS OppfANASTOMOTIC_LEAK",
+        "readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser",
+        "readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi",
+        "readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi",
+        "readmission.PERCUTANEOUS_DRAINAGE AS OppfPerkDrenasje",
+        "readmission.HIGH_AMYLASE_CONCENTRATION AS OppfHoyAmylaseKons",
+        "readmission.LEAK_INTERVENTION AS OppfEndoInterLekkasje",
+        "readmission.BLEED_INTERVENTION AS OppfEndoInterBlod",
+        "readmission.ANGIO_INTERVENTION AS OppfAngioInter",
+        "readmission.LIQUID_DRAINAGE AS OppfKunDrenasje",
+        "readmission.SINGLE_ORGAN_FAILURE AS OppfEttOrganSvikt",
+        "readmission.MULTI_ORGAN_FAILURE AS OppfMultiOrganSvikt",
+        "readmission.IN_HOUSE_DEATH AS OppfDodUnderOpphold",
+        "readmission.IN_HOUSE_DEATH_DATE AS OppfDodUnderOppholdDato",
+        "readmission.FIRST_TIME_CLOSED AS OppfForstLukket",
+        "readmission.FIRST_TIME_CLOSED_BY AS OppfForstLukketAv",
+        "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
+        "readmission.STATUS AS OppfStatus")
+  )|>
+  tidyr::separate(col="kol",
+                  into=c("dbnavn", "rapporteket"),
+                  sep = " AS ") |>
+  tidyr::separate(col="dbnavn",
+                  into=c("tabell", "var_navn"),
+                  extra = "merge")
+
+varnavn_mce <-
+  setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"],
+           varnavn_kobl$rapporteket[varnavn_kobl$tabell == "mce"])
+varnavn_patient <-
+  setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"],
+           varnavn_kobl$rapporteket[varnavn_kobl$tabell == "patient"])
+varnavn_registration <-
+  setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+           varnavn_kobl$rapporteket[varnavn_kobl$tabell == "registration"])
+varnavn_centre <-
+  setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "centre"],
+           varnavn_kobl$rapporteket[varnavn_kobl$tabell == "centre"])
+varnavn_readmission <-
+  setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+           varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"])
+
+allevarnum <- merge(
+  mce |>
+    dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"]) |>
+    dplyr::rename(!!!varnavn_mce),
+  patient |>
+    dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"], ID) |>
+    dplyr::rename(!!!varnavn_patient),
+  by.x = "PasientID", by.y = "ID", all.x = TRUE
+) |> merge(
+  registration |>
+    dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+                  MCEID, ICD10_VERSION, NCSP_VERSION) |>
+    dplyr::rename(!!!varnavn_registration),
+  by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
+) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
+  merge(
+    readmission |>
+      dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+                    MCEID) |>
+      dplyr::rename(!!!varnavn_readmission),
+    by.x = "ForlopsID", by.y = "MCEID", all.x = TRUE
+  ) |>
+  dplyr::filter(OpDato >= datoFra,
+                OpDato <= datoTil) |>
+  dplyr::arrange(ForlopsID)
+
+
+tictoc::toc()
+
+
+
+
+
+
+
 rm(list = ls())
+
+appdata <- norgast::NorgastHentData()
+RegData_ny <- appdata$RegData
+RegData_gml <- norgast::NorgastHentRegData()
+
+tmp <- RegData_gml |>
+  select(all_of(setdiff(names(RegData_gml), names(RegData_ny))))
+tmp2 <- RegData_ny |>
+  select(all_of(setdiff(names(RegData_ny), names(RegData_gml))))
+
+table(RegData_gml$Avdod, useNA = 'ifany')
+table(RegData_ny$Avdod, useNA = 'ifany')
+
+
+lekk <- RegData |>
+  filter(NyAnastomose == 1,
+         Aar == 2026) |>
+  summarise(anastomelekk = sum(Anastomoselekkasje),
+            N = n(),
+            pst = anastomelekk/N*100,
+            .by = Mnd)
+
+
 
 query <- "SELECT
 	mce.MCEID AS ForlopsID,
@@ -90,6 +416,8 @@ readmission <- rapbase::loadRegData(
   "data", "SELECT * FROM readmission")
 allevarnum_hnikt <- rapbase::loadRegData(
   "data", "SELECT * FROM allevarnum")
+
+
 
 # RegData <- merge(
 #   RegData,
