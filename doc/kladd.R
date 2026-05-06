@@ -1,5 +1,22 @@
 library(dplyr)
 
+
+valgtVar='ModGlasgowScore';
+datoFra='2014-01-01'; datoTil='2050-12-31';
+minald=0; maxald=130; erMann=99; outfile=''; hastegrad_hybrid=99;
+preprosess=F; malign=99; Ngrense=30; lavDG=''; ny_anastomose = 99;
+lavDGtekst='Dekningsgrad < 60 %'; hastegrad = 99; icd_kode='';
+elektiv=99; BMI=''; tilgang=''; valgtShus=c(''); minPRS=0; modGlasgow='';
+maxPRS=2.2; ASA=''; whoEcog= ''; forbehandling=''; hentData=0; op_gruppe='';
+ncsp=''; robotassiastanse=99; kun_ferdigstilte=TRUE; skriftStr=1;
+tilgang_utvidet=''; accordion=''; snufarger = TRUE
+
+appdata <- norgast::NorgastHentData()
+RegData <- appdata$RegData |> norgast::NorgastPreprosess()
+
+
+
+
 appdata <- norgast::NorgastHentData()
 
 regdata_gml <- norgast::NorgastHentRegData()
