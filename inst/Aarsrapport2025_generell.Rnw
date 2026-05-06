@@ -975,6 +975,12 @@ if (annet_format_ut) {
 \caption{Aktualitet\_oppf180\_indikator.pdf}
 \end{figure}
 
+<<'PROM-data', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+
+
+
+@
 
 % # <<'DG-tabell', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 % # DG <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),

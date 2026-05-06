@@ -24,7 +24,7 @@ norgastPlotIndikator(
   pktStr = 1.4,
   legPlass = "top",
   minstekravTxt = "Akseptabelt",
-  maalTxt = "Mål",
+  maalTxt = "M<U+00E5>l",
   maalretn = "hoy",
   prikktall = TRUE,
   pst_kolonne = T
