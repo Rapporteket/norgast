@@ -116,7 +116,9 @@ NorgastFigAndelStabelGrVar <- function(
       names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
     # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
     utdata_andel <- utdata_antall
-    utdata_andel <- utdata_andel %>% dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100))
+    utdata_andel <- utdata_andel %>%
+      # dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100)) %>%
+      dplyr::mutate(dplyr::across(2:(N_kat+1), . / Sum * 100))
     AndelerGr[which(Ngr<Ngrense),] <- -1
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 

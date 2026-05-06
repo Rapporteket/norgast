@@ -18,7 +18,7 @@ norgastIndikator_nasjonal(
   pktStr = 1.4,
   legPlass = "top",
   minstekravTxt = "Akseptabelt",
-  maalTxt = "Mål",
+  maalTxt = "M<U+00E5>l",
   graaUt = NA,
   inkl_konf = F,
   datoFra = "2014-01-01",
