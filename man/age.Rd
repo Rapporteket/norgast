@@ -4,7 +4,7 @@
 \alias{age}
 \title{Calculate age}
 \usage{
-age(dob, age.day = today(), units = "years", floor = TRUE)
+age(dob, age.day = lubridate::today(), units = "years", floor = TRUE)
 }
 \arguments{
 \item{dob}{date-of-birth, the day to start calculating age.}
