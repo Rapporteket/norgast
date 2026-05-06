@@ -56,25 +56,42 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$BMI_kodet <- as.numeric(RegData$BMI_kategori)
 
   # Definer operasjonsgrupper basert på NCSP kode
-  RegData <- RegData[which(RegData$ncsp_lowercase != ''),]    # Fjerner registreringer uten operasjonskode
-  RegData$Operasjonsgrupper <- "Annet"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jfh")] <- "Kolonreseksjoner"
-  RegData$Operasjonsgrupper[
-    intersect(which(substr(RegData$ncsp_lowercase,1,3)=="jfb"),
-              which(as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 20:64))] <- "Kolonreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jgb")] <- "Rektumreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jcc")] <- "Øsofagusreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdc")] <- "Ventrikkelreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jdd")] <- "Ventrikkelreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,3)=="jjb")] <- "Leverreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c('jlc10','jlc11'))] <- "Distale pankreasreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c('jlc00','jlc20','jlc40', 'jlc50', 'jlc96'))] <- "Andre pankreasreseksjoner"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jlc30","jlc31"))] <- "Whipples operasjon"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jka20","jka21"))] <- "Cholecystektomi"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jea00","jea01"))] <- "Appendektomi"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jfb00","jfb01"))] <- "Tynntarmsreseksjon"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf10","jdf11"))] <- "Gastric bypass"
-  RegData$Operasjonsgrupper[which(substr(RegData$ncsp_lowercase,1,5) %in% c("jdf96","jdf97"))] <- "Gastric sleeve"
+  RegData <- RegData[
+    which(RegData$ncsp_lowercase != ''),]    # Fjerner registreringer uten operasjonskode
+  RegData <- RegData |>
+    tidyr::separate(ncsp_lowercase, into = c("ncsp_text", "ncsp_num"),
+                    sep = "(?<=[A-Za-z])(?=[0-9])", remove = FALSE) |>
+    dplyr::mutate(ncsp_num = as.numeric(ncsp_num)) |>
+    dplyr::mutate(Operasjonsgrupper = dplyr::case_when(
+      ncsp_text == "jfh" |
+        (ncsp_text == "jfb" & ncsp_num %in% 20:64) ~ "Kolonreseksjoner",
+      ncsp_text == "jgb" ~ "Rektumreseksjoner",
+      ncsp_text == "jcc" ~ "Øsofagusreseksjoner",
+      ncsp_text %in%  c("jdc", "jdd") ~ "Ventrikkelreseksjoner",
+      ncsp_text == "jjb" ~ "Leverreseksjoner",
+      ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
+        "Distale pankreasreseksjoner",
+      ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
+        "Distale pankreasreseksjoner",
+      ncsp_text == "jlc" & ncsp_num %in% c(0, 20, 40, 50, 96) ~
+        "Andre pankreasreseksjoner",
+      ncsp_text == "jlc" & ncsp_num %in% c(30, 31) ~
+        "Whipples operasjon",
+      ncsp_text == "jka" & ncsp_num %in% c(20, 21) ~
+        "Cholecystektomi",
+      ncsp_text == "jea" & ncsp_num %in% c(0, 1) ~
+        "Appendektomi",
+      ncsp_text == "jfb" & ncsp_num %in% c(0, 1) ~
+        "Tynntarmsreseksjon",
+      ncsp_text == "jdf" & ncsp_num %in% c(10, 11) ~
+        "Gastric bypass",
+      ncsp_text == "jdf" & ncsp_num %in% c(96, 97) ~
+        "Gastric sleeve",
+      ncsp_text == "jfg" & ncsp_num %in% 0:36 ~
+        "Tilbakelegging stomi",
+      .default = "Annet"
+    )
+    )
 
   RegData$Op_gr <- NA
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
@@ -90,6 +107,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 10 + 1
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 11 + 1
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 12 + 1
+  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tilbakelegging stomi")] <- 14
   RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
   RegData$Op_gr2 <- 9
@@ -102,18 +120,18 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Ventrikkelreseksjoner'), which(RegData$NyAnastomose==0))] <- 7
   RegData$Op_gr2[RegData$Operasjonsgrupper=='Whipples operasjon'] <- 8
 
-  RegData$Op_grAarsrapp <- 99
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
-  RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-  RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" &
-                                (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
-                                   as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
-  RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" &
-                                (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <- 8 # Gallegang
+  # RegData$Op_grAarsrapp <- 99
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
+  # RegData$Op_grAarsrapp[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
+  # RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jlc" &
+  #                               (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 0:20 |
+  #                                  as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 40:99))] <- 7 # Øvrige pancreas
+  # RegData$Op_grAarsrapp[which(substr(RegData$ncsp_lowercase,1,3)=="jhc" &
+  #                               (as.numeric(substr(RegData$ncsp_lowercase,4,5)) %in% 10:99))] <- 8 # Gallegang
 
   #### Quickfix: OppfStatus skal være numerisk kodet i AlleVariablerNum
   RegData$OppfStatus <- as.character(RegData$OppfStatus)
@@ -196,9 +214,16 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$PermanentStomiColorektal[intersect(intersect(which(as.numeric(RegData$NyAnastomose)==0),which(as.numeric(RegData$NyStomi)==1)),
                                              union(which(RegData$Op_gr==1),which(RegData$Op_gr==2)))] <- 1
 
+  RegData$dummy_LEAK <-
+    pmax(RegData$ANASTOMOTIC_LEAK,
+         RegData$OppfANASTOMOTIC_LEAK,
+         na.rm = TRUE)
+  RegData$dummy_LEAK[is.na(RegData$dummy_LEAK)] <- 0
   RegData$Anastomoselekkasje <- NA
   RegData$Anastomoselekkasje[RegData$NyAnastomose==1] <- 0
   RegData$Anastomoselekkasje[RegData$ViktigsteFunn==1] <- 1
+  RegData$Anastomoselekkasje <- ifelse(
+    RegData$dummy_LEAK == 1, 1, RegData$Anastomoselekkasje)
   RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
   RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 

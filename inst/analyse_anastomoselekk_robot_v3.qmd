@@ -3,11 +3,9 @@ title: "Anastomoselekkasje ved robotkirurgi"
 format:
   html: 
     embed-resources: true
-editor: visual
 ---
 
 ## Lesing og filtrering av data
-
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ps.analysis <- function(
@@ -98,7 +96,6 @@ ps.analysis <- function(
 
 ```
 
-
 ```{r}
 #| warning: false
 library(norgast)
@@ -107,6 +104,9 @@ library(dplyr)
 
 # RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
 RegData_raa <- norgast::NorgastHentData()$RegData
+# save(
+#   RegData_raa, 
+#   file = "C:/Users/kth200/regdata/norgast/robotartikkel/RegData_raa.RData")
 RegData <- RegData_raa |>
   # rename(Sykehusnavn = SykehusNavn) |>
   NorgastPreprosess() |> 
@@ -204,8 +204,8 @@ frafall <- data.frame("var" = names(frafall),
 names(frafall)[1] <- ""
 knitr::kable(frafall, row.names = FALSE, caption = "Ekskluderte av ulike årsaker")
 
-write.csv2(frafall, "C:/regdata/norgast/robotartikkel/frafall.csv", 
-           row.names = F, fileEncoding = "Latin1")
+# write.csv2(frafall, "C:/regdata/norgast/robotartikkel/frafall.csv", 
+# row.names = F, fileEncoding = "Latin1")
 
 # nyanastomosetab <- RegData |>
 #   summarise(UtenNyAnastomose = sum(NyAnastomose==0),
@@ -255,7 +255,6 @@ print(results_conv)
 
 ```
 
-
 ```{r, echo=FALSE}
 
 tab1_v2 <- tableone::CreateTableOne(
@@ -274,9 +273,54 @@ tab1_v2 <- tableone::CreateTableOne(
 
 knitr::kable(print(tab1_v2, printToggle = FALSE)[,-5])
 
+tab1_erfaring <- tableone::CreateTableOne(
+  c("Alder", "erMann", "AvstandAnalVerge", "ASA", 
+    "BMI", "NyStomi", "Straaling", "Tilgang"),
+  strata = "aar_erfaring_shus2", data = RegData |> mutate(
+    Anastomoselekkasje = factor(Anastomoselekkasje, levels=0:1, 
+                                labels=c("Nei", "Ja")),
+    Robotassistanse = factor(Robotassistanse, levels=0:1, 
+                             labels=c("Konvensjonell", "Robot")),
+    Tilgang = factor(Tilgang, levels=2:3, 
+                     labels=c("Laparoskopisk", "Konvertert")),
+    Straaling = (KunStraaleterapi | KjemoRadioKombo)) |> 
+    filter(Robotassistanse == "Robot",
+           Alder <= 80,
+           BMI <= 30,
+           AvstandAnalVerge <= 11),
+  factorVars = c("erMann", "NyStomi", "Straaling", "ASA", "Tilgang"),
+  addOverall = TRUE)
+
+# write.csv2(print(tab1_erfaring, printToggle = FALSE)[,-5], "tab1_erfaring.csv")
+
+knitr::kable(print(tab1_erfaring, printToggle = FALSE)[,-5])
+
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+tab_leak <- RegData |> filter(Robotassistanse == 1) |> 
+  summarise(n_leak = sum(Anastomoselekkasje),
+            N = n(),
+            leak_pst = n_leak/N*100,
+            .by = erfaringsnivaa)   # Finn p-verdi
+tab_leak2 <- RegData |> filter(Robotassistanse == 0) |> 
+  summarise(n_leak = sum(Anastomoselekkasje),
+            N = n(),
+            leak_pst = n_leak/N*100,
+            .by = erfaringsnivaa)
+tab_leak <- RegData |> filter(Robotassistanse == 1) |> 
+  summarise(n_leak = sum(Anastomoselekkasje),
+            N = n(),
+            leak_pst = n_leak/N*100,
+            .by = aar_erfaring_shus2) 
+tab_leak2 <- RegData |> filter(Robotassistanse == 0) |> 
+  summarise(n_leak = sum(Anastomoselekkasje),
+            N = n(),
+            leak_pst = n_leak/N*100,
+            .by = aar_erfaring_shus2)
+
+
 RegData$alder_kat <- cut(RegData$Alder, breaks = c(0, 65, 80, 140))
 RegData$Kjonn <- factor(RegData$erMann, levels = 0:1, labels = c("Kvinne", "Mann"))
 RegData$Straaling <- 
@@ -561,7 +605,6 @@ RegData_alle <- RegData
 
 ## Analyse: anastomoselekkasje
 
-
 ```{r "anastomoselekkasje", echo=FALSE, warning=FALSE, message=FALSE}
 
 alder <- RegData |> summarise(
@@ -832,8 +875,21 @@ knitr::kable(
   caption = "Regresjonsanalyse av risikofaktorer for anastomoselekkasje.",
   row.names = FALSE)
 
-```
 
+model_samlet_ustomi <- glm(Anastomoselekkasje ~ 1 + Robotassistanse + 
+                             erMann + alder_kat +
+                             ASA_kat + straaling +
+                             AvstandAnalVerge_kat + bmi_forenklet,
+                           data = RegData %>% filter(!is.na(BMI)), 
+                           family = "binomial")
+
+a <- exp(coef(model_samlet_ustomi))
+b <- exp(confint(model_samlet_ustomi))
+
+print(a)
+print(b)
+
+```
 
 ```{r, propensity score 1, warning=FALSE}
 library(xgboost)
@@ -903,7 +959,7 @@ tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
 
 tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
                                   "AvstandAnalVerge_kat", "bmi_forenklet",  
-                                  "Aar"), 
+                                  "Aar", "Anastomoselekkasje"), 
                          strata = "Robotassistanse",
                          data = matched_data, smd = T, test = F) |> 
   print(smd = T) |> 
@@ -954,6 +1010,7 @@ outcome.model3 <- glm(
   data = matched_data
 )
 
+matched_data |> summarise(lekk = sum(Anastomoselekkasje)/n(), N = n(), .by = Robotassistanse)
 
 exp(coef((outcome.model1)))
 exp(confint((outcome.model1)))
@@ -964,6 +1021,133 @@ exp(confint((outcome.model3)))
 
 ```
 
+```{r, propensity score ny stomi, warning=FALSE}
+library(xgboost)
+RegData <- RegData_alle |> 
+  filter(!is.na(AvstandAnalVerge_kat),
+         !is.na(BMI),
+         Alder <= 80,
+         BMI <= 30,
+         AvstandAnalVerge <= 11)
+
+tmp <- RegData |> 
+  select("erMann", "Alder", "ASA_kat", "straaling",
+         "AvstandAnalVerge", "BMI",  
+         "Aar") |>
+  mutate(ASA_kat = as.factor(ASA_kat) |> as.numeric(),
+         straaling = as.numeric(straaling),
+         # AvstandAnalVerge_kat = as.numeric(AvstandAnalVerge_kat),
+         # bmi_forenklet = as.numeric(bmi_forenklet),
+  ) |> 
+  as.matrix()
+
+training_data <- xgb.DMatrix(
+  data = tmp, 
+  label = RegData$Robotassistanse)
+
+params_list <- list(
+  objective = "binary:logistic",
+  eval_metric = c("logloss"),
+  eta = 0.1,
+  max_depth = 4
+)
+
+set.seed(145)
+
+model_xgbcv <- xgb.cv(
+  params = params_list,
+  data = training_data,
+  nrounds = 1000,
+  nfold = 5, 
+  stratified = TRUE,
+  early_stopping_rounds = 50,
+  maximize = FALSE,
+  prediction = TRUE,       
+  verbose = 0
+)
+
+best_iter = model_xgbcv$best_iteration
+final_model <- xgb.train(params_list, training_data, nrounds = best_iter)
+
+ps <- predict(final_model, training_data)
+
+formel <- Robotassistanse ~ 1  + 
+  erMann + alder_kat +
+  ASA_kat + straaling +
+  AvstandAnalVerge + BMI
+
+matched_data_complete <- MatchIt::matchit(formula = Robotassistanse ~ 1,
+                                          data = RegData, distance = ps, 
+                                          caliper = 0.001, std.caliper = T#,
+                                          # method = "optimal"
+                                          # ratio = 1,
+)
+matched_data <- MatchIt::match_data(matched_data_complete)
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge", "BMI",  
+                                  "Aar", "NyStomi"), 
+                         strata = "Robotassistanse",
+                         data = RegData, smd = T, test = F)|> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_unmatched_nystomi.xlsx", rowNames = T)
+
+tableone::CreateTableOne(vars = c("erMann", "Alder", "ASA_kat", "straaling",
+                                  "AvstandAnalVerge", "BMI",  
+                                  "Aar", "NyStomi"), 
+                         strata = "Robotassistanse",
+                         data = matched_data, smd = T, test = F) |> 
+  print(smd = T) |> 
+  openxlsx::write.xlsx("tab_matched_nystomi.xlsx", rowNames = T)
+
+cobalt::bal.plot(
+  matched_data_complete,
+  which = "both",
+  var.name = "distance",
+  type = "histogram",
+  mirror = TRUE
+)
+cobalt::love.plot(
+  formel,
+  weights = list(w1 = cobalt::get.w(matched_data_complete)),
+  data = RegData,
+  binary = "std",
+  thresholds = c(m = .1),
+  abs = T
+)
+
+outcome.formula1 <- NyStomi ~ 1 + Robotassistanse
+outcome.formula2 <- NyStomi ~ 1 + Robotassistanse + 
+  AvstandAnalVerge_kat +
+  erMann + alder_kat + Aar +
+  straaling + ASA_kat + 
+  bmi_forenklet
+
+
+outcome.model1 <- glm(
+  formula = outcome.formula1,
+  family = binomial,
+  data = matched_data
+)
+outcome.model2 <- glm(
+  formula = outcome.formula2,
+  family = binomial,
+  data = matched_data
+)
+
+
+param1 <- exp(coef((outcome.model1)))
+param2 <- exp(confint((outcome.model1)))
+param3 <- exp(coef((outcome.model2)))
+param4 <- exp(confint((outcome.model2)))
+
+param5 <- bind_cols(as.data.frame(param1), as.data.frame(param2))
+param6 <- bind_cols(as.data.frame(param3), as.data.frame(param4))
+
+write.csv2(param5, "param5.csv")
+
+
+
+```
 
 ```{r, propensity score 2, warning=FALSE}
 library(xgboost)
@@ -1084,6 +1268,39 @@ exp(coef((outcome.model2)))
 exp(confint((outcome.model2)))
 exp(coef((outcome.model3)))
 exp(confint((outcome.model3)))
+
+```
+
+```{r, andel robot pr aar vs anastomoselekk, warning=FALSE}
+
+RegData <- RegData_alle
+
+scatter3 <- RegData |> summarise(N = n(),
+                                 .by = c(Sykehusnavn, Aar))
+scatter1 <- RegData |> summarise(andel_rob = sum(Robotassistanse)/n()*100,
+                                 .by = c(Sykehusnavn, Aar)) #|> 
+# tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
+
+scatter2 <- RegData |> summarise(andel_lekk = sum(Anastomoselekkasje)/n()*100,
+                                 .by = c(Sykehusnavn, Aar)) #|> 
+# tidyr::pivot_wider(names_from = Aar, values_from = andel_rob)
+scatterplotdata <- merge(scatter1, scatter2, by = c("Sykehusnavn", "Aar")) |> 
+  merge(scatter3, by = c("Sykehusnavn", "Aar")) #|> 
+# filter(N>20)
+
+shusmapping <- data.frame(shus = unique(scatterplotdata$Sykehusnavn),
+                          shusnr = 1:length(unique(scatterplotdata$Sykehusnavn)))
+
+scatterplotdata$Sykehusnavn <- shusmapping$shusnr[match(
+  scatterplotdata$Sykehusnavn, shusmapping$shus)]
+
+write.csv2(scatterplotdata, "scatterplotdata.csv", row.names = F)
+write.csv2(shusmapping, "shusmapping.csv", row.names = F, fileEncoding = "Latin1")
+
+# plot(scatterplotdata$andel_rob, scatterplotdata$andel_lekk)
+
+# table(RegData[,c("Sykehusnavn", "Robotassistanse")])
+
 
 ```
 
@@ -1341,7 +1558,6 @@ exp(confint((outcome.model3)))
 
 ```
 
-
 ```{r, regresjon ny, warning=FALSE}
 RegData <- RegData_alle |> 
   filter(!is.na(AvstandAnalVerge_kat),
@@ -1374,7 +1590,6 @@ exp(confint((model_samlet)))
 
 
 ```
-
 
 ```{r, nye analyser, warning=FALSE}
 
@@ -1414,7 +1629,7 @@ p <- ggplot(tidsplotdata, aes(x = Aar, y = andel, color = Robotassistanse)) +
 
 p
 
-ggsave(filename = "C:/regdata/norgast/robotartikkel/lekkasje_tid.svg", plot = p, width = 7, height = 5, units = "in")
+ggsave(filename = "C:/Users/kth200/regdata/norgast/robotartikkel/lekkasje_tid.svg", plot = p, width = 7, height = 5, units = "in")
 
 
 ```
@@ -1677,7 +1892,6 @@ exp(confint((outcome.model3)))
 
 ```
 
-
 ```{r, utvikling robot, warning=FALSE}
 library(tidyr)
 
@@ -1685,6 +1899,7 @@ andel_robot_aar <- RegData |>
   summarise(andel_rob = sum(Robotassistanse)/ n()*100, 
             N = n(), 
             .by = c(Sykehusnavn, Aar)) |> 
+  janitor::adorn_totals() |> 
   mutate(andel_rob = paste0(round(andel_rob, 1), " (", N, ")")) |> 
   select(-N) |> 
   pivot_wider(names_from = c(Aar), values_from = andel_rob)

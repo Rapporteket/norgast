@@ -1,8 +1,319 @@
 # setwd('C:/GIT/norgast/doc/')
 library(norgast)
+library(dplyr)
 # library(tidyverse)
 rm(list=ls())
 
+###### Beriking NPR og KPR 25.03.2026 ##########################################
+RegData <- norgast::NorgastHentData() |>
+  purrr::pluck("RegData") |>
+  norgast::NorgastPreprosess()|>
+  dplyr::filter(Op_gr %in% c(1:8, 14),
+                Aar %in% 2014:2025) |>
+  dplyr::select(PasientID, OperasjonsDato)
+
+fid <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
+  colClasses = c("integer", "character")) |>
+  dplyr::filter(PID %in% RegData$PasientID) |>
+  dplyr::rename(PasientID = PID,
+                Fnr = SSN)
+
+write.csv2(
+  RegData,
+  "C:/Users/kth200/regdata/norgast/utleveringer/aktivitetsdata_beriking_norgast.csv",
+  row.names = F, fileEncoding = 'Latin1')
+write.csv2(
+  fid,
+  "C:/Users/kth200/regdata/norgast/utleveringer/kobling_beriking_norgast.csv",
+  row.names = F, fileEncoding = 'Latin1')
+
+
+###### Nytt forsøk: Koble krg-data Stig 02.02.2026 #############################
+
+filsti <- "C:/Users/kth200/regdata/norgast/utleveringer/stig/"
+
+crc_kir_mld_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_kir_mld_variabler_utlevering_2_4356_v2.csv"))
+
+crc_var_pat_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_var_pat_utlevering_2_4356.csv"))
+
+crc_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_variabler_utlevering_2_4356.csv"))
+
+post_op_strale_var_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "post_op_strale_var_utlevering_2_4356.csv"))
+
+
+
+old <- Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+krg_crc_variabler_4356 <-
+  read.csv2(paste0(filsti, "krg_crc_variabler_4356.csv")) |>
+  mutate(opdato = as.Date(S_datoOprPrimar, format = "%d%b%Y"))
+Sys.setlocale("LC_TIME", old)  # restore
+
+NORGAST_datasett <-
+  read.csv2(paste0(filsti, "NORGAST_datasett.csv")) |>
+  mutate(na_count = rowSums(is.na(across(everything())))) |>
+  arrange(P_pidKrg , OpDato, na_count) |>     # choose grouping columns here
+  dplyr::slice(1, .by = c(P_pidKrg , OpDato)) |>      # keep row with fewest NAs
+  select(-na_count) |>
+  mutate(OpDato2 = as.Date(OpDato, format = "%d.%m.%Y"),
+         OpDato2 = as.Date(format(OpDato2, "%Y-%m-15")))
+
+
+kobletdata <- merge(crc_kir_mld_variabler_utlevering_2_4356,
+                    crc_var_pat_utlevering_2_4356,
+                    by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(post_op_strale_var_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_kir_mld_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(krg_crc_variabler_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE)
+# filter(S_sidKrg != 1843)
+
+kobletdata_m_norgast <- merge(kobletdata,
+                              NORGAST_datasett,
+                              by.x = c("P_pidKrg", "opdato"),
+                              by.y = c("P_pidKrg", "OpDato2"),
+                              all = TRUE) |>
+  relocate(P_pidKrg, opdato, S_datoOprPrimar, OpDato, M_kirKolon1.x,
+           M_kirKolon1.y, M_kirKolon2.x, M_kirKolon2.y, Hovedoperasjon) |>
+  arrange(P_pidKrg, opdato, S_datoOprPrimar, OpDato)
+
+openxlsx::write.xlsx(kobletdata_m_norgast,
+                     file = paste0(filsti, "kobletdata_krg_mars20.xlsx"))
+
+###### Findings spesifiser Kjerstin 16.03.2026 ########################
+registryName <- "data"
+registration <- rapbase::loadRegData(registryName,
+                                     "SELECT * FROM registration") |>
+  dplyr::filter(!is.na(FINDINGS_SPESIFISER)) |>
+  dplyr::select(FINDINGS_SPESIFISER)
+
+readmission <- rapbase::loadRegData(registryName,
+                                    "SELECT * FROM readmission") |>
+  dplyr::filter(!is.na(FINDINGS_SPESIFISER)) |>
+  dplyr::select(FINDINGS_SPESIFISER)
+
+
+registration$row_id <- rownames(registration) |> as.numeric()
+readmission$row_id <- rownames(readmission) |> as.numeric()
+
+kommentarer_samlet <- merge(registration, readmission,
+                            by = "row_id", all = TRUE,
+                            suffixes = c("", "_oppf")) |>
+  dplyr::select(-row_id)
+
+write.csv2(kommentarer_samlet,
+           "C:/Users/kth200/regdata/norgast/utleveringer/kommentarer_samlet.csv",
+           row.names = FALSE, na = "",
+           fileEncoding = "Latin1")
+
+registration <- rapbase::loadRegData(registryName,
+                                     "SELECT * FROM registration")# |>
+# dplyr::filter(RELAPAROTOMY_YES == 5) |>
+# dplyr::select(OPERATION_DATE, FIRST_TIME_CLOSED, FINDINGS_SPESIFISER, MCEID) |>
+# dplyr::mutate(OPERATION_DATE = as.Date(OPERATION_DATE),
+#               FIRST_TIME_CLOSED = as.Date(FIRST_TIME_CLOSED)) #|>
+# dplyr::filter(OPERATION_DATE >= "2022-01-01",
+#               OPERATION_DATE < "2026-01-01")
+
+readmission <- rapbase::loadRegData(registryName,
+                                    "SELECT * FROM readmission") |>
+  dplyr::filter(RELAPAROTOMY_YES == 5) |>
+  dplyr::select(FINDINGS_SPESIFISER, MCEID) |>
+  dplyr::mutate(
+    OPERATION_DATE = registration$OPERATION_DATE[
+      match(MCEID, registration$MCEID)],
+    OPERATION_DATE = as.Date(OPERATION_DATE)) |>
+  dplyr::filter(OPERATION_DATE >= "2022-01-01",
+                OPERATION_DATE < "2026-01-01") |>
+  dplyr::filter(!is.na(FINDINGS_SPESIFISER)) |>
+  mutate(skjema = "readmission") |>
+  relocate(skjema, MCEID, OPERATION_DATE, FINDINGS_SPESIFISER)
+
+registration <- rapbase::loadRegData(registryName,
+                                     "SELECT * FROM registration") |>
+  dplyr::filter(RELAPAROTOMY_YES == 5) |>
+  dplyr::select(OPERATION_DATE, FINDINGS_SPESIFISER, MCEID) |>
+  dplyr::mutate(OPERATION_DATE = as.Date(OPERATION_DATE)) |>
+  dplyr::filter(OPERATION_DATE >= "2022-01-01",
+                OPERATION_DATE < "2026-01-01") |>
+  dplyr::filter(!is.na(FINDINGS_SPESIFISER)) |>
+  mutate(skjema = "registration") |>
+  relocate(skjema, MCEID, OPERATION_DATE, FINDINGS_SPESIFISER)
+
+alle <- bind_rows(registration, readmission)
+
+write.csv2(alle,
+           "C:/Users/kth200/regdata/norgast/utleveringer/kommentarer_samlet.csv",
+           row.names = FALSE, na = "",
+           fileEncoding = "Latin1")
+
+tmp <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/utleveringer/kommentarer_med_kategori_norsk.csv",
+  fileEncoding = "Latin1")
+
+###### DG-tall 2025 16.03.2026 #################################
+
+appdata <- norgast::NorgastHentData()
+RegData <- appdata$RegData |>
+  norgast::NorgastPreprosess()
+
+# RegData <- norgast::NorgastHentRegData() |>
+#   dplyr::rename(Sykehusnavn = SykehusNavn) |>
+#   norgast::NorgastPreprosess()
+
+fid <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
+  colClasses = c("integer", "character"))
+
+RegData <- RegData[RegData$Op_gr %in% c(1:8, 14) & RegData$Aar == 2025, ]
+
+RegData <- RegData[,c("PasientID", "ForlopsID", "AvdRESH", "Sykehusnavn",
+                      "OperasjonsDato", "Operasjonsgrupper", "Hovedoperasjon",
+                      "Tilgang", "Robotassistanse", "NyStomi")]
+
+fid <- fid[fid$PID %in% RegData$PasientID, ]
+names(fid) <- c("PasientID", "Fnr")
+
+write.csv2(
+  RegData,
+  "C:/Users/kth200/regdata/norgast/utleveringer/aktivitetsdata_norgast_2025.csv",
+  row.names = F, fileEncoding = 'Latin1')
+write.csv2(
+  fid,
+  "C:/Users/kth200/regdata/norgast/utleveringer/kobling_norgast_2025.csv",
+  row.names = F, fileEncoding = 'Latin1')
+
+
+###### Koble krg-data Stig 02.02.2026 #################################
+
+filsti <- "C:/Users/kth200/regdata/norgast/utleveringer/stig/"
+
+crc_kir_mld_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_kir_mld_variabler_utlevering_2_4356_v2.csv"))
+
+crc_var_pat_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_var_pat_utlevering_2_4356.csv"))
+
+crc_variabler_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "crc_variabler_utlevering_2_4356.csv"))
+
+post_op_strale_var_utlevering_2_4356 <-
+  read.csv2(paste0(filsti, "post_op_strale_var_utlevering_2_4356.csv"))
+
+old <- Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+krg_crc_variabler_4356 <-
+  read.csv2(paste0(filsti, "krg_crc_variabler_4356.csv")) |>
+  mutate(opdato = as.Date(S_datoOprPrimar, format = "%d%b%Y"))
+Sys.setlocale("LC_TIME", old)  # restore
+
+NORGAST_datasett <-
+  read.csv2(paste0(filsti, "NORGAST_datasett.csv")) |>
+  mutate(OpDato2 = as.Date(OpDato, format = "%d.%m.%Y"),
+         OpDato2 = as.Date(format(OpDato2, "%Y-%m-15")))
+
+
+kobletdata <- merge(crc_kir_mld_variabler_utlevering_2_4356,
+                    crc_var_pat_utlevering_2_4356,
+                    by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(post_op_strale_var_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(crc_kir_mld_variabler_utlevering_2_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE) |>
+  merge(krg_crc_variabler_4356,
+        by = c("P_pidKrg", "S_sidKrg"), all = TRUE)
+
+kobletdata_m_norgast <- merge(kobletdata,
+                              NORGAST_datasett,
+                              by.x = c("P_pidKrg", "opdato"),
+                              by.y = c("P_pidKrg", "OpDato2"),
+                              all = TRUE) |>
+  relocate(P_pidKrg, opdato, S_datoOprPrimar, OpDato, M_kirKolon1.x,
+           M_kirKolon1.y, M_kirKolon2.x, M_kirKolon2.y, Hovedoperasjon) |>
+  arrange(P_pidKrg, opdato, S_datoOprPrimar, OpDato)
+
+
+write.csv2(kobletdata_m_norgast, paste0(filsti, "kobletdata_krg_feb26.csv"),
+           row.names = F,
+           fileEncoding = "Latin1")
+
+
+kobletdata |> summarise(N=n(), .by = P_pidKrg) |> filter(N>1)
+tmp <- NORGAST_datasett |> summarise(N=n(), .by = P_pidKrg) |> filter(N>1) |>
+  arrange(N)
+
+tmp2 <- NORGAST_datasett |> filter(P_pidKrg %in% tmp$P_pidKrg) |>
+  summarise(N = n(), .by = Hovedoperasjon) |> arrange(-N)
+
+
+###### Aktualitetsfigur Kjerstin 11.11.2025 ###################################
+RegData <- norgast::NorgastHentData()$RegData |>
+  NorgastPreprosess()
+
+outfile <- 'Aktualitet_oppf_2025.pdf'
+TabellData <- norgast::NorgastBeregnAndeler(
+  RegData = RegData,
+  valgtVar = "Aktualitet_oppf_v2",
+  datoFra = "2025-01-01",
+  # datoTil = "2024-12-31",
+  datoTil = "2025-06-30",
+  reshID = 0, enhetsUtvalg = 0,
+  kun_oblig = TRUE)
+
+norgast::NorgastPlotAndeler(
+  outfile = outfile,
+  PlotParams=TabellData$PlotParams, utvalgTxt=TabellData$utvalgTxt,
+  Andeler=TabellData$Andeler, Antall=TabellData$Antall,
+  fargepalett=TabellData$fargepalett, enhetsUtvalg=TabellData$enhetsUtvalg,
+  shtxt=TabellData$shtxt
+)
+
+###### Telling til prosjekt ORACOL, 05.11.2025 ################################
+
+RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
+RegData <- NorgastPreprosess(RegData_raa) |>
+  dplyr::filter(!is.na(Hovedoperasjon))
+
+Tabell <- RegData |>
+  dplyr::mutate(reseksjon = dplyr::case_when(
+    substr(ncsp_lowercase, 1, 3) == "jfb" &
+      as.numeric(substr(ncsp_lowercase, 4, 5)) %in% 20:34 ~ "Høyre",
+    substr(ncsp_lowercase, 1, 3) == "jfb" &
+      as.numeric(substr(ncsp_lowercase, 4, 5)) %in% 40:51 ~ "Venstre",
+    .default = "Annet"
+  )) |>
+  dplyr::filter(
+    Aar %in% 2019:2024,
+    Hastegrad == 1,
+    reseksjon != "Annet",
+    NyAnastomose == 1,
+    NyStomi == 0,
+    FerdigForlop_v2 == 1
+  ) |>
+  dplyr::summarise(
+    alvorlig_komplikasjon = sum(KumAcc),
+    N = dplyr::n(),
+    .by = c(Sykehusnavn, reseksjon)
+  ) |>
+  tidyr::pivot_wider(names_from = reseksjon,
+                     values_from = c(alvorlig_komplikasjon, N)) |>
+  dplyr::mutate(Sykehusnavn = paste0("Senter ", 1:dim(Tabell)[1])) |>
+  janitor::adorn_totals()
+
+write.csv2(Tabell, "C:/regdata/norgast/utleveringer/ORACOL.csv",
+           row.names = FALSE,
+           fileEncoding = "Latin1")
 
 ###### Bestilling Kjerstin/Stig robot 22.10.2025 #############################
 RegData_raa <- norgast::NorgastHentData()$RegData # Laster rådata
@@ -15,7 +326,7 @@ tmp1 <- RegData |>
                        "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
                        "VV-Bærum", "HB-Voss", "Namsos"),
     Robotassistanse == 1
-    ) |>
+  ) |>
   dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
                 Sykehusnavn, Tilgang, Robotassistanse, SistLagretAv,
                 Anastomoselekkasje)
@@ -24,8 +335,8 @@ tmp2 <- RegData |>
   dplyr::filter(
     Aar >= 2019,
     !(Sykehusnavn %in% c("St.Olavs-Orkdal", "SI-Lillehammer", "SI-Gjøvik",
-                       "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
-                       "VV-Bærum", "HB-Voss", "Namsos")),
+                         "HS-Sandnessjøen", "NS-Vesterålen", "Haraldsplass",
+                         "VV-Bærum", "HB-Voss", "Namsos")),
     Robotassistanse == 1) |>
   dplyr::filter(sum(Robotassistanse) < 3, .by = Sykehusnavn) |>
   dplyr::select(ForlopsID, PasientID, OpDato, Hovedoperasjon, Hoveddiagnose,
@@ -41,17 +352,17 @@ write.csv2(til_register, "C:/regdata/norgast/utleveringer/feilreg_robot.csv",
 #### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
 #### tykktarmskreft i Norge. Korrigert versjon 09.10.2025 ####################
 varnavn <- readxl::read_xlsx(
-  "C:/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
+  "C:/Users/kth200/regdata/norgast/utleveringer/Variabler_NORGAST_2025-05-21 $282$29.xlsx",
   sheet = 1) |>
   tidyr::separate(col="Databasereferanse",
                   into=c("tabell", "var_navn"),
                   extra = "merge")
 krg_pas_alle <- read.csv(
-  "C:/regdata/norgast/utleveringer/du4356_h_1101_norderval_kobling.csv",
+  "C:/Users/kth200/regdata/norgast/utleveringer/du4356_h_1101_norderval_kobling.csv",
   colClasses = c("character", "integer")
 )
 kobl_fnr <- read.csv2(
-  "C:/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
+  "C:/Users/kth200/regdata/norgast/utleveringer/NORGAST_koblingstabell_datadump_11.09.2025.csv",
   colClasses = c("integer", "character")
 ) |>
   dplyr::rename(FNR = SSN)
@@ -169,7 +480,13 @@ appdata <- norgast::NorgastHentData()
 RegData <- appdata$RegData |> norgast::NorgastPreprosess() |>
   dplyr::select(varnavn_kobl$rapporteket, PasientID) |>
   dplyr::filter(OpDato <= "2023-12-31",
-                PasientID %in% krg_pas$PID)
+                PasientID %in% krg_pas$PID) |>
+  merge(krg_pas[, c("PID", "P_pidKrg")], by.x = "PasientID", by.y = "PID")
+
+write.csv2(RegData,
+           "C:/Users/kth200/regdata/norgast/utleveringer/til_stig_T4_studien.csv",
+           row.names = FALSE, na = "",
+           fileEncoding = "Latin1")
 
 #### H-1101 - Resultater etter kirurgisk behandling av lokalavansert #########
 #### tykktarmskreft i Norge 10.09.2025 #######################################
