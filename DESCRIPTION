@@ -19,7 +19,7 @@ Imports:
   lubridate,
   magrittr,
   shinyjs,
-  rapbase,
+  rapbase (>= 3.6.0),
   rapFigurer,
   survival,
   survminer,
@@ -29,7 +29,7 @@ Imports:
   latex2exp,
   janitor
 Remotes:
-  Rapporteket/rapbase@main,
+  Rapporteket/rapbase,
   Rapporteket/rapFigurer
 RoxygenNote: 7.3.3
 Suggests: 
