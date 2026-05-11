@@ -128,16 +128,11 @@ appServer <- function(input, output, session) {
         )
         tool_tabs_added(TRUE)
       }
-      shiny::showTab(inputId = "norgast_app_id", target = "Verktøy")
     } else {
       if (tool_tabs_added()) {
-        shiny::removeTab(inputId = "norgast_app_id", target = "Utsending")
-        shiny::removeTab(inputId = "norgast_app_id", target = "Metadata")
-        shiny::removeTab(inputId = "norgast_app_id", target = "Eksport")
-        shiny::removeTab(inputId = "norgast_app_id", target = "Bruksstatistikk")
-        shiny::hideTab(inputId = "norgast_app_id", target = "Verktøy")
+        shiny::removeTab("norgast_app_id", target = "Verktøy")
+        tool_tabs_added(FALSE)
       }
-      tool_tabs_added(FALSE)
     }
   })
 
