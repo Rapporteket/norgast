@@ -8,7 +8,7 @@
 #' @export
 #'
 NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
-
+  # tictoc::tic()
   if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
     registryName <- "data"
   } else {
@@ -123,6 +123,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
           "registration.THORAX_ACCESS AS ThoraxTilgang",
           "registration.RELAPAROTOMY AS ReLapNarkose",
           "registration.RELAPAROTOMY_YES AS ViktigsteFunn",
+          "registration.ANASTOMOTIC_LEAK AS ANASTOMOTIC_LEAK",
           "registration.FINDINGS_SPESIFISER AS FunnSpesifiser",
           "registration.RELAPAROTOMY_NO AS AnnenOpIAnestsi",
           "registration.INTERVENTION_WITHOUT_ANESTHESIA AS IntUtenAnestesi",
@@ -151,6 +152,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
           "readmission.PHONE_CONTROL AS TelefonKontroll",
           "readmission.RELAPAROTOMY AS OppfReLapNarkose",
           "readmission.RELAPAROTOMY_YES AS OppfViktigsteFunn",
+          "readmission.ANASTOMOTIC_LEAK AS OppfANASTOMOTIC_LEAK",
           "readmission.FINDINGS_SPESIFISER AS OppfFunnSpesifiser",
           "readmission.RELAPAROTOMY_NO AS OppfAnnenOpIAnestsi",
           "readmission.INTERVENTION_WITHOUT_ANESTHESIA AS OppfIntUtenAnestesi",
@@ -193,18 +195,19 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
              varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"])
 
   allevarnum <- merge(
-    mce |> dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"]) |>
+    mce |>
+      dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"]) |>
       dplyr::rename(!!!varnavn_mce),
     patient |>
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"], ID) |>
       dplyr::rename(!!!varnavn_patient),
-    by.x = "PasientID", by.y = "ID"
+    by.x = "PasientID", by.y = "ID", all.x = TRUE
   ) |> merge(
     registration |>
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
                     MCEID, ICD10_VERSION, NCSP_VERSION) |>
       dplyr::rename(!!!varnavn_registration),
-    by.x = "ForlopsID", by.y = "MCEID", all = TRUE
+    by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
   ) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
     merge(
       readmission |>
@@ -224,7 +227,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
     dplyr::rename(erMann = GENDER,
                   Fodselsdato = BIRTH_DATE) |>
     dplyr::mutate(
-      PasientAlder = norgast::age(Fodselsdato, OpDato),
+      PasientAlder = norgast::age(Fodselsdato, OpDato, floor = FALSE),
       erMann = 2 - erMann,
       Sykehusnavn = skjemaoversikt$Sykehusnavn[
         match(AvdRESH, skjemaoversikt$AvdRESH)],
@@ -241,14 +244,19 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
     dplyr::rename(OppfOpprettetAv = OpprettetAv_oppf,
                   OppfSistLagretAv = SistLagretAv_oppf) |>
     dplyr::mutate(
-      ForstLukketAv = paste0(user$FIRSTNAME[match(ForstLukketAv, user$ID)], " ",
-                             user$LASTNAME[match(ForstLukketAv, user$ID)]),
-      OppfForstLukketAv = paste0(user$FIRSTNAME[match(OppfForstLukketAv, user$ID)], " ",
-                                 user$LASTNAME[match(OppfForstLukketAv, user$ID)])
+      ForstLukketAv = paste0(
+        user$FIRSTNAME[match(ForstLukketAv, user$ID)], " ",
+        user$LASTNAME[match(ForstLukketAv, user$ID)]) |>
+        toupper() |> trimws(),
+      OppfForstLukketAv = paste0(
+        user$FIRSTNAME[match(OppfForstLukketAv, user$ID)], " ",
+        user$LASTNAME[match(OppfForstLukketAv, user$ID)]) |>
+        toupper() |> trimws()
     )
 
   rm(list = c("centre", "centreattribute", "mce", "patient", "user",
               "varnavn_kobl", "readmission", "registration", "allevarnum"))
+  # tictoc::toc()
   return(list(RegData = RegData, skjemaoversikt = skjemaoversikt))
 }
 
@@ -262,7 +270,7 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
 #' @export
 #'
 NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
-
+  # tictoc::tic()
   if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
     registryName <- "data"
   } else {
@@ -279,12 +287,7 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
     forlopsoversikt <- rapbase::loadRegData(registryName, query2, dbType)
     skjemaoversikt <- NorgastHentskjemaoversikt()
   } else {
-    allevarnum <- read.table("C:/GIT/data/norgast/allevarnum", header = TRUE,
-                             sep = ";", encoding = "UTF-8", stringsAsFactors = FALSE)
-    forlopsoversikt <- read.table("C:/GIT/data/norgast/forlopsoversikt", header = TRUE,
-                                  sep = ";", encoding = "UTF-8", stringsAsFactors = FALSE)
-    forlopsoversikt <- forlopsoversikt[forlopsoversikt$HovedDato >= datoFra &
-                                         forlopsoversikt$HovedDato <= datoTil, ]
+    NULL
   }
   RegData <- merge(allevarnum,
                    forlopsoversikt[, c(setdiff(names(forlopsoversikt),
@@ -298,5 +301,6 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
           suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE) %>%
     dplyr::rename(OppfOpprettetAv = OpprettetAv_oppf,
                   OppfSistLagretAv = SistLagretAv_oppf)
-
+  # tictoc::toc()
+  return(RegData)
 }

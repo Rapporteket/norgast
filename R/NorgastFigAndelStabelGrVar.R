@@ -24,16 +24,6 @@ NorgastFigAndelStabelGrVar <- function(
 
 {
 
-  ## Hvis spørring skjer fra R på server. ######################
-  if(hentData){
-    RegData <- NorgastHentRegData(datoFra = datoFra, datoTil = datoTil)
-  }
-
-  ## Hvis RegData ikke har blitt preprosessert
-  if (preprosess){
-    RegData <- NorgastPreprosess(RegData=RegData)
-  }
-
   if (valgtShus[1] != '') {RegData <- RegData[which(RegData$AvdRESH %in% as.numeric(valgtShus)), ]}
 
   grVar <- 'Sykehusnavn'
@@ -110,13 +100,17 @@ NorgastFigAndelStabelGrVar <- function(
     # N_kat <- length(legendTxt)
     N_kat <- nlevels(RegData$Variabel)
     AndelerGr <- ftable(RegData[ ,c(grVar, 'Variabel')])/rep(Ngr, N_kat)*100
-    utdata_antall <- RegData[ ,c(grVar, 'Variabel')] %>% table() %>%
-      addmargins(2) %>% dplyr::as_tibble() %>% tidyr::spread(key = Variabel, value = n)
+    utdata_antall <- RegData[ ,c(grVar, 'Variabel')] %>%
+      table() %>%
+      addmargins(2) %>%
+      dplyr::as_tibble() %>%
+      tidyr::spread(key = Variabel, value = n)
     if (!(valgtVar %in% c('AccordionGrad', 'AccordionGrad_drenasje'))) {
-      names(utdata_antall)[2:(N_kat+1)] <- legendTxt} else {names(utdata_antall)[2] <- '<3'}
-    # names(utdata_antall)[2:(N_kat+1)] <- legendTxt
+      names(utdata_antall)[2:(N_kat+1)] <- legendTxt}
+    else {names(utdata_antall)[2] <- '<3'}
     utdata_andel <- utdata_antall
-    utdata_andel <- utdata_andel %>% dplyr::mutate_at(2:(N_kat+1), dplyr::funs(. / Sum * 100))
+    utdata_andel <- utdata_andel %>%
+      dplyr::mutate(dplyr::across(2:(N_kat+1), ~ .x / Sum * 100))
     AndelerGr[which(Ngr<Ngrense),] <- -1
     AndelerGr[unlist(attr(AndelerGr, "row.vars")) %in% lavDG,] <- NA
 
