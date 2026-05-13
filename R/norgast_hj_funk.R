@@ -186,3 +186,91 @@ age <- function(dob, age.day = lubridate::today(), units = "years", floor = TRUE
   return(calc.age)
 }
 
+#' Lag tabell over komplikasjoner til bruk i årsrapport
+#'
+#' @export
+#'
+lag_kompl_tabell <- function(regdata) {
+  regdata |> summarise(
+    N = n(),
+    reop_rate = sum(ReLapNarkose),
+    anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
+    dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
+    bloedning = sum(ViktigsteFunn==3, na.rm = T),
+    saarrupt = sum(ViktigsteFunn==4, na.rm = T),
+    annet = sum(ViktigsteFunn==5, na.rm = T),
+    ingen = sum(ViktigsteFunn==6, na.rm = T),
+    .by = c(Tilgang, Robot)) |>
+    janitor::adorn_totals() |>
+    dplyr::group_by(Robot) |>
+    dplyr::group_modify(
+      ~ .x |> janitor::adorn_totals(name = "samlet")) |>
+    ungroup() |>
+    filter( !(Robot == "-" & Tilgang == "samlet"),
+            !(is.na(Robot) & Tilgang == "samlet")) |>
+    mutate(Tilgang_ny = case_when(
+      Tilgang == 1 ~ "\\textbf{Åpen}",
+      Tilgang == "Total" ~ "\\textbf{Totalt}",
+      Robot == "Ikke-robot" & Tilgang == "samlet" ~
+        "\\quad Ikke-robot",
+      Robot == "Ikke-robot" & Tilgang == 2 ~
+        "\\quad \\quad \\textit{Fullført laparoskopisk}",
+      Robot == "Ikke-robot" & Tilgang == 3 ~
+        "\\quad \\quad \\textit{Konvertert}",
+      Robot == "Robot" & Tilgang == "samlet" ~
+        "\\quad Robotassistert",
+      Robot == "Robot" & Tilgang == 2 ~
+        "\\quad \\quad \\textit{Fullført laparoskopisk}",
+      Robot == "Robot" & Tilgang == 3 ~
+        "\\quad \\quad \\textit{Konvertert}")
+    ) |>
+    relocate(Tilgang_ny) %>%
+    bind_rows(
+      . |>
+        filter(Tilgang_ny %in% c(
+          "\\quad Ikke-robot",
+          "\\quad Robotassistert"
+        ))
+      |>
+        summarise(
+          across(where(is.numeric), sum, na.rm = TRUE),
+          Tilgang_ny = "\\textbf{Laparoskopisk (ITT)}"
+        )
+    ) |>
+    # mutate(reop_rate = reop_rate/N*100) |>
+    mutate(
+      .ord = case_when(
+        Tilgang_ny == "\\textbf{Åpen}" ~ 1,
+        Tilgang_ny == "\\textbf{Laparoskopisk (ITT)}" ~ 2,
+        Tilgang_ny == "\\quad Robotassistert" ~ 3,
+        Tilgang_ny ==
+          "\\quad \\quad \\textit{Fullført laparoskopisk}" &
+          Robot == "Robot" ~ 4,
+        Tilgang_ny == "\\quad \\quad \\textit{Konvertert}" &
+          Robot == "Robot" ~ 5,
+        Tilgang_ny == "\\quad Ikke-robot" ~ 6,
+        Tilgang_ny ==
+          "\\quad \\quad \\textit{Fullført laparoskopisk}" &
+          Robot == "Ikke-robot" ~ 7,
+        Tilgang_ny == "\\quad \\quad \\textit{Konvertert}" &
+          Robot == "Ikke-robot" ~ 8,
+        Tilgang_ny == "\\textbf{Totalt}" ~ 9,
+        TRUE ~ 99
+      )
+    ) |>
+    arrange(.ord) |>
+    select(-c(.ord, Robot, Tilgang)) |>
+    mutate(
+      across(
+        where(is.numeric) & !all_of("N"),
+        ~ .x / N * 100
+      )
+    ) |>
+    mutate(N = ifelse(
+      Tilgang_ny %in% c(
+        "\\quad \\quad \\textit{Fullført laparoskopisk}",
+        "\\quad \\quad \\textit{Konvertert}"),
+      paste0("\\textit{", N, "}"), N
+    ))
+}
+

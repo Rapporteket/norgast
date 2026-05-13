@@ -29,26 +29,26 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
     #          100170,4212917, 4204084, 700840,
     #          700841, 103312, 4205289, 106168,
     #          4207594, 4216823, 100315)) #, 4204126
-  orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
-               974795787, 974705788, 974633574, 974795639,
-               974724960, 974795361, 993467049, 974631326,
-               974749025, 974706490, 974703300, 974633752,
-               874632562, 974743272, 974795515, 974116804,
-               974747138, 974745569, 974795833, 974633191,
-               974724774, 974631091, 974795477, 974329506,
-               974316285, 974753898, 974795558,
-               974795574, 874716782, 974707152, 974589095,
-               974754118, 974747545, 974744570),
-  resh = c(100353,4204126, 700922, 108355,
-           601225, 103091, 100100, 601231,
-           108354, 706264, 700413, 4204082,
-           107440, 108162, 114271,4209222,
-           108357, 102939, 102141, 107505,
-           708761,4204500, 101823, 102037,
-           701402, 100354, 102145,4211928,
-           100170,4212917, 700840,
-           700841, 103312, 4205289, 106168,
-           4207594, 4216823, 100315))
+    orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
+                 974795787, 974705788, 974633574, 974795639,
+                 974724960, 974795361, 993467049, 974631326,
+                 974749025, 974706490, 974703300, 974633752,
+                 874632562, 974743272, 974795515, 974116804,
+                 974747138, 974745569, 974795833, 974633191,
+                 974724774, 974631091, 974795477, 974329506,
+                 974316285, 974753898, 974795558,
+                 974795574, 874716782, 974707152, 974589095,
+                 974754118, 974747545, 974744570),
+    resh = c(100353,4204126, 700922, 108355,
+             601225, 103091, 100100, 601231,
+             108354, 706264, 700413, 4204082,
+             107440, 108162, 114271,4209222,
+             108357, 102939, 102141, 107505,
+             708761,4204500, 101823, 102037,
+             701402, 100354, 102145,4211928,
+             100170,4212917, 700840,
+             700841, 103312, 4205289, 106168,
+             4207594, 4216823, 100315))
 
 
   map_resh_orgnr$Sykehus <- RegData$Sykehusnavn[match(map_resh_orgnr$resh,
@@ -129,7 +129,7 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
                     OppfStatus == 1 | is.na(OppfStatus), # Kun ferdige
                     Hastegrad_hybrid==1,
                     Malign == 1
-                    ) %>%
+      ) %>%
       dplyr::mutate(var = ifelse(is.na(VekttapProsent), 0, 1),
                     context = "caregiver",
                     denominator = 1,
@@ -736,15 +736,16 @@ norgastBeregnIndikator <- function(RegData, ind_id) {
 #' @param tittel Tittel på plot
 #'
 #' @export
-norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
-                                 decreasing=FALSE, terskel=10, lavDG='',
-                                 lavDGtekst='Dekningsgrad < 60 %',
-                                 width=600, height=700, outfile="",
-                                 graaUt=NA, skriftStr=1.2, utvalgTxt="",
-                                 minstekrav = NA, maal = NA, pktStr=1.4,
-                                 legPlass='top', minstekravTxt='Akseptabelt',
-                                 maalTxt='Mål', maalretn='hoy', prikktall=TRUE,
-                                 pst_kolonne = T) {
+norgastPlotIndikator <- function(
+    AntTilfeller, N, andeler, tittel="",
+    decreasing=FALSE, terskel=10, lavDG='',
+    lavDGtekst='Dekningsgrad < 60 %',
+    width=600, height=700, outfile="",
+    graaUt=NA, skriftStr=1.2, utvalgTxt="",
+    minstekrav = NA, maal = NA, pktStr=1.4,
+    legPlass='top', minstekravTxt='Akseptabelt',
+    maalTxt='Mål', maalretn='hoy', prikktall=TRUE,
+    pst_kolonne = T) {
 
   tittel <- c(tittel, 'inkl. 95% konf. int.')
 
@@ -893,8 +894,26 @@ norgastPlotIndikator <- function(AntTilfeller, N, andeler, tittel="",
   }
 
   if (pst_kolonne) {
-    mtext( pst_txt_prikk, side=4, line=3.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
-    mtext( pst_txt, side=4, line=7.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+    # mtext( pst_txt_prikk, side=4, line=3.5, las=1,
+    #        at=ypos, col=1, cex=cexgr*0.75, adj = 1)
+    # mtext( pst_txt, side=4, line=7.5, las=1, at=ypos,
+    #        col=1, cex=cexgr*0.75, adj = 1)
+    mtext( pst_txt_prikk[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+           side=4, line=3.5, las=1,
+           at=ypos[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+           col=1, cex=cexgr*0.75, adj = 1)
+    mtext( pst_txt_prikk[which(substr(row.names(andeler), 1, 5) =='Norge')],
+           side=4, line=3.5, las=1,
+           at=ypos[which(substr(row.names(andeler), 1, 5) =='Norge')],
+           col=1, cex=cexgr*0.75, adj = 1, font = 2)
+    mtext( pst_txt[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+           side=4, line=7.5, las=1,
+           at=ypos[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+           col=1, cex=cexgr*0.75, adj = 1)
+    mtext( pst_txt[which(substr(row.names(andeler), 1, 5) =='Norge')],
+           side=4, line=7.5, las=1,
+           at=ypos[which(substr(row.names(andeler), 1, 5) =='Norge')],
+           col=1, cex=cexgr*0.75, adj = 1, font = 2)
     mtext( names(N)[1], side=4, line=3.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
     mtext( names(N)[2], side=4, line=7.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
   }

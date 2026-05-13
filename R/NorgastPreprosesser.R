@@ -174,6 +174,12 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Saarruptur[!(RegData$Tilgang %in% 1:3)] <- NA
 
   #### Inkluder Relaparotomi fra oppfølgingsskjema
+  RegData$ViktigsteFunn <- ifelse(
+    is.na(RegData$ViktigsteFunn),
+    RegData$ANASTOMOTIC_LEAK, RegData$ViktigsteFunn)
+  RegData$OppfViktigsteFunn <- ifelse(
+    is.na(RegData$OppfViktigsteFunn),
+    RegData$OppfANASTOMOTIC_LEAK, RegData$OppfViktigsteFunn)
 
   RegData$OppfReLapNarkose[RegData$OppfStatus!=1] <- NA
   RegData$OppfViktigsteFunn[RegData$OppfStatus!=1] <- NA

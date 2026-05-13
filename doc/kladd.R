@@ -1,5 +1,476 @@
 library(dplyr)
 
+RegData<-RegDataAll; valgtVar <- 'LapTilgang2'; tittel='';
+width=800; height=700;
+sideTxt='Boområde/opptaksområde';
+decreasing=F; terskel=10; minstekrav = NA;
+maal = NA; skriftStr=1.3; pktStr=1.4;
+legPlass='top'; minstekravTxt='Akseptabelt';
+maalTxt='Mål'; graaUt=NA; inkl_konf=T;
+datoFra='2014-01-01'; datoTil='2050-12-31';
+minald=0; maxald=130; erMann=99; outfile='';
+preprosess=F; malign=99; elektiv=99;
+hastegrad=99; BMI=''; tilgang=''; minPRS=0;
+maxPRS=2.2; ASA=''; whoEcog= '';
+forbehandling=''; dagtid =99; hentData=0;
+op_gruppe=''; ncsp=''; maalretn='hoy';
+lavDG=''; lavDGtekst='Dekningsgrad < 60 %';
+hastegrad_hybrid=99; icd_kode='';
+robotassiastanse=99; kun_ferdigstilte=TRUE;
+prikktall=FALSE; pst_kolonne=TRUE;
+ny_anastomose=99; desimaler_pst = 0;
+kun_oblig = FALSE; mrom=0.3
+tittel=tittel; width=width;
+height=height; decreasing=decreasing;
+terskel=terskel; minstekrav = 60; maal = 70;
+skriftStr=skriftStr; lavDG = graaUt_kolon;
+lavDGtekst = dg_tekst; pktStr=pktStr;
+legPlass='topleft'; minstekravTxt=minstekravTxt;
+maalTxt=maalTxt; graaUt=graaUt;
+whoEcog= c('0', '1'); inkl_konf=inkl_konf;
+op_gruppe=op_gruppe; datoFra=datoFra;
+datoTil=datoTil; hastegrad_hybrid=hastegrad_hybrid;
+malign=1; prikktall = FALSE; pst_kolonne = TRUE
+
+
+
+
+
+
+RegData <- regdatagml
+datoFra='2014-01-01'; datoTil='2050-12-31';
+minald=0; maxald=130; erMann=99;
+outfile=''; hastegrad_hybrid=99;
+preprosess=F; malign=99; Ngrense=30;
+lavDG=''; ny_anastomose = 99;
+lavDGtekst='Dekningsgrad < 60 %';
+hastegrad = 99; icd_kode='';
+elektiv=99; BMI=''; tilgang='';
+valgtShus=c(''); minPRS=0; modGlasgow='';
+maxPRS=2.2; ASA=''; whoEcog= '';
+forbehandling=''; hentData=0; op_gruppe='';
+ncsp=''; robotassiastanse=99;
+kun_ferdigstilte=TRUE; skriftStr=1;
+tilgang_utvidet=''; accordion='';
+snufarger = TRUE; krgfarger = FALSE
+valgtVar='AccordionGrad_drenasje';
+op_gruppe=1;
+hastegrad_hybrid=1; outfile=""; Ngrense=10;
+malign = 0; lavDG = graaUt_kolon; krgfarger = TRUE
+
+
+
+
+
+
+if (valgtShus[1] != '') {RegData <-
+  RegData[which(RegData$AvdRESH %in% as.numeric(valgtShus)), ]}
+
+grVar <- 'Sykehusnavn'
+if (valgtVar == 'AccordionGrad_drenasje') {
+  RegData$AccordionGrad_drenasje <- RegData$AccordionGrad
+  RegData$AccordionGrad_drenasje[
+    which(RegData$AccordionGrad_drenasje==3 & RegData$KunDrenasje ==1)] <- 2
+}
+
+RegData$Variabel <- RegData[, valgtVar]
+RegData <- RegData[!is.na(RegData$Variabel), ]
+RegData$Variabel <- as.factor(RegData$Variabel)
+
+if (valgtVar == 'Tilgang') {
+  RegData <- RegData[which(RegData$Tilgang %in% 1:3), ]}
+
+NorgastUtvalg <- NorgastUtvalg(
+  RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+  maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+  hastegrad_hybrid=hastegrad_hybrid, ny_anastomose = ny_anastomose,
+  BMI=BMI, valgtShus=valgtShus, tilgang=tilgang, minPRS=minPRS,
+  maxPRS=maxPRS, modGlasgow=modGlasgow,
+  ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+  op_gruppe=op_gruppe, ncsp=ncsp,
+  robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+  tilgang_utvidet=tilgang_utvidet, accordion=accordion, icd_kode=icd_kode)
+RegData <- NorgastUtvalg$RegData
+utvalgTxt <- NorgastUtvalg$utvalgTxt
+
+RegData[ ,grVar] <- as.factor(as.character(RegData[ ,grVar]))
+N <- dim(RegData)[1]
+
+tittel <- switch (
+  valgtVar,
+  'ModGlasgowScore' = 'Modified Glasgow score',
+  'AccordionGrad' = 'Komplikasjoner (Accordion score)',
+  'AccordionGrad_drenasje' = 'Komplikasjoner (Accordion score)',
+  'Tilgang' = 'Tilgang i abdomen',
+  'ThoraxTilgang' = 'Tilgang i thorax',
+  'AvstandAnalVerge_kat' = 'Avstand tumors nedre margin til analkanten '
+)
+legendTxt <- switch (
+  valgtVar,
+  'ModGlasgowScore' = c('0','1', '2'),
+  'AccordionGrad' = c('3','4', '5', '6'),
+  'AccordionGrad_drenasje' = c(
+    '3 (kun drenasje av \n pleuravæske/ascites)',
+    '3 (resten)','4', '5', '6'),
+  'Tilgang' = c('Åpen', 'Laparoskopi', 'Konvertert'),
+  'ThoraxTilgang' = c('Thoracotomi', 'Thorakoskopi',
+                      'Ingen (transhiatal)', 'Konvertert til åpen'),
+  'AvstandAnalVerge_kat' = levels(RegData$AvstandAnalVerge_kat)
+)
+legendTitle <- switch (
+  valgtVar,
+  'ModGlasgowScore' = NULL,
+  'AccordionGrad' = 'Accordiongrad',
+  'AccordionGrad_drenasje' = 'Accordiongrad',
+  'Tilgang' = NULL,
+  'ThoraxTilgang' = NULL,
+  'AvstandAnalVerge_kat' = NULL
+)
+
+
+tmp <- RegData |>
+  dplyr::mutate(Variabel = factor(
+    Variabel,
+    levels = 1:6,
+    labels = c('<3',
+               '3 (kun drenasje av \n pleuravæske/ascites)',
+               '3 (resten)','4', '5', '6'))) |>
+  dplyr::count(Sykehusnavn, Variabel, .drop = FALSE) |>
+  janitor::adorn_totals() |>
+  dplyr::group_by(Sykehusnavn) |>
+  dplyr::group_modify(~ .x |> janitor::adorn_totals(name = "Sum")) |>
+  dplyr::filter(Variabel != "-")
+# |>
+#   tidyr::pivot_wider(names_from = Variabel,
+#                      values_from = n, values_fill = 0)
+#
+
+
+write.csv2(tmp, "tmp.csv", row.names = FALSE, fileEncoding = "Latin1")
+
+
+library(tidyverse)
+library(readr)
+library(forcats)
+
+lav_dekning <- c(
+  "NS-Lofoten",
+  "NS-Vesterålen",
+  "OUS-Rikshospitalet",
+  "Ålesund"
+)
+
+dat <- tmp |>
+  filter(Variabel != "Sum") |>
+  group_by(Sykehusnavn) |>
+  mutate(
+    total = sum(n),
+    prosent = n / total * 100
+  ) |>
+  ungroup() |>
+
+  # ✅ flagg
+  mutate(
+    lav_dekning_flag = Sykehusnavn %in% lav_dekning,
+    n_lt10_flag = total < 10
+  )
+
+dat_plot <- dat |>
+  filter(Variabel != "<3") |>
+
+  mutate(
+    gruppe = case_when(
+      lav_dekning_flag ~ "Dekningsgrad < 60 %",
+      n_lt10_flag ~ "N < 10",
+      TRUE ~ Sykehusnavn
+    ),
+
+    prosent_plot = if_else(
+      lav_dekning_flag | n_lt10_flag,
+      NA_real_,
+      prosent
+    )
+  )
+
+
+skjulte_rader <- dat |>
+  distinct(Sykehusnavn, total, lav_dekning_flag, n_lt10_flag) |>
+  filter(lav_dekning_flag | n_lt10_flag) |>
+  mutate(
+    gruppe = case_when(
+      lav_dekning_flag ~ "Dekningsgrad < 60 %",
+      n_lt10_flag ~ "N < 10"
+    ),
+    prosent_plot = NA_real_
+  ) |>
+  tidyr::expand(
+    Sykehusnavn,
+    Variabel = c(
+      "3 (kun drenasje av \n pleuravæske/ascites)",
+      "3 (resten)",
+      "4",
+      "5",
+      "6"
+    )
+  )
+dat_final <- bind_rows(
+  dat_plot |> filter(!lav_dekning_flag & !n_lt10_flag),
+  skjulte_rader
+)
+dat_final <- dat_final |>
+  group_by(gruppe, Sykehusnavn) |>
+  mutate(
+    soylelengde = sum(prosent_plot, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+
+  # 🔑 3-nivå sortering
+  mutate(
+    gruppe_type = case_when(
+      gruppe == "Dekningsgrad < 60 %" ~ 1,
+      gruppe == "N < 10" ~ 2,
+      TRUE ~ 3
+    )
+  ) |>
+
+  arrange(gruppe_type, soylelengde) |>
+
+  mutate(
+    y_label = factor(
+      paste0(gruppe, "_", row_number()),
+      levels = paste0(gruppe, "_", row_number())
+    ),
+    y_vis = gruppe
+  )
+
+accordion_farger <- c(
+  "3 (kun drenasje av \n pleuravæske/ascites)" = "#67B6C8",
+  "3 (resten)" = "#EBBE33",
+  "4" = "#F29D71",
+  "5" = "#C44E52",
+  "6" = "#EDEDED"
+)
+
+x11()
+ggplot(dat_final,
+       aes(x = prosent_plot, y = y_label, fill = Variabel)) +
+  geom_col(width = 0.8, colour = "white", na.rm = TRUE) +
+
+  scale_fill_manual(values = accordion_farger) +
+
+  scale_y_discrete(
+    labels = dat_final$y_vis
+  ) +
+
+  labs(
+    x = "Prosent av alle operasjoner (%)",
+    y = NULL,
+    title = "Komplikasjoner (Accordion score ≥ 3)",
+    subtitle = "Elektiv benign kolonreseksjon\n(<3 i nevner, ikke vist)"
+  ) +
+
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "top",
+    panel.grid.major.y = element_blank()
+  )
+
+
+
+
+
+lav_dekning <- c(
+  "NS-Lofoten",
+  "NS-Vesterålen",
+  "OUS-Rikshospitalet",
+  "Ålesund"
+)
+
+dat <- tmp |>
+  filter(Variabel != "Sum") |>
+  group_by(Sykehusnavn) |>
+  mutate(
+    total = sum(n),
+    prosent = n / total * 100,
+    lav_dekning = Sykehusnavn %in% lav_dekning
+  ) |>
+  ungroup()
+
+
+dat_plot <- dat |>
+  filter(Variabel != "<3") |>
+  group_by(Sykehusnavn) |>
+  mutate(
+    soylelengde = sum(prosent)
+  ) |>
+  ungroup() |>
+  mutate(
+    Sykehusnavn = forcats::fct_reorder(Sykehusnavn, soylelengde)
+  ) |>
+  mutate(
+    Variabel = factor(
+      Variabel,
+      levels = c(
+        "3 (kun drenasje av \n pleuravæske/ascites)",
+        "3 (resten)",
+        "4",
+        "5",
+        "6"
+      )
+    )
+  )
+
+
+x11()
+ggplot(dat_plot, aes(x = prosent, y = Sykehusnavn, fill = Variabel)) +
+  geom_col(width = 0.8, colour = "white") +
+  scale_fill_manual(values = accordion_farger, name = "Accordion score") +
+  scale_x_continuous(
+    expand = expansion(mult = c(0, 0.02))
+  ) +
+  labs(
+    x = "Prosent av alle operasjoner (%)",
+    y = NULL,
+    title = "Komplikasjoner (Accordion score ≥ 3)",
+    subtitle = "Elektiv benign kolonreseksjon\n(<3 inngår i nevner, men er ikke vist)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "top",
+    panel.grid.major.y = element_blank(),
+    axis.text.y = element_text(
+      colour = ifelse(
+        levels(dat_plot$Sykehusnavn) %in% lav_dekning,
+        "red",
+        "black"
+      )
+    )
+  )
+
+dat_plot <- dat |>
+  mutate(
+    n_total = total,
+    n_lt10 = n_total < 10,
+
+    label = case_when(
+      lav_dekning ~ "Dekningsgrad < 60 %",
+      n_lt10 ~ "N < 10",
+      TRUE ~ Sykehusnavn
+    ),
+
+    # ❗ skjul data i plottet for disse radene
+    prosent_plot = case_when(
+      lav_dekning ~ NA_real_,
+      n_lt10 ~ NA_real_,
+      TRUE ~ prosent
+    )
+  ) |>
+  group_by(label, Variabel) |>
+  summarise(
+    prosent_plot = sum(prosent_plot, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  group_by(label) |>
+  mutate(
+    soylelengde = sum(prosent_plot, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+  mutate(
+    label = forcats::fct_reorder(label, soylelengde)
+  )
+
+
+ggplot(dat_plot, aes(x = prosent_plot, y = label, fill = Variabel)) +
+  geom_col(width = 0.8, colour = "white", na.rm = TRUE) +
+  scale_fill_manual(values = accordion_farger) +
+  labs(
+    x = "Prosent av alle operasjoner (%)",
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    legend.position = "top"
+  )
+
+
+
+
+
+
+
+
+
+dat <- dat |>
+  mutate(
+    Variabel = factor(
+      Variabel,
+      levels = c(
+        "<3",
+        "3 (kun drenasje av \n pleuravæske/ascites)",
+        "3 (resten)",
+        "4",
+        "5",
+        "6"
+      )
+    )
+  )
+
+accordion_farger <- c(
+  "<3"                                      = "#4A7695",
+  "3 (kun drenasje av \n pleuravæske/ascites)" = "#67B6C8",
+  "3 (resten)"                              = "#EBBE33",
+  "4"                                       = "#F29D71",
+  "5"                                       = "#C44E52",
+  "6"                                       = "#EDEDED"
+)
+
+dat <- dat |>
+  mutate(
+    Sykehusnavn = fct_reorder(
+      Sykehusnavn,
+      total
+    )
+  )
+
+ggplot(dat, aes(x = prosent, y = Sykehusnavn, fill = Variabel)) +
+  geom_col(width = 0.8, colour = "white") +
+  scale_fill_manual(values = accordion_farger, name = "Accordion score") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.02))) +
+  labs(
+    x = "Prosent (%)",
+    y = NULL,
+    title = "Komplikasjoner (Accordion score)",
+    subtitle = "Elektiv benign kolonreseksjon"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "top",
+    panel.grid.major.y = element_blank(),
+    axis.text.y = element_text(
+      colour = ifelse(
+        levels(dat$Sykehusnavn) %in% lav_dekning,
+        "red",
+        "black"
+      )
+    )
+  )
+
+
+
+
+
+appdata <- norgast::NorgastHentData()
+RegData <- appdata$RegData |> norgast::NorgastPreprosess()
+
+table(RegData[RegData$Aar == 2025,c("Sykehusnavn", "Hastegrad")]) |>
+  arrange()
+
+RegData |> filter(Hastegrad==2,
+                  !(Op_gr %in% 1:8)) |>
+  summarise(N = n(), .by = Sykehusnavn) |>
+  arrange(-N)
+
 
 valgtVar='ModGlasgowScore';
 datoFra='2014-01-01'; datoTil='2050-12-31';
@@ -396,11 +867,11 @@ appdata <- norgast::NorgastHentData()
 RegData_ufilt <- appdata$RegData
 RegData <- RegData_ufilt |>
   NorgastPreprosess() #|>
-  # filter(PasientID %in% c(75149, 83001, 83153, 83234)) |>
-  # select(PasientID, OpDato, ViktigsteFunn,
-  #        OppfViktigsteFunn, Anastomoselekkasje,
-  #        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
-  #        Avdod, AvdodDato)
+# filter(PasientID %in% c(75149, 83001, 83153, 83234)) |>
+# select(PasientID, OpDato, ViktigsteFunn,
+#        OppfViktigsteFunn, Anastomoselekkasje,
+#        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
+#        Avdod, AvdodDato)
 
 ufilt <- merge(RegData_ufilt |>
                  select(ForlopsID, PasientID, OpDato, ViktigsteFunn,
@@ -412,12 +883,12 @@ ufilt <- merge(RegData_ufilt |>
   filter(Anastomoselekkasje == 1)
 
 ufilt2 <- merge(RegData_ufilt |>
-                 select(ForlopsID, PasientID, OpDato, ViktigsteFunn,
-                        OppfViktigsteFunn,
-                        ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
-                        Avdod, AvdodDato, NyAnastomose),
-               RegData |> select(ForlopsID, Anastomoselekkasje),
-               by = "ForlopsID") |>
+                  select(ForlopsID, PasientID, OpDato, ViktigsteFunn,
+                         OppfViktigsteFunn,
+                         ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK,
+                         Avdod, AvdodDato, NyAnastomose),
+                RegData |> select(ForlopsID, Anastomoselekkasje),
+                by = "ForlopsID") |>
   rowwise() |>
   filter(1 %in% c(Anastomoselekkasje, ViktigsteFunn, OppfViktigsteFunn,
                   ANASTOMOTIC_LEAK, OppfANASTOMOTIC_LEAK)) %>%

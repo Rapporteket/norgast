@@ -40,7 +40,8 @@ NorgastFigAndelStabelGrVar(
   skriftStr = 1,
   tilgang_utvidet = "",
   accordion = "",
-  snufarger = TRUE
+  snufarger = TRUE,
+  krgfarger = TRUE
 )
 }
 \arguments{

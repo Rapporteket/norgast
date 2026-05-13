@@ -12,16 +12,27 @@
 #' @export
 #'
 norgastIndikator_rapporteket <-
-  function(RegData, valgtVar, tittel='', width=800, height=700,
-           sideTxt='Boområde/opptaksområde', decreasing=F, terskel=10, minstekrav = NA,
-           maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top', minstekravTxt='Akseptabelt',
-           maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
-           minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99,
-           hastegrad=99, BMI='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '',
-           forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
-           lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, icd_kode='',
-           robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, pst_kolonne=FALSE,
-           ny_anastomose=99, desimaler_pst = 0, kun_oblig = FALSE, mrom=0.3)
+  function(
+    RegData, valgtVar, tittel='',
+    width=800, height=700,
+    sideTxt='Boområde/opptaksområde',
+    decreasing=F, terskel=10, minstekrav = NA,
+    maal = NA, skriftStr=1.3, pktStr=1.4,
+    legPlass='top', minstekravTxt='Akseptabelt',
+    maalTxt='Mål', graaUt=NA, inkl_konf=F,
+    datoFra='2014-01-01', datoTil='2050-12-31',
+    minald=0, maxald=130, erMann=99, outfile='',
+    preprosess=F, malign=99, elektiv=99,
+    hastegrad=99, BMI='', tilgang='', minPRS=0,
+    maxPRS=2.2, ASA='', whoEcog= '',
+    forbehandling='', dagtid =99, hentData=0,
+    op_gruppe='', ncsp='', maalretn='hoy',
+    lavDG='', lavDGtekst='Dekningsgrad < 60 %',
+    hastegrad_hybrid=99, icd_kode='',
+    robotassiastanse=99, kun_ferdigstilte=TRUE,
+    prikktall=FALSE, pst_kolonne=TRUE,
+    ny_anastomose=99, desimaler_pst = 0,
+    kun_oblig = FALSE, mrom=0.3)
   {
     ## Hvis spørring skjer fra R på server. ######################
     if(hentData){
@@ -36,13 +47,14 @@ norgastIndikator_rapporteket <-
     RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
 
     ## Gjør utvalg basert på brukervalg (LibUtvalg)
-    NorgastUtvalg <- NorgastUtvalg(RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
-                                   maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
-                                   BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, dagtid = dagtid,
-                                   ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
-                                   op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid,
-                                   robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
-                                   icd_kode=icd_kode, ny_anastomose=ny_anastomose, kun_oblig=kun_oblig)
+    NorgastUtvalg <- NorgastUtvalg(
+      RegData=RegData, datoFra=datoFra, datoTil=datoTil, minald=minald,
+      maxald=maxald, erMann=erMann, elektiv=elektiv, hastegrad = hastegrad,
+      BMI=BMI, tilgang=tilgang, minPRS=minPRS, maxPRS=maxPRS, dagtid = dagtid,
+      ASA=ASA, whoEcog=whoEcog, forbehandling=forbehandling, malign=malign,
+      op_gruppe=op_gruppe, ncsp=ncsp, hastegrad_hybrid=hastegrad_hybrid,
+      robotassiastanse=robotassiastanse, kun_ferdigstilte=kun_ferdigstilte,
+      icd_kode=icd_kode, ny_anastomose=ny_anastomose, kun_oblig=kun_oblig)
     RegData <- NorgastUtvalg$RegData
     utvalgTxt <- NorgastUtvalg$utvalgTxt
     NutvTxt <- length(utvalgTxt)
@@ -83,21 +95,30 @@ norgastIndikator_rapporteket <-
       andeler[N < terskel] <- max(andeler[, dim(andeler)[2]])+1
     }
     andeler[rownames(andeler) %in% lavDG, ] <- NA
-    rekkefolge <- order(andeler[[dim(andeler)[2]]], decreasing = decreasing, na.last = F)
+    rekkefolge <- order(andeler[[dim(andeler)[2]]],
+                        decreasing = decreasing, na.last = F)
 
     andeler <- andeler[rekkefolge, ]
     N <- N[rekkefolge, ]
     andeler[N < terskel] <- NA
     andeler[N[, dim(andeler)[2]]<terskel, 1:2] <- NA
-    KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]], N[, dim(andeler)[2]])*100
+    KI <- binomkonf(AntTilfeller[rekkefolge, dim(andeler)[2]],
+                    N[, dim(andeler)[2]])*100
     KI[, is.na(andeler[, dim(andeler)[2]])] <- NA
-    pst_txt <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'), andeler[, dim(andeler)[2]]), ' %')
+    pst_txt <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'),
+                              andeler[, dim(andeler)[2]]), ' %')
     pst_txt[N[, dim(andeler)[2]]<terskel] <- paste0('N<', terskel)
     pst_txt[rownames(andeler) %in% lavDG] <- lavDGtekst
     pst_txt <- c(NA, pst_txt, NA, NA)
-    pst_txt_prikk <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'), andeler[, 1]), ' %')
+    pst_txt_prikk <- paste0(sprintf(paste0('%.',desimaler_pst, 'f'),
+                                    andeler[, 1]), ' %')
     pst_txt_prikk[N[, 1]<terskel] <- NA
     pst_txt_prikk[rownames(andeler) %in% lavDG] <- NA
+
+    # pst_txt_prikk <- gsub("%", "\\\\%", pst_txt_prikk)
+    # pst_txt_prikk[which(rownames(andeler) =='Norge')] <-
+    #   sprintf("\\textbf{%s}", pst_txt_prikk[which(rownames(andeler) =='Norge')])
+
     pst_txt_prikk <- c(NA, pst_txt_prikk, NA, NA)
 
 
@@ -106,7 +127,8 @@ norgastIndikator_rapporteket <-
     farger <- FigTypUt$farger
     soyleFarger <- rep(farger[3], length(andeler[,dim(andeler)[2]]))
     soyleFarger[which(rownames(andeler)=='Norge')] <- farger[4]
-    if (!is.na(graaUt[1])) {soyleFarger[which(rownames(andeler) %in% graaUt)] <- 'gray88'}
+    if (!is.na(graaUt[1])) {
+      soyleFarger[which(rownames(andeler) %in% graaUt)] <- 'gray88'}
     soyleFarger <- c(NA, soyleFarger)
 
     oldpar_mar <- par()$mar
@@ -208,9 +230,12 @@ norgastIndikator_rapporteket <-
 
     if (dim(andeler)[2]==2) {
       if (!inkl_konf){
-        mtext( c(N[,1], names(N)[1]), side=4, line=2.5, las=1, at=ypos, col=1, cex=cexgr, adj = 1)
-        mtext( c(N[,2], names(N)[2]), side=4, line=5.5, las=1, at=ypos, col=1, cex=cexgr, adj = 1)
-        mtext( 'N', side=4, line=4.0, las=1, at=max(ypos)+diff(ypos)[1], col=1, cex=cexgr, adj = 1)
+        mtext( c(N[,1], names(N)[1]), side=4,
+               line=2.5, las=1, at=ypos, col=1, cex=cexgr, adj = 1)
+        mtext( c(N[,2], names(N)[2]), side=4,
+               line=5.5, las=1, at=ypos, col=1, cex=cexgr, adj = 1)
+        mtext( 'N', side=4, line=4.0, las=1,
+               at=max(ypos)+diff(ypos)[1], col=1, cex=cexgr, adj = 1)
       }
       # else {
       #   mtext( '(N)', side=2, line=0.3, las=1, at=max(ypos)+diff(ypos)[1], col=1, cex=cexgr, adj = 1)
@@ -221,20 +246,24 @@ norgastIndikator_rapporteket <-
       par(xpd=FALSE)
       # mtext( 'Boområde/opptaksområde', side=2, line=9.5, las=0, col=1, cex=cexgr)
       if (legPlass=='nede'){
-        legend('bottomright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',
-               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+        legend('bottomright', cex=0.9*cexgr, bty='n',
+               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8),
+               col=c('black',farger[3]),
                legend=names(N), ncol = 1)}
       if (legPlass=='top'){
-        legend('top', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
-               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+        legend('top', cex=0.9*cexgr, bty='n',
+               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8),
+               col=c('black',farger[3]),
                legend=names(N), ncol = dim(andeler)[2])}
       if (legPlass=='topleft'){
-        legend('topleft', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
-               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+        legend('topleft', cex=0.9*cexgr, bty='n',
+               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8),
+               col=c('black',farger[3]),
                legend=names(N), ncol = dim(andeler)[2])}
       if (legPlass=='topright'){
-        legend('topright', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
-               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
+        legend('topright', cex=0.9*cexgr, bty='n',
+               lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8),
+               col=c('black',farger[3]),
                legend=names(N), ncol = dim(andeler)[2])}
       # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
       #        lwd=c(NA,NA), pch=c(19,15), pt.cex=c(1.2,1.8), col=c('black',farger[3]),
@@ -256,12 +285,14 @@ norgastIndikator_rapporteket <-
       points(y=ypos, x=andeler[,2],cex=pktStr,pch= 19)
       par(xpd=FALSE)
       if (legPlass=='nede'){
-        legend(x=82, y=ypos[2]+1 ,xjust=0, cex=cexgr, bty='n', #bg='white', box.col='white',
-               lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1.2,1.2,1.8), col=c('black','black',farger[3]),
+        legend(x=82, y=ypos[2]+1 ,xjust=0, cex=cexgr, bty='n',
+               lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1.2,1.2,1.8),
+               col=c('black','black',farger[3]),
                legend=names(N) )}
       if (legPlass=='top'){
-        legend('top', cex=0.9*cexgr, bty='n', #bg='white', box.col='white',y=max(ypos),
-               lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1.2,1.2,1.8), col=c('black','black',farger[3]),
+        legend('top', cex=0.9*cexgr, bty='n',
+               lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1.2,1.2,1.8),
+               col=c('black','black',farger[3]),
                legend=names(N), ncol = dim(andeler)[2])
         # legend(0, yposOver+ diff(ypos)[1], yjust=0, xpd=TRUE, cex=0.9, bty='n', #bg='white', box.col='white',y=max(ypos),
         #        lwd=c(NA,NA,NA), pch=c(1,19,15), pt.cex=c(1.2,1.2,1.8), col=c('black','black',farger[3]),
@@ -271,13 +302,30 @@ norgastIndikator_rapporteket <-
 
     if (prikktall) {
       text(x=0, y=ypos, labels = pst_txt, cex=0.75, pos=4)#
-      text(x=andeler[,1], y=ypos, labels = pst_txt_prikk, cex=0.75, pos=4, xpd = T)}
+      text(x=andeler[,1], y=ypos, labels = pst_txt_prikk,
+           cex=0.75, pos=4, xpd = T)}
 
     if (pst_kolonne) {
-      mtext( pst_txt_prikk, side=4, line=3.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
-      mtext( pst_txt, side=4, line=7.5, las=1, at=ypos, col=1, cex=cexgr*0.75, adj = 1)
-      mtext( names(N)[1], side=4, line=3.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
-      mtext( names(N)[2], side=4, line=7.5, las=1, at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( pst_txt_prikk[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+             side=4, line=3.5, las=1,
+             at=ypos[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+             col=1, cex=cexgr*0.75, adj = 1)
+      mtext( pst_txt_prikk[which(substr(row.names(andeler), 1, 5) =='Norge')],
+             side=4, line=3.5, las=1,
+             at=ypos[which(substr(row.names(andeler), 1, 5) =='Norge')],
+             col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( pst_txt[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+             side=4, line=7.5, las=1,
+             at=ypos[-which(substr(row.names(andeler), 1, 5) =='Norge')],
+             col=1, cex=cexgr*0.75, adj = 1)
+      mtext( pst_txt[which(substr(row.names(andeler), 1, 5) =='Norge')],
+             side=4, line=7.5, las=1,
+             at=ypos[which(substr(row.names(andeler), 1, 5) =='Norge')],
+             col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( names(N)[1], side=4, line=3.5, las=1,
+             at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
+      mtext( names(N)[2], side=4, line=7.5, las=1,
+             at=max(ypos), col=1, cex=cexgr*0.75, adj = 1, font = 2)
     }
 
     #Tekst som angir hvilket utvalg som er gjort
