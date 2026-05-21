@@ -44,3 +44,21 @@ norgast_2.3.2.tar.gz
 dev/oppsett.R
 doc/.gitignore
 inst/analyse_anastomoselekk_robot.pdf
+
+# Many kinds of data files
+*.rda
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.sav
+*.dta
+*.sas7bdat
+*.rds
+*.RData
+*.sql
+
+*.zip
+*.tar
+*.gz
+
