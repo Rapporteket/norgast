@@ -72,7 +72,8 @@ dg_kobl_resh_orgnr$Sykehus <-
   RegData$Sykehusnavn[match(dg_kobl_resh_orgnr$resh, RegData$AvdRESH)]
 
 DG_total <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Alle_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Alle_sh.csv",
+  locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
     AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
@@ -89,7 +90,7 @@ DG_total <- readr::read_csv2(
   select(context, orgnr, year, var, denominator, ind_id)
 
 DG_ventrikkel <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Ventrikkel_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Ventrikkel_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
     AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
@@ -104,7 +105,7 @@ DG_ventrikkel <- readr::read_csv2(
   select(context, orgnr, year, var, denominator, ind_id)
 
 DG_spiseroer <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Øsofagus_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Øsofagus_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
     AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
@@ -119,7 +120,7 @@ DG_spiseroer <- readr::read_csv2(
   select(context, orgnr, year, var, denominator, ind_id)
 
 DG_lever <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Lever_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Lever_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
     AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
@@ -135,7 +136,7 @@ DG_lever <- readr::read_csv2(
 
 DG_pankreas <- bind_rows(
   readr::read_csv2(
-    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Whipple_sh.csv",
+    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Whipple_sh.csv",
     locale = locale(encoding = "WINDOWS-1252")) |>
     dplyr::mutate(
       AvdRESH = substr(AvdRESH, 1, 7),
@@ -150,7 +151,7 @@ DG_pankreas <- bind_rows(
     rename(denominator = Total) |>
     select(context, orgnr, year, var, denominator, ind_id),
   readr::read_csv2(
-    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Distal_pankreas_sh.csv",
+    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Distal_pankreas_sh.csv",
     locale = locale(encoding = "WINDOWS-1252")) |>
     dplyr::mutate(
       AvdRESH = substr(AvdRESH, 1, 7),
@@ -169,7 +170,7 @@ DG_pankreas <- bind_rows(
                .by = c(context, orgnr, year, ind_id))
 
 DG_rektum <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Rektum_sh.csv",
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Rektum_sh.csv",
   locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
@@ -185,7 +186,7 @@ DG_rektum <- readr::read_csv2(
   select(context, orgnr, year, var, denominator, ind_id)
 
 DG_kolon <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Kolon_sh.csv",
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA/Sykehus/Kolon_sh.csv",
   locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(
     AvdRESH = substr(AvdRESH, 1, 7),
@@ -206,7 +207,16 @@ indikator <- bind_rows(indikator, DG_kolon, DG_lever,
                        DG_total, DG_ventrikkel) |>
   filter(orgnr != 933784835) ## OBS: Må ses på når Ullandhaug blir større
 
+DG <- bind_rows(DG_kolon, DG_lever,
+                DG_pankreas, DG_rektum, DG_spiseroer,
+                DG_total, DG_ventrikkel) |>
+  filter(orgnr != 933784835)
 
+write.csv2(
+  DG,
+  paste0("C:/Users/kth200/regdata/norgast/behandlingskvalitet/dg_",
+         lubridate::today(), ".csv"),
+  fileEncoding = "UTF-8", row.names = F)
 
 write.csv2(
   indikator,
