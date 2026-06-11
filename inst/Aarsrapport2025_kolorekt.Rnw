@@ -1645,6 +1645,41 @@ hastegrad_hybrid <- 99
 terskel <- 10
 
 valgtVar <- 'Anastomoselekkasje'
+outfile <- 'Anastomoselekkasje_tilbakelegging.pdf'
+outfile <- paste0(figfolder, outfile)
+utdata_kolon_anastomoselekk_refpas <-
+  norgastIndikator_rapporteket(
+    RegDataAll |> filter(FerdigForlop == 1), valgtVar = valgtVar,
+    outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=T, terskel=terskel,
+    # minstekrav = 6, maal = 4,
+    skriftStr=skriftStr, maalretn='lav',
+    lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+    pktStr=pktStr, legPlass='topright',
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt,
+    inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+    datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+    prikktall = FALSE, pst_kolonne = TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll |> filter(FerdigForlop == 1), valgtVar = valgtVar,
+    outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=T, terskel=terskel,
+    minstekrav = 6, maal = 4,
+    skriftStr=skriftStr, maalretn='lav',
+    lavDG = graaUt_kolon, lavDGtekst = dg_tekst,
+    pktStr=pktStr, legPlass='topright',
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt,
+    inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+    datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=hastegrad_hybrid, malign=malign,
+    prikktall = FALSE, pst_kolonne = TRUE)
+}
+
 outfile <- 'Anastomoselekkasje_ileostomi.pdf'
 outfile <- paste0(figfolder, outfile)
 utdata_kolon_anastomoselekk_refpas <-
@@ -1783,6 +1818,11 @@ if (annet_format_ut) {
 
 @
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Anastomoselekkasje_tilbakelegging.pdf}
+\caption{Anastomoselekkasje\_tilbakelegging.pdf}
+\end{figure}
 
 \begin{figure}[ht]
 \centering
