@@ -67,6 +67,7 @@ dgterskel <- 70
 DG <- readr::read_csv2(
   "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Alle_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
   dplyr::mutate(AvdRESH = substr(AvdRESH, 1, 7),
+                AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
                 AvdRESH = ifelse(AvdRESH == 4204126, 4204084, AvdRESH)) |>
   merge(sh_norgast, by = "AvdRESH", all.x = TRUE) |>
   dplyr::filter(!is.na(Sykehusnavn))

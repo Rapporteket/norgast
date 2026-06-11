@@ -181,6 +181,8 @@ norgastAndelGruppert1Gr <- function(valgtVar = "Anastomoselekkasje",
 
   if ( outfile != '') {dev.off()}
 
+  return(invisible(aux))
+
 }
 
 

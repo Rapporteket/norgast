@@ -10,7 +10,7 @@ RegData$AvdRESH[RegData$AvdRESH == 4204084] <- 4204126 # Tull med Ringerike
 
 RegDataOblig <- RegData[RegData$Op_gr %in% 1:8, ]
 RegDataOblig <- RegDataOblig[RegDataOblig$Aar <= rap_aar, ]
-RegDataOblig <- RegDataOblig %>% filter(OpDato < "2025-07-01") ## Ad hoc, desemberpublisering
+# RegDataOblig <- RegDataOblig %>% filter(OpDato < "2025-07-01") ## Ad hoc, desemberpublisering
 
 ind <- c("norgast_saarruptur", "norgast_aktivkontroll", "norgast_vekt_reg",
          "norgast_avdoede_spiseroer", "norgast_avdoede_magesekk",
@@ -27,19 +27,10 @@ for (ind_id in ind[-1]) {
 
 indikator <- indikator %>% select(-Sykehus)
 
-# ind_tmp <- indikator |> dplyr::filter(ind_id == "norgast_vekt_reg")
-# write.csv2(ind_tmp, "~/regdata/norgast/behandlingskvalitet/vekttap.csv",
-#            fileEncoding = "UTF-8", row.names = F)
-
 ### Tilbered dekningsgrad for sykehusviser
-dg_imong <- read.csv2("~/regdata/norgast/imongr_juni2025.csv") |>
-  dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
-
-# DG2024 <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),
-#                 fileEncoding = "UTF-8")
-
-# setdiff(DG2024$orgnr_sh, dg_imong$orgnr)
-# setdiff(dg_imong$orgnr, DG2024$orgnr_sh)
+# dg_imong <- read.csv2(
+#   "C:/Users/kth200/regdata/norgast/aarsrapp2025/dg_fra_behandlingskvalitet.csv") |>
+#   dplyr::filter(substr(ind_id, 1, 10) == "norgast_dg")
 
 dg_kobl_resh_orgnr <- data.frame(
   orgnr_sh = c(974733013, 974631407, 974557746, 974632535,
@@ -51,7 +42,10 @@ dg_kobl_resh_orgnr <- data.frame(
                974724774, 974631091, 974795477, 974329506,
                974316285, 974753898, 974795558,
                974795574, 874716782, 974707152, 974589095,
-               974754118, 974747545, 974744570),
+               974754118, 974747545, 974744570, 932998521,
+               974588951, 925781584, 974631776, 974633698,
+               974207532, 933784835, 974795485, 974795477,
+               974795396, 974795396),
   resh = c(100353,4204126, 700922, 108355,
            601225, 103091, 100100, 601231,
            108354, 706264, 700413, 4204082,
@@ -61,86 +55,233 @@ dg_kobl_resh_orgnr <- data.frame(
            701402, 100354, 102145,4211928,
            100170,4212917, 700840,
            700841, 103312, 4205289, 106168,
-           4207594, 4216823, 100315))
-# 100089 ahus
-# 100092 østfold sarpsbog
-# 100132 telemark skien
-# 100315 førde
-# 101719 unn tromsø
-# 101971 finnmark hammerfest
-# 107507 aleris oslo
-# 4001031 ous
+           4207594, 4216823, 100315, 4216808,
+           999101, 9999122, 9999121, 4208039,
+           0, 4222258, 4210648, 4210649,
+           110852, 4211750))
+
+# 999101, 9999122, 9999121, 4208039,
+# 0, 4222258, 4210648, 4210649,
+# 110852, 4211750
+#
+# 974588951, 925781584, 974631776, 974633698,
+# 974207532, 933784835, 974795485, 974795477,
+# 974795396, 974795396
 
 dg_kobl_resh_orgnr$Sykehus <-
   RegData$Sykehusnavn[match(dg_kobl_resh_orgnr$resh, RegData$AvdRESH)]
 
+DG_total <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Alle_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    # AvdRESH = ifelse(AvdRESH == 4222258, 114271, AvdRESH), ## Ullandhaug under stavanger
+    # AvdRESH = ifelse(AvdRESH == 4204126, 4204084, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_total") |>
+  filter(!is.na(orgnr)) |>   ### MERK: Har med avdelinger som ikke registrerer i Norgast
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
 
-npr2024 <- read.csv2(
-  system.file("extdata/frekvens_norgast_2024.csv", package = "norgast"),
-  fileEncoding = "Latin1") |>
-  dplyr::mutate(sh = case_when(#sh == 974744570 ~ 983974732,
-    sh == 974588951 ~ 974589095,
-    .default = sh),
-    Op_gr = case_when(hierarki == "Kolon" ~ 1,
-                      hierarki == "Rektum" ~ 2,
-                      hierarki == "Øsofagus" ~ 3,
-                      hierarki == "Ventrikkel" ~ 4,
-                      hierarki == "Lever" ~ 5,
-                      hierarki == "Whipple" ~ 6,
-                      hierarki == "Distal_pankreas" ~ 7,
-                      hierarki == "Andre_pankreas" ~ 8)) |>
-  dplyr::summarise(n_npr = sum(n),
-                   .by = c(Op_gr, sh))
+DG_ventrikkel <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Ventrikkel_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_magesekk") |>
+  filter(!is.na(orgnr)) |>
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
 
-dg_norgast <- RegDataOblig |>
-  dplyr::filter(Aar == rap_aar) |>
-  summarise(n_norgast = n(),
-            .by = c(AvdRESH, Op_gr)) |>
-  merge(dg_kobl_resh_orgnr, by.x = "AvdRESH", by.y = "resh", all.x = T) |>
-  merge(npr2024, by.x = c("Op_gr", "orgnr_sh"),
-        by.y = c("Op_gr", "sh"), all = T) |>
-  dplyr::mutate(n_norgast = ifelse(is.na(n_norgast), 0, n_norgast),
-                n_npr = ifelse(is.na(n_npr), 0, n_npr),
-                DG = n_norgast/n_npr*100)|>
-  merge(dg_kobl_resh_orgnr[, c("orgnr_sh", "resh")],
-        .by = "orgnr_sh", all.x = T) |>
-  select(-c(Sykehus, AvdRESH)) |>
-  rename(AvdRESH = resh)
+DG_spiseroer <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Øsofagus_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_spiseroer") |>
+  filter(!is.na(orgnr)) |>
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
 
-dg_norgast_samlet <- dg_norgast |>
-  summarise(n_norgast = sum(n_norgast),
-            n_npr = sum(n_npr),
-            DG = n_norgast/n_npr*100,
-            .by = orgnr_sh) |>
-  merge(dg_kobl_resh_orgnr[, c("orgnr_sh", "resh")],
-        .by = "orgnr_sh", all.x = T) |>
-  rename(AvdRESH = resh) |>
-  mutate(Op_gr = 99)
+DG_lever <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Lever_sh.csv", locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_lever") |>
+  filter(!is.na(orgnr)) |>
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
 
-samlet <- bind_rows(dg_norgast, dg_norgast_samlet) |>
-  mutate(var = ifelse(n_norgast > n_npr, n_npr, n_norgast),
-         context = "caregiver",
-         year = 2024,
-         ind_id = case_when(
-           Op_gr == 1 ~ "norgast_dg_tykktarm",
-           Op_gr == 2 ~ "norgast_dg_endetarm",
-           Op_gr == 3 ~ "norgast_dg_spiseroer",
-           Op_gr == 4 ~ "norgast_dg_magesekk",
-           Op_gr == 5 ~ "norgast_dg_lever",
-           Op_gr %in% 6:8 ~ "norgast_dg_pankreas",
-           Op_gr == 99 ~ "norgast_dg_total"
-         )
-  ) |>
-  rename(denominator = n_npr,
-         orgnr = orgnr_sh) |>
-  select(context, orgnr, year, var, denominator, ind_id) |>
-  bind_rows(indikator)
+DG_pankreas <- bind_rows(
+  readr::read_csv2(
+    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Whipple_sh.csv",
+    locale = locale(encoding = "WINDOWS-1252")) |>
+    dplyr::mutate(
+      AvdRESH = substr(AvdRESH, 1, 7),
+      AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+      orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+        match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+      context = "caregiver",
+      year = 2025,
+      var = Kun_norgast + Begge,
+      ind_id = "norgast_dg_pankreas") |>
+    filter(!is.na(orgnr)) |>
+    rename(denominator = Total) |>
+    select(context, orgnr, year, var, denominator, ind_id),
+  readr::read_csv2(
+    "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Distal_pankreas_sh.csv",
+    locale = locale(encoding = "WINDOWS-1252")) |>
+    dplyr::mutate(
+      AvdRESH = substr(AvdRESH, 1, 7),
+      AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+      orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+        match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+      context = "caregiver",
+      year = 2025,
+      var = Kun_norgast + Begge,
+      ind_id = "norgast_dg_pankreas") |>
+    filter(!is.na(orgnr)) |>
+    rename(denominator = Total) |>
+    select(context, orgnr, year, var, denominator, ind_id)
+) |> summarise(var = sum(var),
+               denominator = sum(denominator),
+               .by = c(context, orgnr, year, ind_id))
+
+DG_rektum <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Rektum_sh.csv",
+  locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_endetarm") |>
+  filter(!is.na(orgnr)) |>
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
+
+DG_kolon <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/DGA Norgast_utkast2/Sykehus/Kolon_sh.csv",
+  locale = locale(encoding = "WINDOWS-1252")) |>
+  dplyr::mutate(
+    AvdRESH = substr(AvdRESH, 1, 7),
+    AvdRESH = ifelse(AvdRESH == 4204500, 4216808, AvdRESH),
+    orgnr = dg_kobl_resh_orgnr$orgnr_sh[
+      match(AvdRESH, dg_kobl_resh_orgnr$resh)],
+    context = "caregiver",
+    year = 2025,
+    var = Kun_norgast + Begge,
+    ind_id = "norgast_dg_tykktarm") |>
+  filter(!is.na(orgnr)) |>
+  rename(denominator = Total) |>
+  select(context, orgnr, year, var, denominator, ind_id)
+
+
+indikator <- bind_rows(indikator, DG_kolon, DG_lever,
+                       DG_pankreas, DG_rektum, DG_spiseroer,
+                       DG_total, DG_ventrikkel) |>
+  filter(orgnr != 933784835) ## OBS: Må ses på når Ullandhaug blir større
+
 
 
 write.csv2(
   indikator,
-  paste0("C:/regdata/norgast/behandlingskvalitet/norgast_indikator_", lubridate::today(), ".csv"),
+  paste0("C:/Users/kth200/regdata/norgast/behandlingskvalitet/norgast_indikator_",
+         lubridate::today(), ".csv"),
   fileEncoding = "UTF-8", row.names = F)
+
+
+
+# npr2024 <- read.csv2(
+#   system.file("extdata/frekvens_norgast_2024.csv", package = "norgast"),
+#   fileEncoding = "Latin1") |>
+#   dplyr::mutate(sh = case_when(#sh == 974744570 ~ 983974732,
+#     sh == 974588951 ~ 974589095,
+#     .default = sh),
+#     Op_gr = case_when(hierarki == "Kolon" ~ 1,
+#                       hierarki == "Rektum" ~ 2,
+#                       hierarki == "Øsofagus" ~ 3,
+#                       hierarki == "Ventrikkel" ~ 4,
+#                       hierarki == "Lever" ~ 5,
+#                       hierarki == "Whipple" ~ 6,
+#                       hierarki == "Distal_pankreas" ~ 7,
+#                       hierarki == "Andre_pankreas" ~ 8)) |>
+#   dplyr::summarise(n_npr = sum(n),
+#                    .by = c(Op_gr, sh))
+#
+# dg_norgast <- RegDataOblig |>
+#   dplyr::filter(Aar == rap_aar) |>
+#   summarise(n_norgast = n(),
+#             .by = c(AvdRESH, Op_gr)) |>
+#   merge(dg_kobl_resh_orgnr, by.x = "AvdRESH", by.y = "resh", all.x = T) |>
+#   merge(npr2024, by.x = c("Op_gr", "orgnr_sh"),
+#         by.y = c("Op_gr", "sh"), all = T) |>
+#   dplyr::mutate(n_norgast = ifelse(is.na(n_norgast), 0, n_norgast),
+#                 n_npr = ifelse(is.na(n_npr), 0, n_npr),
+#                 DG = n_norgast/n_npr*100)|>
+#   merge(dg_kobl_resh_orgnr[, c("orgnr_sh", "resh")],
+#         .by = "orgnr_sh", all.x = T) |>
+#   select(-c(Sykehus, AvdRESH)) |>
+#   rename(AvdRESH = resh)
+#
+# dg_norgast_samlet <- dg_norgast |>
+#   summarise(n_norgast = sum(n_norgast),
+#             n_npr = sum(n_npr),
+#             DG = n_norgast/n_npr*100,
+#             .by = orgnr_sh) |>
+#   merge(dg_kobl_resh_orgnr[, c("orgnr_sh", "resh")],
+#         .by = "orgnr_sh", all.x = T) |>
+#   rename(AvdRESH = resh) |>
+#   mutate(Op_gr = 99)
+#
+# samlet <- bind_rows(dg_norgast, dg_norgast_samlet) |>
+#   mutate(var = ifelse(n_norgast > n_npr, n_npr, n_norgast),
+#          context = "caregiver",
+#          year = 2024,
+#          ind_id = case_when(
+#            Op_gr == 1 ~ "norgast_dg_tykktarm",
+#            Op_gr == 2 ~ "norgast_dg_endetarm",
+#            Op_gr == 3 ~ "norgast_dg_spiseroer",
+#            Op_gr == 4 ~ "norgast_dg_magesekk",
+#            Op_gr == 5 ~ "norgast_dg_lever",
+#            Op_gr %in% 6:8 ~ "norgast_dg_pankreas",
+#            Op_gr == 99 ~ "norgast_dg_total"
+#          )
+#   ) |>
+#   rename(denominator = n_npr,
+#          orgnr = orgnr_sh) |>
+#   select(context, orgnr, year, var, denominator, ind_id) |>
+#   bind_rows(indikator)
+#
+#
+# write.csv2(
+#   indikator,
+#   paste0("C:/regdata/norgast/behandlingskvalitet/norgast_indikator_", lubridate::today(), ".csv"),
+#   fileEncoding = "UTF-8", row.names = F)
 
 
 # write.csv2(samlet, "inst/extdata/dg2024.csv",
@@ -151,10 +292,10 @@ write.csv2(
 # setdiff(npr2024$sh, dg_kobl_resh_orgnr$orgnr_sh)
 # setdiff(dg_kobl_resh_orgnr$orgnr_sh, npr2024$sh)
 
-mangler_norgast <- npr2024[npr2024$sh %in% setdiff(npr2024$sh, dg_kobl_resh_orgnr$orgnr_sh), ]
-mangler_norgast <- mangler_norgast[match(unique(mangler_norgast$sh), mangler_norgast$sh), ]
-
-write.csv2(mangler_norgast, "orgnr_norgast_mangler.csv", fileEncoding = "Latin1", row.names = F)
+# mangler_norgast <- npr2024[npr2024$sh %in% setdiff(npr2024$sh, dg_kobl_resh_orgnr$orgnr_sh), ]
+# mangler_norgast <- mangler_norgast[match(unique(mangler_norgast$sh), mangler_norgast$sh), ]
+#
+# write.csv2(mangler_norgast, "orgnr_norgast_mangler.csv", fileEncoding = "Latin1", row.names = F)
 
 
 # dg_samlet <- read.csv2("~/mydata/norgast/norgast_dg_2022.csv")
