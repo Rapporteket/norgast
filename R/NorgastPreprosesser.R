@@ -249,6 +249,11 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
   RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
 
+  RegData$Anastomoselekkasje_alle <- 0
+  RegData$Anastomoselekkasje_alle[RegData$ViktigsteFunn==1] <- 1
+  RegData$Anastomoselekkasje_alle <- ifelse(
+    RegData$dummy_LEAK == 1, 1, RegData$Anastomoselekkasje_alle)
+
   RegData$LapTilgang <- as.numeric(RegData$Tilgang)  # Konverterte gruppert med åpne
   RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0
   RegData$LapTilgang[RegData$LapTilgang == 2] <- 1

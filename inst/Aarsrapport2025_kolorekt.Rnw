@@ -404,7 +404,7 @@ if (annet_format_ut) {
 outfile <- 'konv_rate_malign_ecog0_1_aar.pdf'
 outfile <- paste0(figfolder, outfile)
 valgtVar <- 'konv_rate'
-norgastIndikator_rapporteket(
+tmptall <- norgastIndikator_rapporteket(
   RegDataAll, valgtVar = valgtVar,
   outfile=outfile, tittel=tittel, width=width,
   height=height, decreasing=T, terskel=terskel,
@@ -871,13 +871,17 @@ terskel <- 10
 outfile <- 'AvstandAnalVerge_kat_rekt.pdf'
 outfile <- paste0(figfolder, outfile)
 NorgastFigAndelStabelGrVar(
-  RegData, valgtVar='AvstandAnalVerge_kat', op_gruppe=op_gruppe, outfile=outfile,
-  Ngrense=terskel, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, malign = 1)
+  RegData, valgtVar='AvstandAnalVerge_kat',
+  op_gruppe=op_gruppe, outfile=outfile,
+  Ngrense=terskel, lavDG = graaUt_rektum,
+  lavDGtekst = dg_tekst, icd_kode = "C20")
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   NorgastFigAndelStabelGrVar(
-    RegData, valgtVar='AvstandAnalVerge_kat', op_gruppe=op_gruppe, outfile=outfile,
-    Ngrense=terskel, lavDG = graaUt_rektum, lavDGtekst = dg_tekst, malign = 1)
+    RegData, valgtVar='AvstandAnalVerge_kat',
+    op_gruppe=op_gruppe, outfile=outfile,
+    Ngrense=terskel, lavDG = graaUt_rektum,
+    lavDGtekst = dg_tekst, icd_kode = "C20")
 }
 
 valgtVar <- 'LapTilgang2'
@@ -1148,8 +1152,9 @@ outfile <- paste0(figfolder, outfile)
 valgtVar <- 'AvlastendeStomiRektum'
 # valgtVar <- 'NyStomi'
 norgastIndikator_gruppert(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=900, decreasing=T, terskel=terskel,
+  RegDataAll, valgtVar = valgtVar,
+  outfile=outfile, tittel=tittel, width=width,
+  height=1100, decreasing=T, terskel=terskel,
   minstekrav = NA, maal = NA,
   skriftStr=skriftStr, lavDG = graaUt_rektum,
   lavDGtekst = dg_tekst,
@@ -1160,13 +1165,13 @@ norgastIndikator_gruppert(
   datoTil=datoTil, hastegrad_hybrid=hastegrad_hybrid,
   malign=1, ny_anastomose=1,
   kun_ferdigstilte = T, prikktall = FALSE,
-  Grvar2 = "AvstandAnalVerge_kat2", mrom = 0.5)
+  Grvar2 = "AvstandAnalVerge_kat2", mrom = 0.7)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_gruppert(
     RegDataAll, valgtVar = valgtVar,
     outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=T, terskel=terskel,
+    height=1100, decreasing=T, terskel=terskel,
     minstekrav = NA, maal = NA,
     skriftStr=skriftStr, lavDG = graaUt_rektum,
     lavDGtekst = dg_tekst,
@@ -1540,6 +1545,51 @@ if (annet_format_ut) {
 \caption{bestraalt\_hf.pdf}
 \end{figure}
 
+<<'beregn: bestraaling norgast og krg', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
+
+tab_krg <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/oppdatertesykehusnavn_NORGAST.csv",
+  header = T, fileEncoding = "Latin1") |>
+  dplyr::select(RESH, N_KRG2025, RateKRG2025) |>
+  dplyr::mutate(ant_bestraalt = round(RateKRG2025*N_KRG2025/100)) |>
+  janitor::adorn_totals() |>
+  dplyr::mutate(
+    RateKRG2025 = round(ant_bestraalt/N_KRG2025*100),
+    RateKRG2025 = ifelse(is.nan(RateKRG2025), 0, RateKRG2025)) |>
+  select(-ant_bestraalt)
+
+Tabell_bestraaling <- RegData |>
+  dplyr::filter(
+    Op_gr == 2,
+    sub("(\\w+).*", "\\1", RegData$Hoveddiagnose2) == "C20") |>
+  dplyr::mutate(
+    straaling = (KunStraaleterapi | KjemoRadioKombo)
+  ) |>
+  dplyr::summarise(ant_bestraalt = sum(straaling),
+                   N_norgast = n(),
+                   .by = c(AvdRESH, Sykehusnavn)) |>
+  janitor::adorn_totals() |>
+  mutate(rate_norgast = round(ant_bestraalt/N_norgast*100)) |>
+  select(-ant_bestraalt)
+
+krg_norgast <- merge(tab_krg, Tabell_bestraaling,
+                     by.x = "RESH", by.y = "AvdRESH", all = T) |>
+  dplyr::mutate(avvik = (rate_norgast - RateKRG2025)/RateKRG2025*100) |>
+  dplyr::mutate(avvik15 = case_when(
+    avvik > 15 ~ "+",
+    avvik < -15 ~ "-",
+    .default = ""
+  )) |>
+  dplyr::mutate(
+    Sykehusnavn = ifelse(Sykehusnavn == "-", "Total", Sykehusnavn))
+
+write.csv2(
+  krg_norgast,
+  "C:/Users/kth200/regdata/norgast/aarsrapp2025/sammenlign_straaling_krg_norgast.csv",
+  row.names = F, fileEncoding = "Latin1")
+
+@
+
 \clearpage
 
 \section{Tilbakelegging av stomi}
@@ -1576,7 +1626,7 @@ tab_tilbakelegg <- bind_rows(
   Tabell_tilbakelegg_ileo_lokal |>
     mutate(Tilgang_ny = paste0("\\quad ", Tilgang_ny))) |>
   bind_rows(
-    data.frame("Tilgang_ny"="\\textbf{Ileostomi: laparatomi}",
+    data.frame("Tilgang_ny"="\\textbf{Ileostomi: laparotomi/-skopi}",
                "N"="", "reop_rate"=NA, "anastomoselekk"=NA,
                "dyp_infek"=NA, "bloedning"=NA, "saarrupt"=NA,
                "annet"=NA, "ingen"=NA)
@@ -1592,7 +1642,7 @@ tab_tilbakelegg <- bind_rows(
   bind_rows(Tabell_tilbakelegg_kolo_lokal |>
               mutate(Tilgang_ny = paste0("\\quad ", Tilgang_ny))) |>
   bind_rows(
-    data.frame("Tilgang_ny"="\\textbf{Kolostomi: laparatomi}",
+    data.frame("Tilgang_ny"="\\textbf{Kolostomi: laparotomi/-skopi}",
                "N"="", "reop_rate"=NA, "anastomoselekk"=NA,
                "dyp_infek"=NA, "bloedning"=NA, "saarrupt"=NA,
                "annet"=NA, "ingen"=NA)
@@ -1644,7 +1694,7 @@ elektiv <- 99
 hastegrad_hybrid <- 99
 terskel <- 10
 
-valgtVar <- 'Anastomoselekkasje'
+valgtVar <- 'Anastomoselekkasje_alle'
 outfile <- 'Anastomoselekkasje_tilbakelegging.pdf'
 outfile <- paste0(figfolder, outfile)
 utdata_kolon_anastomoselekk_refpas <-
@@ -1753,11 +1803,12 @@ if (annet_format_ut) {
 RegData <- RegData |>
   mutate(
     tilgang_tilbakelegging = case_when(
-      ncsp_lowercase %in% c("jfg00", "jfg10", "jfg20", "jfg30") ~ "Lokal tilgang",
+      ncsp_lowercase %in% c("jfg00", "jfg10", "jfg20", "jfg30") ~
+        "Lokal tilgang",
       ncsp_lowercase %in%
-        c("jfg23", "jfg26", "jfg29", "jfg33", "jfg36") ~ "Laparotomi",
+        c("jfg23", "jfg26", "jfg29", "jfg33", "jfg36") ~ "laparotomi/laparoskopi",
       .default = NA
-      ) |> as.factor(),
+    ) |> as.factor(),
     tilbakelegging = case_when(
       ncsp_lowercase %in%
         c("jfg00", "jfg20", "jfg23", "jfg26", "jfg29") ~ "Ileostomi",
@@ -1770,9 +1821,9 @@ RegData <- RegData |>
 outfile <- 'anastomoselekk_ileo_vs_kolo.pdf'
 outfile <- paste0(figfolder, outfile)
 lekkdata <- norgast::norgastAndelGruppert1Gr(
-  valgtVar="Anastomoselekkasje", outfile = outfile,
+  valgtVar="Anastomoselekkasje_alle", outfile = outfile,
   Grvar1 = "tilbakelegging",
-  tittel = "Andel anastomoselekkasjer, ny anastomose",
+  tittel = "Andel anastomoselekkasjer",
   RegData = RegData |> filter(FerdigForlop == 1),
   datoFra=paste0(rap_aar, "-01-01"),
   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=14,
@@ -1780,7 +1831,7 @@ lekkdata <- norgast::norgastAndelGruppert1Gr(
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert1Gr(
-    valgtVar="Anastomoselekkasje", outfile = outfile,
+    valgtVar="Anastomoselekkasje_alle", outfile = outfile,
     Grvar1 = "tilbakelegging",
     tittel = "Andel anastomoselekkasjer, ny anastomose",
     RegData = RegData |> filter(FerdigForlop == 1),
@@ -1794,9 +1845,9 @@ if (annet_format_ut) {
 outfile <- "anastomoselekk_ileo_vs_kolo_m_undergr.pdf"
 outfile <- paste0(figfolder, outfile)
 norgast::norgastAndelGruppert2Gr(
-  valgtVar="Anastomoselekkasje", outfile = outfile,
+  valgtVar="Anastomoselekkasje_alle", outfile = outfile,
   Grvar1 = "tilbakelegging", Grvar2 = "tilgang_tilbakelegging",
-  tittel = "Andel anastomoselekkasjer, ny anastomose",
+  tittel = "Andel anastomoselekkasjer",
   RegData = RegData |> filter(FerdigForlop == 1),
   datoFra=paste0(rap_aar-2, "-01-01"),
   datoTil=paste0(rap_aar, "-12-31"),op_gruppe=14,
@@ -1805,14 +1856,26 @@ norgast::norgastAndelGruppert2Gr(
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgast::norgastAndelGruppert2Gr(
-    valgtVar="NyStomi", outfile = outfile,
-    Grvar1 = "AvstandAnalVerge_kat2", Grvar2 = "Robot",
-    tittel = "Andel nye stomier",
-    RegData = aux, datoFra=paste0(rap_aar-2, "-01-01"),
-    datoTil=paste0(rap_aar, "-12-31"),op_gruppe=2,
-    malign=1, ytxt = "Avstand analkanten",
-    hastegrad = 1, whoEcog = 0:1,
-    ny_anastomose =1, inkl_konf = TRUE)
+    valgtVar="Anastomoselekkasje_alle", outfile = outfile,
+    Grvar1 = "tilbakelegging", Grvar2 = "tilgang_tilbakelegging",
+    tittel = "Andel anastomoselekkasjer",
+    RegData = RegData |> filter(FerdigForlop == 1),
+    datoFra=paste0(rap_aar-2, "-01-01"),
+    datoTil=paste0(rap_aar, "-12-31"),op_gruppe=14,
+    ytxt = "Prosedyre",
+    inkl_konf = TRUE)
+}
+
+outfile <- 'AccordionGrad_tilbakelegging.pdf'
+outfile <- paste0(figfolder, outfile)
+FigAndeler(
+  RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=14,
+  outfile=outfile, reshID=reshID)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  FigAndeler(
+    RegData, valgtVar='AccordionGrad', enhetsUtvalg=0, op_gruppe=14,
+    outfile=outfile, reshID=reshID)
 }
 
 
@@ -1847,6 +1910,14 @@ if (annet_format_ut) {
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}anastomoselekk_ileo_vs_kolo_m_undergr.pdf}
 \caption{anastomoselekk\_ileo\_vs\_kolo\_m\_undergr.pdf}
 \end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}AccordionGrad_tilbakelegging.pdf}
+\caption{AccordionGrad\_tilbakelegging.pdf}
+\end{figure}
+
+
 
 \end{document}
 

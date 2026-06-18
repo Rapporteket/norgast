@@ -357,17 +357,28 @@ norgastIndikator_rapporteket <-
 #' @export
 #'
 norgastIndikator_gruppert <-
-  function(RegData, valgtVar, tittel='', width=800, height=700,
-           decreasing=F, terskel=10, minstekrav = NA, ny_stomi = 99,
-           maal = NA, skriftStr=1.3, pktStr=1.4, legPlass='top', minstekravTxt='Akseptabelt',
-           maalTxt='Mål', graaUt=NA, inkl_konf=F, datoFra='2014-01-01', datoTil='2050-12-31',
-           minald=0, maxald=130, erMann=99, outfile='', preprosess=F, malign=99, elektiv=99,
-           hastegrad=99, BMI='', tilgang='', minPRS=0, maxPRS=2.2, ASA='', whoEcog= '',
-           forbehandling='', dagtid =99, hentData=0, op_gruppe='', ncsp='', maalretn='hoy',
-           lavDG='', lavDGtekst='Dekningsgrad < 60 %', hastegrad_hybrid=99, inset = 0,
-           robotassiastanse=99, kun_ferdigstilte=TRUE, prikktall=TRUE, inkl_N = FALSE,
-           Grvar1 = "Sykehusnavn", Grvar2 = "Malign", ltop=2, lbunn=1,rotermaaltxt=45,
-           ny_anastomose=99, pst_kolonne=TRUE, kun_oblig=FALSE, mrom=0.3)
+  function(RegData, valgtVar, tittel='',
+           width=800, height=700,
+           decreasing=F, terskel=10,
+           minstekrav = NA, ny_stomi = 99,
+           maal = NA, skriftStr=1.3, pktStr=1.4,
+           legPlass='top', minstekravTxt='Akseptabelt',
+           maalTxt='Mål', graaUt=NA, inkl_konf=F,
+           datoFra='2014-01-01', datoTil='2050-12-31',
+           minald=0, maxald=130, erMann=99, outfile='',
+           preprosess=F, malign=99, elektiv=99,
+           hastegrad=99, BMI='', tilgang='', minPRS=0,
+           maxPRS=2.2, ASA='', whoEcog= '',
+           forbehandling='', dagtid =99, hentData=0,
+           op_gruppe='', ncsp='', maalretn='hoy',
+           lavDG='', lavDGtekst='Dekningsgrad < 60 %',
+           hastegrad_hybrid=99, inset = 0,
+           robotassiastanse=99, kun_ferdigstilte=TRUE,
+           prikktall=TRUE, inkl_N = FALSE,
+           Grvar1 = "Sykehusnavn", Grvar2 = "Malign",
+           ltop=2, lbunn=1,rotermaaltxt=45,
+           ny_anastomose=99, pst_kolonne=TRUE,
+           kun_oblig=FALSE, mrom=0.3, xmax_manuell = NA)
   {
 
     RegData <- RegData[RegData$Aar > max(RegData$Aar)-3, ] # behold bare siste 3 år
@@ -514,13 +525,18 @@ norgastIndikator_gruppert <-
     par('mar'=c(5.1, 4.1, 5.1, 9.1))
     par('oma'=c(0,1,NutvTxt,0))
 
-    if (inkl_konf) {
-      # par('mar'=c(5.1, 4.1, 5.1, 2.1))
-      if (!pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 2.1)) }
-      xmax <- min(max(KInew, max(andeler[, 3:4], na.rm = T), na.rm = T)*1.15,100)
+    if (is.na(xmax_manuell)){
+      if (inkl_konf) {
+        # par('mar'=c(5.1, 4.1, 5.1, 2.1))
+        if (!pst_kolonne) {par('mar'=c(5.1, 4.1, 5.1, 2.1)) }
+        xmax <- min(max(KInew, max(andeler[, 3:4], na.rm = T), na.rm = T)*1.15,100)
+      } else {
+        xmax <- min(100, 1.15*max(andeler[, 3:4], na.rm = T))
+      }
     } else {
-      xmax <- min(100, 1.15*max(andeler[, 3:4], na.rm = T))
+      xmax <- xmax_manuell
     }
+
 
     plotdata<- cbind(matrix(rep(NA, nlevels(andeler[[2]])),
                             nrow = nlevels(andeler[[2]]), ncol = lbunn),

@@ -17,15 +17,17 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   RegData$Variabel <- NA
-  if (valgtVar %in% c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA',
-                      'ModGlasgowScore', 'Forbehandling', 'BMI_kodet', 'Op_gr',
-                      'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang',
-                      'AccordionGrad', 'ReLapNarkose', 'AvlastendeStomiRektum',
-                      'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse',
-                      'erMann', 'PRSScore', 'NyAnastomose','Anastomoselekkasje',
-                      'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2',
-                      'KumAcc', 'MissingVekt', 'Sykehusnavn', 'Malign',
-                      'Saarruptur', 'Rekonstruksjon', 'NyStomi')) {
+  if (valgtVar %in%
+      c('Alder', 'Vektendring', 'MedDiabetes','WHOECOG', 'ASA',
+        'ModGlasgowScore', 'Forbehandling', 'BMI_kodet', 'Op_gr',
+        'Hastegrad_tid', 'Hastegrad', 'Tilgang', 'ThoraxTilgang',
+        'AccordionGrad', 'ReLapNarkose', 'AvlastendeStomiRektum',
+        'PermanentStomiColorektal', 'RegMnd', 'Robotassistanse',
+        'erMann', 'PRSScore', 'NyAnastomose','Anastomoselekkasje',
+        'Avdod', 'OpDoedTid', 'LapTilgang', 'LapTilgang2', 'KumAcc2',
+        'KumAcc', 'MissingVekt', 'Sykehusnavn', 'Malign',
+        'Saarruptur', 'Rekonstruksjon', 'NyStomi',
+        'Anastomoselekkasje_alle')) {
     RegData$Variabel <- RegData[ ,valgtVar]
   }
 
@@ -141,8 +143,8 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     grtxt <- c('Nei', 'Ja')
     RegData$Variabel <- 0
     RegData$Variabel[which((RegData$ReLapNarkose==1 & RegData$ViktigsteFunn %in% 1:2) |
-                       (RegData$ReLapNarkose==1 & (RegData$EndoInterBlod | RegData$EndoInterLekkasje)) |
-                       (RegData$PerkDrenasje==1 & RegData$HoyAmylaseKons==1))] <- 1
+                             (RegData$ReLapNarkose==1 & (RegData$EndoInterBlod | RegData$EndoInterLekkasje)) |
+                             (RegData$PerkDrenasje==1 & RegData$HoyAmylaseKons==1))] <- 1
     RegData <- RegData[which(RegData$Variabel %in% c(0,1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0,1), labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
@@ -462,18 +464,18 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(1, 3:6), labels = grtxt)
   }
 
-#   if (valgtVar=='KumAcc') {
-#     tittel <- 'Accordion score 3-6'
-#     VarTxt <- 'med accordion score 3-6'
-# #     grtxt <- c('<3', '3', '4', '5', '6')
-#     grtxt <- c('Nei','Ja')
-#     RegData$Variabel <- RegData$AccordionGrad
-#     RegData$Variabel[RegData$Variabel == 1] <- 0
-#     RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
-#     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
-#     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
-#     if (enhetsUtvalg==1) {stabel=T}
-#   }
+  #   if (valgtVar=='KumAcc') {
+  #     tittel <- 'Accordion score 3-6'
+  #     VarTxt <- 'med accordion score 3-6'
+  # #     grtxt <- c('<3', '3', '4', '5', '6')
+  #     grtxt <- c('Nei','Ja')
+  #     RegData$Variabel <- RegData$AccordionGrad
+  #     RegData$Variabel[RegData$Variabel == 1] <- 0
+  #     RegData$Variabel[RegData$Variabel %in% 3:6] <- 1
+  #     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+  #     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+  #     if (enhetsUtvalg==1) {stabel=T}
+  #   }
 
   if (valgtVar=='MedDiabetes') {
     tittel <- 'Medisinert mot diabetes'
@@ -515,6 +517,16 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
     grtxt <- c('Nei','Ja')
     RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
     RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1), labels = grtxt)
+    if (enhetsUtvalg==1) {stabel=T}
+  }
+
+  if (valgtVar=='Anastomoselekkasje_alle') {
+    tittel <- 'Anastomoselekkasje'
+    VarTxt <- 'anastomoselekkasjer'
+    grtxt <- c('Nei','Ja')
+    RegData <- RegData[which(RegData$Variabel %in% c(0, 1)), ]
+    RegData$VariabelGr <- factor(RegData$Variabel, levels=c(0, 1),
+                                 labels = grtxt)
     if (enhetsUtvalg==1) {stabel=T}
   }
 
@@ -585,7 +597,7 @@ NorgastPrepVar <- function(RegData, valgtVar, enhetsUtvalg=1)
 
 
   PlotParams <- list(RegData=RegData, tittel=tittel, grtxt=grtxt, grtxt2=grtxt2, stabel=stabel, subtxt=subtxt,
-                   incl_N=incl_N, incl_pst=incl_pst, retn=retn, cexgr=cexgr, VarTxt=VarTxt, inkl_konf=inkl_konf)
+                     incl_N=incl_N, incl_pst=incl_pst, retn=retn, cexgr=cexgr, VarTxt=VarTxt, inkl_konf=inkl_konf)
 
   return(invisible(PlotParams))
 }

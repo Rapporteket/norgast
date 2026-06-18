@@ -11,7 +11,9 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
                                     inkl_konf = FALSE,
                                     pst_kol = TRUE,
                                     outfile='',
-                                    farger=NA, ...)
+                                    farger=NA,
+                                    rev_farger = FALSE,
+                                    ...)
 {
   NorgastUtvalg <- NorgastUtvalg(...)
   RegData <- NorgastUtvalg$RegData
@@ -55,7 +57,13 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
   FigTypUt <- rapFigurer::figtype(outfile=outfile,
                                   pointsizePDF=11, fargepalett='BlaaOff')
   if (is.na(farger[1])){
-    farger <- rev(FigTypUt$farger)
+    farger <- FigTypUt$farger[
+      (length(FigTypUt$farger)-nlevels(RegData[,Grvar2])+1):
+        length(FigTypUt$farger)]
+    if (rev_farger) {
+      rev(farger)
+    }
+    # farger <- rev(FigTypUt$farger)
   }
   par('oma'=c(0,1,NutvTxt,0))
   par('mar'=c(5.1, 5.1, 5.1, 4.1))
@@ -65,7 +73,7 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
   } else {xmax <- min(max(PlotAndeler, na.rm = T)*1.2, 100)}
 
   pos <- barplot(PlotAndeler, horiz=T, beside=TRUE, border=NA,
-                 col=farger[1:ngrvar2level],
+                 col=farger, #[1:ngrvar2level],
                  main='', font.main=1, ylim = c(0,ymax),
                  xlim = c(0, xmax),
                  xlab=xtxt, las=1, cex.names = 1.2,
@@ -110,7 +118,8 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
   title(tittel)
   legend("top",
          legend = rev(levels(RegData[, Grvar2])),
-         pch=15, col=rev(farger[1:ngrvar2level]), ncol = ngrvar2level,
+         pch=15, col=rev(farger), #[1:ngrvar2level]),
+         ncol = ngrvar2level,
          bty='n')
 
   mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col="darkgray",
@@ -198,6 +207,7 @@ norgastFordelingOpGruppert <- function(outfile = "",
                                                   "over avstand fra analkanten"),
                                        ytxt = "Andel (%)",
                                        xtxt = "Avstand analkanten (cm)",
+                                       rev_farger = FALSE,
                                        ...) {
 
   NorgastUtvalg <- NorgastUtvalg(...)
@@ -228,17 +238,24 @@ norgastFordelingOpGruppert <- function(outfile = "",
 
   FigTypUt <- rapFigurer::figtype(outfile=outfile,
                                   pointsizePDF=11, fargepalett='BlaaOff')
-  farger <- FigTypUt$farger %>% rev()
+  farger <- FigTypUt$farger[
+    (length(FigTypUt$farger)-nlevels(RegData[,Grvar2])+1):
+      length(FigTypUt$farger)]
+  if (rev_farger) {
+    rev(farger)
+  }
   par('oma'=c(0,1,NutvTxt,0))
 
-  xpos <- barplot( plotdata, beside=T, las=1, main = tittel,
-                   ylim = c(0,max(plotdata)*1.2),
-                   horiz=F,  space=c(0,0.3),names.arg=rep('',dim(plotdata)[2]),
-                   col=farger[1:2], border=NA, ylab = ytxt, xlab = xtxt)
+  xpos <- barplot(
+    plotdata, beside=T, las=1, main = tittel,
+    ylim = c(0,max(plotdata)*1.2),
+    horiz=F,  space=c(0,0.3),names.arg=rep('',dim(plotdata)[2]),
+    col=farger, border=NA, ylab = ytxt, xlab = xtxt)
   mtext(colnames(plotdata), at = colMeans(xpos), side = 1, line = 0)
-  legend("topright", legend = legendTxt, pch=15, col = farger[1:2], bty='n')
+  legend("topright", legend = legendTxt, pch=15, col = farger, bty='n')
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4], line=(NutvTxt-1):0, outer=TRUE)
+  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0,
+        col=FigTypUt$farger[1], line=(NutvTxt-1):0, outer=TRUE)
 
   if ( outfile != '') {dev.off()}
 
