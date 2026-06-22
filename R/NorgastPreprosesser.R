@@ -72,8 +72,6 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
       ncsp_text == "jjb" ~ "Leverreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
         "Distale pankreasreseksjoner",
-      ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
-        "Distale pankreasreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(0, 20, 40, 50, 96) ~
         "Andre pankreasreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(30, 31) ~

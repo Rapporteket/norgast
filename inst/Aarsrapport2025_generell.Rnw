@@ -256,13 +256,45 @@ if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
     RegDataAll, valgtVar = valgtVar, outfile=outfile,
-    tittel=tittel, tilgang = c('1', '3'),
-    width=width, height=height, decreasing=T,
+    tittel=tittel, tilgang = c('1', '3'), width=width,
+    height=height, decreasing=T,
     terskel=terskel, minstekrav = 4, maal = 3,
     skriftStr=skriftStr, pktStr=pktStr,
     legPlass='topright', minstekravTxt=minstekravTxt,
     maalTxt=maalTxt, graaUt=graaUt,
-    inkl_konf=inkl_konf, op_gruppe=1:8,
+    inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+    datoFra=datoFra, datoTil=datoTil,
+    hastegrad_hybrid=1, malign=malign,
+    lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+    pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
+}
+valgtVar <- 'Saarruptur'
+outfile <- 'Saarruptur_utvalg_lap.pdf'
+outfile <- paste0(figfolder, outfile)
+norgastIndikator_rapporteket(
+  RegDataAll, valgtVar = valgtVar, outfile=outfile,
+  tittel=tittel, tilgang = c('2'), width=width,
+  height=height, decreasing=T,
+  terskel=terskel, minstekrav = 4, maal = 3,
+  skriftStr=skriftStr, pktStr=pktStr,
+  legPlass='topright', minstekravTxt=minstekravTxt,
+  maalTxt=maalTxt, graaUt=graaUt,
+  inkl_konf=inkl_konf, op_gruppe=op_gruppe,
+  datoFra=datoFra, datoTil=datoTil,
+  hastegrad_hybrid=1, malign=malign,
+  lavDG = graaUt_alle, lavDGtekst = dg_tekst,
+  pst_kolonne = TRUE, prikktall = FALSE, kun_oblig=TRUE)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_rapporteket(
+    RegDataAll, valgtVar = valgtVar, outfile=outfile,
+    tittel=tittel, tilgang = c('2'), width=width,
+    height=height, decreasing=T,
+    terskel=terskel, minstekrav = 4, maal = 3,
+    skriftStr=skriftStr, pktStr=pktStr,
+    legPlass='topright', minstekravTxt=minstekravTxt,
+    maalTxt=maalTxt, graaUt=graaUt,
+    inkl_konf=inkl_konf, op_gruppe=op_gruppe,
     datoFra=datoFra, datoTil=datoTil,
     hastegrad_hybrid=1, malign=malign,
     lavDG = graaUt_alle, lavDGtekst = dg_tekst,
@@ -308,7 +340,40 @@ if (annet_format_ut) {
     prikktall = FALSE, Grvar2 = "Robot", xmax_manuell = NA)
 }
 
-
+outfile <- 'saarruptur_gruppert_robot_kutt_xakse.pdf'
+outfile <- paste0(figfolder, outfile)
+valgtVar <- 'Saarruptur'
+norgastIndikator_gruppert(
+  RegDataAll, valgtVar = valgtVar,
+  outfile=outfile, tittel=tittel, width=width,
+  height=900, decreasing=T, terskel=terskel,
+  minstekrav = NA, maal = NA,
+  skriftStr=skriftStr, lavDG = graaUt_alle,
+  lavDGtekst = dg_tekst, tilgang = c('2', '3'),
+  pktStr=pktStr, legPlass=legPlass,
+  minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+  graaUt=graaUt, inkl_konf=inkl_konf,
+  op_gruppe=1:8, datoFra=datoFra,
+  datoTil=datoTil, hastegrad_hybrid=1,
+  malign=malign, kun_ferdigstilte = T,
+  prikktall = FALSE, Grvar2 = "Robot", xmax_manuell = 9)
+if (annet_format_ut) {
+  outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
+  norgastIndikator_gruppert(
+    RegDataAll, valgtVar = valgtVar,
+    outfile=outfile, tittel=tittel, width=width,
+    height=900, decreasing=T, terskel=terskel,
+    minstekrav = NA, maal = NA,
+    skriftStr=skriftStr, lavDG = graaUt_alle,
+    lavDGtekst = dg_tekst, tilgang = c('2', '3'),
+    pktStr=pktStr, legPlass=legPlass,
+    minstekravTxt=minstekravTxt, maalTxt=maalTxt,
+    graaUt=graaUt, inkl_konf=inkl_konf,
+    op_gruppe=1:8, datoFra=datoFra,
+    datoTil=datoTil, hastegrad_hybrid=1,
+    malign=malign, kun_ferdigstilte = T,
+    prikktall = FALSE, Grvar2 = "Robot", xmax_manuell = 9)
+}
 
 @
 
@@ -320,8 +385,20 @@ if (annet_format_ut) {
 
 \begin{figure}[ht]
 \centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}Saarruptur_utvalg_lap.pdf}
+\caption{Saarruptur\_utvalg\_lap.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
 \includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}saarruptur_gruppert_robot.pdf}
 \caption{saarruptur\_gruppert\_robot.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}saarruptur_gruppert_robot_kutt_xakse.pdf}
+\caption{saarruptur\_gruppert\_robot\_kutt\_xakse.pdf}
 \end{figure}
 
 \clearpage
@@ -900,83 +977,89 @@ if (annet_format_ut) {
 outfile <- 'Aktualitet_oppf60_indikator.pdf'
 outfile <- paste0(figfolder, outfile)
 indikatordata <- norgast::norgastBeregnIndikator(RegDataAll, "norgast_oppf_foer_60d")
-norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
-                     N = indikatordata$N,
-                     andeler = indikatordata$andeler,
-                     decreasing = indikatordata$decreasing,
-                     terskel = indikatordata$terskel,
-                     minstekrav = indikatordata$minstekrav,
-                     maal = indikatordata$maal,
-                     utvalgTxt = indikatordata$utvalgTxt,
-                     tittel = indikatordata$tittel,
-                     # skriftStr = input$skriftStr,
-                     # lavDG = graaUt_lever,
-                     maalretn = indikatordata$maalretn,
-                     prikktall = FALSE,
-                     pst_kolonne = TRUE,
-                     outfile = outfile)
+norgastPlotIndikator(
+  AntTilfeller = indikatordata$AntTilfeller,
+  N = indikatordata$N,
+  andeler = indikatordata$andeler,
+  decreasing = indikatordata$decreasing,
+  terskel = indikatordata$terskel,
+  minstekrav = indikatordata$minstekrav,
+  maal = indikatordata$maal,
+  utvalgTxt = indikatordata$utvalgTxt,
+  tittel = indikatordata$tittel,
+  # skriftStr = input$skriftStr,
+  # lavDG = graaUt_lever,
+  maalretn = indikatordata$maalretn,
+  prikktall = FALSE,
+  pst_kolonne = TRUE,
+  outfile = outfile)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
-                       N = indikatordata$N,
-                       andeler = indikatordata$andeler,
-                       decreasing = indikatordata$decreasing,
-                       terskel = indikatordata$terskel,
-                       minstekrav = indikatordata$minstekrav,
-                       maal = indikatordata$maal,
-                       utvalgTxt = indikatordata$utvalgTxt,
-                       tittel = indikatordata$tittel,
-                       # skriftStr = input$skriftStr,
-                       # lavDG = graaUt_lever,
-                       maalretn = indikatordata$maalretn,
-                       prikktall = FALSE,
-                       pst_kolonne = TRUE,
-                       outfile = outfile)
+  norgastPlotIndikator(
+    AntTilfeller = indikatordata$AntTilfeller,
+    N = indikatordata$N,
+    andeler = indikatordata$andeler,
+    decreasing = indikatordata$decreasing,
+    terskel = indikatordata$terskel,
+    minstekrav = indikatordata$minstekrav,
+    maal = indikatordata$maal,
+    utvalgTxt = indikatordata$utvalgTxt,
+    tittel = indikatordata$tittel,
+    # skriftStr = input$skriftStr,
+    # lavDG = graaUt_lever,
+    maalretn = indikatordata$maalretn,
+    prikktall = FALSE,
+    pst_kolonne = TRUE,
+    outfile = outfile)
 }
 
 outfile <- 'Aktualitet_oppf180_indikator.pdf'
 outfile <- paste0(figfolder, outfile)
 indikatordata <- norgast::norgastBeregnIndikator(RegDataAll, "norgast_oppf_ettr_180d")
-norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
-                     N = indikatordata$N,
-                     andeler = indikatordata$andeler,
-                     decreasing = indikatordata$decreasing,
-                     terskel = indikatordata$terskel,
-                     minstekrav = indikatordata$minstekrav,
-                     maal = indikatordata$maal,
-                     utvalgTxt = indikatordata$utvalgTxt,
-                     tittel = indikatordata$tittel,
-                     # skriftStr = input$skriftStr,
-                     # lavDG = graaUt_lever,
-                     maalretn = indikatordata$maalretn,
-                     prikktall = FALSE,
-                     pst_kolonne = TRUE,
-                     outfile = outfile)
+norgastPlotIndikator(
+  AntTilfeller = indikatordata$AntTilfeller,
+  N = indikatordata$N,
+  andeler = indikatordata$andeler,
+  decreasing = indikatordata$decreasing,
+  terskel = indikatordata$terskel,
+  minstekrav = indikatordata$minstekrav,
+  maal = indikatordata$maal,
+  utvalgTxt = indikatordata$utvalgTxt,
+  tittel = indikatordata$tittel,
+  # skriftStr = input$skriftStr,
+  # lavDG = graaUt_lever,
+  maalretn = indikatordata$maalretn,
+  prikktall = FALSE,
+  pst_kolonne = TRUE,
+  outfile = outfile)
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
-  norgastPlotIndikator(AntTilfeller = indikatordata$AntTilfeller,
-                       N = indikatordata$N,
-                       andeler = indikatordata$andeler,
-                       decreasing = indikatordata$decreasing,
-                       terskel = indikatordata$terskel,
-                       minstekrav = indikatordata$minstekrav,
-                       maal = indikatordata$maal,
-                       utvalgTxt = indikatordata$utvalgTxt,
-                       tittel = indikatordata$tittel,
-                       # skriftStr = input$skriftStr,
-                       # lavDG = graaUt_lever,
-                       maalretn = indikatordata$maalretn,
-                       prikktall = FALSE,
-                       pst_kolonne = TRUE,
-                       outfile = outfile)
+  norgastPlotIndikator(
+    AntTilfeller = indikatordata$AntTilfeller,
+    N = indikatordata$N,
+    andeler = indikatordata$andeler,
+    decreasing = indikatordata$decreasing,
+    terskel = indikatordata$terskel,
+    minstekrav = indikatordata$minstekrav,
+    maal = indikatordata$maal,
+    utvalgTxt = indikatordata$utvalgTxt,
+    tittel = indikatordata$tittel,
+    # skriftStr = input$skriftStr,
+    # lavDG = graaUt_lever,
+    maalretn = indikatordata$maalretn,
+    prikktall = FALSE,
+    pst_kolonne = TRUE,
+    outfile = outfile)
 }
 
 valgtVar <- "straaling"
 outfile <- "bestraalt.pdf"
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(
-  RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  RegDataAll, valgtVar = valgtVar,
+  outfile=outfile, tittel=tittel, width=width,
+  height=height, decreasing=decreasing,
+  terskel=terskel, minstekrav = minstekrav,
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
   lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
@@ -985,8 +1068,10 @@ norgastIndikator_rapporteket(
 if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
-    RegDataAll, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    RegDataAll, valgtVar = valgtVar,
+    outfile=outfile, tittel=tittel, width=width,
+    height=height, decreasing=decreasing,
+    terskel=terskel, minstekrav = minstekrav,
     skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
     lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
@@ -1006,8 +1091,10 @@ aux <- RegDataAll |>
 outfile <- "bestraalt_hf.pdf"
 outfile <- paste0(figfolder, outfile)
 norgastIndikator_rapporteket(
-  aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-  height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+  aux, valgtVar = valgtVar, outfile=outfile,
+  tittel=tittel, width=width,
+  height=height, decreasing=decreasing,
+  terskel=terskel, minstekrav = minstekrav,
   skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
   minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
   lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
@@ -1017,7 +1104,8 @@ if (annet_format_ut) {
   outfile <- paste0(substr(outfile, 1, nchar(outfile)-3), ut_format)
   norgastIndikator_rapporteket(
     aux, valgtVar = valgtVar, outfile=outfile, tittel=tittel, width=width,
-    height=height, decreasing=decreasing, terskel=terskel, minstekrav = minstekrav,
+    height=height, decreasing=decreasing,
+    terskel=terskel, minstekrav = minstekrav,
     skriftStr=skriftStr, pktStr=pktStr, legPlass=legPlass,
     minstekravTxt=minstekravTxt, maalTxt=maalTxt, graaUt=graaUt,
     lavDGtekst = dg_tekst, inkl_konf=inkl_konf,
@@ -1053,10 +1141,6 @@ if (annet_format_ut) {
 
 <<'PROM-data', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 
-# proms <- rapbase::loadRegData(registryName = "data",
-#                               query = "SELECT * FROM proms")
-# proms_45_90 <- proms |> dplyr::filter(
-#   REGISTRATION_TYPE %in% c("QOR_15_45D_POST_OP", "QOR_15_90D_POST_OP"))
 qor15 <- rapbase::loadRegData(registryName = "data",
                               query = "SELECT * FROM qor15")
 qor15_45d_90d <- qor15 |> dplyr::filter(
@@ -1084,80 +1168,10 @@ proms_regdata_lang <- merge(
         Q6, Q7, Q8, Q9, Q10,
         Q11, Q12, Q13, Q14, Q15)))
   )
-# Proms_oppsummering <- proms_regdata_lang |>
-#   summarise(
-#     sumscore = sum(sumscore),
-#     N = n(),
-#     .by = c(Sykehusnavn, TIMING)
-#   ) |> janitor::adorn_totals() |>
-#   mutate(gjsn_sumscore = sumscore/N)
 
-## Utflatet
-# qor15_45d_90d_flat <- merge(
-#   qor15_45d_90d |> dplyr::filter(TIMING == 45),
-#   qor15_45d_90d |> dplyr::filter(TIMING == 90),
-#   by = "MCEID",
-#   suffixes = c("_45", "_90")
-# )
-#
-# proms_regdata_flat <- merge(
-#   RegData |> select(ForlopsID, OpDato, Aar, Sykehusnavn,
-#                     Hoveddiagnose, Operasjonsgrupper),
-#   qor15_45d_90d_flat,
-#   by.x = "ForlopsID", by.y = "MCEID"
-# ) |> filter(Aar == rap_aar ) |>
-#   rowwise() |>
-#   mutate(
-#     n_missing_45 = sum(
-#       is.na(c_across(
-#         c(Q1_45, Q2_45, Q3_45, Q4_45, Q5_45,
-#           Q6_45, Q7_45, Q8_45, Q9_45, Q10_45,
-#           Q11_45, Q12_45, Q13_45, Q14_45, Q15_45)))),
-#     n_missing_90 = sum(
-#       is.na(c_across(
-#         c(Q1_90, Q2_90, Q3_90, Q4_90, Q5_90,
-#           Q6_90, Q7_90, Q8_90, Q9_90, Q10_90,
-#           Q11_90, Q12_90, Q13_90, Q14_90, Q15_90))))) |>
-#   ungroup() |>
-#   filter(n_missing_45 == 0,
-#          n_missing_90 == 0) |>
-#   mutate(
-#     sumscore_45 = rowSums(across(
-#       c(Q1_45, Q2_45, Q3_45, Q4_45, Q5_45,
-#         Q6_45, Q7_45, Q8_45, Q9_45, Q10_45,
-#         Q11_45, Q12_45, Q13_45, Q14_45, Q15_45))),
-#     sumscore_90 = rowSums(across(
-#       c(Q1_90, Q2_90, Q3_90, Q4_90, Q5_90,
-#         Q6_90, Q7_90, Q8_90, Q9_90, Q10_90,
-#         Q11_90, Q12_90, Q13_90, Q14_90, Q15_90)))
-#   )
-#
-# Proms_oppsummering <- proms_regdata |>
-#   summarise(
-#     sumscore_45 = sum(sumscore_45),
-#     sumscore_90 = sum(sumscore_90),
-#     N = n(),
-#     .by = Sykehusnavn
-#   ) |> janitor::adorn_totals() |>
-#   mutate(sumscore_45 = sumscore_45/N,
-#          sumscore_90 = sumscore_90/N,
-#          differanse = sumscore_45 - sumscore_90)
-#
-# write.csv2(Proms_oppsummering, "Proms_oppsummering.csv",
-#            row.names = F, fileEncoding = "Latin1")
-
-library(dplyr)
 library(ggplot2)
-library(tidyr)
-
-# Long format
-# df_long <- df %>%
-#   pivot_longer(cols = everything(),
-#                names_to = "tid",
-#                values_to = "score")
 
 df_long <- proms_regdata_lang
-
 
 # Beregn også N
 summary_df <- df_long |>
@@ -1193,13 +1207,18 @@ p <- ggplot(summary_df, aes(x = tid, y = mean, fill = tid)) +
     plot.margin = margin(t = 20, r = 10, b = 10, l = 10)
   )
 
-ggsave("C:/Users/kth200/regdata/norgast/aarsrapp2025/QOR_nasjonalt.pdf",
-       plot = p, width = 6, height = 6)
+ggsave(
+  paste0(figfolder, "QOR_nasjonalt.pdf"),
+  plot = p, width = 6, height = 6)
+ggsave(
+  paste0(figfolder, "QOR_nasjonalt.svg"),
+  plot = p, width = 6, height = 6)
 
 summary_df_sh <- df_long |>
   rename(tid = TIMING) |>
   mutate(tid = as.character(tid)) |>
-  mutate(Sykehus = ifelse(length(Sykehusnavn) < 5, "Resten", Sykehusnavn),
+  mutate(Sykehus = ifelse(length(Sykehusnavn) < 5,
+                          "Resten", Sykehusnavn),
          .by = c(Sykehusnavn, tid)) |>
   mutate(Sykehus = ifelse(length(Sykehus) < 10, "Resten", Sykehus),
          .by = Sykehus) |>
@@ -1243,7 +1262,6 @@ summary_df_sh_total <- summary_df_sh_total |>
     )
   )
 
-
 p <- ggplot(summary_df_sh_total,
             aes(x = mean, y = Sykehus, fill = gruppe)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.6) +
@@ -1279,10 +1297,198 @@ p <- ggplot(summary_df_sh_total,
                               margin = margin(b = 15))
   )
 
-ggsave("C:/Users/kth200/regdata/norgast/aarsrapp2025/QOR_sykehus.pdf",
+ggsave(paste0(figfolder, "QOR_sykehus.pdf"),
+       plot = p, width = 9, height = 9)
+ggsave(paste0(figfolder, "QOR_sykehus.svg"),
        plot = p, width = 9, height = 9)
 
+
+## Svarprosent PROM
+proms <- rapbase::loadRegData(registryName = "data",
+                              query = "SELECT * FROM proms")
+
+proms_45_90 <- proms |> dplyr::filter(
+  REGISTRATION_TYPE %in% c("QOR_15_45D_POST_OP",
+                           "QOR_15_90D_POST_OP")) |>
+  merge(
+    RegData |> select(ForlopsID, Op_gr, ncsp_lowercase,
+                      Aar, OpDato, AvdRESH, Sykehusnavn),
+    by.x = "MCEID", by.y = "ForlopsID", all.x = T) |>
+  filter(Aar == rap_aar) |>
+  mutate(fulgtopp = ifelse(STATUS == 3, 1, 0))
+
+#nasjonal
+summary_df <- proms_45_90 |>
+  rename(tid = REGISTRATION_TYPE) |>
+  mutate(tid = as.character(tid)) |>
+  summarise(
+    andel = sum(fulgtopp)/n()*100,
+    n = n(),
+    .by = tid
+  )
+
+# Plot
+p <- ggplot(summary_df, aes(x = tid, y = andel, fill = tid)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(y = andel * 0.05, label = paste0("N = ", n)),
+            color = "white", size = 4) +
+  scale_fill_manual(values = c("#2C7FB8", "#2C7FB8")) +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_discrete(labels = c(
+    "QOR_15_45D_POST_OP" = "45 dager",
+    "QOR_15_90D_POST_OP" = "90 dager"
+  )) +
+  labs(
+    x = "",
+    y = "Andel",
+    title = "Svarprosent PROM"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 16, hjust = 0.5,
+                              margin = margin(b = 15)),
+    plot.margin = margin(t = 20, r = 10, b = 10, l = 10)
+  )
+
+ggsave(
+  paste0(figfolder, "SvarprosentPROM_nasjonalt.pdf"),
+  plot = p, width = 6, height = 6)
+ggsave(
+  paste0(figfolder, "SvarprosentPROM_nasjonalt.svg"),
+  plot = p, width = 6, height = 6)
+
+#sykehusvis
+summary_df_sh <- proms_45_90 |>
+  rename(tid = REGISTRATION_TYPE) |>
+  mutate(tid = as.character(tid)) |>
+  mutate(Sykehus = ifelse(length(Sykehusnavn) < 5,
+                          "Resten", Sykehusnavn),
+         .by = c(Sykehusnavn, tid)) |>
+  mutate(Sykehus = ifelse(length(Sykehus) < 10, "Resten", Sykehus),
+         .by = Sykehus) |>
+  summarise(
+    andel = sum(fulgtopp)/n()*100,
+    # se = sd(score)/sqrt(n()),
+    n = n(),
+    # lower = mean - 1.96 * se,
+    # upper = mean + 1.96 * se,
+    .by = c(Sykehus, tid)
+  )
+# Total (alle sykehus samlet)
+total_df <- proms_45_90 |>
+  rename(tid = REGISTRATION_TYPE) |>
+  mutate(tid = as.character(tid)) |>
+  mutate(Sykehus = ifelse(length(Sykehusnavn) < 5,
+                          "Resten", Sykehusnavn),
+         .by = c(Sykehusnavn, tid)) |>
+  mutate(Sykehus = ifelse(length(Sykehus) < 10, "Resten", Sykehus),
+         .by = Sykehus) |>
+  summarise(
+    andel = sum(fulgtopp)/n()*100,
+    # se = sd(score)/sqrt(n()),
+    n = n(),
+    # lower = mean - 1.96 * se,
+    # upper = mean + 1.96 * se,
+    .by = tid
+  ) |>
+  mutate(Sykehus = "Norge")
+
+# Kombiner med eksisterende summary
+summary_df_sh_total <- bind_rows(summary_df_sh, total_df)
+
+order_90 <- summary_df_sh_total |>
+  dplyr::filter(tid == "QOR_15_90D_POST_OP") |>
+  dplyr::arrange(dplyr::desc(andel)) |>
+  dplyr::pull(Sykehus)
+
+summary_df_sh_total <- summary_df_sh_total |>
+  dplyr::mutate(
+    Sykehus = factor(Sykehus, levels = order_90),
+    gruppe = dplyr::case_when(
+      Sykehus == "Norge" & tid == "QOR_15_45D_POST_OP" ~ "Norge_45",
+      Sykehus == "Norge" & tid == "QOR_15_90D_POST_OP" ~ "Norge_90",
+      TRUE ~ tid
+    )
+  )
+
+p <- ggplot(summary_df_sh_total,
+            aes(x = andel, y = Sykehus, fill = gruppe)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  # geom_errorbarh(aes(xmin = lower, xmax = upper),
+  #                position = position_dodge(width = 0.7),
+  #                height = 0.2) +
+  geom_text(aes(x = andel * 0.05, label = paste0("N=", n)),
+            position = position_dodge(width = 0.7),
+            color = "white", size = 3.5) +
+  scale_fill_manual(values = c(
+    "QOR_15_45D_POST_OP" = "#2C7FB8",
+    "QOR_15_90D_POST_OP" = "#7FCDBB",
+    "Norge_45" = "#084081",  # mørk blå
+    "Norge_90" = "#41B6C4"   # mørkere turkis
+  ),
+  labels = c(
+    "QOR_15_45D_POST_OP" = "45 dager",
+    "QOR_15_90D_POST_OP" = "90 dager",
+    "Norge_45" = "Norge 45d",
+    "Norge_90" = "Norge 90d"
+  ),
+  name = "") +
+  scale_x_continuous(expand = c(0, 0)) +
+  labs(
+    x = "Andel",
+    y = "",
+    title = "Svarprosent PROM per sykehus etter 45 og 90 dager"
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "top",
+    plot.title = element_text(size = 16, hjust = 0.5,
+                              margin = margin(b = 15))
+  )
+
+ggsave(paste0(figfolder, "svarprosent_sykehus.pdf"),
+       plot = p, width = 9, height = 9)
+ggsave(paste0(figfolder, "svarprosent_sykehus.svg"),
+       plot = p, width = 9, height = 9)
+
+
+# qor15_45d_90d <- qor15 |> dplyr::filter(
+#   TIMING %in% c(45, 90),
+#   STATUS == 1)
+
+# svar_prom <- merge(
+#   proms_45_90 |> select(MCEID, REGISTRATION_TYPE),
+#   qor15_45d_90d |> select(),
+#   by = "MCEID", all = T)
+#
+
 @
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}QOR_nasjonalt.pdf}
+\caption{QOR\_nasjonalt.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}QOR_sykehus.pdf}
+\caption{QOR\_sykehus.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}SvarprosentPROM_nasjonalt.pdf}
+\caption{SvarprosentPROM\_nasjonalt.pdf}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\Sexpr{figstr}\textwidth]{\Sexpr{figfolder}svarprosent_sykehus.pdf}
+\caption{svarprosent\_sykehus.pdf}
+\end{figure}
+
 
 % # <<'DG-tabell', results='asis', echo=FALSE, eval=T, warning=FALSE>>=
 % # DG <- read.csv2(system.file("extdata/dg2024.csv", package = "norgast"),

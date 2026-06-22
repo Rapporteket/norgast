@@ -382,3 +382,89 @@ knitr::kable(
 ```
 
 
+```{r}
+#| label: reop-norgast
+#| echo: false
+#| message: false
+#| warning: false
+
+
+reop_npr <- readr::read_csv2(
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil.csv",
+  locale = locale(encoding = "UTF-8"))
+
+replacements <- c(
+  "\x9b" = "ø",
+  "\x9d" = "Ø",
+  "\x86" = "å",
+  "\x8f" = "Å",
+  "\x91" = "æ",
+  "\x92" = "Æ"
+)
+for (pat in names(replacements)) {
+  reop_npr$sykehus_reop <- 
+    gsub(pat, replacements[pat], reop_npr$sykehus_reop, 
+         useBytes = TRUE)
+}
+
+reop_npr <- reop_npr |> 
+  mutate(Anestesi = "WDAG" %in% substr(pros, 1, 4),
+         .by = c(lopenr, dato_indexoperasjon, prosdato_reop)) |> 
+  arrange(lopenr, dato_indexoperasjon, prosdato_reop)
+
+reop_npr |> 
+  mutate(
+    Anestesi = ifelse(Anestesi, "anestesi", "ikke_anestesi")) |> 
+  count(Anestesi, pros) |> 
+  tidyr::pivot_wider(names_from = Anestesi, 
+                     values_from = n, values_fill = 0) |> 
+  mutate(Total = anestesi + ikke_anestesi) |> 
+  arrange(-Total) |> 
+  janitor::adorn_totals() |> 
+  write.csv2("tab_pros_anestesi.csv", row.names = F,
+             fileEncoding = "Latin1")
+
+reop_npr |> 
+  count(innmatehast_reop, pros) |> 
+  tidyr::pivot_wider(names_from = innmatehast_reop, 
+                     values_from = n, values_fill = 0) |> 
+  mutate(Total = Planlagt + Akutt) |> 
+  arrange(-Total) |> 
+  janitor::adorn_totals() |> 
+  write.csv2("tab_pros_hgrad.csv", row.names = F,
+             fileEncoding = "Latin1")
+
+tab_pros <- table(reop_npr |> select(pros, Anestesi), useNA = 'ifany') |> 
+  addmargins() |> as.data.frame.matrix()
+
+
+RegData <- norgast::NorgastHentData()$RegData |> 
+  norgast::NorgastPreprosess() |> 
+  dplyr::filter(Op_gr %in% c(1:8, 14),
+                Aar %in% 2023:2025) |> 
+  distinct(PasientID, OpDato, .keep_all = TRUE)
+
+forlop <- merge(
+  reop_npr,
+  RegData |> select(PasientID, ForlopsID, ncsp_lowercase, OpDato),
+  by.x = c("lopenr", "dato_indexoperasjon"), 
+  by.y = c("PasientID", "OpDato"), all.x = TRUE
+)  |> 
+  relocate(ncsp_lowercase) 
+
+
+
+
+# telling1 <- reop_npr |> 
+#   dplyr::count(lopenr, dato_indexoperasjon)
+# telling2 <- forlop |> 
+#   dplyr::count(lopenr, dato_indexoperasjon)
+# telling <- merge(telling1, telling2, 
+#                  by = c("lopenr", "dato_indexoperasjon")) |> 
+#   filter(n.x != n.y)
+# tmp <- forlop |> 
+#   filter(lopenr == 67913 & dato_indexoperasjon == "2024-05-22") 
+# tmp2 <- RegData |> dplyr::count(PasientID, OpDato, ncsp_lowercase) |> 
+#   filter(n>1)
+
+```
