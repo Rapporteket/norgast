@@ -388,9 +388,13 @@ knitr::kable(
 #| message: false
 #| warning: false
 
+ncsp_koder <- readxl::read_xlsx(
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK Alle prosedyrekoder 2026 Publisert 24.10.25.xlsx", sheet = 2)
+
 reop_npr <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil.csv",
-  locale = locale(encoding = "UTF-8"))
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil_tillegg1.csv",
+  locale = readr::locale(encoding = "UTF-8"))
+
 
 replacements <- c(
   "\x9b" = "ø",
@@ -409,7 +413,10 @@ for (pat in names(replacements)) {
 reop_npr <- reop_npr |> 
   mutate(Anestesi = "WDAG" %in% substr(pros, 1, 4),
          .by = c(lopenr, dato_indexoperasjon, prosdato_reop)) |> 
-  arrange(lopenr, dato_indexoperasjon, prosdato_reop)
+  mutate(ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+    match(pros, ncsp_koder$Kode)]) |> 
+  arrange(lopenr, dato_indexoperasjon, prosdato_reop, 
+          pros, ncsp_tekst)
 
 
 # tmp <- reop_npr |> filter(Anestesi==1) |> 
@@ -428,30 +435,40 @@ reop_npr <- reop_npr |>
 #   mutate(ncsp = RegData$Hovedoperasjon[
 #   match(pros, toupper(sub(" .*", "", RegData$Hovedoperasjon)))])
 
-# reop_npr |> 
-#   mutate(
-#     Anestesi = ifelse(Anestesi, "anestesi", "ikke_anestesi")) |> 
-#   count(Anestesi, pros) |> 
-#   tidyr::pivot_wider(names_from = Anestesi, 
-#                      values_from = n, values_fill = 0) |> 
-#   mutate(Total = anestesi + ikke_anestesi) |> 
-#   arrange(-Total) |> 
-#   janitor::adorn_totals() |> 
-#   write.csv2("tab_pros_anestesi.csv", row.names = F,
-#              fileEncoding = "Latin1")
+reop_npr |>
+  mutate(
+    Anestesi = ifelse(Anestesi, "anestesi", "ikke_anestesi")) |>
+  count(Anestesi, pros) |>
+  tidyr::pivot_wider(names_from = Anestesi,
+                     values_from = n, values_fill = 0) |>
+  mutate(
+    Total = anestesi + ikke_anestesi,
+    ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+      match(pros, ncsp_koder$Kode)]) |>
+  arrange(-Total) |>
+  janitor::adorn_totals() |>
+  relocate(pros, ncsp_tekst) |> 
+  write.csv2(
+    "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_anestesi.csv", row.names = F,
+    fileEncoding = "Latin1")
 
-# reop_npr |> 
-#   count(innmatehast_reop, pros) |> 
-#   tidyr::pivot_wider(names_from = innmatehast_reop, 
-#                      values_from = n, values_fill = 0) |> 
-#   mutate(Total = Planlagt + Akutt) |> 
-#   arrange(-Total) |> 
-#   janitor::adorn_totals() |> 
-#   write.csv2("tab_pros_hgrad.csv", row.names = F,
-#              fileEncoding = "Latin1")
+reop_npr |>
+  count(innmatehast_reop, pros) |>
+  tidyr::pivot_wider(names_from = innmatehast_reop,
+                     values_from = n, values_fill = 0) |>
+  mutate(
+    Total = Planlagt + Akutt,
+    ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+      match(pros, ncsp_koder$Kode)]) |>
+  arrange(-Total) |>
+  janitor::adorn_totals() |>
+  relocate(pros, ncsp_tekst) |> 
+  write.csv2(
+    "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_hgrad.csv", row.names = F,
+    fileEncoding = "Latin1")
 
-# tab_pros <- table(reop_npr |> select(pros, Anestesi), 
-#                   useNA = 'ifany') |> 
+# tab_pros <- table(reop_npr |> select(pros, Anestesi),
+#                   useNA = 'ifany') |>
 #   addmargins() |> as.data.frame.matrix()
 
 
@@ -485,13 +502,14 @@ ncsp_reop <- read.csv2(
 ) |> filter(!is.na(ACCORDION.4)) # fjern ugyldig linje
 
 reop_npr <- merge(reop_npr, ncsp_reop, 
-                  by.x = "pros", by.y = "NCSP_code") |> 
+                  by.x = "pros", by.y = "NCSP_code", all.x = T) |> 
   mutate(
     relap_npr_v1 = ACCORDION.4,
     relap_npr_v2 = ACCORDION.4 & 
       !(Informasjon %in% c("Ikke gastro", "Neppe komplikasjon", 
                            "Neppe reoperasjon for komplikasjon"))
-  )
+  ) |> 
+  relocate(pros, ncsp_tekst)
 
 relap_npr_forlop = reop_npr |> 
   summarise(
@@ -558,6 +576,51 @@ write.csv2(
   relap_npr_norgast, 
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/relap_npr_norgast.csv", row.names = F,
   fileEncoding = "Latin1")
+
+
+telling_ncsp <- reop_npr |> 
+  count(pros, ncsp_tekst) |> 
+  arrange(-n) |> 
+  janitor::adorn_totals()
+
+write.csv2(
+  telling_ncsp, 
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/telling_ncsp.csv", row.names = F,
+  fileEncoding = "Latin1")
+
+
+
+fid <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
+  colClasses = c("integer", "character")) |>
+  dplyr::filter(PID %in% RegData$PasientID) |>
+  dplyr::rename(PasientID = PID,
+                Fnr = SSN)
+
+
+relap_npr_norgast <- merge(
+  RegData |> select(PasientID, ForlopsID, 
+                    ncsp_lowercase, OpDato,
+                    ReLapNarkose, OppfReLapNarkose,
+                    Sykehusnavn),
+  relap_npr_forlop, 
+  by.x = c("PasientID", "OpDato"),
+  by.y = c("lopenr", "dato_indexoperasjon"),
+  all = T
+) |> 
+  mutate(
+    relap_npr_v1 = ifelse(is.na(relap_npr_v1), 0, relap_npr_v1),
+    relap_npr_v2 = ifelse(is.na(relap_npr_v2), 0, relap_npr_v2),
+    relap_npr_v3 = ifelse(is.na(relap_npr_v3), 0, relap_npr_v3),
+    relap_npr_v4 = ifelse(is.na(relap_npr_v4), 0, relap_npr_v4),
+    relap_npr_v5 = ifelse(is.na(relap_npr_v5), 0, relap_npr_v5)
+  ) |> 
+  merge(fid, by = "PasientID") |> 
+  filter(ReLapNarkose & !relap_npr_v5)
+
+
+tmp <- relap_npr_norgast |> filter(
+  Sykehusnavn == "UNN-Tromsø")
 
 
 #|> 
