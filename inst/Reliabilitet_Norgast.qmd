@@ -7,13 +7,26 @@ format:
 ---
 
 ## Formål
-Formålet med prosjektet er ...
+NORGAST skal undersøke inter-rater reliabilitet, om informasjon/spørsmål i NORGAST forstås og registreres likt av de som registrerer i NORGAST. 
 
 ## Bakgrunn
+Norsk register for gastrokirurgi (NORGAST) er et nasjonalt medisinsk kvalitetsregister opprettet i 2014, med nasjonal status fra 2015 (1, 2). Registerets formål er å bedre kvaliteten på kirurgisk behandling av sykdommer i fordøyelsesorganene, ved at opplysningene i registeret bl.a. brukes til statistikk, analyser og forskning (1).
+God kvalitet på innsamlede data er viktig for å oppnå målsettingen med medisinske kvalitetsregistre. Det er også et krav å monitorere og/eller undersøke ulike dimensjoner ved datakvalitet for nasjonale medisinske kvalitetsregistre. Et aspekt av datakvalitet er grad av samsvar, «reliabilitet». Det vil si at vi undersøker om samme resultat oppnås når samme data registreres flere ganger. Inter-rater-reliabilitet måler samsvar mellom ulike registratorer. 
+Det kan forekomme spørsmål som ikke er egnet til å frembringe de svar som er ønsket, eller som kan være lettere å misforstå enn andre. Personell som registrerer data i NORGAST kan har ulik yrkesbakgrunn og erfaring, som kan føre til ulik forståelse av hva som skal registreres.  Det er derfor ønskelig å gjøre en inter-rater-reliabilitets-analyse. Vi ønsker å identifisere grad av enighet i registreringene og om det er noen variabler som utpeker seg som problematiske.
 
 
 ## Metode
+Det vil gjennomføres en inter-rater-reliabilitetsstudie, der registrarer i NORGAST registrerer de samme casene for å se på grad av samsvar i besvarelsene.
+Fire caser (fiktive pasienter) sendes ut til alle som har aktiv brukertilgang for registrering i NORGAST. 
 
+Gjennomføring: 
+1.	Det ble opprettet en egen studiedatabase (reliabilitetsdatabasen) fra en egen nettside: https://norgast-reliabilitet.azurewebsit, es.net/norgast/
+Denne er utformet likt NORGAST databasen. Casene registreres i denne testdatabasen av hver enkelt registrar.
+2.	Brukerne logger inn med brukernavn/passord som er spesifikt for denne studien i «reliabilitetsdatabasen». Deltakerne mottok brukernavn/passord ved oppstart av studien. 
+3.	Registrarer i NORGAST registrerte de fiktive casene i løpet av høsten 2025. 
+4.	Det registreres en fasit på alle casene i samme database, blindet for resultater fra andre. 
+5.	Etter ferdig innregistrering analyseres data ved å måle Observert samsvar angitt i prosent for hver variabel. Observert samsvar beregnes ved å dele antallet besvarelser der deltakerne registrerte likt svar, på det totale antallet besvarelser for variabelen
+6.	Basert på resultatene, definerer vi videre behov for tiltak og undersøkelser. 
 
 ## Resultater
 
