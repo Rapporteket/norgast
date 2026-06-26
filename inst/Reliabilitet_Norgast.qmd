@@ -405,7 +405,7 @@ ncsp_koder <- readxl::read_xlsx(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK Alle prosedyrekoder 2026 Publisert 24.10.25.xlsx", sheet = 2)
 
 reop_npr <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil_tillegg1.csv",
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil_tillegg2.csv",
   locale = readr::locale(encoding = "UTF-8"))
 
 
