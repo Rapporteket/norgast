@@ -401,6 +401,8 @@ knitr::kable(
 #| message: false
 #| warning: false
 
+library(dplyr)
+
 ncsp_koder <- readxl::read_xlsx(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK Alle prosedyrekoder 2026 Publisert 24.10.25.xlsx", sheet = 2)
 
@@ -432,83 +434,12 @@ reop_npr <- reop_npr |>
           pros, ncsp_tekst)
 
 
-# tmp <- reop_npr |> filter(Anestesi==1) |> 
-#   summarise(N = n(), .by = pros) |> 
-#   arrange(-N)
-# tmp2 <- reop_npr |> filter(Anestesi==1) |> 
-#   summarise(N = length(pros), 
-#             ncsp = paste0(pros, collapse = ","),
-#             .by = c(lopenr, dato_indexoperasjon)) |> 
-#   arrange(-N) |> filter(N==1)
-
-
-# RegData <- norgast::NorgastHentData()$RegData |> 
-#   norgast::NorgastPreprosess()
-# tmp <- reop_npr |> 
-#   mutate(ncsp = RegData$Hovedoperasjon[
-#   match(pros, toupper(sub(" .*", "", RegData$Hovedoperasjon)))])
-
-reop_npr |>
-  mutate(
-    Anestesi = ifelse(Anestesi, "anestesi", "ikke_anestesi")) |>
-  count(Anestesi, pros) |>
-  tidyr::pivot_wider(names_from = Anestesi,
-                     values_from = n, values_fill = 0) |>
-  mutate(
-    Total = anestesi + ikke_anestesi,
-    ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
-      match(pros, ncsp_koder$Kode)]) |>
-  arrange(-Total) |>
-  janitor::adorn_totals() |>
-  relocate(pros, ncsp_tekst) |> 
-  write.csv2(
-    "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_anestesi.csv", row.names = F,
-    fileEncoding = "Latin1")
-
-reop_npr |>
-  count(innmatehast_reop, pros) |>
-  tidyr::pivot_wider(names_from = innmatehast_reop,
-                     values_from = n, values_fill = 0) |>
-  mutate(
-    Total = Planlagt + Akutt,
-    ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
-      match(pros, ncsp_koder$Kode)]) |>
-  arrange(-Total) |>
-  janitor::adorn_totals() |>
-  relocate(pros, ncsp_tekst) |> 
-  write.csv2(
-    "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_hgrad.csv", row.names = F,
-    fileEncoding = "Latin1")
-
-# tab_pros <- table(reop_npr |> select(pros, Anestesi),
-#                   useNA = 'ifany') |>
-#   addmargins() |> as.data.frame.matrix()
-
-
 RegData <- norgast::NorgastHentData()$RegData |> 
   norgast::NorgastPreprosess() |> 
   dplyr::filter(Op_gr %in% c(1:8, 14),
                 Aar %in% 2023:2025) |> 
   distinct(PasientID, OpDato, .keep_all = TRUE)
 
-# levert_npr <- read.csv2(
-#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/aktivitetsdata_beriking_norgast.csv") |> 
-#   mutate(Aar = as.Date(OperasjonsDato) |> lubridate::year()) |> 
-#   dplyr::filter(Aar %in% 2023:2025) |> 
-#   distinct(PasientID, OperasjonsDato, .keep_all = TRUE)
-# tmp <- reop_npr |> distinct(lopenr, dato_indexoperasjon, 
-#                             .keep_all = TRUE)
-
-# forlop <- merge(
-#   reop_npr,
-#   RegData |> select(PasientID, ForlopsID, 
-#                     ncsp_lowercase, OpDato,
-#                     ReLapNarkose, OppfReLapNarkose,
-#                     Sykehusnavn),
-#   by.x = c("lopenr", "dato_indexoperasjon"), 
-#   by.y = c("PasientID", "OpDato"), all.x = TRUE
-# )  |> 
-#   relocate(ncsp_lowercase) 
 
 ncsp_reop <- read.csv2(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/2025 ACC4 medkodetekst_gradert_ Handlest KL_avklart.csv"
@@ -534,11 +465,25 @@ relap_npr_forlop = reop_npr |>
     .by = c(lopenr, dato_indexoperasjon)
   ) 
 
+relap_npr_norgast_alle <- merge(
+  RegData |> 
+    mutate(ncsp_index = toupper(ncsp_lowercase)) |> 
+    select(PasientID, ForlopsID, 
+                    ncsp_index, OpDato,
+                    ReLapNarkose, OppfReLapNarkose,
+                    Sykehusnavn, AnestesiStartKl),
+  reop_npr, 
+  by.x = c("PasientID", "OpDato"),
+  by.y = c("lopenr", "dato_indexoperasjon"),
+  all = T
+) |> relocate("PasientID", "OpDato", "ReLapNarkose", "ncsp_index", "prosdato_reop",
+              "pros", "ncsp_tekst")
+
 relap_npr_norgast <- merge(
   RegData |> select(PasientID, ForlopsID, 
                     ncsp_lowercase, OpDato,
                     ReLapNarkose, OppfReLapNarkose,
-                    Sykehusnavn),
+                    Sykehusnavn, AnestesiStartKl),
   relap_npr_forlop, 
   by.x = c("PasientID", "OpDato"),
   by.y = c("lopenr", "dato_indexoperasjon"),
@@ -587,9 +532,9 @@ relap_npr_norgast <- merge(
 
 write.csv2(
   relap_npr_norgast, 
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/relap_npr_norgast.csv", row.names = F,
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/relap_npr_norgast.csv",
+  row.names = F,
   fileEncoding = "Latin1")
-
 
 telling_ncsp <- reop_npr |> 
   count(pros, ncsp_tekst) |> 
@@ -598,7 +543,8 @@ telling_ncsp <- reop_npr |>
 
 write.csv2(
   telling_ncsp, 
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/telling_ncsp.csv", row.names = F,
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/telling_ncsp.csv", 
+  row.names = F,
   fileEncoding = "Latin1")
 
 
@@ -636,6 +582,74 @@ tmp <- relap_npr_norgast |> filter(
   Sykehusnavn == "UNN-Tromsø")
 
 
+# reop_npr |>
+#   mutate(
+#     Anestesi = ifelse(Anestesi, "anestesi", "ikke_anestesi")) |>
+#   count(Anestesi, pros) |>
+#   tidyr::pivot_wider(names_from = Anestesi,
+#                      values_from = n, values_fill = 0) |>
+#   mutate(
+#     Total = anestesi + ikke_anestesi,
+#     ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+#       match(pros, ncsp_koder$Kode)]) |>
+#   arrange(-Total) |>
+#   janitor::adorn_totals() |>
+#   relocate(pros, ncsp_tekst) |> 
+#   write.csv2(
+#     "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_anestesi.csv",
+#     row.names = F,
+#     fileEncoding = "Latin1")
+# 
+# reop_npr |>
+#   count(innmatehast_reop, pros) |>
+#   tidyr::pivot_wider(names_from = innmatehast_reop,
+#                      values_from = n, values_fill = 0) |>
+#   mutate(
+#     Total = Planlagt + Akutt,
+#     ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+#       match(pros, ncsp_koder$Kode)]) |>
+#   arrange(-Total) |>
+#   janitor::adorn_totals() |>
+#   relocate(pros, ncsp_tekst) |> 
+#   write.csv2(
+#     "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/tab_pros_hgrad.csv", row.names = F,
+#     fileEncoding = "Latin1")
+
+# levert_npr <- read.csv2(
+#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/aktivitetsdata_beriking_norgast.csv") |> 
+#   mutate(Aar = as.Date(OperasjonsDato) |> lubridate::year()) |> 
+#   dplyr::filter(Aar %in% 2023:2025) |> 
+#   distinct(PasientID, OperasjonsDato, .keep_all = TRUE)
+# tmp <- reop_npr |> distinct(lopenr, dato_indexoperasjon, 
+#                             .keep_all = TRUE)
+
+# forlop <- merge(
+#   reop_npr,
+#   RegData |> select(PasientID, ForlopsID, 
+#                     ncsp_lowercase, OpDato,
+#                     ReLapNarkose, OppfReLapNarkose,
+#                     Sykehusnavn),
+#   by.x = c("lopenr", "dato_indexoperasjon"), 
+#   by.y = c("PasientID", "OpDato"), all.x = TRUE
+# )  |> 
+#   relocate(ncsp_lowercase) 
+
+# tmp <- reop_npr |> filter(Anestesi==1) |> 
+#   summarise(N = n(), .by = pros) |> 
+#   arrange(-N)
+# tmp2 <- reop_npr |> filter(Anestesi==1) |> 
+#   summarise(N = length(pros), 
+#             ncsp = paste0(pros, collapse = ","),
+#             .by = c(lopenr, dato_indexoperasjon)) |> 
+#   arrange(-N) |> filter(N==1)
+
+
+# RegData <- norgast::NorgastHentData()$RegData |> 
+#   norgast::NorgastPreprosess()
+# tmp <- reop_npr |> 
+#   mutate(ncsp = RegData$Hovedoperasjon[
+#   match(pros, toupper(sub(" .*", "", RegData$Hovedoperasjon)))])
+
 #|> 
 # summarise(
 #   begge_v1 = sum(relap_norgast & relap_npr_v1),
@@ -666,5 +680,9 @@ tmp <- relap_npr_norgast |> filter(
 #   filter(lopenr == 67913 & dato_indexoperasjon == "2024-05-22") 
 # tmp2 <- RegData |> dplyr::count(PasientID, OpDato, ncsp_lowercase) |> 
 #   filter(n>1)
+
+# tab_pros <- table(reop_npr |> select(pros, Anestesi),
+#                   useNA = 'ifany') |>
+#   addmargins() |> as.data.frame.matrix()
 
 ```
