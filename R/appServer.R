@@ -41,36 +41,39 @@ appServer <- function(input, output, session) {
 
   shiny::observeEvent(
     shiny::req(user$role()), {
-      if (user$role() != 'SC') {
-        if (tabs_added()) {
-          shiny::removeTab("norgast_app_id", target = "Sykehusvisning")
-          shiny::removeTab("norgast_app_id", target = "Traktplott")
-          shiny::removeTab("norgast_app_id", target = "Indikatorer")
-          tabs_added(FALSE)
-        }
-      } else {
+      if (user$role() == "SC") {
         if (!tabs_added()) {
           shiny::insertTab(
             "norgast_app_id",
             tab = shiny::tabPanel("Sykehusvisning",
-              norgast::sykehusvisning_ui("sykehusvisning_id")),
-            target = "Fordeling", position = "after"
+              norgast::sykehusvisning_ui("sykehusvisning_id"),
+              value = "sykehusvisning_id"),
+            target = "Fordelinger", position = "after"
           )
           shiny::insertTab(
             "norgast_app_id",
             tab = shiny::tabPanel("Traktplott",
-              norgast::traktplot_ui("traktplot_id")),
-            target = "Sykehusvisning", position = "after"
+              norgast::traktplot_ui("traktplot_id"),
+              value = "traktplot_id"),
+            target = "sykehusvisning_id", position = "after"
           )
           shiny::insertTab(
             "norgast_app_id",
             tab = shiny::tabPanel("Indikatorer",
-              norgast::indikatorfig_ui("indikator_id")),
-            target = "Sammenlign utvalg", position = "after"
+              norgast::indikatorfig_ui("indikator_id"),
+              value = "indikator_id"),
+            target = "traktplot_id", position = "after"
           )
           tabs_added(TRUE)
         }
-      }
+      } else {
+        if (tabs_added()) {
+          shiny::removeTab("norgast_app_id", target = "sykehusvisning_id")
+          shiny::removeTab("norgast_app_id", target = "traktplot_id")
+          shiny::removeTab("norgast_app_id", target = "indikator_id")
+          tabs_added(FALSE)
+        }
+      } 
     }
   )
   
