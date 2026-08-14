@@ -3,11 +3,9 @@ on:
   release:
     types: [published]
   push:
-    branches:
-        - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-        - main
+    branches: [ "main" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -18,18 +16,14 @@ jobs:
     name: Push Docker image to Harbor
     runs-on: ubuntu-latest
     env:
-        IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: ${{ github.repository }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: "Dockerfile"
-      - name: R setup
-        uses: r-lib/actions/setup-r@v2
-      - name: Build package (tarball)
-        run: R CMD build .
       - name: Prepare tags
         id: docker_meta
         uses: docker/metadata-action@v6
@@ -54,5 +48,8 @@ jobs:
           file: ./Dockerfile
           tags: ${{ secrets.HARBOR_REGISTRY }}/${{ steps.docker_meta.outputs.tags }}
           push: ${{ github.event_name == 'release' }}
+          pull: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          secrets: |
+            "github_pat=${{ secrets.GITHUB_TOKEN }}"
