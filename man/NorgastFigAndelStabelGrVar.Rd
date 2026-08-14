@@ -19,7 +19,7 @@ NorgastFigAndelStabelGrVar(
   Ngrense = 30,
   lavDG = "",
   ny_anastomose = 99,
-  lavDGtekst = "Dekningsgrad < 60 \%",
+  lavDGtekst = "Dekningsgrad < 70 \%",
   hastegrad = 99,
   icd_kode = "",
   elektiv = 99,
@@ -40,7 +40,8 @@ NorgastFigAndelStabelGrVar(
   skriftStr = 1,
   tilgang_utvidet = "",
   accordion = "",
-  snufarger = TRUE
+  snufarger = TRUE,
+  krgfarger = TRUE
 )
 }
 \arguments{
