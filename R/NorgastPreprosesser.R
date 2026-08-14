@@ -15,6 +15,7 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   RegData$AvdRESH <- as.numeric(RegData$AvdRESH)
   RegData$AvdRESH[RegData$AvdRESH == 4204084] <- 4204126 # Tull med Ringerike
+  RegData$AvdRESH[RegData$AvdRESH == 4204500] <- 4216808 #
   RegData$erMann <- as.numeric(RegData$erMann)
   names(RegData)[which(names(RegData)=='PasientAlder')]<-'Alder'
   if (!behold_kladd) {RegData <- RegData[which(RegData$RegistreringStatus==1),]}
@@ -71,8 +72,6 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
       ncsp_text == "jjb" ~ "Leverreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
         "Distale pankreasreseksjoner",
-      ncsp_text == "jlc" & ncsp_num %in% c(10, 11) ~
-        "Distale pankreasreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(0, 20, 40, 50, 96) ~
         "Andre pankreasreseksjoner",
       ncsp_text == "jlc" & ncsp_num %in% c(30, 31) ~
@@ -94,21 +93,36 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
     )
 
   RegData$Op_gr <- NA
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Distale pankreasreseksjoner")] <- 7
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Andre pankreasreseksjoner")] <- 7 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 8 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Appendektomi")] <- 9 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 10 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 11 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 12 + 1
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Tilbakelegging stomi")] <- 14
-  RegData$Op_gr[which(RegData$Operasjonsgrupper == "Annet")] <- 99
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Kolonreseksjoner")] <- 1
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Rektumreseksjoner")] <- 2
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Øsofagusreseksjoner")] <- 3
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Ventrikkelreseksjoner")] <- 4
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Leverreseksjoner")] <- 5
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Whipples operasjon")] <- 6
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Distale pankreasreseksjoner")] <- 7
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Andre pankreasreseksjoner")] <- 8
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Cholecystektomi")] <- 9
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Appendektomi")] <- 10
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Tynntarmsreseksjon")] <- 11
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Gastric bypass")] <- 12
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Gastric sleeve")] <- 13
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Tilbakelegging stomi")] <- 14
+  RegData$Op_gr[
+    which(RegData$Operasjonsgrupper == "Annet")] <- 99
 
   RegData$Op_gr2 <- 9
   RegData$Op_gr2[intersect(which(RegData$Operasjonsgrupper=='Kolonreseksjoner'), which(RegData$NyAnastomose==1))] <- 1
@@ -174,6 +188,12 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
   RegData$Saarruptur[!(RegData$Tilgang %in% 1:3)] <- NA
 
   #### Inkluder Relaparotomi fra oppfølgingsskjema
+  RegData$ViktigsteFunn <- ifelse(
+    is.na(RegData$ViktigsteFunn),
+    RegData$ANASTOMOTIC_LEAK, RegData$ViktigsteFunn)
+  RegData$OppfViktigsteFunn <- ifelse(
+    is.na(RegData$OppfViktigsteFunn),
+    RegData$OppfANASTOMOTIC_LEAK, RegData$OppfViktigsteFunn)
 
   RegData$OppfReLapNarkose[RegData$OppfStatus!=1] <- NA
   RegData$OppfViktigsteFunn[RegData$OppfStatus!=1] <- NA
@@ -226,6 +246,11 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE)
     RegData$dummy_LEAK == 1, 1, RegData$Anastomoselekkasje)
   RegData$Anastomoselekkasje[RegData$NyAnastomose!=1] <- NA      #########  DISKUTER MED REGISTER !!!!!!!!!!!!!
   RegData$Anastomoselekkasje[is.na(RegData$NyAnastomose)] <- NA  #########  SPESIELT MED TANKE PÅ WHIPPLES !!!!
+
+  RegData$Anastomoselekkasje_alle <- 0
+  RegData$Anastomoselekkasje_alle[RegData$ViktigsteFunn==1] <- 1
+  RegData$Anastomoselekkasje_alle <- ifelse(
+    RegData$dummy_LEAK == 1, 1, RegData$Anastomoselekkasje_alle)
 
   RegData$LapTilgang <- as.numeric(RegData$Tilgang)  # Konverterte gruppert med åpne
   RegData$LapTilgang[RegData$LapTilgang %in% c(1,3)] <- 0
