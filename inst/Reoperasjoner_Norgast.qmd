@@ -239,7 +239,7 @@ reop_oppsum <- relap_npr_norgast_alle |>
   summarise(
     Sykehusnavn = unique(Sykehusnavn),
     relap_npr_v5 = (sum(!is.na(relap_npr_v1) & 
-                          !indeksop) > 0) |>
+                          !indeksop, na.rm = T) > 0) |>
       as.numeric(),
     relap_norgast = (sum(reop_norgast & !indeksop, na.rm = T) > 0) |>
       as.numeric(),
@@ -270,7 +270,10 @@ reop_oppsum <- relap_npr_norgast_alle |>
   ) |> 
   janitor::adorn_totals()
 
-
+writexl::write_xlsx(
+  reop_oppsum,
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/reop_ny.xlsx"
+)
 
 
 oppsum_alle <- reop_npr |> 
