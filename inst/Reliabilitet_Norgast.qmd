@@ -404,14 +404,59 @@ knitr::kable(
 library(dplyr)
 
 ncsp_koder <- readxl::read_xlsx(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK Alle prosedyrekoder 2026 Publisert 24.10.25.xlsx", sheet = 2)
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK Alle prosedyrekoder 2026 Publisert 24.10.25.xlsx", sheet = 2) |> 
+  rename(tekst = `Tekst uten lengdebegrensning`)
+ncsp_endringer <- readxl::read_xlsx(
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/NKPK kumulativt endringsdokument alle prosedyrekoder 1999-2026.xlsx", sheet = 2) |> 
+  rename(tekst = `Changed Value`,
+         datofra = `Valid From`) |> 
+  filter(!is.na(tekst))
+
+old_locale <- Sys.getlocale("LC_TIME")
+Sys.setlocale("LC_TIME", "C")
+ncsp_endringer$datofra <- sub(" CET ", " ", ncsp_endringer$datofra)
+ncsp_endringer$datofra <- as.Date(
+  as.POSIXct(
+    ncsp_endringer$datofra,
+    format = "%a %b %d %H:%M:%S %Y"
+  )
+)
+Sys.setlocale("LC_TIME", old_locale)
+ncsp_endringer <- ncsp_endringer |> 
+  arrange(desc(datofra)) |> 
+  slice(1, .by = ConceptCode) |> 
+  rename(Kode = ConceptCode)
+
+ncsp_koder <- bind_rows(
+  ncsp_koder[ncsp_koder$Kode %in% setdiff(ncsp_koder$Kode, ncsp_endringer$Kode), ], 
+  ncsp_endringer
+)
+
 
 reop_npr_raa <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil_tillegg2.csv",
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil_tillegg3.csv",
   locale = readr::locale(encoding = "UTF-8"))
-reop_npr_raa_oppr <- readr::read_csv2(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil.csv",
-  locale = readr::locale(encoding = "UTF-8"))
+
+# reop_npr_raa_distinct <- reop_npr_raa |> 
+#   distinct(lopenr, dato_indexoperasjon, prosdato_reop, pros, 
+#            .keep_all = TRUE) |> arrange(lopenr, prosdato_reop, pros)
+# flere_index_npr <- reop_npr_raa |> 
+#   filter(length(lopenr) > 1, 
+#          .by = c(lopenr, dato_indexoperasjon, prosdato_reop, pros)) |> 
+#   arrange(lopenr, dato_indexoperasjon, pros) |> 
+#   mutate(ant_samme = length(lopenr), 
+#          .by = c(lopenr, dato_indexoperasjon, prosdato_reop, pros)) 
+# |> 
+#   merge(RegData |> select(PasientID, OperasjonsDato, ))
+# tmp <- flere_index_npr |> 
+#   filter(ant_samme == 13)
+# 
+# ant_flere_index_npr <- flere_index_npr |> 
+#   distinct(lopenr, dato_indexoperasjon, prosdato_reop, pros, .keep_all = TRUE)
+
+# reop_npr_raa_oppr <- readr::read_csv2(
+#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/datafil.csv",
+#   locale = readr::locale(encoding = "UTF-8"))
 
 replacements <- c(
   "\x9b" = "ø",
@@ -422,15 +467,15 @@ replacements <- c(
   "\x92" = "Æ"
 )
 for (pat in names(replacements)) {
-  reop_npr$sykehus_reop <- 
-    gsub(pat, replacements[pat], reop_npr$sykehus_reop, 
+  reop_npr_raa$sykehus_reop <- 
+    gsub(pat, replacements[pat], reop_npr_raa$sykehus_reop, 
          useBytes = TRUE)
 }
 
 reop_npr <- reop_npr_raa |> 
   mutate(Anestesi = "WDAG" %in% substr(pros, 1, 4),
          .by = c(lopenr, dato_indexoperasjon, prosdato_reop)) |> 
-  mutate(ncsp_tekst = ncsp_koder$`Tekst uten lengdebegrensning`[
+  mutate(ncsp_tekst = ncsp_koder$tekst[
     match(pros, ncsp_koder$Kode)]) |> 
   arrange(lopenr, dato_indexoperasjon, prosdato_reop,
           pros, ncsp_tekst)
@@ -442,13 +487,31 @@ RegData <- norgast::NorgastHentData()$RegData |>
                 Aar %in% 2023:2025) |> 
   distinct(PasientID, OpDato, .keep_all = TRUE)
 
+levert_til_npr <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/aktivitetsdata_beriking_norgast.csv") |> mutate(OperasjonsDato = as.Date(OperasjonsDato)) |>
+  filter(lubridate::year(OperasjonsDato) %in% 2023:2025)|>
+  distinct(PasientID, OperasjonsDato, .keep_all = TRUE)
+RegData <- merge(RegData, levert_til_npr, 
+                 by.x = c("PasientID", "OpDato"),
+                 by.y = c("PasientID", "OperasjonsDato"))
+
+# flere_index_npr <- reop_npr_raa |> 
+#   filter(length(lopenr) > 1, 
+#          .by = c(lopenr, dato_indexoperasjon, prosdato_reop, pros)) |> 
+#   arrange(lopenr, dato_indexoperasjon, pros) |> 
+#   mutate(ant_samme = length(lopenr), 
+#          .by = c(lopenr, dato_indexoperasjon, prosdato_reop, pros)) |> 
+#   merge()
+
 
 ncsp_reop <- read.csv2(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/2025 ACC4 medkodetekst_gradert_ Handlest KL_avklart.csv"
 ) |> filter(!is.na(ACCORDION.4)) # fjern ugyldig linje
 
-reop_npr <- merge(reop_npr, ncsp_reop, 
-                  by.x = "pros", by.y = "NCSP_code", all.x = T) |> 
+reop_npr <- merge(
+  reop_npr, 
+  ncsp_reop |> select(-Akutt, -Planlagt, -Total), 
+  by.x = "pros", by.y = "NCSP_code", all.x = T) |> 
   mutate(
     relap_npr_v1 = ACCORDION.4,
     relap_npr_v2 = ACCORDION.4 & 
@@ -490,45 +553,128 @@ relap_npr_norgast_alle <- merge(
   mutate(AnestesiStartKl = ifelse(AnestesiStartKl==24, 0, AnestesiStartKl),
          OpDatoTid = as.POSIXct(paste(OpDato, AnestesiStartKl), 
                                 format = "%Y-%m-%d %H"),
-         # reop_starttid = ifelse(!is.na(reop_tjenestestarttid),
-         #                        reop_tjenestestarttid, reop_tiltakstarttid),
          tjenestedatotid_reop = as.POSIXct(paste(prosdato_reop,
                                                  reop_tjenestestarttid), 
-                                format = "%Y-%m-%d %H:%M:%S"),
+                                           format = "%Y-%m-%d %H:%M:%S"),
          tiltakdatotid_reop = as.POSIXct(paste(prosdato_reop,
-                                                 reop_tiltakstarttid), 
-                                format = "%Y-%m-%d %H:%M:%S"),
+                                               reop_tiltakstarttid), 
+                                         format = "%Y-%m-%d %H:%M:%S"),
          tid_op_tjeneste = difftime(tjenestedatotid_reop, OpDatoTid, 
-                                        units = "mins"),
+                                    units = "mins"),
          tid_op_tiltak = difftime(tiltakdatotid_reop, OpDatoTid, 
-                                        units = "mins"),
+                                  units = "mins"),
          tid_op_proc = difftime(prosdato_reop, OpDato, 
-                                        units = "days")
-         ) |> 
+                                units = "days")
+  ) |> 
   mutate(index_inkludert = sum(ncsp_index %in% pros) > 0,
-            op_gr_inkl = sum(Op_gr %in% Op_gr_reop) > 0,
-            .by = c(PasientID, OpDato)) |> 
-  mutate(index_inkludert_v2 = sum(ncsp_index == pros & 
-                                    OpDato == prosdato_reop) > 0,
-         index_inkludert_v3 = sum(ncsp_index == pros & 
-                                    abs(tid_op_proc) <= 1) > 0,
-            .by = c(PasientID, OpDato)) |>
-  relocate("PasientID", "OpDato", "tid_op_tjeneste", "tid_op_tiltak",
+         op_gr_inkl = sum(Op_gr %in% Op_gr_reop) > 0,
+         .by = c(PasientID, OpDato)) |> 
+  # mutate(index_inkludert_v2 = sum(ncsp_index == pros & 
+  #                                   OpDato == prosdato_reop) > 0,
+  #        index_inkludert_v3 = sum(ncsp_index == pros & 
+  #                                   abs(tid_op_proc) <= 1) > 0,
+  #        .by = c(PasientID, OpDato)) |>
+  relocate("PasientID", "OpDato", "prosdato_reop", 
+           "tid_op_tjeneste", "tid_op_tiltak",
            "tid_op_proc", "OpDatoTid", "tjenestedatotid_reop", 
            "tiltakdatotid_reop", "Op_gr", "Op_gr_reop",
-           "prosdato_reop", "ReLapNarkose", "index_inkludert", 
-           "index_inkludert_v2", "index_inkludert_v3",
+           "ReLapNarkose", "index_inkludert", 
+           # "index_inkludert_v2", "index_inkludert_v3",
            "ncsp_index",
            "pros", "ncsp_tekst")
 
-tmp <- relap_npr_norgast_alle |> 
-  filter(index_inkludert & !index_inkludert_v2)
-tmp2 <- relap_npr_norgast_alle |> 
-  filter(index_inkludert & !index_inkludert_v3)
+
+index_op <- relap_npr_norgast_alle |>
+  filter(ncsp_index == pros & abs(tid_op_proc) == min(abs(tid_op_proc)),
+         .by = c(PasientID, OpDato)) |>
+  mutate(ant_samme = length(PasientID),
+         .by = c(PasientID, OpDato)) |>
+  arrange(PasientID)
+index_op_distinct <- index_op |>
+  distinct(PasientID, OpDato, .keep_all = TRUE)
+# 
+# flere_op <- index_op |>
+#   filter(ant_samme > 1) |> 
+#   arrange(PasientID)
+
+oppsum_alle <- reop_npr |> 
+  merge(index_op_distinct |> select(PasientID, OpDato, 
+                                    prosdato_reop, ncsp_index) |> 
+          rename(indexdato_npr = prosdato_reop), 
+        by.x = c("lopenr", "dato_indexoperasjon"),
+        by.y = c("PasientID", "OpDato"),
+        all.x = TRUE) |> 
+  merge(RegData |> select(PasientID, OpDato, ncsp_lowercase), 
+        by.x = c("lopenr", "dato_indexoperasjon"),
+        by.y = c("PasientID", "OpDato"),
+        all = TRUE) |> 
+  mutate(ncsp_index = ifelse(is.na(ncsp_index), 
+                             ncsp_lowercase, ncsp_index)) |> 
+  arrange(prosdato_reop) |> 
+  summarise(ncsp = paste0(pros, collapse = ", "),
+            dato = paste0(prosdato_reop, collapse = ", "),
+            indexdato_npr = unique(indexdato_npr),
+            ncsp_index = unique(ncsp_index),
+            .by = c(lopenr, dato_indexoperasjon)) |> 
+  relocate(lopenr, dato_indexoperasjon, indexdato_npr, ncsp_index)
+
+index_mangler <- oppsum |> filter(is.na(indexdato_npr))
+
+oppsum_reoperasjoner <- reop_npr |> 
+  merge(index_op_distinct |> select(PasientID, OpDato, 
+                                    prosdato_reop, ncsp_index) |> 
+          rename(indexdato_npr = prosdato_reop), 
+        by.x = c("lopenr", "dato_indexoperasjon"),
+        by.y = c("PasientID", "OpDato"),
+        all.x = TRUE) |> 
+  merge(RegData |> select(PasientID, OpDato, ncsp_lowercase), 
+        by.x = c("lopenr", "dato_indexoperasjon"),
+        by.y = c("PasientID", "OpDato"),
+        all = TRUE) |> 
+  mutate(ncsp_index = ifelse(is.na(ncsp_index), 
+                             ncsp_lowercase, ncsp_index)) |> 
+  arrange(prosdato_reop) |> 
+  summarise(ncsp = paste0(pros, collapse = ", "),
+            dato = paste0(prosdato_reop, collapse = ", "),
+            indexdato_npr = unique(indexdato_npr),
+            ncsp_index = unique(ncsp_index),
+            .by = c(lopenr, dato_indexoperasjon)) |> 
+  relocate(lopenr, dato_indexoperasjon, indexdato_npr, ncsp_index)
 
 
 
+# write.csv2(
+#   oppsum, 
+#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/oppsum.csv",
+#   row.names = F, fileEncoding = "Latin1")
 
+kodebok_kjerstin <- relap_npr_norgast_alle |> 
+  select(pros, ncsp_tekst) |> 
+  summarise(ncsp_tekst = unique(ncsp_tekst),
+            N = n(),
+            .by = pros) |> 
+  # distinct(pros, .keep_all = TRUE) |> 
+  merge(ncsp_reop |> select(NCSP_code, ACCORDION.4, Informasjon), 
+        by.x = "pros", by.y = "NCSP_code", all = TRUE)
+write.csv2(
+  kodebok_kjerstin,
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/kodebok_kjerstin.csv",
+  row.names = F, fileEncoding = "Latin1")
+
+# flere_op_utvalg <- flere_op |> 
+#   filter(Sykehusnavn %in% c("UNN-Tromsø", "NS-Bodø",
+#                             "OUS-Rikshospitalet"))
+# 
+# tmp <- reop_npr_raa |> 
+#   filter(nokkel_reop %in% c(20695, 21495, 21497, 21056, 21057)) |> 
+#   arrange(lopenr, dato_indexoperasjon, nokkel_reop)
+
+
+
+write.csv2(
+  flere_op, 
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/flere_op.csv",
+  row.names = F, fileEncoding = "Latin1")
 write.csv2(relap_npr_norgast_alle, "relap_npr_norgast_alle.csv",
            row.names = F, fileEncoding = "Latin1")
 
@@ -604,16 +750,20 @@ write.csv2(
   row.names = F,
   fileEncoding = "Latin1")
 
-telling_ncsp <- reop_npr |> 
-  count(pros, ncsp_tekst) |> 
-  arrange(-n) |> 
-  janitor::adorn_totals()
+# telling_ncsp <- reop_npr |> 
+#   count(pros, ncsp_tekst) |> 
+#   arrange(-n) |> 
+#   janitor::adorn_totals()
+# 
+# write.csv2(
+#   telling_ncsp, 
+#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/telling_ncsp.csv", 
+#   row.names = F,
+#   fileEncoding = "Latin1")
 
-write.csv2(
-  telling_ncsp, 
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/telling_ncsp.csv", 
-  row.names = F,
-  fileEncoding = "Latin1")
+
+
+relap_npr_fjern_index <- relap_npr_norgast |> 
 
 
 
