@@ -166,7 +166,7 @@ relap_npr_norgast_alle <- merge(
              OppfAnnenOpIAnestsi==1,
            AnnenOpIAnestsi = ifelse(is.na(AnnenOpIAnestsi), 0,
                                     AnnenOpIAnestsi),
-           reop_norgast = ReLapNarkose | AnnenOpIAnestsi) |> 
+           reop_norgast = ReLapNarkose ) |> #| AnnenOpIAnestsi
     select(PasientID, ForlopsID, Op_gr,
            ncsp_index, OpDato, reop_norgast,
            ReLapNarkose, AnnenOpIAnestsi, 
@@ -225,14 +225,14 @@ relap_npr_norgast_alle <- merge(
 #          .by = c(PasientID, OpDato)) |>
 #   arrange(PasientID)
 # 
-# index_op <- relap_npr_norgast_alle |>
-#   filter(ncsp_index == pros & abs(tid_op_proc) == min(abs(tid_op_proc)),
-#          .by = c(PasientID, OpDato)) |>
-#   mutate(ant_samme = length(PasientID),
-#          .by = c(PasientID, OpDato)) |>
-#   arrange(PasientID)
-# index_op_distinct <- index_op |>
-#   distinct(PasientID, OpDato, .keep_all = TRUE)
+index_op <- relap_npr_norgast_alle |>
+  filter(ncsp_index == pros & abs(tid_op_proc) == min(abs(tid_op_proc)),
+         .by = c(PasientID, OpDato)) |>
+  mutate(ant_samme = length(PasientID),
+         .by = c(PasientID, OpDato)) |>
+  arrange(PasientID)
+index_op_distinct <- index_op |>
+  distinct(PasientID, OpDato, .keep_all = TRUE)
 
 
 reop_oppsum <- relap_npr_norgast_alle |> 
@@ -275,7 +275,9 @@ writexl::write_xlsx(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/reop_ny.xlsx"
 )
 
-
+# reop_npr_raa_distinct <- reop_npr_raa |>
+#   distinct(lopenr, dato_indexoperasjon, prosdato_reop, pros,
+#            .keep_all = TRUE) |> arrange(lopenr, prosdato_reop, pros)
 oppsum_alle <- reop_npr |> 
   merge(index_op_distinct |> select(PasientID, OpDato, 
                                     prosdato_reop, ncsp_index) |> 
@@ -283,7 +285,8 @@ oppsum_alle <- reop_npr |>
         by.x = c("lopenr", "dato_indexoperasjon"),
         by.y = c("PasientID", "OpDato"),
         all.x = TRUE) |> 
-  merge(RegData |> select(PasientID, OpDato, ncsp_lowercase), 
+  merge(RegData |> select(PasientID, OpDato, ncsp_lowercase,
+                          ReLapNarkose), 
         by.x = c("lopenr", "dato_indexoperasjon"),
         by.y = c("PasientID", "OpDato"),
         all = TRUE) |> 
@@ -292,12 +295,18 @@ oppsum_alle <- reop_npr |>
   arrange(prosdato_reop) |> 
   summarise(ncsp = paste0(pros, collapse = ", "),
             dato = paste0(prosdato_reop, collapse = ", "),
-            indexdato_npr = unique(indexdato_npr),
-            ncsp_index = unique(ncsp_index),
+            indexdato_npr = paste0(unique(indexdato_npr), collapse = ", "),
+            ncsp_index = paste0(unique(ncsp_index), collapse = ", "),
+            relap_norgast = paste0(unique(ReLapNarkose), collapse = ", "),
             .by = c(lopenr, dato_indexoperasjon)) |> 
   relocate(lopenr, dato_indexoperasjon, indexdato_npr, ncsp_index)
 
-index_mangler <- oppsum |> filter(is.na(indexdato_npr))
+tmp <- oppsum_alle |> filter(ncsp=="NA") |> 
+  arrange(relap_norgast)
+
+
+
+# index_mangler <- oppsum |> filter(is.na(indexdato_npr))
 
 oppsum_reoperasjoner <- reop_npr |> 
   merge(index_op_distinct |> select(PasientID, OpDato, 
@@ -315,8 +324,8 @@ oppsum_reoperasjoner <- reop_npr |>
   arrange(prosdato_reop) |> 
   summarise(ncsp = paste0(pros, collapse = ", "),
             dato = paste0(prosdato_reop, collapse = ", "),
-            indexdato_npr = unique(indexdato_npr),
-            ncsp_index = unique(ncsp_index),
+            indexdato_npr = paste0(unique(indexdato_npr), collapse = ", "),
+            ncsp_index = paste0(unique(ncsp_index), collapse = ", "),
             .by = c(lopenr, dato_indexoperasjon)) |> 
   relocate(lopenr, dato_indexoperasjon, indexdato_npr, ncsp_index)
 
@@ -384,3 +393,152 @@ relap_npr_norgast <- merge(
 
 ```
 
+
+
+
+```{r}
+#| label: lag-utvalg
+library(dplyr)
+
+# set.seed(123)
+
+# Universitetssykehus som alltid skal inkluderes
+uni_sykehus <- c(
+  "OUS-Radiumhospitalet",
+  "OUS-Rikshospitalet",
+  "OUS-Ullevål",
+  "Stavanger",
+  "Ahus",
+  "St.Olavs",
+  "UNN-Tromsø",
+  "Haukeland"
+)
+
+sykehus_rhf <- data.frame(
+  Sykehusnavn = c(
+    "Ahus",
+    "Diakonhjemmet",
+    "Førde",
+    "HB-Voss",
+    "HS-Mo i Rana",
+    "HS-Sandnessjøen",
+    "Hammerfest",
+    "Haraldsplass",
+    "Haugesund",
+    "Haukeland",
+    "NS-Bodø",
+    "NS-Lofoten",
+    "NS-Vesterålen",
+    "Namsos",
+    "Nordmøre og Romsdal",
+    "OUS-Radiumhospitalet",
+    "OUS-Rikshospitalet",
+    "OUS-Ullevål",
+    "SI-Gjøvik",
+    "SI-Hamar",
+    "SI-Lillehammer",
+    "SS-Arendal",
+    "SS-Kristiansand",
+    "Skien",
+    "St.Olavs",
+    "St.Olavs-Orkdal",
+    "Stavanger",
+    "Sykehuset Levanger",
+    "SØ-Kalnes",
+    "Tønsberg",
+    "UNN-Harstad",
+    "UNN-Tromsø",
+    "VV-Bærum",
+    "VV-Drammen",
+    "VV-Ringerike",
+    "Volda",
+    "Ålesund"
+  ),
+  RHF = c(
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Vest",
+    "Helse Vest",
+    "Helse Nord",
+    "Helse Nord",
+    "Helse Nord",
+    "Helse Vest",
+    "Helse Vest",
+    "Helse Vest",
+    "Helse Nord",
+    "Helse Nord",
+    "Helse Nord",
+    "Helse Midt-Norge",
+    "Helse Midt-Norge",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Midt-Norge",
+    "Helse Midt-Norge",
+    "Helse Vest",
+    "Helse Midt-Norge",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Nord",
+    "Helse Nord",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Sør-Øst",
+    "Helse Midt-Norge",
+    "Helse Midt-Norge"
+  ),
+  stringsAsFactors = FALSE
+)
+
+sykehus_rhf <- sykehus_rhf |> 
+  filter(!(Sykehusnavn %in% c("HS-Sandnessjøen", "NS-Lofoten",
+                          "NS-Vesterålen", "Volda", "SS-Arendal")))
+
+
+# Ønsket totalt antall sykehus
+n_total <- 20
+
+# Universitetssykehusene tas inn først
+utvalg_uni <- sykehus_rhf %>%
+  filter(Sykehusnavn %in% uni_sykehus)
+
+# Resterende sykehus tilgjengelig for tilfeldig trekking
+resterende <- sykehus_rhf %>%
+  filter(!Sykehusnavn %in% uni_sykehus)
+
+# Hvor mange som gjenstår å trekke
+n_trekk <- n_total - nrow(utvalg_uni)
+
+# Trekk så likt som mulig fra hvert RHF
+utvalg_rest <- resterende %>%
+  group_by(RHF) %>%
+  slice_sample(n = floor(n_trekk / n_distinct(sykehus_rhf$RHF))) %>%
+  ungroup()
+
+# Hvis ikke n_total er nådd pga avrunding:
+mangler <- n_total - nrow(utvalg_uni) - nrow(utvalg_rest)
+
+if (mangler > 0) {
+  ekstra <- anti_join(resterende,
+                      utvalg_rest,
+                      by = names(sykehus_rhf)) %>%
+    slice_sample(n = mangler)
+
+  utvalg_rest <- bind_rows(utvalg_rest, ekstra)
+}
+
+# Endelig utvalg
+utvalg <- bind_rows(utvalg_uni, utvalg_rest)
+
+writexl::write_xlsx(
+  utvalg,
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/utvalg_shus.xlsx"
+)
+
+```
