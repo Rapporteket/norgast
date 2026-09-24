@@ -73,10 +73,10 @@ appServer <- function(input, output, session) {
           shiny::removeTab("norgast_app_id", target = "indikator_id")
           tabs_added(FALSE)
         }
-      } 
+      }
     }
   )
-  
+
   # Legg til verktøy-fanen for SC-brukere, og fjern den for andre roller
   tool_tabs_added <- shiny::reactiveVal(FALSE)
 
@@ -202,10 +202,8 @@ appServer <- function(input, output, session) {
   ##############################################################################
   ################ Datadump   ##################################################
 
-  norgast::datadump_server("datadump_id", reshID = user$org,
-                           RegData = RegData, userRole = user$role,
-                           brukerinfo=brukerinfo,
-                           hvd_session = session, BrValg = BrValg)
+  norgast::datadump_server("datadump_id", RegData = RegData,
+                           user = user, BrValg = BrValg)
 
   ##############################################################################
   ################ Adm. tabeller ###############################################
