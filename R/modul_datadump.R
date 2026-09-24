@@ -173,7 +173,6 @@ datadump_server <- function(id, reshID, RegData,
             query <- paste0("SELECT * FROM ", input$dumptype)
             tmpData <- rapbase::loadRegData("norgast", query, "mysql")
 
-            # tmpData <- norgastHentTabell(input$dumptype)
           } else {
             tmpData <- read.table(paste0('I:/norgast/', input$dumptype, '2021-06-02 08-20-32.txt'), header=TRUE, sep=";", encoding = 'UTF-8', stringsAsFactors = F)
           }
