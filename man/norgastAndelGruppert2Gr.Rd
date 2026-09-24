@@ -15,6 +15,7 @@ norgastAndelGruppert2Gr(
   pst_kol = TRUE,
   outfile = "",
   farger = NA,
+  rev_farger = FALSE,
   ...
 )
 }
