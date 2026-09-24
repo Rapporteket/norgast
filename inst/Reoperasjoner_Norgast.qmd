@@ -86,26 +86,27 @@ Last Norgast-data (RegData), behold kun de levert til NPR ifm. bestilling. Koble
 #| echo: false
 #| message: false
 #| warning: false
-#| 
-RegData <- norgast::NorgastHentData()$RegData |> 
+
+# Det er tilfeller av at en og samme pasient har to indeksoperasjoner 
+# registrert på samme dag. Undersøkelser viser at i disse tillfellene så 
+# finnes begge opkodene i NPR, så derfor beholder vi kun en indeksop.
+RegData <- norgast::NorgastHentDataLokal()$RegData |> 
   norgast::NorgastPreprosess() |> 
   dplyr::filter(Op_gr %in% c(1:8, 14),
                 Aar %in% 2023:2025) |> 
-  distinct(PasientID, OpDato, ncsp_lowercase, .keep_all = TRUE)
+  distinct(PasientID, OpDato, .keep_all = TRUE)
+  # distinct(PasientID, OpDato, ncsp_lowercase, .keep_all = TRUE)
 
 levert_til_npr <- read.csv2(
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/aktivitetsdata_beriking_norgast.csv") |> mutate(OperasjonsDato = as.Date(OperasjonsDato)) |>
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/aktivitetsdata_beriking_norgast.csv") |> 
+  mutate(OperasjonsDato = as.Date(OperasjonsDato)) |>
   filter(lubridate::year(OperasjonsDato) %in% 2023:2025) |>
   distinct(PasientID, OperasjonsDato, .keep_all = TRUE)
 RegData <- merge(RegData, levert_til_npr, 
                  by.x = c("PasientID", "OpDato"),
-                 by.y = c("PasientID", "OperasjonsDato")) |> 
-  add_count(PasientID, OpDato)
+                 by.y = c("PasientID", "OperasjonsDato")) #|> 
+  # add_count(PasientID, OpDato)
 
-# df_dup <- RegData %>%
-#   group_by(PasientID, OpDato) %>%
-#   filter(n() > 1) %>%
-#   ungroup() |> relocate(Hovedoperasjon)
 
 ncsp_reop <- readxl::read_xlsx(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/Kodebok_NPR_all aktivitet komm KL.xlsx", sheet = 1, col_names = T, skip = 1)
@@ -233,6 +234,8 @@ index_op <- relap_npr_norgast_alle |>
   arrange(PasientID)
 index_op_distinct <- index_op |>
   distinct(PasientID, OpDato, .keep_all = TRUE)
+
+tmp <- index_op |> filter(ant_samme > 1)
 
 
 reop_oppsum <- relap_npr_norgast_alle |> 

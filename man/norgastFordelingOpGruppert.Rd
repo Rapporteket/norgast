@@ -12,6 +12,7 @@ norgastFordelingOpGruppert(
   tittel = c("Fordeling av operasjoner", "over avstand fra analkanten"),
   ytxt = "Andel (\%)",
   xtxt = "Avstand analkanten (cm)",
+  rev_farger = FALSE,
   ...
 )
 }

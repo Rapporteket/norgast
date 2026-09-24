@@ -60,7 +60,8 @@ norgastIndikator_gruppert(
   ny_anastomose = 99,
   pst_kolonne = TRUE,
   kun_oblig = FALSE,
-  mrom = 0.3
+  mrom = 0.3,
+  xmax_manuell = NA
 )
 }
 \arguments{
