@@ -7,11 +7,10 @@
 #' @return RegData data frame
 #' @export
 #'
-NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
+NorgastHentData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
   # tictoc::tic()
   shiny::withProgress(message = "Loading data", value = 0, {
-
-    if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
+    if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")) {
       registryName <- "data"
     } else {
       registryName <- "norgast"
@@ -78,56 +77,82 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
 
     skjemaoversikt <- registration |>
       dplyr::mutate(Skjemanavn = "Registrering") |>
-      dplyr::select(Skjemanavn, STATUS, MCEID, CREATEDBY, OPERATION_DATE,
-                    UPDATEDBY, TSCREATED, TSUPDATED, CENTREID) |>
+      dplyr::select(
+        Skjemanavn, STATUS, MCEID, CREATEDBY, OPERATION_DATE,
+        UPDATEDBY, TSCREATED, TSUPDATED, CENTREID
+      ) |>
       dplyr::mutate(
         Sykehusnavn = centreattribute$ATTRIBUTEVALUE[
-          match(CENTREID, centreattribute$ID)],
-        OpprettetAv = paste0(user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
-                             user$LASTNAME[match(CREATEDBY, user$ID)]),
-        SistLagretAv = paste0(user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
-                              user$LASTNAME[match(UPDATEDBY, user$ID)])
+          match(CENTREID, centreattribute$ID)
+        ],
+        OpprettetAv = paste0(
+          user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
+          user$LASTNAME[match(CREATEDBY, user$ID)]
+        ),
+        SistLagretAv = paste0(
+          user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
+          user$LASTNAME[match(UPDATEDBY, user$ID)]
+        )
       ) |>
-      dplyr::rename(SkjemaStatus = STATUS,
-                    ForlopsID = MCEID,
-                    OpprettetDato = TSCREATED,
-                    SistLagretDato = TSUPDATED,
-                    HovedDato = OPERATION_DATE,
-                    AvdRESH = CENTREID) |>
-      dplyr::select(Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
-                    OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
-                    HovedDato, AvdRESH) |>
+      dplyr::rename(
+        SkjemaStatus = STATUS,
+        ForlopsID = MCEID,
+        OpprettetDato = TSCREATED,
+        SistLagretDato = TSUPDATED,
+        HovedDato = OPERATION_DATE,
+        AvdRESH = CENTREID
+      ) |>
+      dplyr::select(
+        Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
+        OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
+        HovedDato, AvdRESH
+      ) |>
       dplyr::bind_rows(
         readmission |>
           dplyr::mutate(Skjemanavn = "Oppfolging/Innleggelse") |>
-          dplyr::select(Skjemanavn, STATUS, MCEID, CREATEDBY,
-                        UPDATEDBY, TSCREATED, TSUPDATED, CENTREID) |>
+          dplyr::select(
+            Skjemanavn, STATUS, MCEID, CREATEDBY,
+            UPDATEDBY, TSCREATED, TSUPDATED, CENTREID
+          ) |>
           dplyr::mutate(
             Sykehusnavn = centreattribute$ATTRIBUTEVALUE[
-              match(CENTREID, centreattribute$ID)],
+              match(CENTREID, centreattribute$ID)
+            ],
             HovedDato = registration$OPERATION_DATE[
-              match(MCEID, registration$MCEID)],
-            OpprettetAv = paste0(user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
-                                 user$LASTNAME[match(CREATEDBY, user$ID)]),
-            SistLagretAv = paste0(user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
-                                  user$LASTNAME[match(UPDATEDBY, user$ID)])
+              match(MCEID, registration$MCEID)
+            ],
+            OpprettetAv = paste0(
+              user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
+              user$LASTNAME[match(CREATEDBY, user$ID)]
+            ),
+            SistLagretAv = paste0(
+              user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
+              user$LASTNAME[match(UPDATEDBY, user$ID)]
+            )
           ) |>
-          dplyr::rename(SkjemaStatus = STATUS,
-                        ForlopsID = MCEID,
-                        OpprettetDato = TSCREATED,
-                        SistLagretDato = TSUPDATED,
-                        AvdRESH = CENTREID) |>
-          dplyr::select(Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
-                        OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
-                        HovedDato, AvdRESH)
+          dplyr::rename(
+            SkjemaStatus = STATUS,
+            ForlopsID = MCEID,
+            OpprettetDato = TSCREATED,
+            SistLagretDato = TSUPDATED,
+            AvdRESH = CENTREID
+          ) |>
+          dplyr::select(
+            Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
+            OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
+            HovedDato, AvdRESH
+          )
       ) |>
-      dplyr::filter(HovedDato >= datoFra,
-                    HovedDato <= datoTil)
+      dplyr::filter(
+        HovedDato >= datoFra,
+        HovedDato <= datoTil
+      )
 
     varnavn_kobl <-
       data.frame(
         kol =
-          c("mce.MCEID AS ForlopsID",
+          c(
+            "mce.MCEID AS ForlopsID",
             "mce.PATIENT_ID AS PasientID",
             "mce.CENTREID AS AvdRESH",
             "patient.SSN AS Fodselsnummer",
@@ -220,30 +245,45 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
             "readmission.FIRST_TIME_CLOSED AS OppfForstLukket",
             "readmission.FIRST_TIME_CLOSED_BY AS OppfForstLukketAv",
             "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
-            "readmission.STATUS AS OppfStatus")
-      )|>
-      tidyr::separate(col="kol",
-                      into=c("dbnavn", "rapporteket"),
-                      sep = " AS ") |>
-      tidyr::separate(col="dbnavn",
-                      into=c("tabell", "var_navn"),
-                      extra = "merge")
+            "readmission.STATUS AS OppfStatus"
+          )
+      ) |>
+      tidyr::separate(
+        col = "kol",
+        into = c("dbnavn", "rapporteket"),
+        sep = " AS "
+      ) |>
+      tidyr::separate(
+        col = "dbnavn",
+        into = c("tabell", "var_navn"),
+        extra = "merge"
+      )
 
     varnavn_mce <-
-      setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"],
-               varnavn_kobl$rapporteket[varnavn_kobl$tabell == "mce"])
+      setNames(
+        varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"],
+        varnavn_kobl$rapporteket[varnavn_kobl$tabell == "mce"]
+      )
     varnavn_patient <-
-      setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"],
-               varnavn_kobl$rapporteket[varnavn_kobl$tabell == "patient"])
+      setNames(
+        varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"],
+        varnavn_kobl$rapporteket[varnavn_kobl$tabell == "patient"]
+      )
     varnavn_registration <-
-      setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
-               varnavn_kobl$rapporteket[varnavn_kobl$tabell == "registration"])
+      setNames(
+        varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+        varnavn_kobl$rapporteket[varnavn_kobl$tabell == "registration"]
+      )
     varnavn_centre <-
-      setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "centre"],
-               varnavn_kobl$rapporteket[varnavn_kobl$tabell == "centre"])
+      setNames(
+        varnavn_kobl$var_navn[varnavn_kobl$tabell == "centre"],
+        varnavn_kobl$rapporteket[varnavn_kobl$tabell == "centre"]
+      )
     varnavn_readmission <-
-      setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
-               varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"])
+      setNames(
+        varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+        varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"]
+      )
 
     allevarnum <- merge(
       mce |>
@@ -253,67 +293,91 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
         dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"], ID) |>
         dplyr::rename(!!!varnavn_patient),
       by.x = "PasientID", by.y = "ID", all.x = TRUE
-    ) |> merge(
-      registration |>
-        dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
-                      MCEID, ICD10_VERSION, NCSP_VERSION) |>
-        dplyr::rename(!!!varnavn_registration),
-      by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
-    ) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
+    ) |>
+      merge(
+        registration |>
+          dplyr::select(
+            varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+            MCEID, ICD10_VERSION, NCSP_VERSION
+          ) |>
+          dplyr::rename(!!!varnavn_registration),
+        by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
+      ) |>
+      dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
       merge(
         readmission |>
-          dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
-                        MCEID) |>
+          dplyr::select(
+            varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+            MCEID
+          ) |>
           dplyr::rename(!!!varnavn_readmission),
         by.x = "ForlopsID", by.y = "MCEID", all.x = TRUE
       ) |>
-      dplyr::filter(OpDato >= datoFra,
-                    OpDato <= datoTil) |>
+      dplyr::filter(
+        OpDato >= datoFra,
+        OpDato <= datoTil
+      ) |>
       dplyr::arrange(ForlopsID)
 
 
     RegData <- allevarnum |>
       merge(patient |> dplyr::select(ID, GENDER, BIRTH_DATE),
-            by.x = "PasientID", by.y = "ID", all.x = T) |>
-      dplyr::rename(erMann = GENDER,
-                    Fodselsdato = BIRTH_DATE) |>
+        by.x = "PasientID", by.y = "ID", all.x = T
+      ) |>
+      dplyr::rename(
+        erMann = GENDER,
+        Fodselsdato = BIRTH_DATE
+      ) |>
       dplyr::mutate(
         PasientAlder = norgast::age(Fodselsdato, OpDato, floor = FALSE),
         erMann = 2 - erMann,
         Sykehusnavn = skjemaoversikt$Sykehusnavn[
-          match(AvdRESH, skjemaoversikt$AvdRESH)],
+          match(AvdRESH, skjemaoversikt$AvdRESH)
+        ],
         HovedDato = skjemaoversikt$HovedDato[
-          match(ForlopsID, skjemaoversikt$ForlopsID)]
+          match(ForlopsID, skjemaoversikt$ForlopsID)
+        ]
       ) |>
-      merge(skjemaoversikt |> dplyr::filter(Skjemanavn == "Registrering") |>
-              dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-            by = "ForlopsID", all.x = TRUE) |>
-      merge(skjemaoversikt |>
-              dplyr::filter(Skjemanavn == "Oppfolging/Innleggelse") |>
-              dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-            suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE) |>
-      dplyr::rename(OppfOpprettetAv = OpprettetAv_oppf,
-                    OppfSistLagretAv = SistLagretAv_oppf) |>
+      merge(
+        skjemaoversikt |> dplyr::filter(Skjemanavn == "Registrering") |>
+          dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+        by = "ForlopsID", all.x = TRUE
+      ) |>
+      merge(
+        skjemaoversikt |>
+          dplyr::filter(Skjemanavn == "Oppfolging/Innleggelse") |>
+          dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+        suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE
+      ) |>
+      dplyr::rename(
+        OppfOpprettetAv = OpprettetAv_oppf,
+        OppfSistLagretAv = SistLagretAv_oppf
+      ) |>
       dplyr::mutate(
         ForstLukketAv = paste0(
           user$FIRSTNAME[match(ForstLukketAv, user$ID)], " ",
-          user$LASTNAME[match(ForstLukketAv, user$ID)]) |>
+          user$LASTNAME[match(ForstLukketAv, user$ID)]
+        ) |>
           toupper() |> trimws(),
         OppfForstLukketAv = paste0(
           user$FIRSTNAME[match(OppfForstLukketAv, user$ID)], " ",
-          user$LASTNAME[match(OppfForstLukketAv, user$ID)]) |>
+          user$LASTNAME[match(OppfForstLukketAv, user$ID)]
+        ) |>
           toupper() |> trimws()
       )
 
-    rm(list = c("centre", "centreattribute", "mce",
-                "patient", "user",
-                "varnavn_kobl", "readmission",
-                "registration", "allevarnum"))
+    rm(list = c(
+      "centre", "centreattribute", "mce",
+      "patient", "user",
+      "varnavn_kobl", "readmission",
+      "registration", "allevarnum"
+    ))
     # tictoc::toc()
   })
-  return(list(RegData = RegData,
-              skjemaoversikt = skjemaoversikt)
-  )
+  return(list(
+    RegData = RegData,
+    skjemaoversikt = skjemaoversikt
+  ))
 }
 
 #' Provide global dataframe for NORGAST
@@ -325,9 +389,8 @@ NorgastHentData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
 #' @return RegData data frame
 #' @export
 #'
-NorgastHentDataLokal <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
-
-  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
+NorgastHentDataLokal <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
+  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")) {
     registryName <- "data"
   } else {
     registryName <- "norgast"
@@ -369,56 +432,82 @@ NorgastHentDataLokal <- function(datoFra = '2014-01-01', datoTil = '2099-01-01')
 
   skjemaoversikt <- registration |>
     dplyr::mutate(Skjemanavn = "Registrering") |>
-    dplyr::select(Skjemanavn, STATUS, MCEID, CREATEDBY, OPERATION_DATE,
-                  UPDATEDBY, TSCREATED, TSUPDATED, CENTREID) |>
+    dplyr::select(
+      Skjemanavn, STATUS, MCEID, CREATEDBY, OPERATION_DATE,
+      UPDATEDBY, TSCREATED, TSUPDATED, CENTREID
+    ) |>
     dplyr::mutate(
       Sykehusnavn = centreattribute$ATTRIBUTEVALUE[
-        match(CENTREID, centreattribute$ID)],
-      OpprettetAv = paste0(user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
-                           user$LASTNAME[match(CREATEDBY, user$ID)]),
-      SistLagretAv = paste0(user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
-                            user$LASTNAME[match(UPDATEDBY, user$ID)])
+        match(CENTREID, centreattribute$ID)
+      ],
+      OpprettetAv = paste0(
+        user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
+        user$LASTNAME[match(CREATEDBY, user$ID)]
+      ),
+      SistLagretAv = paste0(
+        user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
+        user$LASTNAME[match(UPDATEDBY, user$ID)]
+      )
     ) |>
-    dplyr::rename(SkjemaStatus = STATUS,
-                  ForlopsID = MCEID,
-                  OpprettetDato = TSCREATED,
-                  SistLagretDato = TSUPDATED,
-                  HovedDato = OPERATION_DATE,
-                  AvdRESH = CENTREID) |>
-    dplyr::select(Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
-                  OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
-                  HovedDato, AvdRESH) |>
+    dplyr::rename(
+      SkjemaStatus = STATUS,
+      ForlopsID = MCEID,
+      OpprettetDato = TSCREATED,
+      SistLagretDato = TSUPDATED,
+      HovedDato = OPERATION_DATE,
+      AvdRESH = CENTREID
+    ) |>
+    dplyr::select(
+      Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
+      OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
+      HovedDato, AvdRESH
+    ) |>
     dplyr::bind_rows(
       readmission |>
         dplyr::mutate(Skjemanavn = "Oppfolging/Innleggelse") |>
-        dplyr::select(Skjemanavn, STATUS, MCEID, CREATEDBY,
-                      UPDATEDBY, TSCREATED, TSUPDATED, CENTREID) |>
+        dplyr::select(
+          Skjemanavn, STATUS, MCEID, CREATEDBY,
+          UPDATEDBY, TSCREATED, TSUPDATED, CENTREID
+        ) |>
         dplyr::mutate(
           Sykehusnavn = centreattribute$ATTRIBUTEVALUE[
-            match(CENTREID, centreattribute$ID)],
+            match(CENTREID, centreattribute$ID)
+          ],
           HovedDato = registration$OPERATION_DATE[
-            match(MCEID, registration$MCEID)],
-          OpprettetAv = paste0(user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
-                               user$LASTNAME[match(CREATEDBY, user$ID)]),
-          SistLagretAv = paste0(user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
-                                user$LASTNAME[match(UPDATEDBY, user$ID)])
+            match(MCEID, registration$MCEID)
+          ],
+          OpprettetAv = paste0(
+            user$FIRSTNAME[match(CREATEDBY, user$ID)], " ",
+            user$LASTNAME[match(CREATEDBY, user$ID)]
+          ),
+          SistLagretAv = paste0(
+            user$FIRSTNAME[match(UPDATEDBY, user$ID)], " ",
+            user$LASTNAME[match(UPDATEDBY, user$ID)]
+          )
         ) |>
-        dplyr::rename(SkjemaStatus = STATUS,
-                      ForlopsID = MCEID,
-                      OpprettetDato = TSCREATED,
-                      SistLagretDato = TSUPDATED,
-                      AvdRESH = CENTREID) |>
-        dplyr::select(Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
-                      OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
-                      HovedDato, AvdRESH)
+        dplyr::rename(
+          SkjemaStatus = STATUS,
+          ForlopsID = MCEID,
+          OpprettetDato = TSCREATED,
+          SistLagretDato = TSUPDATED,
+          AvdRESH = CENTREID
+        ) |>
+        dplyr::select(
+          Skjemanavn, SkjemaStatus, ForlopsID, OpprettetAv,
+          OpprettetDato, SistLagretAv, SistLagretDato, Sykehusnavn,
+          HovedDato, AvdRESH
+        )
     ) |>
-    dplyr::filter(HovedDato >= datoFra,
-                  HovedDato <= datoTil)
+    dplyr::filter(
+      HovedDato >= datoFra,
+      HovedDato <= datoTil
+    )
 
   varnavn_kobl <-
     data.frame(
       kol =
-        c("mce.MCEID AS ForlopsID",
+        c(
+          "mce.MCEID AS ForlopsID",
           "mce.PATIENT_ID AS PasientID",
           "mce.CENTREID AS AvdRESH",
           "patient.SSN AS Fodselsnummer",
@@ -511,30 +600,45 @@ NorgastHentDataLokal <- function(datoFra = '2014-01-01', datoTil = '2099-01-01')
           "readmission.FIRST_TIME_CLOSED AS OppfForstLukket",
           "readmission.FIRST_TIME_CLOSED_BY AS OppfForstLukketAv",
           "readmission.ACCORDION_SCORE AS OppfAccordionGrad",
-          "readmission.STATUS AS OppfStatus")
-    )|>
-    tidyr::separate(col="kol",
-                    into=c("dbnavn", "rapporteket"),
-                    sep = " AS ") |>
-    tidyr::separate(col="dbnavn",
-                    into=c("tabell", "var_navn"),
-                    extra = "merge")
+          "readmission.STATUS AS OppfStatus"
+        )
+    ) |>
+    tidyr::separate(
+      col = "kol",
+      into = c("dbnavn", "rapporteket"),
+      sep = " AS "
+    ) |>
+    tidyr::separate(
+      col = "dbnavn",
+      into = c("tabell", "var_navn"),
+      extra = "merge"
+    )
 
   varnavn_mce <-
-    setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"],
-             varnavn_kobl$rapporteket[varnavn_kobl$tabell == "mce"])
+    setNames(
+      varnavn_kobl$var_navn[varnavn_kobl$tabell == "mce"],
+      varnavn_kobl$rapporteket[varnavn_kobl$tabell == "mce"]
+    )
   varnavn_patient <-
-    setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"],
-             varnavn_kobl$rapporteket[varnavn_kobl$tabell == "patient"])
+    setNames(
+      varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"],
+      varnavn_kobl$rapporteket[varnavn_kobl$tabell == "patient"]
+    )
   varnavn_registration <-
-    setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
-             varnavn_kobl$rapporteket[varnavn_kobl$tabell == "registration"])
+    setNames(
+      varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+      varnavn_kobl$rapporteket[varnavn_kobl$tabell == "registration"]
+    )
   varnavn_centre <-
-    setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "centre"],
-             varnavn_kobl$rapporteket[varnavn_kobl$tabell == "centre"])
+    setNames(
+      varnavn_kobl$var_navn[varnavn_kobl$tabell == "centre"],
+      varnavn_kobl$rapporteket[varnavn_kobl$tabell == "centre"]
+    )
   varnavn_readmission <-
-    setNames(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
-             varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"])
+    setNames(
+      varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+      varnavn_kobl$rapporteket[varnavn_kobl$tabell == "readmission"]
+    )
 
   allevarnum <- merge(
     mce |>
@@ -544,64 +648,88 @@ NorgastHentDataLokal <- function(datoFra = '2014-01-01', datoTil = '2099-01-01')
       dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "patient"], ID) |>
       dplyr::rename(!!!varnavn_patient),
     by.x = "PasientID", by.y = "ID", all.x = TRUE
-  ) |> merge(
-    registration |>
-      dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
-                    MCEID, ICD10_VERSION, NCSP_VERSION) |>
-      dplyr::rename(!!!varnavn_registration),
-    by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
-  ) |> dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
+  ) |>
+    merge(
+      registration |>
+        dplyr::select(
+          varnavn_kobl$var_navn[varnavn_kobl$tabell == "registration"],
+          MCEID, ICD10_VERSION, NCSP_VERSION
+        ) |>
+        dplyr::rename(!!!varnavn_registration),
+      by.x = "ForlopsID", by.y = "MCEID", all.y = TRUE
+    ) |>
+    dplyr::mutate(SenterNavn = centre$CENTRENAME[match(AvdRESH, centre$ID)]) |>
     merge(
       readmission |>
-        dplyr::select(varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
-                      MCEID) |>
+        dplyr::select(
+          varnavn_kobl$var_navn[varnavn_kobl$tabell == "readmission"],
+          MCEID
+        ) |>
         dplyr::rename(!!!varnavn_readmission),
       by.x = "ForlopsID", by.y = "MCEID", all.x = TRUE
     ) |>
-    dplyr::filter(OpDato >= datoFra,
-                  OpDato <= datoTil) |>
+    dplyr::filter(
+      OpDato >= datoFra,
+      OpDato <= datoTil
+    ) |>
     dplyr::arrange(ForlopsID)
 
 
   RegData <- allevarnum |>
     merge(patient |> dplyr::select(ID, GENDER, BIRTH_DATE),
-          by.x = "PasientID", by.y = "ID", all.x = T) |>
-    dplyr::rename(erMann = GENDER,
-                  Fodselsdato = BIRTH_DATE) |>
+      by.x = "PasientID", by.y = "ID", all.x = T
+    ) |>
+    dplyr::rename(
+      erMann = GENDER,
+      Fodselsdato = BIRTH_DATE
+    ) |>
     dplyr::mutate(
       PasientAlder = norgast::age(Fodselsdato, OpDato, floor = FALSE),
       erMann = 2 - erMann,
       Sykehusnavn = skjemaoversikt$Sykehusnavn[
-        match(AvdRESH, skjemaoversikt$AvdRESH)],
+        match(AvdRESH, skjemaoversikt$AvdRESH)
+      ],
       HovedDato = skjemaoversikt$HovedDato[
-        match(ForlopsID, skjemaoversikt$ForlopsID)]
+        match(ForlopsID, skjemaoversikt$ForlopsID)
+      ]
     ) |>
-    merge(skjemaoversikt |> dplyr::filter(Skjemanavn == "Registrering") |>
-            dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-          by = "ForlopsID", all.x = TRUE) |>
-    merge(skjemaoversikt |>
-            dplyr::filter(Skjemanavn == "Oppfolging/Innleggelse") |>
-            dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-          suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE) |>
-    dplyr::rename(OppfOpprettetAv = OpprettetAv_oppf,
-                  OppfSistLagretAv = SistLagretAv_oppf) |>
+    merge(
+      skjemaoversikt |> dplyr::filter(Skjemanavn == "Registrering") |>
+        dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+      by = "ForlopsID", all.x = TRUE
+    ) |>
+    merge(
+      skjemaoversikt |>
+        dplyr::filter(Skjemanavn == "Oppfolging/Innleggelse") |>
+        dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+      suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE
+    ) |>
+    dplyr::rename(
+      OppfOpprettetAv = OpprettetAv_oppf,
+      OppfSistLagretAv = SistLagretAv_oppf
+    ) |>
     dplyr::mutate(
       ForstLukketAv = paste0(
         user$FIRSTNAME[match(ForstLukketAv, user$ID)], " ",
-        user$LASTNAME[match(ForstLukketAv, user$ID)]) |>
+        user$LASTNAME[match(ForstLukketAv, user$ID)]
+      ) |>
         toupper() |> trimws(),
       OppfForstLukketAv = paste0(
         user$FIRSTNAME[match(OppfForstLukketAv, user$ID)], " ",
-        user$LASTNAME[match(OppfForstLukketAv, user$ID)]) |>
+        user$LASTNAME[match(OppfForstLukketAv, user$ID)]
+      ) |>
         toupper() |> trimws()
     )
 
-  rm(list = c("centre", "centreattribute", "mce", "patient", "user",
-              "varnavn_kobl", "readmission", "registration", "allevarnum"))
+  rm(list = c(
+    "centre", "centreattribute", "mce", "patient", "user",
+    "varnavn_kobl", "readmission", "registration", "allevarnum"
+  ))
 
-  return(list(RegData = RegData,
-              skjemaoversikt = skjemaoversikt)
-  )
+  return(list(
+    RegData = RegData,
+    skjemaoversikt = skjemaoversikt
+  ))
 }
 
 #' Provide global dataframe for NORGAST (Legacy version)
@@ -613,9 +741,9 @@ NorgastHentDataLokal <- function(datoFra = '2014-01-01', datoTil = '2099-01-01')
 #' @return RegData data frame
 #' @export
 #'
-NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
+NorgastHentRegData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
   # tictoc::tic()
-  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
+  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")) {
     registryName <- "data"
   } else {
     registryName <- "norgast"
@@ -623,28 +751,39 @@ NorgastHentRegData <- function(datoFra = '2014-01-01', datoTil = '2099-01-01') {
 
   dbType <- "mysql"
 
-  if (rapbase::isRapContext()){
+  if (rapbase::isRapContext()) {
     query1 <- "SELECT * FROM allevarnum"
     allevarnum <- rapbase::loadRegData(registryName, query1, dbType)
-    query2 <- paste0("SELECT * FROM forlopsoversikt WHERE HovedDato >= \'",
-                     datoFra, "\' AND HovedDato <= \'", datoTil, "\' ")
+    query2 <- paste0(
+      "SELECT * FROM forlopsoversikt WHERE HovedDato >= \'",
+      datoFra, "\' AND HovedDato <= \'", datoTil, "\' "
+    )
     forlopsoversikt <- rapbase::loadRegData(registryName, query2, dbType)
     skjemaoversikt <- NorgastHentskjemaoversikt()
   } else {
     NULL
   }
   RegData <- merge(allevarnum,
-                   forlopsoversikt[, c(setdiff(names(forlopsoversikt),
-                                               names(allevarnum)), "ForlopsID")],
-                   by = "ForlopsID") %>%
-    merge(skjemaoversikt %>% dplyr::filter(SkjemaRekkeflg == 5) %>%
-            dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-          by = "ForlopsID", all.x = TRUE) %>%
-    merge(skjemaoversikt %>% dplyr::filter(SkjemaRekkeflg == 10) %>%
-            dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
-          suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE) %>%
-    dplyr::rename(OppfOpprettetAv = OpprettetAv_oppf,
-                  OppfSistLagretAv = SistLagretAv_oppf)
+    forlopsoversikt[, c(setdiff(
+      names(forlopsoversikt),
+      names(allevarnum)
+    ), "ForlopsID")],
+    by = "ForlopsID"
+  ) %>%
+    merge(
+      skjemaoversikt %>% dplyr::filter(SkjemaRekkeflg == 5) %>%
+        dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+      by = "ForlopsID", all.x = TRUE
+    ) %>%
+    merge(
+      skjemaoversikt %>% dplyr::filter(SkjemaRekkeflg == 10) %>%
+        dplyr::select(ForlopsID, OpprettetAv, SistLagretAv),
+      suffixes = c("", "_oppf"), by = "ForlopsID", all.x = TRUE
+    ) %>%
+    dplyr::rename(
+      OppfOpprettetAv = OpprettetAv_oppf,
+      OppfSistLagretAv = SistLagretAv_oppf
+    )
   # tictoc::toc()
   return(RegData)
 }
