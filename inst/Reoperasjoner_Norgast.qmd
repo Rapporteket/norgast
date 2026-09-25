@@ -172,7 +172,7 @@ relap_npr_norgast_alle <- merge(
            ncsp_index, OpDato, reop_norgast,
            ReLapNarkose, AnnenOpIAnestsi, 
            OppfAnnenOpIAnestsi, OppfReLapNarkose,
-           Sykehusnavn, AnestesiStartKl, n),
+           Sykehusnavn, AnestesiStartKl),
   reop_npr, 
   by.x = c("PasientID", "OpDato"),
   by.y = c("lopenr", "dato_indexoperasjon"),
@@ -539,9 +539,9 @@ if (mangler > 0) {
 # Endelig utvalg
 utvalg <- bind_rows(utvalg_uni, utvalg_rest)
 
-writexl::write_xlsx(
-  utvalg,
-  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/utvalg_shus.xlsx"
-)
+# writexl::write_xlsx(
+#   utvalg,
+#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/utvalg_shus.xlsx"
+# )
 
 ```

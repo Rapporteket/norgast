@@ -19,20 +19,19 @@ dateInput2 <- function(inputId, label, minview = "months", maxview = "years", ..
 #' Skriv til csv i nordisk format med Latin1 som default tegnsetting
 #'
 #' @export
-write.csv3 <- function(x, file = "", tegnsetting = 'latin1', ...) {
+write.csv3 <- function(x, file = "", tegnsetting = "latin1", ...) {
   write.csv2(x, file = file, fileEncoding = tegnsetting, ...)
 }
 
 #' Generer kvartalsrapport og returner filnavn og sti til fil.
 #'
 #' @export
-abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukernavn='Pjotr') {
-
+abonnement_kvartal_norgast <- function(baseName, reshID = 0, valgtShus = "", brukernavn = "Pjotr") {
   # rapbase::autLogger(user = brukernavn, registryName = 'NORGAST',
   #                   reshId = reshID[[1]], msg = "Abonnement: kvartalsrapport")
 
-  src <- system.file(paste0(baseName, '.Rnw'), package="norgast")
-  tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = '.Rnw')
+  src <- system.file(paste0(baseName, ".Rnw"), package = "norgast")
+  tmpFile <- tempfile(paste0(baseName, Sys.Date()), fileext = ".Rnw")
 
   owd <- setwd(tempdir())
   on.exit(setwd(owd))
@@ -43,7 +42,7 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
 
 
   pdfFile <- knitr::knit2pdf(tmpFile)
-  utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
+  utfil <- paste0(substr(tmpFile, 1, nchar(tmpFile) - 3), "pdf")
 
   file.copy(pdfFile, utfil)
 
@@ -56,8 +55,12 @@ abonnement_kvartal_norgast <- function(baseName, reshID=0, valgtShus='', brukern
 #' Hvis NULL erstatt med valgt verdi, default ''
 #'
 #' @export
-fiksNULL <- function(x, erstatt='') {
-  if (!is.null(x)) {x} else {erstatt}
+fiksNULL <- function(x, erstatt = "") {
+  if (!is.null(x)) {
+    x
+  } else {
+    erstatt
+  }
 }
 
 
@@ -75,24 +78,31 @@ dobbelreg <- function(RegData, skjemaoversikt, usrRole = "LU", reshID) {
   flere_sammedato <- flere_sammedato[flere_sammedato$Op_pr_dag > 1, ]
 
   flere_sammedato <- merge(flere_sammedato, RegData,
-                           by = c('PasientID', 'HovedDato'), all.x = T)
-  flere_sammedato <- flere_sammedato[ , c("PasientID", "ForlopsID", "OperasjonsDato",
-                                          "AvdRESH", "Sykehusnavn","Hovedoperasjon",
-                                          "Operasjonsgrupper", "Hoveddiagnose",
-                                          "OppfStatus", "ForstLukketAv")]
+    by = c("PasientID", "HovedDato"), all.x = T
+  )
+  flere_sammedato <- flere_sammedato[, c(
+    "PasientID", "ForlopsID", "OperasjonsDato",
+    "AvdRESH", "Sykehusnavn", "Hovedoperasjon",
+    "Operasjonsgrupper", "Hoveddiagnose",
+    "OppfStatus", "ForstLukketAv"
+  )]
   skjemaoversikt <- skjemaoversikt %>%
-    dplyr::summarise(OpprettetAv = paste(unique(OpprettetAv), collapse = ", "),
-                     SistLagretAv = paste(unique(SistLagretAv), collapse = ", "),
-                     .by = ForlopsID) %>%
+    dplyr::summarise(
+      OpprettetAv = paste(unique(OpprettetAv), collapse = ", "),
+      SistLagretAv = paste(unique(SistLagretAv), collapse = ", "),
+      .by = ForlopsID
+    ) %>%
     dplyr::filter(ForlopsID %in% flere_sammedato$ForlopsID)
   flere_sammedato <- merge(flere_sammedato, skjemaoversikt, by = "ForlopsID")
-  flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format="%Y-%m-%d")
+  flere_sammedato$OperasjonsDato <- format(flere_sammedato$OperasjonsDato, format = "%Y-%m-%d")
   flere_sammedato$PasientID <- as.numeric(flere_sammedato$PasientID)
   flere_sammedato$ForlopsID <- as.numeric(flere_sammedato$ForlopsID)
   flere_sammedato$AvdRESH <- as.numeric(flere_sammedato$AvdRESH)
   flere_sammedato <- flere_sammedato[order(flere_sammedato$OperasjonsDato,
-                                           flere_sammedato$PasientID, decreasing = T), ]
-  if (usrRole != 'SC') {
+    flere_sammedato$PasientID,
+    decreasing = T
+  ), ]
+  if (usrRole != "SC") {
     flere_sammedato <- flere_sammedato[flere_sammedato$AvdRESH == reshID, ]
   }
   # flere_sammedato <- flere_sammedato %>%
@@ -110,13 +120,12 @@ dobbelreg <- function(RegData, skjemaoversikt, usrRole = "LU", reshID) {
 #' @return Character vector of staging files, invisibly
 #' @export
 norgastMakeStagingData <- function() {
-
-  RegData <-  norgast::NorgastHentRegData()
+  RegData <- norgast::NorgastHentRegData()
   skjemaoversikt <- norgast::NorgastHentskjemaoversikt()
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
-  skjemaoversikt <- merge(skjemaoversikt, RegData[,c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
-  RegData <- RegData[which(RegData$RegistreringStatus==1),]
+  skjemaoversikt <- merge(skjemaoversikt, RegData[, c("ForlopsID", "Op_gr", "Hovedoperasjon")], by = "ForlopsID", all.x = T)
+  RegData <- RegData[which(RegData$RegistreringStatus == 1), ]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
   rapbase::saveStagingData("norgast", "RegData", RegData)
   rapbase::saveStagingData("norgast", "skjemaoversikt", skjemaoversikt)
@@ -136,11 +145,11 @@ norgastMakeStagingData <- function() {
 #'
 #' @export
 #'
-tr_summarize_output <- function(x, kolnavn1 = ""){
-
+tr_summarize_output <- function(x, kolnavn1 = "") {
   rekkefolge <- names(x)[-1]
-  y <- x %>% tidyr::gather(names(x)[-1], key=nokkel, value = verdi) %>%
-    tidyr::spread(key=names(x)[1], value = verdi)
+  y <- x %>%
+    tidyr::gather(names(x)[-1], key = nokkel, value = verdi) %>%
+    tidyr::spread(key = names(x)[1], value = verdi)
   y <- y[match(rekkefolge, y$nokkel), ]
   names(y)[1] <- kolnavn1
 
@@ -151,11 +160,14 @@ tr_summarize_output <- function(x, kolnavn1 = ""){
 #'
 #' @export
 #'
-wrap.it <- function(x, len)
-{
-  sapply(x, function(y) paste(strwrap(y, len),
-                              collapse = "\n"),
-         USE.NAMES = FALSE)
+wrap.it <- function(x, len) {
+  sapply(x, function(y) {
+    paste(strwrap(y, len),
+      collapse = "\n"
+    )
+  },
+  USE.NAMES = FALSE
+  )
 }
 
 #' Calculate age
@@ -171,7 +183,7 @@ wrap.it <- function(x, len)
 #' @param floor boolean for whether or not to floor the result. Defaults to TRUE.
 #' @return Age in units. Will be an integer if floor = TRUE.
 #' @examples
-#' my.dob <- as.Date('1983-10-20')
+#' my.dob <- as.Date("1983-10-20")
 #' age(my.dob)
 #' age(my.dob, units = "minutes")
 #' age(my.dob, floor = FALSE)
@@ -179,10 +191,11 @@ wrap.it <- function(x, len)
 #' @export
 #'
 age <- function(dob, age.day = lubridate::today(), units = "years", floor = TRUE) {
-
-  calc.age = lubridate::interval(dob, age.day) /
+  calc.age <- lubridate::interval(dob, age.day) /
     lubridate::duration(num = 1, units = units)
-  if (floor) return(as.integer(floor(calc.age)))
+  if (floor) {
+    return(as.integer(floor(calc.age)))
+  }
   return(calc.age)
 }
 
@@ -191,23 +204,28 @@ age <- function(dob, age.day = lubridate::today(), units = "years", floor = TRUE
 #' @export
 #'
 lag_kompl_tabell <- function(regdata) {
-  regdata |> summarise(
-    N = n(),
-    reop_rate = sum(ReLapNarkose),
-    anastomoselekk = sum(ViktigsteFunn==1, na.rm = T),
-    dyp_infek = sum(ViktigsteFunn==2, na.rm = T),
-    bloedning = sum(ViktigsteFunn==3, na.rm = T),
-    saarrupt = sum(ViktigsteFunn==4, na.rm = T),
-    annet = sum(ViktigsteFunn==5, na.rm = T),
-    ingen = sum(ViktigsteFunn==6, na.rm = T),
-    .by = c(Tilgang, Robot)) |>
+  regdata |>
+    summarise(
+      N = n(),
+      reop_rate = sum(ReLapNarkose),
+      anastomoselekk = sum(ViktigsteFunn == 1, na.rm = T),
+      dyp_infek = sum(ViktigsteFunn == 2, na.rm = T),
+      bloedning = sum(ViktigsteFunn == 3, na.rm = T),
+      saarrupt = sum(ViktigsteFunn == 4, na.rm = T),
+      annet = sum(ViktigsteFunn == 5, na.rm = T),
+      ingen = sum(ViktigsteFunn == 6, na.rm = T),
+      .by = c(Tilgang, Robot)
+    ) |>
     janitor::adorn_totals() |>
     dplyr::group_by(Robot) |>
     dplyr::group_modify(
-      ~ .x |> janitor::adorn_totals(name = "samlet")) |>
+      ~ .x |> janitor::adorn_totals(name = "samlet")
+    ) |>
     ungroup() |>
-    filter( !(Robot == "-" & Tilgang == "samlet"),
-            !(is.na(Robot) & Tilgang == "samlet")) |>
+    filter(
+      !(Robot == "-" & Tilgang == "samlet"),
+      !(is.na(Robot) & Tilgang == "samlet")
+    ) |>
     mutate(Tilgang_ny = case_when(
       Tilgang == 1 ~ "\\textbf{Åpen}",
       Tilgang == "Total" ~ "\\textbf{Totalt}",
@@ -222,8 +240,8 @@ lag_kompl_tabell <- function(regdata) {
       Robot == "Robot" & Tilgang == 2 ~
         "\\quad \\quad \\textit{Fullført laparoskopisk}",
       Robot == "Robot" & Tilgang == 3 ~
-        "\\quad \\quad \\textit{Konvertert}")
-    ) |>
+        "\\quad \\quad \\textit{Konvertert}"
+    )) |>
     relocate(Tilgang_ny) %>%
     bind_rows(
       . |>
@@ -231,7 +249,7 @@ lag_kompl_tabell <- function(regdata) {
           "\\quad Ikke-robot",
           "\\quad Robotassistert"
         ))
-      |>
+        |>
         summarise(
           across(where(is.numeric), sum, na.rm = TRUE),
           Tilgang_ny = "\\textbf{Laparoskopisk (ITT)}"
@@ -269,8 +287,8 @@ lag_kompl_tabell <- function(regdata) {
     mutate(N = ifelse(
       Tilgang_ny %in% c(
         "\\quad \\quad \\textit{Fullført laparoskopisk}",
-        "\\quad \\quad \\textit{Konvertert}"),
+        "\\quad \\quad \\textit{Konvertert}"
+      ),
       paste0("\\textit{", N, "}"), N
     ))
 }
-
