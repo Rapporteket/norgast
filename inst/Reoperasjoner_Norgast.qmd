@@ -238,6 +238,7 @@ index_op_distinct <- index_op |>
 tmp <- index_op |> filter(ant_samme > 1)
 
 
+
 reop_oppsum <- relap_npr_norgast_alle |> 
   summarise(
     Sykehusnavn = unique(Sykehusnavn),
