@@ -4,8 +4,7 @@
 #' @export
 
 appUi <- function() {
-
-  regTitle = "NORGAST"
+  regTitle <- "NORGAST"
 
   # Define UI for application
   ui <- shiny::navbarPage(
@@ -41,62 +40,63 @@ appUi <- function() {
     shiny::tabPanel(
       "Startside",
       rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE),
-
       norgast::startside_ui("startside")
     ),
-
     shiny::tabPanel(
       "Fordelinger",
       norgast::fordelingsfig_ui(id = "fordelingsfig_id")
     ),
-
     shiny::navbarMenu(
       "Tidsvisning",
-      shiny::tabPanel("Andeler over tid",
-                      norgast::tidsvisning_ui(id = "tidsvisning_id")
+      shiny::tabPanel(
+        "Andeler over tid",
+        norgast::tidsvisning_ui(id = "tidsvisning_id")
       ),
-      shiny::tabPanel("Sammenlign andeler",
-                      norgast::saml_andeler_ui(id = "saml_andeler_id")
+      shiny::tabPanel(
+        "Sammenlign andeler",
+        norgast::saml_andeler_ui(id = "saml_andeler_id")
       )
     ),
-
-    shiny::tabPanel("Overlevelse",
-                    norgast::overlevelse_ui(id = "overlevelse_id")
+    shiny::tabPanel(
+      "Overlevelse",
+      norgast::overlevelse_ui(id = "overlevelse_id")
     ),
-
-    shiny::tabPanel("Samledokumenter",
-                    shiny::h2("Samledokumenter", align='center'),
-                    shiny::h4("Når du velger ", strong("Last ned samledokument"),
-                              " genereres en samlerapport bestående av figurer og
-                            tabeller.", align='center'),
-                    shiny::br(),
-                    shiny::br(),
-                    norgast::samledok_ui(id = "samledok_id")
+    shiny::tabPanel(
+      "Samledokumenter",
+      shiny::h2("Samledokumenter", align = "center"),
+      shiny::h4("Når du velger ", strong("Last ned samledokument"),
+        " genereres en samlerapport bestående av figurer og
+                            tabeller.",
+        align = "center"
+      ),
+      shiny::br(),
+      shiny::br(),
+      norgast::samledok_ui(id = "samledok_id")
     ),
-
     shiny::tabPanel(
       "Datadump",
-      shiny::h2("Datadump", align='center'),
+      shiny::h2("Datadump", align = "center"),
       shiny::h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan
     det være små avvik i antall forløp som inkluderes i datadump på Rapporteket
               sammenlignet med datadump hentet fra registerets qreg-løsning.",
-                align='center'),
+        align = "center"
+      ),
       shiny::br(),
       shiny::br(),
       norgast::datadump_ui(id = "datadump_id")
     ),
-
-    shiny::tabPanel("Administrative tabeller",
-                    norgast::admtab_ui(id = "admtab_id")
+    shiny::tabPanel(
+      "Administrative tabeller",
+      norgast::admtab_ui(id = "admtab_id")
     ),
-
-    shiny::tabPanel("Datakvalitet",
-                    norgast::datakval_ui("datakval_id")
+    shiny::tabPanel(
+      "Datakvalitet",
+      norgast::datakval_ui("datakval_id")
     ),
-
     shiny::tabPanel(
       shiny::span("Abonnement",
-                  title="Bestill tilsending av rapporter på e-post"),
+        title = "Bestill tilsending av rapporter på e-post"
+      ),
       shiny::sidebarLayout(
         shiny::sidebarPanel(
           rapbase::autoReportInput("norgastSubscription")
@@ -107,7 +107,6 @@ appUi <- function() {
       )
     )
   )
-
 }
 
 
