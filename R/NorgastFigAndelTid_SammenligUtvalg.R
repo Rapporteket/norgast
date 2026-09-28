@@ -16,14 +16,13 @@
 #'
 #' @export
 #'
-NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='',
-                                               tidsenhet='Aar',
-                                               inkl_konf=FALSE,
-                                               datoFra="2014-01-01",
-                                               datoTil=lubridate::today(),
+NorgastFigAndelTid_SammenligUtvalg <- function(plotdata = 0, outfile = "",
+                                               tidsenhet = "Aar",
+                                               inkl_konf = FALSE,
+                                               datoFra = "2014-01-01",
+                                               datoTil = lubridate::today(),
                                                fra0 = FALSE,
-                                               inkl_tall=FALSE) {
-
+                                               inkl_tall = FALSE) {
   # outfile=''; tidsenhet='Aar'; inkl_konf=FALSE
   # datoFra="2014-01-01"; datoTil=today(); fra0 = FALSE
   # RegData$Utvalg <- 1; inkl_tall <- F
@@ -32,25 +31,35 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='',
 
   RegData <- req(plotdata$Samlet)
   RegData$TidsEnhet <- switch(tidsenhet,
-                              Aar = factor(format(RegData$HovedDato, format='%Y'),
-                                           levels = format(seq(as.Date(datoFra), as.Date(datoTil), by="year"), "%Y")),
-                              Mnd = factor(format(RegData$HovedDato, format='%b-%y'),
-                                           levels = format(seq(as.Date(datoFra), as.Date(datoTil), by="month"), "%b-%y")),
-                              Kvartal = factor(as.character(tsibble::yearquarter(RegData$HovedDato)),
-                                               levels = as.character(tsibble::yearquarter(seq(as.Date(datoFra),
-                                                                                              as.Date(datoTil), by="1 quarter")))),
-                              Halvaar = factor(tsibble::yearquarter(lubridate::floor_date(RegData$HovedDato, unit = "halfyear")) %>%
-                                                 stringr::str_replace("Q1", "H1") %>% stringr::str_replace("Q3", "H2"),
-                                               levels = tsibble::yearquarter(seq(as.Date(datoFra), as.Date(datoTil), by="2 quarter")) %>%
-                                                 stringr::str_replace("Q1", "H1") %>% stringr::str_replace("Q3", "H2"))
+    Aar = factor(format(RegData$HovedDato, format = "%Y"),
+      levels = format(seq(as.Date(datoFra), as.Date(datoTil), by = "year"), "%Y")
+    ),
+    Mnd = factor(format(RegData$HovedDato, format = "%b-%y"),
+      levels = format(seq(as.Date(datoFra), as.Date(datoTil), by = "month"), "%b-%y")
+    ),
+    Kvartal = factor(as.character(tsibble::yearquarter(RegData$HovedDato)),
+      levels = as.character(tsibble::yearquarter(seq(as.Date(datoFra),
+        as.Date(datoTil),
+        by = "1 quarter"
+      )))
+    ),
+    Halvaar = factor(
+      tsibble::yearquarter(lubridate::floor_date(RegData$HovedDato, unit = "halfyear")) %>%
+        stringr::str_replace("Q1", "H1") %>% stringr::str_replace("Q3", "H2"),
+      levels = tsibble::yearquarter(seq(as.Date(datoFra), as.Date(datoTil), by = "2 quarter")) %>%
+        stringr::str_replace("Q1", "H1") %>% stringr::str_replace("Q3", "H2")
+    )
   )
 
   VarTxt <- plotdata$PlotParams$VarTxt
 
-  oppsum <- RegData %>% dplyr::group_by(TidsEnhet, Utvalg) %>%
-    dplyr::summarise(antall = sum(Variabel),
-              N = dplyr::n(),
-              andel = antall/N*100)
+  oppsum <- RegData %>%
+    dplyr::group_by(TidsEnhet, Utvalg) %>%
+    dplyr::summarise(
+      antall = sum(Variabel),
+      N = dplyr::n(),
+      andel = antall / N * 100
+    )
 
   ## debug
   # print(oppsum)
@@ -62,11 +71,20 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='',
   # print(antall)
   # print(N)
 
-  Konf <- list(Utvalg1=if ("1" %in% names(antall)) {binomkonf(antall[["1"]], N[["1"]])*100} else NA,
-               Utvalg2=if ("2" %in% names(antall)) {binomkonf(antall[["2"]], N[["2"]])*100} else NA)
+  Konf <- list(
+    Utvalg1 = if ("1" %in% names(antall)) {
+      binomkonf(antall[["1"]], N[["1"]]) * 100
+    } else {
+      NA
+    },
+    Utvalg2 = if ("2" %in% names(antall)) {
+      binomkonf(antall[["2"]], N[["2"]]) * 100
+    } else {
+      NA
+    }
+  )
 
   if ("1" %in% names(antall)) {
-
     Tidtxt <- andeler$TidsEnhet
     Ant_tidpkt <- length(Tidtxt)
     xmin <- 0.9
@@ -76,67 +94,84 @@ NorgastFigAndelTid_SammenligUtvalg <- function(plotdata=0, outfile='',
     if (fra0) {
       ymin <- 0
       if (inkl_konf) {
-        ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+        ymax <- 1.1 * max(Konf$Utvalg1, Konf$Utvalg2, na.rm = TRUE)
       } else {
-        ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
+        ymax <- 1.1 * max(andeler[, -1], na.rm = TRUE)
       }
     } else {
       if (inkl_konf) {
-        ymin <- 0.9*min(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
-        ymax <- 1.1*max(Konf$Utvalg1, Konf$Utvalg2, na.rm=TRUE)
+        ymin <- 0.9 * min(Konf$Utvalg1, Konf$Utvalg2, na.rm = TRUE)
+        ymax <- 1.1 * max(Konf$Utvalg1, Konf$Utvalg2, na.rm = TRUE)
       } else {
-        ymin <- 0.9*min(andeler[,-1], na.rm=TRUE)
-        ymax <- 1.1*max(andeler[,-1], na.rm=TRUE)
+        ymin <- 0.9 * min(andeler[, -1], na.rm = TRUE)
+        ymax <- 1.1 * max(andeler[, -1], na.rm = TRUE)
       }
     }
     xskala <- 1:Ant_tidpkt
-    FigTypUt <- rapFigurer::figtype(outfile=outfile)
+    FigTypUt <- rapFigurer::figtype(outfile = outfile)
     farger <- FigTypUt$farger
 
-    plot(xskala, andeler[["1"]], xlim= c(xmin, xmax), ylim=c(ymin, ymax), type='l', frame.plot=FALSE,
-         ylab=c(paste0('Andel ', VarTxt),if (inkl_konf) {'inkl. 95% konfidensintervall'} else {NULL}),
-         xlab=switch(tidsenhet, Aar='Operasjonsår', Mnd='Operasjonsår og -måned',
-                     Kvartal='Operasjonsår og -kvartal', Halvaar='Operasjonsår og -halvår'),
-         xaxt='n', col=farger[1], lwd=2,
-         sub='(Tall i boksene angir antall operasjoner)', cex.sub=cexgr)	#, axes=F)
-    axis(side=1, at = xskala, labels = Tidtxt)
+    plot(xskala, andeler[["1"]],
+      xlim = c(xmin, xmax), ylim = c(ymin, ymax), type = "l", frame.plot = FALSE,
+      ylab = c(paste0("Andel ", VarTxt), if (inkl_konf) {
+        "inkl. 95% konfidensintervall"
+      } else {
+        NULL
+      }),
+      xlab = switch(tidsenhet,
+        Aar = "Operasjonsår",
+        Mnd = "Operasjonsår og -måned",
+        Kvartal = "Operasjonsår og -kvartal",
+        Halvaar = "Operasjonsår og -halvår"
+      ),
+      xaxt = "n", col = farger[1], lwd = 2,
+      sub = "(Tall i boksene angir antall operasjoner)", cex.sub = cexgr
+    ) # , axes=F)
+    axis(side = 1, at = xskala, labels = Tidtxt)
 
     if ("2" %in% names(andeler)) {
-      lines(xskala, andeler[["2"]], col="orangered", lwd=2)
+      lines(xskala, andeler[["2"]], col = "orangered", lwd = 2)
     }
 
     if (inkl_konf) {
       xskala1 <- xskala[which(N[["1"]] != 0)]
-      polygon( c(xskala1, rev(xskala1)), c(Konf$Utvalg1[1, xskala1], Konf$Utvalg1[2,rev(xskala1)]),
-               col=adjustcolor(farger[1], alpha.f = 0.1), border=NA)
+      polygon(c(xskala1, rev(xskala1)), c(Konf$Utvalg1[1, xskala1], Konf$Utvalg1[2, rev(xskala1)]),
+        col = adjustcolor(farger[1], alpha.f = 0.1), border = NA
+      )
       if ("2" %in% names(andeler)) {
         xskala2 <- xskala[which(N[["2"]] != 0)]
-        polygon( c(xskala2, rev(xskala)), c(Konf$Utvalg2[1,xskala2], Konf$Utvalg2[2,rev(xskala2)]),
-                 col=adjustcolor("orangered", alpha.f = 0.1), border=NA)
+        polygon(c(xskala2, rev(xskala)), c(Konf$Utvalg2[1, xskala2], Konf$Utvalg2[2, rev(xskala2)]),
+          col = adjustcolor("orangered", alpha.f = 0.1), border = NA
+        )
       }
     }
 
     if (inkl_tall) {
-      text(xskala, andeler[["1"]], pos=3, N[["1"]], cex=0.9, col=farger[1])
+      text(xskala, andeler[["1"]], pos = 3, N[["1"]], cex = 0.9, col = farger[1])
       if ("2" %in% names(andeler)) {
-        text(xskala, andeler[["2"]], pos=3, N[["2"]], cex=0.9, col="orangered")
+        text(xskala, andeler[["2"]], pos = 3, N[["2"]], cex = 0.9, col = "orangered")
       }
     }
 
-    title(main=plotdata$PlotParams$tittel, font.main=1.2, line=1)
-    legend('top', cex=0.9, bty='o', bg='white', box.col='white', lty = c(1,1),
-           lwd=c(2,2), pch=c(NA,NA), pt.cex=c(1,1), col=c(farger[1],"orangered"),
-           legend = c(paste0('Utvalg 1, N = ', sum(N[["1"]])),
-                      paste0('Utvalg 2, N = ', sum(N[["2"]]))) )
+    title(main = plotdata$PlotParams$tittel, font.main = 1.2, line = 1)
+    legend("top",
+      cex = 0.9, bty = "o", bg = "white", box.col = "white", lty = c(1, 1),
+      lwd = c(2, 2), pch = c(NA, NA), pt.cex = c(1, 1), col = c(farger[1], "orangered"),
+      legend = c(
+        paste0("Utvalg 1, N = ", sum(N[["1"]])),
+        paste0("Utvalg 2, N = ", sum(N[["2"]]))
+      )
+    )
   } else {
     plot.new()
-    tekst <- 'Ingen registrerte data i utvalg 1'
-    title(main=plotdata$PlotParams$tittel, cex=0.95)	#line=-8,
-    text(0.5, 0.6, tekst, cex=1.2)
+    tekst <- "Ingen registrerte data i utvalg 1"
+    title(main = plotdata$PlotParams$tittel, cex = 0.95) # line=-8,
+    text(0.5, 0.6, tekst, cex = 1.2)
   }
 
-  if ( outfile != '') {dev.off()}
+  if (outfile != "") {
+    dev.off()
+  }
 
-  return(invisible(list(andeler=andeler, antall=antall, N=N, Konf=Konf)))
+  return(invisible(list(andeler = andeler, antall = antall, N = N, Konf = Konf)))
 }
-

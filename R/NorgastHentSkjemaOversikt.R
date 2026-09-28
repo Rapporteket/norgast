@@ -6,8 +6,7 @@
 #' @export
 
 NorgastHentskjemaoversikt <- function() {
-
-  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")){
+  if (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC", "PRODUCTIONC")) {
     registryName <- "data"
   } else {
     registryName <- "norgast"

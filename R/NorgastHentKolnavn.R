@@ -5,8 +5,7 @@
 #' @return kolnavn dataframe
 #' @export
 
-NorgastHentKolnavn <- function(tabellnavn = 'allevarnum') {
-
+NorgastHentKolnavn <- function(tabellnavn = "allevarnum") {
   registryName <- "norgast"
   dbType <- "mysql"
 

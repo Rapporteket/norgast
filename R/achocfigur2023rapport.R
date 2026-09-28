@@ -10,123 +10,161 @@ norgastAndelGruppert2Gr <- function(valgtVar = "Malign",
                                     ytxt = "",
                                     inkl_konf = FALSE,
                                     pst_kol = TRUE,
-                                    outfile='',
-                                    farger=NA,
+                                    outfile = "",
+                                    farger = NA,
                                     rev_farger = FALSE,
-                                    ...)
-{
+                                    ...) {
   NorgastUtvalg <- NorgastUtvalg(...)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
 
   aux <- RegData %>%
-    dplyr::filter(!is.na(!! sym(valgtVar )),
-                  !is.na(!! sym(Grvar1 )),
-                  !is.na(!! sym(Grvar2 ))) %>%
+    dplyr::filter(
+      !is.na(!!sym(valgtVar)),
+      !is.na(!!sym(Grvar1)),
+      !is.na(!!sym(Grvar2))
+    ) %>%
     dplyr::summarise(
       N = dplyr::n(),
-      Antall = sum(!! sym(valgtVar )),
-      Andel = Antall/N*100,
-      konf_lav = binom.test(Antall,N,
-                            alternative = 'two.sided')$conf.int[1]*100,
-      konf_hoy = binom.test(Antall,N,
-                            alternative = 'two.sided')$conf.int[2]*100,
-      .by = c(!! sym(Grvar1 ), !! sym(Grvar2 )))
+      Antall = sum(!!sym(valgtVar)),
+      Andel = Antall / N * 100,
+      konf_lav = binom.test(Antall, N,
+        alternative = "two.sided"
+      )$conf.int[1] * 100,
+      konf_hoy = binom.test(Antall, N,
+        alternative = "two.sided"
+      )$conf.int[2] * 100,
+      .by = c(!!sym(Grvar1), !!sym(Grvar2))
+    )
 
 
-  Andeler <- aux %>% dplyr::select(!! sym(Grvar1 ), !! sym(Grvar2 ), Andel) %>%
-    tidyr::pivot_wider(names_from = !! sym(Grvar2 ),
-                       values_from = Andel,
-                       names_sort = TRUE) %>%
-    dplyr::arrange(desc(!! sym(Grvar1 )))
+  Andeler <- aux %>%
+    dplyr::select(!!sym(Grvar1), !!sym(Grvar2), Andel) %>%
+    tidyr::pivot_wider(
+      names_from = !!sym(Grvar2),
+      values_from = Andel,
+      names_sort = TRUE
+    ) %>%
+    dplyr::arrange(desc(!!sym(Grvar1)))
 
-  N <- aux %>% dplyr::select(!! sym(Grvar1 ), !! sym(Grvar2 ), N) %>%
-    tidyr::pivot_wider(names_from = !! sym(Grvar2 ),
-                       values_from = N,
-                       names_sort = TRUE) %>%
-    dplyr::arrange(desc(!! sym(Grvar1 )))
+  N <- aux %>%
+    dplyr::select(!!sym(Grvar1), !!sym(Grvar2), N) %>%
+    tidyr::pivot_wider(
+      names_from = !!sym(Grvar2),
+      values_from = N,
+      names_sort = TRUE
+    ) %>%
+    dplyr::arrange(desc(!!sym(Grvar1)))
 
   PlotAndeler <- as.data.frame(Andeler)
   rownames(PlotAndeler) <- PlotAndeler[, Grvar1]
-  PlotAndeler<- as.matrix(PlotAndeler[,-1]) %>% t()
+  PlotAndeler <- as.matrix(PlotAndeler[, -1]) %>% t()
 
-  ngrvar2level <- dim(Andeler)[2]-1
-  ymax <- 1.5 + (nlevels(RegData[[Grvar2]])+1) * nlevels(RegData[[Grvar1]])
+  ngrvar2level <- dim(Andeler)[2] - 1
+  ymax <- 1.5 + (nlevels(RegData[[Grvar2]]) + 1) * nlevels(RegData[[Grvar1]])
 
-  FigTypUt <- rapFigurer::figtype(outfile=outfile,
-                                  pointsizePDF=11, fargepalett='BlaaOff')
-  if (is.na(farger[1])){
+  FigTypUt <- rapFigurer::figtype(
+    outfile = outfile,
+    pointsizePDF = 11, fargepalett = "BlaaOff"
+  )
+  if (is.na(farger[1])) {
     farger <- FigTypUt$farger[
-      (length(FigTypUt$farger)-nlevels(RegData[,Grvar2])+1):
-        length(FigTypUt$farger)]
+      (length(FigTypUt$farger) - nlevels(RegData[, Grvar2]) + 1):
+      length(FigTypUt$farger)
+    ]
     if (rev_farger) {
       rev(farger)
     }
     # farger <- rev(FigTypUt$farger)
   }
-  par('oma'=c(0,1,NutvTxt,0))
-  par('mar'=c(5.1, 5.1, 5.1, 4.1))
+  par("oma" = c(0, 1, NutvTxt, 0))
+  par("mar" = c(5.1, 5.1, 5.1, 4.1))
 
   if (inkl_konf) {
-    xmax <- min(max(aux$konf_hoy, na.rm = T)*1.2, 100)
-  } else {xmax <- min(max(PlotAndeler, na.rm = T)*1.2, 100)}
+    xmax <- min(max(aux$konf_hoy, na.rm = T) * 1.2, 100)
+  } else {
+    xmax <- min(max(PlotAndeler, na.rm = T) * 1.2, 100)
+  }
 
-  pos <- barplot(PlotAndeler, horiz=T, beside=TRUE, border=NA,
-                 col=farger, #[1:ngrvar2level],
-                 main='', font.main=1, ylim = c(0,ymax),
-                 xlim = c(0, xmax),
-                 xlab=xtxt, las=1, cex.names = 1.2,
-                 names.arg=rep('',dim(PlotAndeler)[2]))
+  pos <- barplot(PlotAndeler,
+    horiz = T, beside = TRUE, border = NA,
+    col = farger, # [1:ngrvar2level],
+    main = "", font.main = 1, ylim = c(0, ymax),
+    xlim = c(0, xmax),
+    xlab = xtxt, las = 1, cex.names = 1.2,
+    names.arg = rep("", dim(PlotAndeler)[2])
+  )
 
-  mtext(norgast::wrap.it(colnames(PlotAndeler), 15), side=2, line=0.2, las=1,
-        at=colMeans(pos), col=1, cex=1)
-  mtext(ytxt, side=2, line=5, las=0, col=1, cex=1)
+  mtext(norgast::wrap.it(colnames(PlotAndeler), 15),
+    side = 2, line = 0.2, las = 1,
+    at = colMeans(pos), col = 1, cex = 1
+  )
+  mtext(ytxt, side = 2, line = 5, las = 0, col = 1, cex = 1)
 
 
-  Nlang <- N %>% pivot_longer(cols = -1,
-                              names_to = Grvar2, values_to = "N")
+  Nlang <- N %>% pivot_longer(
+    cols = -1,
+    names_to = Grvar2, values_to = "N"
+  )
   Nlang$pos <- as.vector(pos)
   Nlang <- merge(Nlang,
-                 aux[, c(Grvar1, Grvar2, "Andel", "konf_lav", "konf_hoy")],
-                 by = c(Grvar1, Grvar2))
+    aux[, c(Grvar1, Grvar2, "Andel", "konf_lav", "konf_hoy")],
+    by = c(Grvar1, Grvar2)
+  )
   Nlang$pst_txt <- paste0(sprintf("%.1f", Nlang$Andel), " %")
   Nlang <- Nlang %>% arrange(-pos)
-  if (pst_kol){
-    mtext(Nlang$pst_txt , side=4, line=1, las=1,
-          at=Nlang$pos, col=1, cex=0.75, adj = 1, xpd = T)
-    mtext(expression(bold("Andel")), side=4, line=1, las=1, at=Nlang$pos[1]+1,
-          col=1, cex=0.75, adj = 1, xpd = T)
+  if (pst_kol) {
+    mtext(Nlang$pst_txt,
+      side = 4, line = 1, las = 1,
+      at = Nlang$pos, col = 1, cex = 0.75, adj = 1, xpd = T
+    )
+    mtext(expression(bold("Andel")),
+      side = 4, line = 1, las = 1, at = Nlang$pos[1] + 1,
+      col = 1, cex = 0.75, adj = 1, xpd = T
+    )
   } else {
     text(x = 0, y = Nlang$pos, labels = Nlang$pst_txt, pos = 4)
   }
-  mtext(Nlang$N , side=4, line=3, las=1,
-        at=Nlang$pos, col=1, cex=0.75, adj = 1, xpd = T)
-  mtext(expression(bold("N")), side=4, line=3, las=1, at=Nlang$pos[1]+1,
-        col=1, cex=0.75, adj = 1, xpd = T)
+  mtext(Nlang$N,
+    side = 4, line = 3, las = 1,
+    at = Nlang$pos, col = 1, cex = 0.75, adj = 1, xpd = T
+  )
+  mtext(expression(bold("N")),
+    side = 4, line = 3, las = 1, at = Nlang$pos[1] + 1,
+    col = 1, cex = 0.75, adj = 1, xpd = T
+  )
 
-  if (inkl_konf){
-    arrows(x0 = Nlang$konf_lav, y0 = Nlang$pos,
-           x1 = Nlang$konf_hoy, y1 = Nlang$pos,
-           length=0.5/max(Nlang$pos), code=3, angle=90, lwd=1.8,
-           col='gray') #, col=farger[1])
-    legend('bottom', cex=0.9, bty='n',
-           lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
-           legend= 'Konfidensintervall')
+  if (inkl_konf) {
+    arrows(
+      x0 = Nlang$konf_lav, y0 = Nlang$pos,
+      x1 = Nlang$konf_hoy, y1 = Nlang$pos,
+      length = 0.5 / max(Nlang$pos), code = 3, angle = 90, lwd = 1.8,
+      col = "gray"
+    ) # , col=farger[1])
+    legend("bottom",
+      cex = 0.9, bty = "n",
+      lwd = 1.8, lty = 1, pt.cex = 1.8, col = "gray",
+      legend = "Konfidensintervall"
+    )
   }
 
   title(tittel)
   legend("top",
-         legend = rev(levels(RegData[, Grvar2])),
-         pch=15, col=rev(farger), #[1:ngrvar2level]),
-         ncol = ngrvar2level,
-         bty='n')
+    legend = rev(levels(RegData[, Grvar2])),
+    pch = 15, col = rev(farger), # [1:ngrvar2level]),
+    ncol = ngrvar2level,
+    bty = "n"
+  )
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col="darkgray",
-        line=(NutvTxt-1):0, outer=TRUE)
+  mtext(utvalgTxt,
+    side = 3, las = 1, cex = 0.9, adj = 0, col = "darkgray",
+    line = (NutvTxt - 1):0, outer = TRUE
+  )
 
-  if ( outfile != '') {dev.off()}
-
+  if (outfile != "") {
+    dev.off()
+  }
 }
 
 
@@ -140,58 +178,70 @@ norgastAndelGruppert1Gr <- function(valgtVar = "Anastomoselekkasje",
                                     xtxt = "Andel (%)",
                                     ytxt = "",
                                     inkl_konf = TRUE,
-                                    outfile='', ...)
-{
+                                    outfile = "", ...) {
   NorgastUtvalg <- NorgastUtvalg(...)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
 
   aux <- RegData %>%
-    dplyr::filter(!is.na(!! sym(valgtVar )),
-                  !is.na(!! sym(Grvar1 ))) %>%
-    dplyr::summarise(N = dplyr::n(),
-                     Antall = sum(!! sym(valgtVar )),
-                     Andel = Antall/N*100,
-                     konf_lav = binom.test(Antall,N, alternative = 'two.sided')$conf.int[1]*100,
-                     konf_hoy = binom.test(Antall,N, alternative = 'two.sided')$conf.int[2]*100,
-                     .by = c(!! sym(Grvar1 )))
+    dplyr::filter(
+      !is.na(!!sym(valgtVar)),
+      !is.na(!!sym(Grvar1))
+    ) %>%
+    dplyr::summarise(
+      N = dplyr::n(),
+      Antall = sum(!!sym(valgtVar)),
+      Andel = Antall / N * 100,
+      konf_lav = binom.test(Antall, N, alternative = "two.sided")$conf.int[1] * 100,
+      konf_hoy = binom.test(Antall, N, alternative = "two.sided")$conf.int[2] * 100,
+      .by = c(!!sym(Grvar1))
+    )
 
   plotvektor <- aux$Andel
   grtxt <- paste0(aux[[1]], "\n (N=", aux$N, ")")
-  FigTypUt <- rapFigurer::figtype(outfile=outfile,
-                                  pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(
+    outfile = outfile,
+    pointsizePDF = 11, fargepalett = "BlaaOff"
+  )
   farger <- FigTypUt$farger
-  par('oma'=c(0,1,NutvTxt,0))
-  par('mar'=c(5.1, 5.1, 5.1, 2.1))
+  par("oma" = c(0, 1, NutvTxt, 0))
+  par("mar" = c(5.1, 5.1, 5.1, 2.1))
 
   if (inkl_konf) {
-    xmax <- min(max(aux$konf_hoy, na.rm = T)*1.2, 100)
-  } else {xmax <- min(max(PlotAndeler, na.rm = T)*1.2, 100)}
+    xmax <- min(max(aux$konf_hoy, na.rm = T) * 1.2, 100)
+  } else {
+    xmax <- min(max(PlotAndeler, na.rm = T) * 1.2, 100)
+  }
 
-  pos <- barplot(plotvektor, horiz=T, border=NA, col=farger[3],
-                 font.main=1,
-                 xlim = c(0, xmax),
-                 xlab=xtxt, las=1,
-                 names.arg=rep('',length(plotvektor)))
+  pos <- barplot(plotvektor,
+    horiz = T, border = NA, col = farger[3],
+    font.main = 1,
+    xlim = c(0, xmax),
+    xlab = xtxt, las = 1,
+    names.arg = rep("", length(plotvektor))
+  )
   title(main = tittel)
-  mtext(grtxt, side=2, line=0.2, las=1, at=pos, col=1, cex=1)
-  mtext(ytxt, side=2, line=5, las=0, col=1, cex=1)
+  mtext(grtxt, side = 2, line = 0.2, las = 1, at = pos, col = 1, cex = 1)
+  mtext(ytxt, side = 2, line = 5, las = 0, col = 1, cex = 1)
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[2], line=(NutvTxt-1):0, outer=TRUE)
+  mtext(utvalgTxt, side = 3, las = 1, cex = 0.9, adj = 0, col = farger[2], line = (NutvTxt - 1):0, outer = TRUE)
 
-  if (inkl_konf){
-    arrows(x0 = aux$konf_lav, y0 = pos, x1 = aux$konf_hoy, y1 = pos,
-           length=0.5/max(pos), code=3, angle=90, lwd=1.8, col='gray') #, col=farger[1])
+  if (inkl_konf) {
+    arrows(
+      x0 = aux$konf_lav, y0 = pos, x1 = aux$konf_hoy, y1 = pos,
+      length = 0.5 / max(pos), code = 3, angle = 90, lwd = 1.8, col = "gray"
+    ) # , col=farger[1])
     # legend('bottom', cex=0.9, bty='n',
     #        lwd=1.8, lty = 1, pt.cex=1.8, col='gray',
     #        legend= 'Konfidensintervall')
   }
 
-  if ( outfile != '') {dev.off()}
+  if (outfile != "") {
+    dev.off()
+  }
 
   return(invisible(aux))
-
 }
 
 
@@ -203,13 +253,14 @@ norgastAndelGruppert1Gr <- function(valgtVar = "Anastomoselekkasje",
 norgastFordelingOpGruppert <- function(outfile = "",
                                        Grvar1 = "AvstandAnalVerge_fakt",
                                        Grvar2 = "Tilgang_utvidet",
-                                       tittel = c("Fordeling av operasjoner",
-                                                  "over avstand fra analkanten"),
+                                       tittel = c(
+                                         "Fordeling av operasjoner",
+                                         "over avstand fra analkanten"
+                                       ),
                                        ytxt = "Andel (%)",
                                        xtxt = "Avstand analkanten (cm)",
                                        rev_farger = FALSE,
                                        ...) {
-
   NorgastUtvalg <- NorgastUtvalg(...)
 
   aux <- NorgastUtvalg$RegData
@@ -217,57 +268,65 @@ norgastFordelingOpGruppert <- function(outfile = "",
   NutvTxt <- length(utvalgTxt)
 
   antall <- aux %>%
-    dplyr::filter(!is.na(!! sym(Grvar1 )),
-                  !is.na(!! sym(Grvar2 ))) %>%
-    dplyr::summarise(N = dplyr::n(),
-                     .by = c(!! sym(Grvar1 ), !! sym(Grvar2 ))) %>%
+    dplyr::filter(
+      !is.na(!!sym(Grvar1)),
+      !is.na(!!sym(Grvar2))
+    ) %>%
+    dplyr::summarise(
+      N = dplyr::n(),
+      .by = c(!!sym(Grvar1), !!sym(Grvar2))
+    ) %>%
     pivot_wider(names_from = Grvar2, values_from = N) %>%
-    arrange(!! sym(Grvar1 ))
+    arrange(!!sym(Grvar1))
 
   antall[is.na(antall)] <- 0
 
-  legendTxt <- paste0(names(colSums(antall[,-1])),
-                      paste0(" (N = ", colSums(antall[,-1]), ")"))
+  legendTxt <- paste0(
+    names(colSums(antall[, -1])),
+    paste0(" (N = ", colSums(antall[, -1]), ")")
+  )
 
   andeler <- antall
-  andeler[,-1] <- t(t(antall[,-1])/colSums(antall[,-1]))*100
+  andeler[, -1] <- t(t(antall[, -1]) / colSums(antall[, -1])) * 100
 
-  tmp <- andeler[,2:dim(andeler)[2]] %>% as.matrix() %>% t()
+  tmp <- andeler[, 2:dim(andeler)[2]] %>%
+    as.matrix() %>%
+    t()
   colnames(tmp) <- andeler[[1]]
   plotdata <- tmp
 
-  FigTypUt <- rapFigurer::figtype(outfile=outfile,
-                                  pointsizePDF=11, fargepalett='BlaaOff')
+  FigTypUt <- rapFigurer::figtype(
+    outfile = outfile,
+    pointsizePDF = 11, fargepalett = "BlaaOff"
+  )
   farger <- FigTypUt$farger[
-    (length(FigTypUt$farger)-nlevels(RegData[,Grvar2])+1):
-      length(FigTypUt$farger)]
+    (length(FigTypUt$farger) - nlevels(RegData[, Grvar2]) + 1):
+    length(FigTypUt$farger)
+  ]
   if (rev_farger) {
     rev(farger)
   }
-  par('oma'=c(0,1,NutvTxt,0))
+  par("oma" = c(0, 1, NutvTxt, 0))
 
   xpos <- barplot(
-    plotdata, beside=T, las=1, main = tittel,
-    ylim = c(0,max(plotdata)*1.2),
-    horiz=F,  space=c(0,0.3),names.arg=rep('',dim(plotdata)[2]),
-    col=farger, border=NA, ylab = ytxt, xlab = xtxt)
+    plotdata,
+    beside = T, las = 1, main = tittel,
+    ylim = c(0, max(plotdata) * 1.2),
+    horiz = F, space = c(0, 0.3), names.arg = rep("", dim(plotdata)[2]),
+    col = farger, border = NA, ylab = ytxt, xlab = xtxt
+  )
   mtext(colnames(plotdata), at = colMeans(xpos), side = 1, line = 0)
-  legend("topright", legend = legendTxt, pch=15, col = farger, bty='n')
+  legend("topright", legend = legendTxt, pch = 15, col = farger, bty = "n")
 
-  mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0,
-        col=FigTypUt$farger[1], line=(NutvTxt-1):0, outer=TRUE)
+  mtext(utvalgTxt,
+    side = 3, las = 1, cex = 0.9, adj = 0,
+    col = FigTypUt$farger[1], line = (NutvTxt - 1):0, outer = TRUE
+  )
 
-  if ( outfile != '') {dev.off()}
-
+  if (outfile != "") {
+    dev.off()
+  }
 }
-
-
-
-
-
-
-
-
 
 
 #' Adhocfunksjon for årsrapportfigur
@@ -280,39 +339,45 @@ norgastAndelGruppert2Gr_ggplot <- function(valgtVar = "Malign",
                                            Grvar2 = "Tilgang_utvidet",
                                            xtxt = "Andel (%)",
                                            ytxt = "",
-                                           outfile='', ...)
-{
+                                           outfile = "", ...) {
   NorgastUtvalg <- NorgastUtvalg(...)
   RegData <- NorgastUtvalg$RegData
   utvalgTxt <- NorgastUtvalg$utvalgTxt
   NutvTxt <- length(utvalgTxt)
 
   aux <- RegData %>%
-    dplyr::filter(!is.na(!! sym(valgtVar )),
-                  !is.na(!! sym(Grvar1 )),
-                  !is.na(!! sym(Grvar2 ))) %>%
-    dplyr::summarise(N = dplyr::n(),
-                     Antall = sum(!! sym(valgtVar )),
-                     Andel = Antall/N*100,
-                     konf_lav = binom.test(Antall,N, alternative = 'two.sided')$conf.int[1]*100,
-                     konf_hoy = binom.test(Antall,N, alternative = 'two.sided')$conf.int[2]*100,
-                     .by = c(!! sym(Grvar1 ), !! sym(Grvar2 )))
+    dplyr::filter(
+      !is.na(!!sym(valgtVar)),
+      !is.na(!!sym(Grvar1)),
+      !is.na(!!sym(Grvar2))
+    ) %>%
+    dplyr::summarise(
+      N = dplyr::n(),
+      Antall = sum(!!sym(valgtVar)),
+      Andel = Antall / N * 100,
+      konf_lav = binom.test(Antall, N, alternative = "two.sided")$conf.int[1] * 100,
+      konf_hoy = binom.test(Antall, N, alternative = "two.sided")$conf.int[2] * 100,
+      .by = c(!!sym(Grvar1), !!sym(Grvar2))
+    )
 
-  p <- ggplot(aux, aes(fill=!! sym(Grvar2 ), x=Andel, y=!! sym(Grvar1 ))) +
-    geom_bar(position=position_dodge(), stat="identity") +
+  p <- ggplot(aux, aes(fill = !!sym(Grvar2), x = Andel, y = !!sym(Grvar1))) +
+    geom_bar(position = position_dodge(), stat = "identity") +
     geom_text(stat = "identity", aes())
-  geom_errorbarh( aes(y=!! sym(Grvar1 ), xmin=konf_lav, xmax=konf_hoy),
-                  position=position_dodge(.9), height=0.2, size=0.5, alpha=0.5) +
+  geom_errorbarh(aes(y = !!sym(Grvar1), xmin = konf_lav, xmax = konf_hoy),
+    position = position_dodge(.9), height = 0.2, size = 0.5, alpha = 0.5
+  ) +
     scale_fill_brewer(palette = "Blues") +
     labs(title = tittel) +
     # labs(tag = paste0(utvalgTxt, collapse = "\n"), ) +
     # theme(tag)
     xlab(xtxt) +
     ylab(ytxt) +
-    annotate("text", x=0, y=.5, label = "noe tekst her")+
-    theme(legend.position = "top",
-          legend.title = element_blank(),
-          plot.title = element_text(size = 18))
+    annotate("text", x = 0, y = .5, label = "noe tekst her") +
+    theme(
+      legend.position = "top",
+      legend.title = element_blank(),
+      plot.title = element_text(size = 18)
+    )
 
 
   # +
@@ -375,14 +440,10 @@ norgastAndelGruppert2Gr_ggplot <- function(valgtVar = "Malign",
   #
   # mtext(utvalgTxt, side=3, las=1, cex=0.9, adj=0, col=farger[4], line=(NutvTxt-1):0, outer=TRUE)
   #
-  if ( outfile != '') {dev.off()}
-
+  if (outfile != "") {
+    dev.off()
+  }
 }
-
-
-
-
-
 
 
 # achocfigur2023rapport <- function(outfile='', ...)
@@ -464,4 +525,3 @@ norgastAndelGruppert2Gr_ggplot <- function(valgtVar = "Malign",
 #   if ( outfile != '') {dev.off()}
 #
 # }
-
