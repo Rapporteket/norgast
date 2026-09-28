@@ -108,6 +108,7 @@ RegData <- merge(RegData, levert_til_npr,
   # add_count(PasientID, OpDato)
 
 
+# Lag dataramme med Kristoffer og KI sin vurdering av opkode mht. reop.
 ncsp_reop <- readxl::read_xlsx(
   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/Kodebok_NPR_all aktivitet komm KL.xlsx", sheet = 1, col_names = T, skip = 1)
 KIforslag <- readxl::read_xlsx(
