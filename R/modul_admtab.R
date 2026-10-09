@@ -513,58 +513,6 @@ admtab_server <- function(id, RegData, userRole,
           write.csv3(TabellData, file, row.names = F)
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          if (req(input$admtabeller) == "id_ant_skjema") {
-            mld_adm1 <- paste0(
-              "NORGAST: Admin. tabell: Antall skjema, dato ",
-              input$datovalg_adm[1], " til ", input$datovalg_adm[2]
-            )
-          }
-          if (req(input$admtabeller) == "id_ant_tid") {
-            mld_adm1 <- paste0(
-              "NORGAST: Admin. tabell: Antall skjema pr ",
-              c("måned", "år")[as.numeric(input$adm_tidsenhet)], ". ",
-              c(
-                "Ferdige forløp", "Oppfølging i kladd",
-                "Ferdig basisreg. oppfølging mangler",
-                "Basisreg. i kladd"
-              )[as.numeric(input$regstatus_tid)]
-            )
-          }
-          rapbase::repLogger(
-            session = hvd_session,
-            msg = mld_adm1
-          )
-
-          shinyjs::onclick(
-            "lastNed_adm1",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste0(
-                "NORGAST: nedlasting tabell: Antall skjema, dato ",
-                input$datovalg_adm[1], " til ", input$datovalg_adm[2]
-              )
-            )
-          )
-          shinyjs::onclick(
-            "lastNed_adm2",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste0(
-                "NORGAST: nedlasting tabell: Antall skjema pr ",
-                c("måned", "år")[as.numeric(input$adm_tidsenhet)], ". ",
-                c(
-                  "Ferdige forløp", "Oppfølging i kladd",
-                  "Ferdig basisreg. oppfølging mangler",
-                  "Basisreg. i kladd"
-                )[as.numeric(input$regstatus_tid)]
-              )
-            )
-          )
-        }
-      })
     }
   )
 }

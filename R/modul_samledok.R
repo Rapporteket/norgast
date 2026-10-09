@@ -80,11 +80,6 @@ samledok_server <- function(id, reshID, RegData, userRole,
         shinyjs::reset("id_samledok_panel")
       })
 
-      # observe(
-      #   if (userRole() != 'SC') {
-      #     shinyjs::hide(id = 'valgtShus_ui')
-      #   })
-
       output$valgtShus_ui <- renderUI({
         ns <- session$ns
         if (userRole() == "SC") {
@@ -186,33 +181,6 @@ samledok_server <- function(id, reshID, RegData, userRole,
           )
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          shinyjs::onclick(
-            "lastNed_saml",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: samledokument nedlastet"
-            )
-          )
-
-          shinyjs::onclick(
-            "lastNed_saml_land",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: samledokument med nasjonale talll nedlastet"
-            )
-          )
-          shinyjs::onclick(
-            "lastNed_kvartal",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: Kvartalsrapport nedlastet"
-            )
-          )
-        }
-      })
     }
   )
 }

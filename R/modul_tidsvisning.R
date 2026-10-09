@@ -141,11 +141,6 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
         shinyjs::reset("id_tid_panel")
       })
 
-      # observe(
-      #   if (userRole() != 'SC') {
-      #     shinyjs::hide(id = 'valgtShus_ui')
-      #   })
-
       output$ncsp <- renderUI({
         ns <- session$ns
         if (!is.null(input$op_gruppe)) {
@@ -424,48 +419,6 @@ tidsvisning_server <- function(id, reshID, RegData, userRole, hvd_session, BrVal
           )
         }
       )
-
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          if (req(input$tab) == "fig") {
-            mld_fordeling <- paste0(
-              "NORGAST: Figur - tidsvisning, variabel - ",
-              input$valgtVar
-            )
-          }
-          if (req(input$tab) == "tab") {
-            mld_fordeling <- paste(
-              "NORGAST: tabell - tidsvisning variabel - ",
-              input$valgtVar
-            )
-          }
-          rapbase::repLogger(
-            session = hvd_session,
-            msg = mld_fordeling
-          )
-          shinyjs::onclick(
-            "lastNedBilde_tid",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste(
-                "NORGAST: nedlasting figur - tidsvisning, variabel -",
-                input$valgtVar
-              )
-            )
-          )
-          shinyjs::onclick(
-            "lastNed_tid",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste(
-                "NORGAST: nedlasting tabell - tidsvisning, variabel -",
-                input$valgtVar
-              )
-            )
-          )
-        }
-      })
     }
   )
 }

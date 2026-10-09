@@ -31,8 +31,8 @@ appServer <- function(input, output, session) {
   skjemaoversikt$HovedDato <- as.Date(skjemaoversikt$HovedDato)
   RegData <- norgast::NorgastPreprosess(RegData, behold_kladd = TRUE)
   skjemaoversikt <- merge(skjemaoversikt,
-    RegData[, c("ForlopsID", "Op_gr", "Hovedoperasjon")],
-    by = "ForlopsID", all.x = T
+                          RegData[, c("ForlopsID", "Op_gr", "Hovedoperasjon")],
+                          by = "ForlopsID", all.x = T
   )
   RegData <- RegData[which(RegData$RegistreringStatus == 1), ]
   RegData$Sykehusnavn <- trimws(RegData$Sykehusnavn)
@@ -46,11 +46,12 @@ appServer <- function(input, output, session) {
   shiny::observeEvent(
     shiny::req(user$role()),
     {
-      if (user$role() == "SC") {
+      if (user$role() %in% c("SC", "LC")) {
         if (!tabs_added()) {
           shiny::insertTab(
             "norgast_app_id",
-            tab = shiny::tabPanel("Sykehusvisning",
+            tab = shiny::tabPanel(
+              "Sykehusvisning",
               norgast::sykehusvisning_ui("sykehusvisning_id"),
               value = "sykehusvisning_id"
             ),
@@ -58,7 +59,8 @@ appServer <- function(input, output, session) {
           )
           shiny::insertTab(
             "norgast_app_id",
-            tab = shiny::tabPanel("Traktplott",
+            tab = shiny::tabPanel(
+              "Traktplott",
               norgast::traktplot_ui("traktplot_id"),
               value = "traktplot_id"
             ),
@@ -66,11 +68,42 @@ appServer <- function(input, output, session) {
           )
           shiny::insertTab(
             "norgast_app_id",
-            tab = shiny::tabPanel("Indikatorer",
+            tab = shiny::tabPanel(
+              "Indikatorer",
               norgast::indikatorfig_ui("indikator_id"),
               value = "indikator_id"
             ),
             target = "traktplot_id", position = "after"
+          )
+          shiny::insertTab(
+            "norgast_app_id",
+            tab = shiny::tabPanel(
+              title = "Datadump",
+              value = "datadump_id",
+              shiny::h2("Datadump", align = "center"),
+              shiny::h4(
+                "Data på Rapporteket oppdateres én gang i døgnet.
+              Følgelig kan det være små avvik i antall forløp som
+              inkluderes i datadump på Rapporteket sammenlignet
+              med datadump hentet fra registerets qreg-løsning.",
+                align = "center"
+              ),
+              shiny::br(),
+              shiny::br(),
+              norgast::datadump_ui(id = "datadump_id")
+            ),
+            target = "samledokumenter",
+            position = "after"
+          )
+          shiny::insertTab(
+            "norgast_app_id",
+            tab = shiny::tabPanel(
+              title = "Datakvalitet",
+              value = "datakval_id",
+              norgast::datakval_ui("datakval_id")
+            ),
+            target = "admtab",
+            position = "after"
           )
           tabs_added(TRUE)
         }
@@ -79,6 +112,8 @@ appServer <- function(input, output, session) {
           shiny::removeTab("norgast_app_id", target = "sykehusvisning_id")
           shiny::removeTab("norgast_app_id", target = "traktplot_id")
           shiny::removeTab("norgast_app_id", target = "indikator_id")
+          shiny::removeTab("norgast_app_id", target = "datadump_id")
+          shiny::removeTab("norgast_app_id", target = "datakval_id")
           tabs_added(FALSE)
         }
       }
@@ -153,27 +188,27 @@ appServer <- function(input, output, session) {
   ################ Fordelingsfigurer ###########################################
 
   norgast::fordelingsfig_server("fordelingsfig_id",
-    reshID = user$org,
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                                reshID = user$org,
+                                RegData = RegData, userRole = user$role,
+                                hvd_session = session, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Sykehusvisning ##############################################
 
   norgast::sykehusvisning_server("sykehusvisning_id",
-    RegData = RegData,
-    hvd_session = session,
-    BrValg = BrValg
+                                 RegData = RegData,
+                                 hvd_session = session,
+                                 BrValg = BrValg
   )
 
   ##############################################################################
   ################ Traktplot ###################################################
 
   norgast::traktplot_server("traktplot_id",
-    RegData = RegData,
-    hvd_session = session,
-    BrValg = BrValg
+                            RegData = RegData,
+                            hvd_session = session,
+                            BrValg = BrValg
   )
 
 
@@ -181,18 +216,18 @@ appServer <- function(input, output, session) {
   ################ Tidsvisning #################################################
 
   norgast::tidsvisning_server("tidsvisning_id",
-    reshID = user$org,
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                              reshID = user$org,
+                              RegData = RegData, userRole = user$role,
+                              hvd_session = session, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Sammenlign utvalg ###########################################
 
   norgast::saml_andeler_server("saml_andeler_id",
-    reshID = user$org,
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                               reshID = user$org,
+                               RegData = RegData, userRole = user$role,
+                               hvd_session = session, BrValg = BrValg
   )
 
 
@@ -200,53 +235,52 @@ appServer <- function(input, output, session) {
   ################ Indikatorfigurer ############################################
 
   norgast::indikatorfig_server("indikator_id",
-    RegData = RegData,
-    userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                               RegData = RegData,
+                               userRole = user$role,
+                               hvd_session = session, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Overlevelseskurver ##########################################
 
   norgast::overlevelse_server("overlevelse_id",
-    reshID = user$org,
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                              reshID = user$org,
+                              RegData = RegData, userRole = user$role,
+                              hvd_session = session, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Samledokumenter #############################################
 
   norgast::samledok_server("samledok_id",
-    reshID = user$org,
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, BrValg = BrValg
+                           reshID = user$org,
+                           RegData = RegData, userRole = user$role,
+                           hvd_session = session, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Datadump   ##################################################
 
   norgast::datadump_server("datadump_id",
-    RegData = RegData,
-    user = user, BrValg = BrValg
+                           RegData = RegData,
+                           user = user, BrValg = BrValg
   )
 
   ##############################################################################
   ################ Adm. tabeller ###############################################
 
   norgast::admtab_server("admtab_id",
-    RegData = RegData, userRole = user$role,
-    hvd_session = session, skjemaoversikt = skjemaoversikt,
-    BrValg = BrValg
+                         RegData = RegData, userRole = user$role,
+                         hvd_session = session, skjemaoversikt = skjemaoversikt,
+                         BrValg = BrValg
   )
 
   ##############################################################################
   ################ Datakvalitet ################################################
 
   norgast::datakval_server("datakval_id",
-    reshID = user$org, userRole = user$role,
-    RegData = RegData, skjemaoversikt = skjemaoversikt,
-    hvd_session = session
+                           user = user, RegData = RegData,
+                           skjemaoversikt = skjemaoversikt
   )
 
   ##############################################################################
@@ -335,9 +369,9 @@ appServer <- function(input, output, session) {
   ## Stats
   observe(
     rapbase::statsServer("norgastStats",
-      registryName = "norgast",
-      app_id = Sys.getenv("FALK_APP_ID"),
-      eligible = (user$role() == "SC")
+                         registryName = "norgast",
+                         app_id = Sys.getenv("FALK_APP_ID"),
+                         eligible = (user$role() == "SC")
     )
   )
   rapbase::statsGuideServer("norgastStatsGuide", registryName = "norgast")
