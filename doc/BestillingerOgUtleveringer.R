@@ -4,6 +4,137 @@ library(dplyr)
 # library(tidyverse)
 rm(list=ls())
 
+
+###### All inn, Torunn redigert, 08.10.2026 ####################################
+varutvalg <- openxlsx::read.xlsx(
+  "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/Variabelutvalg_NORGAST_klokeboken_03.09.2026_ALL_IN.xlsx") |>
+  dplyr::filter(ALL_IN_Torunn_1_skalmed == 1) |>
+  dplyr::mutate(
+    navn_i_rapporteket = dplyr::recode(
+      variabel_id,
+      PATIENT_GENDER = "erMann",
+      REGISTRATION_SYSTEMIC_ONCOLOGY = "SYSTEMIC_ONCOLOGY",
+      REGISTRATION_IS_TUMOR_IRRADIATED = "IS_TUMOR_IRRADIATED",
+      REGISTRATION_ANASTOMOTIC_LEAK = "ANASTOMOTIC_LEAK",
+      READMISSION_ANASTOMOTIC_LEAK = "OppfANASTOMOTIC_LEAK",
+      .default = navn_i_rapporteket
+    )
+  ) |> dplyr::select(navn_i_rapporteket) |>
+  unique()
+varutvalg2 <- c("Sykehusnavn", "PasientAlder", "OppfStatus")
+
+
+# ncsp1 <- c("JAH00", "JAH01", "JAK03", "JAK04", "JAP00",
+#            "JAP01","JFK00", "JFK01", "JFK10", "JFK11", "JFK96",
+#            "JFK97", "JDH70", "JDH71", "JFA70", "JFA71",
+#            "JFA80", "JFA81", "JAL00", "JAL01", "JFA73", "JFA74",
+#            "JFA76", "JFA86", "JFB34", "JFC00", "JFC10", "JFC21",
+#            "JFC30", "JFD96", "JDA60", "JDA61")
+#
+# ncsp2 <- c("JFB", "JFH","JGB", "JFF", "JDC", "JDD")
+
+ncsp1 <- c("JAH00", "JAH01", "JAH20", "JAH21", "JAH30",
+           "JAH33", "JAK00", "JAK01", "JAK03", "JAK04",
+           "JAL00", "JAL01", "JAL10", "JAL11", "JAL96",
+           "JAL97", "JAM10", "JAP00", "JAP01", "JDA00",
+           "JDA60", "JDA61", "JDH00", "JDH60", "JDH61",
+           "JDH63", "JDH70", "JDH71", "JFA00", "JFA10",
+           "JFA60", "JFA61", "JFA70", "JFA71", "JFA73",
+           "JFA74", "JFA76", "JFA80", "JFA81", "JFA96",
+           "JFA97", "JFG50", "JFK00", "JFK01", "JFK10",
+           "JFK11", "JFK96", "JFK97")
+ncsp2 <- c("JDC", "JDD", "JDE", "JDW", "JFB", "JFC", "JFD",
+           "JFF", "JFH", "JFJ", "JFL", "JFW", "JGB", "JGW")
+
+
+
+shus <- c(108162, 103091, 107505, 4204082, 100315, 108354,
+          101823, 100170, 700922, 102141, 102145, 701402,
+          4209222, 100353, 4207594, 108357, 706264, 700840,
+          700841, 4211928, 4216808, 114271, 107440, 4216823,
+          100100, 106168, 601225, 601231, 4204126, 708761)
+
+RegData <- norgast::NorgastHentDataLokal()$RegData
+regdata <- RegData |>
+  dplyr::rename(
+    VektVedInnleggelseMangler = VektVedInnleggelseUkjent,
+    Vekt6MndFoerMangler = Vekt6MndFoerUkjent,
+    HoydeMangler = HoydeUkjent) |>
+  dplyr::filter(RegistreringStatus == 1,
+                as.numeric(format(OpDato, "%Y")) == 2025,
+                Hastegrad == 2,
+                AvdRESH %in% shus,
+                PasientAlder >= 18) |>
+  dplyr::select(dplyr::all_of(varutvalg$navn_i_rapporteket),
+                dplyr::all_of(varutvalg2)) |>
+  dplyr::mutate(ncsp = sub(" .*", "", Hovedoperasjon) |> toupper(),
+                PasientAlder = round(PasientAlder, 1)) |>
+  dplyr::filter(ncsp %in% ncsp1 |
+                  substr(ncsp, 1, 3) %in% ncsp2) |>
+  dplyr::select(-ncsp)
+
+write.csv2(
+  regdata,
+  paste0(
+    "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/allinndata",
+    Sys.Date(), ".csv"),
+  row.names = FALSE, fileEncoding = "Latin1",
+  na = "")
+
+
+###### All inn, Torunn, 30.09.2026 ####################################
+varutvalg <- openxlsx::read.xlsx(
+  "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/Variabelutvalg_NORGAST_klokeboken_03.09.2026_ALL_IN.xlsx") |>
+  dplyr::filter(ALL_IN_Torunn_1_skalmed == 1) |>
+  dplyr::mutate(
+    navn_i_rapporteket = dplyr::recode(
+      variabel_id,
+      PATIENT_GENDER = "erMann",
+      REGISTRATION_SYSTEMIC_ONCOLOGY = "SYSTEMIC_ONCOLOGY",
+      REGISTRATION_IS_TUMOR_IRRADIATED = "IS_TUMOR_IRRADIATED",
+      REGISTRATION_ANASTOMOTIC_LEAK = "ANASTOMOTIC_LEAK",
+      READMISSION_ANASTOMOTIC_LEAK = "OppfANASTOMOTIC_LEAK",
+      .default = navn_i_rapporteket
+    )
+  ) |> dplyr::select(navn_i_rapporteket) |>
+  unique()
+
+
+ncsp1 <- c("JAH00", "JAH01", "JAK03", "JAK04", "JAP00",
+           "JAP01","JFK00", "JFK01", "JFK10", "JFK11", "JFK96",
+           "JFK97", "JDH70", "JDH71", "JFA70", "JFA71",
+           "JFA80", "JFA81")
+ncsp2 <- c("JFB", "JFH","JGB", "JFF")
+
+shus <- c(108162, 103091, 107505, 4204082, 100315, 108354,
+          101823, 100170, 700922, 102141, 102145, 701402,
+          4209222, 100353, 4207594, 108357, 706264, 700840,
+          700841, 4211928, 4216808, 114271, 107440, 4216823,
+          100100, 106168, 601225, 601231, 4204126, 708761)
+
+RegData <- norgast::NorgastHentDataLokal()$RegData
+regdata <- RegData |>
+  dplyr::rename(
+    VektVedInnleggelseMangler = VektVedInnleggelseUkjent,
+    Vekt6MndFoerMangler = Vekt6MndFoerUkjent,
+    HoydeMangler = HoydeUkjent) |>
+  dplyr::filter(RegistreringStatus == 1,
+                as.numeric(format(OpDato, "%Y")) == 2025,
+                Hastegrad == 2,
+                AvdRESH %in% shus) |>
+  dplyr::select(dplyr::all_of(varutvalg$navn_i_rapporteket)) |>
+  dplyr::mutate(ncsp = sub(" .*", "", Hovedoperasjon) |> toupper()) |>
+  dplyr::filter(ncsp %in% ncsp1 |
+                  substr(ncsp, 1, 3) %in% ncsp2) |>
+  dplyr::select(-ncsp)
+
+write.csv2(
+  regdata,
+  "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/allinndata.csv",
+  row.names = FALSE, fileEncoding = "Latin1",
+  na = "")
+
+
 ###### Beriking NPR og KPR 25.03.2026 ##########################################
 RegData <- norgast::NorgastHentData() |>
   purrr::pluck("RegData") |>
