@@ -5,7 +5,7 @@ library(dplyr)
 rm(list=ls())
 
 
-###### All inn, Torunn redigert, 02.10.2026 ####################################
+###### All inn, Torunn redigert, 08.10.2026 ####################################
 varutvalg <- openxlsx::read.xlsx(
   "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/Variabelutvalg_NORGAST_klokeboken_03.09.2026_ALL_IN.xlsx") |>
   dplyr::filter(ALL_IN_Torunn_1_skalmed == 1) |>
@@ -24,14 +24,29 @@ varutvalg <- openxlsx::read.xlsx(
 varutvalg2 <- c("Sykehusnavn", "PasientAlder", "OppfStatus")
 
 
-ncsp1 <- c("JAH00", "JAH01", "JAK03", "JAK04", "JAP00",
-           "JAP01","JFK00", "JFK01", "JFK10", "JFK11", "JFK96",
-           "JFK97", "JDH70", "JDH71", "JFA70", "JFA71",
-           "JFA80", "JFA81", "JAL00", "JAL01", "JFA73", "JFA74",
-           "JFA76", "JFA86", "JFB34", "JFC00", "JFC10", "JFC21",
-           "JFC30", "JFD96", "JDA60", "JDA61")
+# ncsp1 <- c("JAH00", "JAH01", "JAK03", "JAK04", "JAP00",
+#            "JAP01","JFK00", "JFK01", "JFK10", "JFK11", "JFK96",
+#            "JFK97", "JDH70", "JDH71", "JFA70", "JFA71",
+#            "JFA80", "JFA81", "JAL00", "JAL01", "JFA73", "JFA74",
+#            "JFA76", "JFA86", "JFB34", "JFC00", "JFC10", "JFC21",
+#            "JFC30", "JFD96", "JDA60", "JDA61")
+#
+# ncsp2 <- c("JFB", "JFH","JGB", "JFF", "JDC", "JDD")
 
-ncsp2 <- c("JFB", "JFH","JGB", "JFF", "JDC", "JDD")
+ncsp1 <- c("JAH00", "JAH01", "JAH20", "JAH21", "JAH30",
+           "JAH33", "JAK00", "JAK01", "JAK03", "JAK04",
+           "JAL00", "JAL01", "JAL10", "JAL11", "JAL96",
+           "JAL97", "JAM10", "JAP00", "JAP01", "JDA00",
+           "JDA60", "JDA61", "JDH00", "JDH60", "JDH61",
+           "JDH63", "JDH70", "JDH71", "JFA00", "JFA10",
+           "JFA60", "JFA61", "JFA70", "JFA71", "JFA73",
+           "JFA74", "JFA76", "JFA80", "JFA81", "JFA96",
+           "JFA97", "JFG50", "JFK00", "JFK01", "JFK10",
+           "JFK11", "JFK96", "JFK97")
+ncsp2 <- c("JDC", "JDD", "JDE", "JDW", "JFB", "JFC", "JFD",
+           "JFF", "JFH", "JFJ", "JFL", "JFW", "JGB", "JGW")
+
+
 
 shus <- c(108162, 103091, 107505, 4204082, 100315, 108354,
           101823, 100170, 700922, 102141, 102145, 701402,
@@ -48,7 +63,8 @@ regdata <- RegData |>
   dplyr::filter(RegistreringStatus == 1,
                 as.numeric(format(OpDato, "%Y")) == 2025,
                 Hastegrad == 2,
-                AvdRESH %in% shus) |>
+                AvdRESH %in% shus,
+                PasientAlder >= 18) |>
   dplyr::select(dplyr::all_of(varutvalg$navn_i_rapporteket),
                 dplyr::all_of(varutvalg2)) |>
   dplyr::mutate(ncsp = sub(" .*", "", Hovedoperasjon) |> toupper(),
@@ -59,7 +75,9 @@ regdata <- RegData |>
 
 write.csv2(
   regdata,
-  "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/allinndata.csv",
+  paste0(
+    "C:/Users/kth200/regdata/norgast/utleveringer/all_inn_2026/allinndata",
+    Sys.Date(), ".csv"),
   row.names = FALSE, fileEncoding = "Latin1",
   na = "")
 
