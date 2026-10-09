@@ -236,8 +236,8 @@ reop_oppsum <- relap_npr_norgast_alle |>
     relap_npr_v5 = (sum(!is.na(relap_npr_v1) & 
                           !indeksop, na.rm = T) > 0) |>
       as.numeric(),
-    relap_norgast = (sum(reop_norgast) > 0) |>
-      as.numeric(),
+    relap_norgast = (sum(reop_norgast, na.rm = TRUE) > 0) |>
+      as.numeric()
     relap_npr_v1 = (sum(relap_npr_v1 & !indeksop, na.rm = T) > 0) |>
       as.numeric(),
     relap_npr_v2 = (sum(relap_npr_v2 & !indeksop, na.rm = T) > 0) |>
