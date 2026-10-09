@@ -153,11 +153,6 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole,
         shinyjs::reset("id_fordeling_panel")
       })
 
-      # observe(
-      #   if (userRole() != 'SC') {
-      #     shinyjs::hide(id = 'valgtShus')
-      #   })
-
       output$ncsp <- renderUI({
         ns <- session$ns
         if (!is.null(input$op_gruppe)) {
@@ -445,47 +440,6 @@ fordelingsfig_server <- function(id, reshID, RegData, userRole,
           )
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          if (req(input$tab) == "fig") {
-            mld_fordeling <- paste0(
-              "NORGAST: Figur - fordeling, variabel - ",
-              input$valgtVar
-            )
-          }
-          if (req(input$tab) == "tab") {
-            mld_fordeling <- paste(
-              "NORGAST: tabell - fordeling. variabel - ",
-              input$valgtVar
-            )
-          }
-          rapbase::repLogger(
-            session = hvd_session,
-            msg = mld_fordeling
-          )
-          shinyjs::onclick(
-            "lastNedBilde",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste(
-                "NORGAST: nedlasting figur - fordeling. variabel -",
-                input$valgtVar
-              )
-            )
-          )
-          shinyjs::onclick(
-            "lastNed",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste(
-                "NORGAST: nedlasting tabell - fordeling. variabel -",
-                input$valgtVar
-              )
-            )
-          )
-        }
-      })
     }
   )
 }

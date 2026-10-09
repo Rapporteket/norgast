@@ -278,16 +278,6 @@ saml_andeler_server <- function(id, reshID, RegData,
         shinyjs::reset("id_overlevelse_panel2")
       })
 
-      # observeEvent(userRole(), {
-      #   if (userRole() == 'SC') {
-      #     shinyjs::hide(id = 'enhetsUtvalg')
-      #     shinyjs::hide(id = 'enhetsUtvalg2')
-      #   } else {
-      #     shinyjs::show(id = 'enhetsUtvalg')
-      #     shinyjs::show(id = 'enhetsUtvalg2')
-      #   }}
-      # )
-
       output$ncsp <- renderUI({
         ns <- session$ns
         if (!is.null(input$op_gruppe)) {
@@ -843,45 +833,22 @@ saml_andeler_server <- function(id, reshID, RegData,
 
       output$lastNedBilde <- downloadHandler(
         filename = function() {
-          paste0("sammenlign_andel_", input$valgtVar, Sys.time(), ".", input$bildeformat)
+          paste0("sammenlign_andel_", input$valgtVar,
+                 Sys.time(), ".", input$bildeformat)
         },
         content = function(file) {
           norgast::NorgastFigAndelTid_SammenligUtvalg(
-            plotdata = utvalgsfunksjon(), tidsenhet = input$tidsenhet,
+            plotdata = utvalgsfunksjon(),
+            tidsenhet = input$tidsenhet,
             inkl_konf = input$inkl_konf,
-            datoFra = input$datovalg[1], datoTil = input$datovalg[2],
-            fra0 = input$fra0, inkl_tall = input$inkl_tall, outfile = file
+            datoFra = input$datovalg[1],
+            datoTil = input$datovalg[2],
+            fra0 = input$fra0,
+            inkl_tall = input$inkl_tall,
+            outfile = file
           )
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          shinyjs::onclick(
-            "goButton",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste0("NORGAST: Sammenlignede andeler, variabel - ", input$valgtVar)
-            )
-          )
-
-          shinyjs::onclick(
-            "lastNedBilde",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste0("NORGAST: Laster ned figur sammenlignede andeler, variabel - ", input$valgtVar)
-            )
-          )
-
-          shinyjs::onclick(
-            "lastNed_tabell",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = paste0("NORGAST: Laster ned tabell sammenlignede andeler, variabel - ", input$valgtVar)
-            )
-          )
-        }
-      })
     }
   )
 }
