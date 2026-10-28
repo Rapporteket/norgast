@@ -1095,30 +1095,6 @@ overlevelse_server <- function(id, reshID, RegData,
           dev.off()
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          # rapbase::repLogger(
-          #   session = hvd_session,
-          #   msg = "NORGAST: KM-overlevelseskurve."
-          # )
-
-          shinyjs::onclick(
-            "goButton",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: KM-overlevelseskurve."
-            )
-          )
-          shinyjs::onclick(
-            "lastNedBilde",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: Laster ned KM-overlevelseskurve."
-            )
-          )
-        }
-      })
     }
   )
 }
