@@ -16,23 +16,6 @@ NorgastHentData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
       registryName <- "norgast"
     }
 
-    # registration <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM registration")
-    # readmission <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM readmission")
-    # centre <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM centre")
-    # user <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM user")
-    # centreattribute <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM centreattribute") |>
-    #   dplyr::filter(ATTRIBUTENAME == "FRIENDLYNAME")
-    # mce <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM mce")
-    # patient <- rapbase::loadRegData(
-    #   registryName, "SELECT * FROM patient")
-
-
     dbList <- rapbase::rapOpenDbConnection("norgast", "mysql")
 
     shiny::incProgress(0.1, detail = "Laster operasjonsdata")
