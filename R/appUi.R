@@ -62,7 +62,8 @@ appUi <- function() {
       norgast::overlevelse_ui(id = "overlevelse_id")
     ),
     shiny::tabPanel(
-      "Samledokumenter",
+      title = "Samledokumenter",
+      value = "samledokumenter",
       shiny::h2("Samledokumenter", align = "center"),
       shiny::h4("Når du velger ", strong("Last ned samledokument"),
         " genereres en samlerapport bestående av figurer og
@@ -73,26 +74,28 @@ appUi <- function() {
       shiny::br(),
       norgast::samledok_ui(id = "samledok_id")
     ),
+    # shiny::tabPanel(
+    #   "Datadump",
+    #   shiny::h2("Datadump", align = "center"),
+    #   shiny::h4("Data på Rapporteket oppdateres én gang i døgnet.
+    #   Følgelig kan det være små avvik i antall forløp som inkluderes
+    #   i datadump på Rapporteket sammenlignet med datadump hentet fra
+    #             registerets qreg-løsning.",
+    #     align = "center"
+    #   ),
+    #   shiny::br(),
+    #   shiny::br(),
+    #   norgast::datadump_ui(id = "datadump_id")
+    # ),
     shiny::tabPanel(
-      "Datadump",
-      shiny::h2("Datadump", align = "center"),
-      shiny::h4("Data på Rapporteket oppdateres én gang i døgnet. Følgelig kan
-    det være små avvik i antall forløp som inkluderes i datadump på Rapporteket
-              sammenlignet med datadump hentet fra registerets qreg-løsning.",
-        align = "center"
-      ),
-      shiny::br(),
-      shiny::br(),
-      norgast::datadump_ui(id = "datadump_id")
-    ),
-    shiny::tabPanel(
-      "Administrative tabeller",
+      title = "Administrative tabeller",
+      value = "admtab",
       norgast::admtab_ui(id = "admtab_id")
     ),
-    shiny::tabPanel(
-      "Datakvalitet",
-      norgast::datakval_ui("datakval_id")
-    ),
+    # shiny::tabPanel(
+    #   "Datakvalitet",
+    #   norgast::datakval_ui("datakval_id")
+    # ),
     shiny::tabPanel(
       shiny::span("Abonnement",
         title = "Bestill tilsending av rapporter på e-post"

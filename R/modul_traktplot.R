@@ -462,18 +462,6 @@ traktplot_server <- function(id, RegData, hvd_session, BrValg) {
           )
         }
       })
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          rapbase::repLogger(
-            session = hvd_session,
-            msg = paste(
-              "NORGAST: Traktplott, variabel -",
-              input$valgtVar
-            )
-          )
-        }
-      })
     }
   )
 }

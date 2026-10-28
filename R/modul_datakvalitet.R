@@ -31,8 +31,10 @@ datakval_ui <- function(id) {
 #' @return Modulfunksjoner til Datakvalitet
 #'
 #' @export
-datakval_server <- function(id, reshID,
-                            userRole, RegData, skjemaoversikt, hvd_session) {
+datakval_server <- function(id,
+                            user,
+                            RegData,
+                            skjemaoversikt) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -41,8 +43,8 @@ datakval_server <- function(id, reshID,
           norgast::dobbelreg(
             RegData = RegData,
             skjemaoversikt = skjemaoversikt,
-            usrRole = userRole(),
-            reshID = reshID()
+            usrRole = user$role(),
+            reshID = user$org()
           ),
           options = list(pageLength = 40), rownames = FALSE
         )
@@ -52,28 +54,21 @@ datakval_server <- function(id, reshID,
           paste0("dobbeltreg_norgast_", Sys.time(), ".csv")
         },
         content = function(file, filename) {
+          rapbase::repLogger2(
+            user = user,
+            msg = "NORGAST: nedlasting tabell over
+            potensielle duplikater"
+          )
           write.csv2(
             norgast::dobbelreg(RegData,
               skjemaoversikt = skjemaoversikt,
-              usrRole = userRole(), reshID = reshID()
+              usrRole = user$role(), reshID = user$org()
             ),
             file,
             row.names = F, na = "", fileEncoding = "Latin1"
           )
         }
       )
-
-      shiny::observe({
-        if (rapbase::isRapContext()) {
-          shinyjs::onclick(
-            "lastNed_dobbeltreg",
-            rapbase::repLogger(
-              session = hvd_session,
-              msg = "NORGAST: nedlasting tabell over potensielle duplikater"
-            )
-          )
-        }
-      })
     }
   )
 }
