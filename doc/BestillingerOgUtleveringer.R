@@ -145,7 +145,7 @@ RegData <- norgast::NorgastHentData() |>
 
 fid <- read.csv2(
   "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv",
-  colClasses = c("integer", "character")) |>
+  colClasses = c("integer", "character"), fileEncoding = "UTF-8-BOM") |>
   dplyr::filter(PID %in% RegData$PasientID) |>
   dplyr::rename(PasientID = PID,
                 Fnr = SSN)

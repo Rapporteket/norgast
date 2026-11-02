@@ -161,6 +161,12 @@ reop_npr <- merge(
   )
 
 
+## TEST: Fjerner mulige duplikate oppføringer
+reop_npr <- reop_npr |> 
+  distinct(pros, prosdato_reop, lopenr, 
+           dato_indexoperasjon, .keep_all = TRUE)
+
+
 relap_npr_norgast_alle <- merge(
   RegData |> 
     mutate(ncsp_index = toupper(ncsp_lowercase),
@@ -197,11 +203,34 @@ relap_npr_norgast_alle <- merge(
     tid_op_proc = difftime(prosdato_reop, OpDato, 
                            units = "days")
   ) |> 
-  mutate(index_inkludert = sum(ncsp_index %in% pros) > 0,
-         .by = c(PasientID, OpDato, ncsp_index)) |> 
-  mutate(indeksop = ncsp_index == pros & 
-           abs(tid_op_proc) == min(abs(tid_op_proc)),
-         .by = c(PasientID, OpDato)) |> 
+  # mutate(index_inkludert = sum(ncsp_index %in% pros) > 0,
+  #        .by = c(PasientID, OpDato, ncsp_index)) |> 
+  # mutate(indeksop = ncsp_index == pros & 
+  #          abs(tid_op_proc) == min(abs(tid_op_proc)),
+  #        .by = c(PasientID, OpDato, ncsp_index)) |> 
+  mutate(
+    index_inkludert = any(pros == ncsp_index),
+    .by = c(PasientID, OpDato, ncsp_index)
+  ) |>
+  mutate(
+    indeksop = FALSE,
+    .by = c(PasientID, OpDato, ncsp_index)
+  ) |>
+  mutate(
+    indeksop =
+      if (any(pros == ncsp_index, na.rm = TRUE)) {
+        seq_len(n()) ==
+          which.min(
+            ifelse(pros == ncsp_index,
+                   abs(tid_op_proc),
+                   Inf)
+          )
+      } else {
+        FALSE
+      },
+    .by = c(PasientID, OpDato, ncsp_index)
+  ) |> 
+  mutate(ant_index = sum(indeksop), .by = c(PasientID, OpDato)) |> 
   relocate("PasientID", "OpDato", "prosdato_reop", 
            "tid_op_tjeneste", "tid_op_tiltak",
            "tid_op_proc", "OpDatoTid", "tjenestedatotid_reop", 
@@ -210,79 +239,51 @@ relap_npr_norgast_alle <- merge(
            "ncsp_index", "pros", "indeksop", "ncsp_tekst")
 
 
-# reop_oppsum <- relap_npr_norgast_alle |> 
-#   summarise(
-#     Sykehusnavn = unique(Sykehusnavn),
-#     relap_npr_v5 = (sum(!is.na(relap_npr_v1) & 
-#                           !indeksop, na.rm = T) > 0) |>
-#       as.numeric(),
-#     relap_norgast = (sum(reop_norgast, na.rm = TRUE) > 0) |>
-#       as.numeric(),
-#     relap_npr_v1 = (sum(relap_npr_v1 & !indeksop, na.rm = T) > 0) |>
-#       as.numeric(),
-#     relap_npr_v2 = (sum(relap_npr_v2 & !indeksop, na.rm = T) > 0) |>
-#       as.numeric(),
-#     relap_npr_v3 = (sum(relap_npr_v3 & !indeksop, na.rm = T) > 0) |>
-#       as.numeric(),
-#     relap_npr_v4 = (sum(relap_npr_v4 & !indeksop, na.rm = T) > 0) |>
-#       as.numeric(),
-#     .by = c(PasientID, OpDato)
-#   ) |> 
-#   summarise(
-#     reop_norgast = sum(relap_norgast),
-#     reop_npr_v1 = sum(relap_npr_v1),
-#     reop_begge_v1 = sum(relap_norgast & relap_npr_v1),
-#     reop_npr_v2 = sum(relap_npr_v2),
-#     reop_begge_v2 = sum(relap_norgast & relap_npr_v2),
-#     reop_npr_v3 = sum(relap_npr_v3),
-#     reop_begge_v3 = sum(relap_norgast & relap_npr_v3),
-#     reop_npr_v4 = sum(relap_npr_v4),
-#     reop_begge_v4 = sum(relap_norgast & relap_npr_v4),
-#     reop_npr_v5 = sum(relap_npr_v5),
-#     reop_begge_v5 = sum(relap_norgast & relap_npr_v5),
-#     N = n(),
-#     .by = Sykehusnavn
-#   ) |> 
-#   janitor::adorn_totals()
-# 
-# writexl::write_xlsx(
-#   reop_oppsum,
-#   "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/reop_ny.xlsx"
-# )
-
-
 oppsum_alle_reop <- relap_npr_norgast_alle |> 
   arrange(prosdato_reop) |> 
-  mutate(indexdato_npr = paste0(unique(prosdato_reop[indeksop]), 
-                                collapse = ", "), 
-         .by = c(PasientID, OpDato)) |> 
   summarise(
+    indexdato_npr = if (any(indeksop)) {
+      first(prosdato_reop[indeksop])
+    } else {
+      as.Date(NA)
+    },
+    indexop_npr = if (any(indeksop)) {
+      first(pros[indeksop])
+    } else {
+      ""
+    },
     Sykehusnavn = Sykehusnavn[1],
     Op_gr = Op_gr[1],
     ncsp = list(unique(pros)),
     ncsp_tekst = list(unique(ncsp_tekst)),
     dato = paste0(prosdato_reop, collapse = ", "),
-    indexdato_npr = paste0(unique(indexdato_npr), collapse = ", "),
     ncsp_index = paste0(unique(ncsp_index), collapse = ", "),
     index_inkludert = max(index_inkludert),
     reop_norgast = reop_norgast[1],
     hastegrad = Hastegrad[1],
     relap_norgast = ReLapNarkose[1],
-    anennop_norgast = AnnenOpIAnestsi[1],
-    # reop_npr_v1 = (sum(relap_npr_v2 & !indeksop, na.rm = T) > 0) |>
-    #   as.numeric(),
-    # reop_npr_v2 = (sum(relap_npr_v2 & !indeksop & tid_op_proc >= 0, 
-    #                    na.rm = T) > 0) |> as.numeric(),
-    reop_npr_v1 = (sum(relap_npr_v2 & !indeksop & tid_op_proc >= 1, 
-                       na.rm = T) > 0) |> as.numeric(),
-    # reop_npr_v4 = (sum(relap_npr_v2 & !indeksop & tid_op_proc >= 1 &
-    #                      Anestesi, na.rm = T) > 0) |> as.numeric(),
+    annenop_norgast = AnnenOpIAnestsi[1],
+    reop_npr_v1 = 
+      (sum((relap_npr_v2 & !indeksop & tid_op_proc >= 1) |
+             (substr(pros, 1, 3)=="JWF" & !indeksop & tid_op_proc >= -4), 
+           na.rm = T) > 0) |> as.numeric(),
+    pros_reop_v1 = list(
+      pros[(relap_npr_v2 & !indeksop & tid_op_proc >= 1) |
+             (substr(pros, 1, 3)=="JWF" & !indeksop & tid_op_proc >= -4)]
+    ),
+    dato_reop_v1 = list(
+      prosdato_reop[(relap_npr_v2 & !indeksop & tid_op_proc >= 1) |
+                      (substr(pros, 1, 3)=="JWF" & 
+                         !indeksop & tid_op_proc >= -4)]
+    ),
     reop_npr_v2 = (sum(relap_npr_v1 & !indeksop & tid_op_proc >= 1 &
                          Anestesi, na.rm = T) > 0) |> as.numeric(),
     .by = c(PasientID, OpDato)) |> 
-  mutate(tid_op_proc = difftime(as.Date(indexdato_npr), OpDato, 
-                                units = "days")) |> 
-  relocate(PasientID, OpDato, indexdato_npr,tid_op_proc, ncsp_index, index_inkludert)
+  mutate(
+    tid_op_proc = difftime(indexdato_npr, OpDato, 
+                           units = "days")) |> 
+  relocate(PasientID, OpDato, indexdato_npr,tid_op_proc, 
+           ncsp_index, index_inkludert)
 
 
 
@@ -293,11 +294,8 @@ oppsum_alle_reop <- relap_npr_norgast_alle |>
 
 mulig_reop_npr_ikkenorgast <- relap_npr_norgast_alle |>
   filter(relap_npr_v1 & !indeksop & tid_op_proc >= 1 &
-                          Anestesi) |>
+           Anestesi) |>
   filter(!reop_norgast)
-# 
-# 
-# table(oppsum_alle_reop[, c("reop_norgast", "reop_npr_v4")], useNA = 'ifany')
 
 
 ```
@@ -454,9 +452,11 @@ utvalg <- bind_rows(utvalg_uni, utvalg_rest)
 
 
 ```{r}
-#| label: lag-utvalg-pasienter
+#| label: les-sykehusutvalg
 
-sykehus_operasjonsgrupper <- data.frame(
+# Sykehusvalg basert på en tilfeldig trekning i bolken over.
+
+sykehus_tbl <- data.frame(
   sykehusnavn = c(
     "Ahus", "Haukeland", "OUS-Radiumhospitalet", "OUS-Rikshospitalet",
     "OUS-Ullevål", "St.Olavs", "Stavanger", "UNN-Tromsø",
@@ -497,147 +497,277 @@ sykehus_operasjonsgrupper <- data.frame(
     lever = as.integer(op_grupper == "Alle" | 
                          stringr::str_detect(op_grupper, "L")),
     pankreas = as.integer(op_grupper == "Alle" | 
-                              stringr::str_detect(op_grupper, "P"))
+                            stringr::str_detect(op_grupper, "P"))
   ) |> 
   select(-op_grupper)
 
-utvalg1 <- oppsum_alle_reop |> 
-  filter(Sykehusnavn %in% sykehus_operasjonsgrupper$sykehusnavn,
-         Op_gr %in% 1:2
+
+```
+
+
+```{r}
+#| label: lag-utvalg-pasienter
+
+op_lookup <- tibble(
+  Op_gr = 1:6,
+  operasjon = c(
+    "kolon",
+    "rektum",
+    "oesofagus",
+    "ventrikkel",
+    "lever",
+    "pankreas"
+  )
+)
+
+df <- oppsum_alle_reop |> 
+  filter(Sykehusnavn %in% sykehus_tbl$sykehusnavn
   ) |> 
   mutate(
-    har_jwf = sapply(ncsp, \(x) any(startsWith(x, "JWF")))
+    har_jwf = sapply(ncsp, \(x) any(startsWith(x, "JWF"))),
+    gruppe = case_when(
+      reop_norgast == 1 & reop_npr_v1 == 1 ~ "A",
+      reop_norgast == 0 & reop_npr_v1 == 1 ~ "B",
+      reop_norgast == 1 & reop_npr_v1 == 0 ~ "C",
+      reop_norgast == 0 & reop_npr_v1 == 0 ~ "D",
+      TRUE ~ NA_character_
+    ),
+    Op_gr = ifelse(Op_gr %in% 6:8, 6, Op_gr)
+  ) |> 
+  select(PasientID, OpDato, gruppe, indexdato_npr, ncsp_index, index_inkludert,
+         Sykehusnavn, Op_gr, reop_norgast, relap_norgast, annenop_norgast,
+         reop_npr_v1, hastegrad, har_jwf) |> 
+  filter(Op_gr != 14)
+
+df_filtrert <- df %>%
+  left_join(op_lookup, by = "Op_gr") %>%
+  left_join(
+    sykehus_tbl,
+    by = c("Sykehusnavn" = "sykehusnavn")
+  ) %>%
+  rowwise() %>%
+  filter(
+    get(operasjon) == 1
+  ) %>%
+  ungroup() %>%
+  select(-operasjon)
+
+
+
+set.seed(12345)
+
+trekk_sykehus <- function(d, n_total = 30) {
+  
+  vekter <- c(
+    "1" = 10,  # kolon
+    "2" = 2,   # rektum
+    "3" = 1,   # øsofagus
+    "4" = 1,   # ventrikkel
+    "5" = 1,   # lever
+    "6" = 1    # pankreas
   )
-
-
-
-lag_valideringsutvalg <- function(data,
-                                  n_pr_sykehus = 30,
-                                  seed = 123) {
-
-  set.seed(seed)
-
-  library(dplyr)
-  library(stringr)
-  library(purrr)
-
-  dat <- data |>
-    mutate(
-      gruppe = case_when(
-        reop_norgast == 1 & reop_npr_v3 == 1 ~ "A",
-        reop_norgast == 0 & reop_npr_v3 == 1 ~ "B",
-        reop_norgast == 1 & reop_npr_v3 == 0 ~ "C",
-        reop_norgast == 0 & reop_npr_v3 == 0 ~ "D",
-        TRUE ~ NA_character_
+  
+  grupper <- c("A", "B", "C", "D")
+  
+  # ideelt antall per gruppe
+  gruppe_mal <- setNames(
+    rep(floor(n_total / length(grupper)), length(grupper)),
+    grupper
+  )
+  
+  gruppe_mal[1:(n_total %% length(grupper))] <-
+    gruppe_mal[1:(n_total %% length(grupper))] + 1
+  
+  # første trekk innen hver gruppe
+  utvalg <- bind_rows(
+    lapply(grupper, function(g) {
+      
+      kandidater <- d %>%
+        filter(gruppe == g)
+      
+      if (nrow(kandidater) == 0)
+        return(NULL)
+      
+      n_trekk <- min(gruppe_mal[g], nrow(kandidater))
+      
+      slice_sample(
+        kandidater,
+        n = n_trekk,
+        weight_by = vekter[as.character(kandidater$Op_gr)]
       )
-    ) |>
-    filter(!is.na(gruppe))
-
-  resultat <- dat |>
-    group_split(Sykehusnavn) |>
-    map_dfr(function(dat_sykehus) {
-
-      n_grp <- ceiling(n_pr_sykehus / 3)
-
-      ## vekter
-      dat_sykehus <- dat_sykehus |>
-        mutate(
-          jwf = map_lgl(
-            ncsp,
-            ~ any(str_detect(.x, "^JWF"))
-          ),
-          vekt =
-            1 +
-            2 * (Op_gr %in% c(1, 2)) +
-            2 * jwf +
-            1 * (relap_norgast == 1) +
-            1 * (anennop_norgast == 1) +
-            1 * (hastegrad %in% c(1, 2))
-        )
-
-      ## ca lik fordeling mellom grupper
-      utvalg <- dat_sykehus |>
-        group_by(gruppe) |>
-        slice_sample(
-          n = min(n_grp, n()),
-          weight_by = vekt
-        ) |>
-        ungroup()
-
-      ## sikre JWF
-      if (!any(utvalg$jwf)) {
-
-        kandidat <- dat_sykehus |>
-          filter(jwf) |>
-          slice_sample(n = 1)
-
-        utvalg <- bind_rows(
-          utvalg,
-          kandidat
-        ) |>
-          distinct(PasientID, OpDato, .keep_all = TRUE)
-      }
-
-      ## sikre relap_norgast
-      if (!any(utvalg$relap_norgast == 1)) {
-
-        kandidat <- dat_sykehus |>
-          filter(relap_norgast == 1) |>
-          slice_sample(n = 1)
-
-        utvalg <- bind_rows(
-          utvalg,
-          kandidat
-        ) |>
-          distinct(PasientID, OpDato, .keep_all = TRUE)
-      }
-
-      ## sikre annen operasjon
-      if (!any(utvalg$anennop_norgast == 1)) {
-
-        kandidat <- dat_sykehus |>
-          filter(anennop_norgast == 1) |>
-          slice_sample(n = 1)
-
-        utvalg <- bind_rows(
-          utvalg,
-          kandidat
-        ) |>
-          distinct(PasientID, OpDato, .keep_all = TRUE)
-      }
-
-      ## sikre alle Op_gr dersom mulig
-      mangler <- setdiff(
-        sort(unique(dat_sykehus$Op_gr)),
-        sort(unique(utvalg$Op_gr))
-      )
-
-      if (length(mangler) > 0) {
-
-        ekstra <- dat_sykehus |>
-          filter(Op_gr %in% mangler) |>
-          group_by(Op_gr) |>
-          slice_sample(n = 1) |>
-          ungroup()
-
-        utvalg <- bind_rows(
-          utvalg,
-          ekstra
-        ) |>
-          distinct(PasientID, OpDato, .keep_all = TRUE)
-      }
-
-      utvalg |>
-        select(
-          Sykehusnavn,
-          PasientID,
-          OpDato,
-          ncsp_index
-        )
     })
-
-  resultat
+  )
+  
+  # fyll opp eventuelle manglende observasjoner
+  while (nrow(utvalg) < min(n_total, nrow(d))) {
+    
+    resterende <- d %>%
+      filter(!PasientID %in% utvalg$PasientID)
+    
+    if (nrow(resterende) == 0)
+      break
+    
+    # finn gruppen som er minst representert så langt
+    gruppe_antall <- utvalg %>%
+      count(gruppe) %>%
+      right_join(
+        tibble(gruppe = grupper),
+        by = "gruppe"
+      ) %>%
+      mutate(n = coalesce(n, 0))
+    
+    minst_gruppe <- gruppe_antall %>%
+      slice_min(n, n = 1) %>%
+      pull(gruppe)
+    
+    kandidater <- resterende %>%
+      filter(gruppe %in% minst_gruppe)
+    
+    if (nrow(kandidater) == 0)
+      kandidater <- resterende
+    
+    ny <- slice_sample(
+      kandidater,
+      n = 1,
+      weight_by = vekter[as.character(kandidater$Op_gr)]
+    )
+    
+    utvalg <- bind_rows(utvalg, ny)
+  }
+  
+  utvalg
 }
 
 
+utvalg <- df_filtrert %>%
+  group_by(Sykehusnavn) %>%
+  group_modify(~trekk_sykehus(.x)) %>%
+  ungroup() |> 
+  arrange(prioritering, Sykehusnavn)
+
+
+# Tilpass utvalg til utleveringsformat
+
+fid <- read.csv2(
+  "C:/Users/kth200/regdata/norgast/data/NORGAST_koblingstabell_datadump_23.03.2026.csv", colClasses = c("integer", "character")) |>
+  dplyr::filter(PID %in% RegData$PasientID) |>
+  dplyr::rename(PasientID = PID,
+                Fnr = SSN)
+
+utvalg_kjerstin <- utvalg |> 
+  select(Sykehusnavn, PasientID, OpDato, prioritering) |> 
+  merge(RegData |> select(Hovedoperasjon, PasientID, OpDato, ForlopsID), 
+        by = c("PasientID", "OpDato")) |> 
+  merge(fid, by = "PasientID", all.x = TRUE) |>
+  relocate(Sykehusnavn) |> 
+  group_by(Sykehusnavn) |> 
+  slice_sample(prop = 1) |> 
+  ungroup() |> 
+  arrange(prioritering, Sykehusnavn)
+
+openxlsx::write.xlsx(
+  utvalg_kjerstin, 
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/utvalg_korrekthet2026.xlsx")
+
+mangler_i_npr <- oppsum_alle_reop |> 
+  filter(is.na(index_inkludert),
+         Sykehusnavn %in% sykehus_tbl$sykehusnavn
+  ) |> 
+  mutate(
+    Op_gr = ifelse(Op_gr %in% 6:8, 6, Op_gr)
+  ) |> 
+  select(Sykehusnavn, PasientID, OpDato) |> 
+  merge(RegData |> select(Hovedoperasjon, PasientID, OpDato, ForlopsID), 
+        by = c("PasientID", "OpDato")) |> 
+  merge(fid, by = "PasientID", all.x = TRUE) |>
+  relocate(Sykehusnavn) |> 
+  group_by(Sykehusnavn) |> 
+  slice_sample(prop = 1) |> 
+  ungroup() |> 
+  arrange(Sykehusnavn, OpDato)
+
+# tmp <-merge(reop_npr_raa, mangler_i_npr, 
+#             by.x = c("lopenr", "dato_indexoperasjon"),
+#             by.y = c("PasientID", "OpDato"))
+
+openxlsx::write.xlsx(
+  mangler_i_npr, 
+  "C:/Users/kth200/regdata/norgast/datkvalprosjekt_2026/mangler_i_npr2026.xlsx"
+  )
+
 ```
+
+
+```{r}
+#| label: sjekk-utvalg-pasienter
+
+rapport <- list(
+  antall_per_sykehus =
+    utvalg %>%
+    count(Sykehusnavn),
+  
+  grupper =
+    utvalg %>%
+    count(gruppe) %>%
+    mutate(andel = round(100 * n / sum(n), 1)),
+  
+  op_gr =
+    utvalg %>%
+    count(Op_gr) %>%
+    mutate(andel = round(100 * n / sum(n), 1)),
+  
+  relap =
+    utvalg %>%
+    count(relap_norgast) %>%
+    mutate(andel = round(100 * n / sum(n), 1)),
+  
+  annenop =
+    utvalg %>%
+    count(annenop_norgast) %>%
+    mutate(andel = round(100 * n / sum(n), 1)),
+  
+  hastegrad =
+    utvalg %>%
+    count(hastegrad) %>%
+    mutate(andel = round(100 * n / sum(n), 1)),
+  
+  har_jwf =
+    utvalg %>%
+    count(har_jwf) %>%
+    mutate(andel = round(100 * n / sum(n), 1))
+)
+
+rapport
+
+
+utvalg %>%
+  count(Sykehusnavn, gruppe) %>%
+  tidyr::pivot_wider(
+    names_from = gruppe,
+    values_from = n,
+    values_fill = 0
+  )
+
+utvalg %>%
+  count(Sykehusnavn, Op_gr) %>%
+  tidyr::pivot_wider(
+    names_from = Op_gr,
+    values_from = n,
+    values_fill = 0
+  )
+
+utvalg %>%
+  summarise(ant_jwf = sum(har_jwf, na.rm = T),
+            .by = c(Sykehusnavn, Op_gr)) %>%
+  tidyr::pivot_wider(
+    names_from = Op_gr,
+    values_from = ant_jwf,
+    values_fill = 0
+  )
+
+
+```
+
+
+
+
