@@ -18,16 +18,33 @@ NorgastHentData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
 
     dbList <- rapbase::rapOpenDbConnection("norgast", "mysql")
 
+    study_mce_rel <- if (DBI::dbExistsTable(dbList$con, "study_mce_rel")) {
+      DBI::dbGetQuery(
+        conn = dbList$con,
+        statement = "SELECT * FROM study_mce_rel"
+      )
+    } else {
+      NULL
+    }
+
     shiny::incProgress(0.1, detail = "Laster operasjonsdata")
+
     registration <- DBI::dbGetQuery(
       conn = dbList$con,
       statement = "SELECT * FROM registration"
     )
+    if (!is.null(study_mce_rel) && nrow(study_mce_rel) > 0) {
+      registration <- dplyr::filter(
+        registration,
+        !(MCEID %in% study_mce_rel$MCEID)
+      )
+    }
     shiny::incProgress(0.1, detail = "Laster oppfølgingsdata")
     readmission <- DBI::dbGetQuery(
       conn = dbList$con,
       statement = "SELECT * FROM readmission"
-    )
+    ) |> dplyr::filter(MCEID %in% registration$MCEID)
+
     shiny::incProgress(0.1, detail = "Laster senterdata")
     centre <- DBI::dbGetQuery(
       conn = dbList$con,
@@ -38,6 +55,7 @@ NorgastHentData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
       statement = "SELECT * FROM centreattribute"
     ) |>
       dplyr::filter(ATTRIBUTENAME == "FRIENDLYNAME")
+
     shiny::incProgress(0.1, detail = "Laster brukerdata")
     user <- DBI::dbGetQuery(
       conn = dbList$con,
@@ -47,7 +65,8 @@ NorgastHentData <- function(datoFra = "2014-01-01", datoTil = "2099-01-01") {
     mce <- DBI::dbGetQuery(
       conn = dbList$con,
       statement = "SELECT * FROM mce"
-    )
+    ) |> dplyr::filter(MCEID %in% registration$MCEID)
+
     shiny::incProgress(0.1, detail = "Laster pasientdata")
     patient <- DBI::dbGetQuery(
       conn = dbList$con,
