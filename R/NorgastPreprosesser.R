@@ -227,9 +227,17 @@ NorgastPreprosess <- function(RegData, behold_kladd = FALSE) {
   )
 
   RegData$OppfReLapNarkose[RegData$OppfStatus != 1] <- NA
+  RegData$OppfAnnenOpIAnestsi[RegData$OppfStatus != 1] <- NA
   RegData$OppfViktigsteFunn[RegData$OppfStatus != 1] <- NA
-  RegData$ReLapNarkose <- pmax(RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
-  RegData$ViktigsteFunn <- pmin(RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
+  RegData$ReLapNarkose <- pmax(
+    RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
+  RegData$ViktigsteFunn <- pmin(
+    RegData$ViktigsteFunn, RegData$OppfViktigsteFunn, na.rm = TRUE)
+  RegData$ReLapNarkose_samlet <- pmax(
+    RegData$ReLapNarkose, RegData$OppfReLapNarkose, na.rm = TRUE)
+  RegData$AnnenOpIAnestsi_samlet <- pmax(
+    RegData$AnnenOpIAnestsi, RegData$OppfAnnenOpIAnestsi,
+    na.rm = TRUE)
 
   # Helligdager <- norgast::Helligdager
 

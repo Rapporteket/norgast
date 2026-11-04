@@ -4,6 +4,52 @@ library(dplyr)
 # library(tidyverse)
 rm(list=ls())
 
+###### Fagrådsmøte Norgast 13.11.2026 ###############################
+RegData <- norgast::NorgastHentDataLokal()$RegData |>
+  norgast::NorgastPreprosess()
+
+flerop_30d <- RegData |>
+  distinct(PasientID, OpDato, Hovedoperasjon,
+           OpDato, .keep_all = TRUE) |>
+  dplyr::filter(Op_gr %in% 1:8) |>
+  dplyr::mutate(n_op = n(), .by = PasientID) |>
+  dplyr::arrange(PasientID, OpDato) |>
+  mutate(
+    diff_prev = as.numeric(OpDato - lag(OpDato)),
+    diff_next = as.numeric(lead(OpDato) - OpDato),
+    .by = PasientID
+  ) |>
+  filter(
+    ( !is.na(diff_prev) & diff_prev <= 30 ) |
+      ( !is.na(diff_next) & diff_next <= 30 )
+  ) |>
+  # dplyr::filter(n_op > 1) |>
+  select(PasientID, ForlopsID, Sykehusnavn,
+         OpDato, Hovedoperasjon, Op_gr, n_op,
+         diff_prev, diff_next, ReLapNarkose_samlet,
+         AnnenOpIAnestsi_samlet, Hastegrad, Hastegrad_hybrid)
+
+openxlsx::write.xlsx(
+  flerop_30d,
+  file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d.xlsx"
+)
+
+
+table(flerop_30d$n_op)
+
+# df_30d <- flerop |>
+#   arrange(PasientID, OpDato) |>
+#   mutate(
+#     diff_prev = as.numeric(OpDato - lag(OpDato)),
+#     diff_next = as.numeric(lead(OpDato) - OpDato),
+#     .by = PasientID
+#   ) |>
+#   filter(
+#     ( !is.na(diff_prev) & diff_prev <= 30 ) |
+#       ( !is.na(diff_next) & diff_next <= 30 )
+#   )
+
+
 
 ###### All inn, Torunn redigert, 08.10.2026 ####################################
 varutvalg <- openxlsx::read.xlsx(
