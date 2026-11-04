@@ -163,10 +163,12 @@ appServer <- function(input, output, session) {
             shiny::tabPanel(
               "Bruksstatistikk",
               shiny::sidebarLayout(
-                shiny::sidebarPanel(rapbase::statsInput("norgastStats")),
-                shiny::mainPanel(
-                  rapbase::statsUI("norgastStats"),
+                shiny::sidebarPanel(
+                  rapbase::statsInput("norgastStats"),
                   rapbase::statsGuideUI("norgastStatsGuide")
+                ),
+                shiny::mainPanel(
+                  rapbase::statsUI("norgastStats")
                 )
               )
             )
