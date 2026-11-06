@@ -58,7 +58,13 @@ flerop_30d_utflatet <- merge(
            ncsp_op1, ncsp_op2, relap_op1, relap_op2,
            Hastegrad_op1, Hastegrad_op2, Hastegrad_hybrid_op1,
            Hastegrad_hybrid_op2
-           )
+  ) |>
+  mutate(
+    Sykehusnavn_op2 = ifelse( # Vis kun når forskjellig
+      Sykehusnavn_op1 == Sykehusnavn_op2, "", Sykehusnavn_op2),
+    ncsp_op2 = ifelse(
+      ncsp_op1 == ncsp_op2, "", ncsp_op2)
+  )
 
 # openxlsx::write.xlsx(
 #   flerop_30d,
