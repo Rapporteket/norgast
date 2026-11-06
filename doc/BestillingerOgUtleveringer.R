@@ -10,7 +10,7 @@ RegData <- norgast::NorgastHentDataLokal()$RegData |>
 
 flerop_30d <- RegData |>
   distinct(PasientID, OpDato, Hovedoperasjon,
-           OpDato, .keep_all = TRUE) |>
+           .keep_all = TRUE) |>
   dplyr::filter(Op_gr %in% 1:8) |>
   dplyr::mutate(n_op = n(), .by = PasientID) |>
   dplyr::arrange(PasientID, OpDato) |>
@@ -29,26 +29,59 @@ flerop_30d <- RegData |>
          diff_prev, diff_next, ReLapNarkose_samlet,
          AnnenOpIAnestsi_samlet, Hastegrad, Hastegrad_hybrid)
 
+flerop_30d_v2 <- flerop_30d |>
+  dplyr::mutate(
+    diff_prev = ifelse(diff_prev > 30, NA, diff_prev),
+    diff_next = ifelse(diff_next > 30, NA, diff_next))
+
+flerop_30d_utflatet <- merge(
+  flerop_30d_v2 |> filter(!is.na(diff_next)) |>
+    select(PasientID, ForlopsID, Sykehusnavn,
+           OpDato, Hovedoperasjon, Op_gr,
+           diff_next, ReLapNarkose_samlet,
+           Hastegrad, Hastegrad_hybrid) |>
+    rename(ncsp = Hovedoperasjon,
+           tidsdiff_op = diff_next,
+           relap = ReLapNarkose_samlet),
+  flerop_30d_v2 |> filter(!is.na(diff_prev)) |>
+    select(PasientID, ForlopsID, Sykehusnavn,
+           OpDato, Hovedoperasjon, Op_gr,
+           ReLapNarkose_samlet,
+           Hastegrad, Hastegrad_hybrid) |>
+    rename(ncsp = Hovedoperasjon,
+           relap = ReLapNarkose_samlet),
+  by = "PasientID", suffixes = c("_op1", "_op2")
+) |> (\(x) x[, sort(names(x))])() |>
+  relocate(PasientID, ForlopsID_op1, ForlopsID_op2,
+           Sykehusnavn_op1, Sykehusnavn_op2,
+           OpDato_op1, OpDato_op2, tidsdiff_op,
+           ncsp_op1, ncsp_op2, relap_op1, relap_op2,
+           Hastegrad_op1, Hastegrad_op2, Hastegrad_hybrid_op1,
+           Hastegrad_hybrid_op2
+           )
+
+# openxlsx::write.xlsx(
+#   flerop_30d,
+#   file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d.xlsx"
+# )
 openxlsx::write.xlsx(
-  flerop_30d,
-  file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d.xlsx"
+  flerop_30d_utflatet,
+  file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d_utflatet.xlsx"
 )
 
+tabell <- flerop_30d_utflatet |>
+  mutate(Aar_op1 = lubridate::year(OpDato_op1),
+         Aar_op2 = lubridate::year(OpDato_op2))
 
-table(flerop_30d$n_op)
-
-# df_30d <- flerop |>
-#   arrange(PasientID, OpDato) |>
-#   mutate(
-#     diff_prev = as.numeric(OpDato - lag(OpDato)),
-#     diff_next = as.numeric(lead(OpDato) - OpDato),
-#     .by = PasientID
-#   ) |>
-#   filter(
-#     ( !is.na(diff_prev) & diff_prev <= 30 ) |
-#       ( !is.na(diff_next) & diff_next <= 30 )
-#   )
-
+dup_rows <- RegData |>
+  dplyr::filter(Op_gr %in% 1:8) |>
+  filter(n() > 1,
+         .by = c(PasientID, OpDato, Hovedoperasjon)) |>
+  dplyr::arrange(PasientID, OpDato) |>
+  select(PasientID, ForlopsID, Sykehusnavn,
+         OpDato, AnestesiStartKl, Hovedoperasjon, Op_gr,
+         ReLapNarkose_samlet,
+         Hastegrad, Hastegrad_hybrid)
 
 
 ###### All inn, Torunn redigert, 08.10.2026 ####################################
