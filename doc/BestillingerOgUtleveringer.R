@@ -1,11 +1,10 @@
-# setwd('C:/GIT/norgast/doc/')
+
 library(norgast)
 library(dplyr)
-# library(tidyverse)
 rm(list=ls())
 
 ###### Fagrådsmøte Norgast 13.11.2026 ###############################
-RegData <- norgast::NorgastHentDataLokal()$RegData |>
+RegData <- norgast::NorgastHentData()$RegData |>
   norgast::NorgastPreprosess()
 
 flerop_30d <- RegData |>
@@ -23,32 +22,31 @@ flerop_30d <- RegData |>
     ( !is.na(diff_prev) & diff_prev <= 30 ) |
       ( !is.na(diff_next) & diff_next <= 30 )
   ) |>
-  # dplyr::filter(n_op > 1) |>
-  select(PasientID, ForlopsID, Sykehusnavn,
-         OpDato, Hovedoperasjon, Op_gr, n_op,
+  select(PasientID, ForlopsID, Sykehusnavn, Aar,
+         OpDato, Hovedoperasjon, Hoveddiagnose, Op_gr, n_op,
          diff_prev, diff_next, ReLapNarkose_samlet,
-         AnnenOpIAnestsi_samlet, Hastegrad, Hastegrad_hybrid)
-
-flerop_30d_v2 <- flerop_30d |>
+         AnnenOpIAnestsi_samlet, Hastegrad, Hastegrad_hybrid) |>
   dplyr::mutate(
     diff_prev = ifelse(diff_prev > 30, NA, diff_prev),
     diff_next = ifelse(diff_next > 30, NA, diff_next))
 
 flerop_30d_utflatet <- merge(
-  flerop_30d_v2 |> filter(!is.na(diff_next)) |>
-    select(PasientID, ForlopsID, Sykehusnavn,
-           OpDato, Hovedoperasjon, Op_gr,
+  flerop_30d |> filter(!is.na(diff_next)) |>
+    select(PasientID, ForlopsID, Sykehusnavn, Aar,
+           OpDato, Hovedoperasjon, Hoveddiagnose, Op_gr,
            diff_next, ReLapNarkose_samlet,
            Hastegrad, Hastegrad_hybrid) |>
     rename(ncsp = Hovedoperasjon,
+           icd10 = Hoveddiagnose,
            tidsdiff_op = diff_next,
            relap = ReLapNarkose_samlet),
-  flerop_30d_v2 |> filter(!is.na(diff_prev)) |>
-    select(PasientID, ForlopsID, Sykehusnavn,
-           OpDato, Hovedoperasjon, Op_gr,
+  flerop_30d |> filter(!is.na(diff_prev)) |>
+    select(PasientID, ForlopsID, Sykehusnavn, Aar,
+           OpDato, Hovedoperasjon, Hoveddiagnose, Op_gr,
            ReLapNarkose_samlet,
            Hastegrad, Hastegrad_hybrid) |>
     rename(ncsp = Hovedoperasjon,
+           icd10 = Hoveddiagnose,
            relap = ReLapNarkose_samlet),
   by = "PasientID", suffixes = c("_op1", "_op2")
 ) |> (\(x) x[, sort(names(x))])() |>
@@ -57,27 +55,38 @@ flerop_30d_utflatet <- merge(
            OpDato_op1, OpDato_op2, tidsdiff_op,
            ncsp_op1, ncsp_op2, relap_op1, relap_op2,
            Hastegrad_op1, Hastegrad_op2, Hastegrad_hybrid_op1,
-           Hastegrad_hybrid_op2
+           Hastegrad_hybrid_op2, icd10_op1, icd10_op2,
+           Aar_op1, Aar_op2
   ) |>
   mutate(
     Sykehusnavn_op2 = ifelse( # Vis kun når forskjellig
       Sykehusnavn_op1 == Sykehusnavn_op2, "", Sykehusnavn_op2),
     ncsp_op2 = ifelse(
-      ncsp_op1 == ncsp_op2, "", ncsp_op2)
+      ncsp_op1 == ncsp_op2, "", ncsp_op2),
+    icd10_op2 = ifelse(
+      icd10_op1 == icd10_op2, "", icd10_op2)
   )
 
-# openxlsx::write.xlsx(
-#   flerop_30d,
-#   file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d.xlsx"
-# )
 openxlsx::write.xlsx(
   flerop_30d_utflatet,
   file = "C:/Users/kth200/regdata/norgast/utleveringer/flerop_30d_utflatet.xlsx"
 )
 
-tabell <- flerop_30d_utflatet |>
-  mutate(Aar_op1 = lubridate::year(OpDato_op1),
-         Aar_op2 = lubridate::year(OpDato_op2))
+pr_aar1 <- flerop_30d_utflatet |>
+  summarise(n_flerop = n(),
+            .by = c(Op_gr_op1, Aar_op1)) |>
+  arrange(Op_gr_op1) |>
+  dplyr::group_by(Aar_op1) |>
+  dplyr::group_modify(~ .x |> janitor::adorn_totals()) |>
+  tidyr::pivot_wider(values_from = n_flerop, names_from = Aar_op1)
+
+pr_aar <- flerop_30d_utflatet |>
+  count(Op_gr_op1, Aar_op1, name = "n_flerop") |>
+  tidyr::pivot_wider(
+    names_from = Aar_op1,
+    values_from = n_flerop
+  ) |>
+  janitor::adorn_totals(where = "row")
 
 dup_rows <- RegData |>
   dplyr::filter(Op_gr %in% 1:8) |>
@@ -88,6 +97,10 @@ dup_rows <- RegData |>
          OpDato, AnestesiStartKl, Hovedoperasjon, Op_gr,
          ReLapNarkose_samlet,
          Hastegrad, Hastegrad_hybrid)
+
+
+
+
 
 
 ###### All inn, Torunn redigert, 08.10.2026 ####################################
